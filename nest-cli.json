@@ -1,4 +1,39 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "apps/reward/src",
+  "monorepo": true,
+  "root": "apps/reward",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/reward/tsconfig.app.json"
+  },
+  "projects": {
+    "reward": {
+      "type": "application",
+      "root": "apps/reward",
+      "entryFile": "main",
+      "sourceRoot": "apps/reward/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/reward/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "application",
+      "root": "apps/common",
+      "entryFile": "main",
+      "sourceRoot": "apps/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/common/tsconfig.app.json"
+      }
+    },
+    "campaigns/camp01": {
+      "type": "application",
+      "root": "apps/campaigns/camp01",
+      "entryFile": "main",
+      "sourceRoot": "apps/campaigns/camp01/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/campaigns/camp01/tsconfig.app.json"
+      }
+    }
+  }
 }

@@ -5,10 +5,10 @@ import {
   Transport,
 } from '@nestjs/microservices'
 import { ConfigModule } from '@nestjs/config'
-import { Campaign01Controller } from './campaign01.controller'
+import { Campaign02Controller } from './campaign02.controller'
 
 @Module({
-  controllers: [Campaign01Controller],
+  controllers: [Campaign02Controller],
   imports: [ConfigModule],
   providers: [
     ClientKafka,
@@ -22,7 +22,7 @@ import { Campaign01Controller } from './campaign01.controller'
               brokers: ['localhost:29092'],
             },
             consumer: {
-              groupId: 'campaign01',
+              groupId: 'campaign02',
             },
           },
         })
@@ -30,4 +30,4 @@ import { Campaign01Controller } from './campaign01.controller'
     },
   ],
 })
-export class Campaign01Module {}
+export class Campaign02Module {}

@@ -2,15 +2,16 @@ import { Controller, Get, Inject, OnModuleInit } from '@nestjs/common'
 import { ClientKafka, EventPattern } from '@nestjs/microservices'
 
 @Controller()
-export class Campaign01Controller implements OnModuleInit {
+export class Campaign02Controller implements OnModuleInit {
   constructor(@Inject('KAFKA_SERVICE') private kafkaClient: ClientKafka) {}
 
   async onModuleInit() {
-    //await this.kafkaClient.connect()
-  }
+    await this.kafkaClient.connect()
+    // Send test message
 
-  @EventPattern('user_created')
-  async handleUserCreated(data: any) {
-    console.log(data)
+    setInterval(() => {
+      console.log('Ok start')
+      this.kafkaClient.emit('user_created', 'Hellllo ' + Date())
+    }, 2000)
   }
 }

@@ -1,0 +1,120 @@
+services:
+  app:
+    container_name: customer_dev
+    image: customer-api-dev:1.0.0
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    command: npm run start:debug
+    ports:
+      - 3000:${SERVER_PORT:-3000}
+      - 9229:9229
+    networks:
+      - authenticate_server
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - db
+      - phpmyadmin
+      - redis
+  # Database
+  db:
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - '3361:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: ${AUTHENTICATE_MYSQL_MASTER_PASS}
+      MYSQL_DATABASE: ${AUTHENTICATE_MYSQL_MASTER_DB}
+      MYSQL_USER: ${AUTHENTICATE_MYSQL_MASTER_USER}
+      MYSQL_PASSWORD: ${AUTHENTICATE_MYSQL_MASTER_PASS}
+    networks:
+      - authenticate_server
+  # phpmyadmin
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: ${AUTHENTICATE_MYSQL_MASTER_PASS}
+    networks:
+      - authenticate_server
+  redis:
+    image: redis:5-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    command: --port ${AUTHENTICATE_REDIS_PORT:-6379}
+    restart: unless-stopped
+    networks:
+      - authenticate_server
+  # grpc:
+  #   container_name: customer_grpc_dev
+  #   image: customer-api-dev:1.0.0
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: development
+  #   command: npm run start:debug internal
+  #   ports:
+  #     - 12345:${GRPC_PORT:-3000}
+  #   networks:
+  #     - authenticate_server
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - node_modules:/usr/src/app/node_modules
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - db
+  # admin:
+  #   container_name: customer_admin_dev
+  #   image: customer-api-dev:1.0.0
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: development
+  #   command: npm run start:debug admin
+  #   ports:
+  #     - 3001:${SERVER_PORT:-3000}
+  #   networks:
+  #     - authenticate_server
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - node_modules:/usr/src/app/node_modules
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - db
+  #     - redis
+  # cynopsis:
+  #   container_name: customer_cynopsis_dev
+  #   image: customer-api-dev:1.0.0
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: development
+  #   command: npm run start:debug cynopsis
+  #   networks:
+  #     - authenticate_server
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - node_modules:/usr/src/app/node_modules
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - db
+  #     - redis
+networks:
+  authenticate_server:
+volumes:
+  db_data:
+  redis_data:
+  node_modules:

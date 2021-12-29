@@ -26,13 +26,13 @@
         "tsConfigPath": "apps/common/tsconfig.app.json"
       }
     },
-    "campaigns/camp01": {
+    "campaign01": {
       "type": "application",
-      "root": "apps/campaigns/camp01",
+      "root": "apps/campaign01",
       "entryFile": "main",
-      "sourceRoot": "apps/campaigns/camp01/src",
+      "sourceRoot": "apps/campaign01/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/campaigns/camp01/tsconfig.app.json"
+        "tsConfigPath": "apps/campaign01/tsconfig.app.json"
       }
     }
   }

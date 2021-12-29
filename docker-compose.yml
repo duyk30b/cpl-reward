@@ -1,7 +1,7 @@
 services:
   app:
-    container_name: customer_dev
-    image: customer-api-dev:1.0.0
+    container_name: reward_dev
+    image: reward-api-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -11,7 +11,7 @@ services:
       - 3000:${SERVER_PORT:-3000}
       - 9229:9229
     networks:
-      - authenticate_server
+      - reward_server
     volumes:
       - .:/usr/src/app
       - node_modules:/usr/src/app/node_modules
@@ -19,7 +19,6 @@ services:
     depends_on:
       - db
       - phpmyadmin
-      - redis
   # Database
   db:
     image: mariadb:latest
@@ -29,12 +28,12 @@ services:
     ports:
       - '3361:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: ${AUTHENTICATE_MYSQL_MASTER_PASS}
-      MYSQL_DATABASE: ${AUTHENTICATE_MYSQL_MASTER_DB}
-      MYSQL_USER: ${AUTHENTICATE_MYSQL_MASTER_USER}
-      MYSQL_PASSWORD: ${AUTHENTICATE_MYSQL_MASTER_PASS}
+      MYSQL_ROOT_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
+      MYSQL_DATABASE: ${REWARD_MYSQL_MASTER_DB}
+      MYSQL_USER: ${REWARD_MYSQL_MASTER_USER}
+      MYSQL_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
     networks:
-      - authenticate_server
+      - reward_server
   # phpmyadmin
   phpmyadmin:
     depends_on:
@@ -45,76 +44,29 @@ services:
       - '8080:80'
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: ${AUTHENTICATE_MYSQL_MASTER_PASS}
+      MYSQL_ROOT_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
     networks:
-      - authenticate_server
-  redis:
-    image: redis:5-alpine
-    volumes:
-      - redis_data:/data
-    ports:
-      - '6379:6379'
-    command: --port ${AUTHENTICATE_REDIS_PORT:-6379}
-    restart: unless-stopped
-    networks:
-      - authenticate_server
-  # grpc:
-  #   container_name: customer_grpc_dev
-  #   image: customer-api-dev:1.0.0
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #     target: development
-  #   command: npm run start:debug internal
-  #   ports:
-  #     - 12345:${GRPC_PORT:-3000}
-  #   networks:
-  #     - authenticate_server
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - node_modules:/usr/src/app/node_modules
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - db
-  # admin:
-  #   container_name: customer_admin_dev
-  #   image: customer-api-dev:1.0.0
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #     target: development
-  #   command: npm run start:debug admin
-  #   ports:
-  #     - 3001:${SERVER_PORT:-3000}
-  #   networks:
-  #     - authenticate_server
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - node_modules:/usr/src/app/node_modules
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - db
-  #     - redis
-  # cynopsis:
-  #   container_name: customer_cynopsis_dev
-  #   image: customer-api-dev:1.0.0
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #     target: development
-  #   command: npm run start:debug cynopsis
-  #   networks:
-  #     - authenticate_server
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - node_modules:/usr/src/app/node_modules
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - db
-  #     - redis
+      - reward_server
+  campaign01:
+     container_name: reward_campaign01_dev
+     image: reward-api-dev:1.0.0
+     build:
+       context: .
+       dockerfile: ./Dockerfile
+       target: development
+     command: npm run start:debug campaign01
+     ports:
+       - 3001:${SERVER_PORT:-3000}
+     networks:
+       - reward_server
+     volumes:
+       - .:/usr/src/app
+       - node_modules:/usr/src/app/node_modules
+     restart: unless-stopped
+     depends_on:
+       - db
 networks:
-  authenticate_server:
+  reward_server:
 volumes:
   db_data:
-  redis_data:
   node_modules:

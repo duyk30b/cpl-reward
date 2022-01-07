@@ -1,0 +1,5 @@
+export * from './configuration'
+export * from './kafka-decorator-processor.service'
+export * from './kafka-message.interface'
+export * from './decorators'
+export * from './kafka.module'

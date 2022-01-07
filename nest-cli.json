@@ -17,31 +17,85 @@
         "tsConfigPath": "apps/reward/tsconfig.app.json"
       }
     },
+    "c01": {
+      "type": "application",
+      "root": "apps/c01",
+      "entryFile": "main",
+      "sourceRoot": "apps/c01/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/c01/tsconfig.app.json"
+      }
+    },
+    "kafka": {
+      "type": "library",
+      "root": "libs/kafka",
+      "entryFile": "index",
+      "sourceRoot": "libs/kafka/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/kafka/tsconfig.lib.json"
+      }
+    },
     "common": {
-      "type": "application",
-      "root": "apps/common",
-      "entryFile": "main",
-      "sourceRoot": "apps/common/src",
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/common/tsconfig.app.json"
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "campaign01": {
-      "type": "application",
-      "root": "apps/campaign01",
-      "entryFile": "main",
-      "sourceRoot": "apps/campaign01/src",
+    "campaign-user": {
+      "type": "library",
+      "root": "libs/campaign-user",
+      "entryFile": "index",
+      "sourceRoot": "libs/campaign-user/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/campaign01/tsconfig.app.json"
+        "tsConfigPath": "libs/campaign-user/tsconfig.lib.json"
       }
     },
-    "campaign02": {
-      "type": "application",
-      "root": "apps/campaign02",
-      "entryFile": "main",
-      "sourceRoot": "apps/campaign02/src",
+    "campaign": {
+      "type": "library",
+      "root": "libs/campaign",
+      "entryFile": "index",
+      "sourceRoot": "libs/campaign/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/campaign02/tsconfig.app.json"
+        "tsConfigPath": "libs/campaign/tsconfig.lib.json"
+      }
+    },
+    "campaign-user-log": {
+      "type": "library",
+      "root": "libs/campaign-user-log",
+      "entryFile": "index",
+      "sourceRoot": "libs/campaign-user-log/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/campaign-user-log/tsconfig.lib.json"
+      }
+    },
+    "mysql": {
+      "type": "library",
+      "root": "libs/mysql",
+      "entryFile": "index",
+      "sourceRoot": "libs/mysql/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mysql/tsconfig.lib.json"
+      }
+    },
+    "user": {
+      "type": "library",
+      "root": "libs/user",
+      "entryFile": "index",
+      "sourceRoot": "libs/user/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/user/tsconfig.lib.json"
+      }
+    },
+    "external-user": {
+      "type": "library",
+      "root": "libs/external-user",
+      "entryFile": "index",
+      "sourceRoot": "libs/external-user/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/external-user/tsconfig.lib.json"
       }
     }
   }

@@ -12,6 +12,55 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "paths": {}
+    "paths": {
+      "@app/kafka": [
+        "libs/kafka/src"
+      ],
+      "@app/kafka/*": [
+        "libs/kafka/src/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/campaign-user": [
+        "libs/campaign-user/src"
+      ],
+      "@app/campaign-user/*": [
+        "libs/campaign-user/src/*"
+      ],
+      "@app/campaign": [
+        "libs/campaign/src"
+      ],
+      "@app/campaign/*": [
+        "libs/campaign/src/*"
+      ],
+      "@app/campaign-user-log": [
+        "libs/campaign-user-log/src"
+      ],
+      "@app/campaign-user-log/*": [
+        "libs/campaign-user-log/src/*"
+      ],
+      "@app/mysql": [
+        "libs/mysql/src"
+      ],
+      "@app/mysql/*": [
+        "libs/mysql/src/*"
+      ],
+      "@app/user": [
+        "libs/user/src"
+      ],
+      "@app/user/*": [
+        "libs/user/src/*"
+      ],
+      "@app/external-user": [
+        "libs/external-user/src"
+      ],
+      "@app/external-user/*": [
+        "libs/external-user/src/*"
+      ]
+    }
   }
 }

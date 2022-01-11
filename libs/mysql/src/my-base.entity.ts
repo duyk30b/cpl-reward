@@ -1,6 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { TransformInt } from './decorators/transform.decorator'
+import { currentUnixTime } from '@app/common/utils'
 
 @Entity()
 export class MyBaseEntity {
@@ -17,15 +18,15 @@ export class MyBaseEntity {
   @BeforeInsert()
   beforeInsert() {
     if (!this.createdAt) {
-      this.createdAt = new Date().getTime()
+      this.createdAt = currentUnixTime('second')
     }
     if (!this.updatedAt) {
-      this.updatedAt = new Date().getTime()
+      this.updatedAt = currentUnixTime('second')
     }
   }
 
   @BeforeUpdate()
   beforeUpdate() {
-    this.updatedAt = new Date().getTime()
+    this.updatedAt = currentUnixTime('second')
   }
 }

@@ -3,7 +3,7 @@ import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
 
 @Entity()
-export class CampaignEntity extends MyBaseEntity {
+export class Campaign extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number

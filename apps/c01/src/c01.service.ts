@@ -5,11 +5,9 @@ import campaignConfig from './c01.config'
 import { currentUnixTime } from '@app/common/utils'
 import BaseCampaignService from '@app/common/campaign-service.abtract'
 import { CampaignUserEntity } from '@app/campaign-user/entities/campaign-user.entity'
-import { C01GiveService } from './c01-give/c01-give.service'
-import { C01VerifyService } from './c01-verify/c01-verify.service'
 import { KafkaMessage } from '@app/kafka'
 import { CampaignUserLogEntity } from '@app/campaign-user-log/entities/campaign-user-log.entity'
-import { CampaignEntity } from '@app/campaign/entities/campaign.entity'
+import { Campaign } from '@app/campaign/entities/campaign.entity'
 @Injectable()
 export class C01Service implements BaseCampaignService {
   private readonly logger = new Logger(C01Service.name)
@@ -36,10 +34,7 @@ export class C01Service implements BaseCampaignService {
     return campaignUser
   }
 
-  async isConquerReward(
-    campaign: CampaignEntity,
-    campaignUser: CampaignUserEntity,
-  ) {
+  async isConquerReward(campaign: Campaign, campaignUser: CampaignUserEntity) {
     if (campaignUser.data['total_hl_money'] >= 50) {
       return true
     }
@@ -47,7 +42,7 @@ export class C01Service implements BaseCampaignService {
   }
 
   async isUserCanJoinCampaign(
-    campaign: CampaignEntity,
+    campaign: Campaign,
     userId: number,
   ): Promise<boolean> {
     // Get campaign user
@@ -79,7 +74,7 @@ export class C01Service implements BaseCampaignService {
     return true
   }
 
-  async isActiveCampaign(campaign: CampaignEntity): Promise<boolean> {
+  async isActiveCampaign(campaign: Campaign): Promise<boolean> {
     // Campaign is disabled
     if (!campaign.active) {
       return false

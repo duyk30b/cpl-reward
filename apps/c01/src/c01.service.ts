@@ -138,13 +138,11 @@ export class C01Service implements BaseCampaignService {
   }
 
   async updateCampaignStats(campaignUser: CampaignUserEntity) {
-    const campaign = await this.campaignService.getCampaignById(
+    return await this.campaignService.updateCampaignStats(
       campaignUser.campaignId,
+      campaignConfig.rewardMoney,
+      1,
     )
-
-    campaign.releasedMoney += campaignConfig.reward
-    campaign.releasedReward += 1
-    this.campaignService.save(campaign)
   }
 
   async getCampaignById(campaignId) {

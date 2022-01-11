@@ -10,6 +10,7 @@ import {
 import { CreateCampaignDto } from '@app/campaign/dto/create-campaign.dto'
 import { plainToInstance } from 'class-transformer'
 import { AdminUpdateCampaignDto } from '@app/campaign/dto/admin-update-campaign.dto'
+import { WorkerUpdateCampaignDto } from '@app/campaign/dto/worker-update-campaign.dto'
 
 @Injectable()
 export class CampaignService {
@@ -20,6 +21,18 @@ export class CampaignService {
 
   async getCampaignById(campaignId: number) {
     return await this.campaignRepository.findOne(campaignId)
+  }
+
+  async updateCampaignStats(campaignId: number, addMoney, addReward) {
+    const campaign = await this.getCampaignById(campaignId)
+    if (!campaign) {
+      return null
+    }
+
+    campaign.releasedMoney += addMoney
+    campaign.releasedReward += addReward
+
+    return await this.campaignRepository.save(campaign)
   }
 
   async update(updateCampaignDto: AdminUpdateCampaignDto): Promise<Campaign> {

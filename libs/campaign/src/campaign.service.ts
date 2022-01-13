@@ -10,7 +10,6 @@ import {
 import { CreateCampaignDto } from '@app/campaign/dto/create-campaign.dto'
 import { plainToInstance } from 'class-transformer'
 import { AdminUpdateCampaignDto } from '@app/campaign/dto/admin-update-campaign.dto'
-import { WorkerUpdateCampaignDto } from '@app/campaign/dto/worker-update-campaign.dto'
 
 @Injectable()
 export class CampaignService {
@@ -61,6 +60,9 @@ export class CampaignService {
   }
 
   async paginate(options: IPaginationOptions): Promise<Pagination<Campaign>> {
-    return paginate<Campaign>(this.campaignRepository, options)
+    const queryBuilder = this.campaignRepository.createQueryBuilder('c')
+    queryBuilder.orderBy('c.id', 'DESC')
+
+    return paginate<Campaign>(queryBuilder, options)
   }
 }

@@ -7,8 +7,8 @@ export class CreateCampaignDto {
   @Expose()
   active: boolean
 
-  @Expose({ name: 'money_unit' })
-  moneyUnit: string
+  @Expose()
+  currency: string
 
   @Expose({ name: 'start_date' })
   startDate: number

@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Campaign } from '@app/campaign/entities/campaign.entity'
 
 @Module({
-  imports: [MysqlModule, TypeOrmModule.forFeature([Campaign])],
+  imports: [TypeOrmModule.forFeature([Campaign])],
   providers: [CampaignUserService],
   exports: [CampaignUserService],
 })

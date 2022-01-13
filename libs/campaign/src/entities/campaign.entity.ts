@@ -14,11 +14,11 @@ export class Campaign extends MyBaseEntity {
 
   @Column()
   @Expose()
-  active: string
+  active: boolean
 
-  @Column({ name: 'money_unit' })
-  @Expose({ name: 'money_unit' })
-  moneyUnit: number
+  @Column()
+  @Expose()
+  currency: number
 
   @Column({ name: 'start_date' })
   @Expose({ name: 'start_date' })

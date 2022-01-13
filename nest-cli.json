@@ -17,15 +17,6 @@
         "tsConfigPath": "apps/reward/tsconfig.app.json"
       }
     },
-    "c01": {
-      "type": "application",
-      "root": "apps/c01",
-      "entryFile": "main",
-      "sourceRoot": "apps/c01/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/c01/tsconfig.app.json"
-      }
-    },
     "kafka": {
       "type": "library",
       "root": "libs/kafka",
@@ -96,6 +87,15 @@
       "sourceRoot": "libs/external-user/src",
       "compilerOptions": {
         "tsConfigPath": "libs/external-user/tsconfig.lib.json"
+      }
+    },
+    "campaigns": {
+      "type": "application",
+      "root": "apps/campaigns",
+      "entryFile": "main",
+      "sourceRoot": "apps/campaigns/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/campaigns/tsconfig.app.json"
       }
     }
   }

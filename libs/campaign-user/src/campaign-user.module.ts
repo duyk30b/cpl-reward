@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common'
 import { CampaignUserService } from './campaign-user.service'
-import { MysqlModule } from '@app/mysql'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
+import { CampaignUser } from '@app/campaign-user/entities/campaign-user.entity'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Campaign])],
+  imports: [TypeOrmModule.forFeature([CampaignUser])],
   providers: [CampaignUserService],
   exports: [CampaignUserService],
 })

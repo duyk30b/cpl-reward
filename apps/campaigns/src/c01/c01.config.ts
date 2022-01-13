@@ -1,5 +1,5 @@
 export default {
   id: 1,
-  name: 'Referer friends to play HL mode',
+  eventLogPrefix: 'c01_log_',
   rewardMoney: 500,
 }

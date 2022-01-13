@@ -2,7 +2,6 @@ import { registerAs } from '@nestjs/config'
 
 export default registerAs('kafka', () => ({
   uri: process.env.KAFKA_BROKERS,
-  consumer_c01: process.env.CONSUMER_PREFIX + '01',
-  consumer_c02: process.env.CONSUMER_PREFIX + '02',
-  hl_user_spend_money: process.env.HL_USER_SPEND_MONEY,
+  campaigns_group_id: process.env.ENV + '_' + process.env.CAMPAIGNS_GROUP_ID,
+  hl_user_spend_money: process.env.ENV + '_' + process.env.HL_USER_SPEND_MONEY,
 }))

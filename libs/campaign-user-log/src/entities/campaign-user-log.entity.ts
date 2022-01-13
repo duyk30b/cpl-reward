@@ -5,7 +5,7 @@ import { json } from 'express'
 import { JsonColumnTransformer } from '@app/mysql/typeorm.transformer'
 
 @Entity()
-export class CampaignUserLogEntity extends MyBaseEntity {
+export class CampaignUserLog extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number

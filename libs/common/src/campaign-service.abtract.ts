@@ -1,4 +1,4 @@
-import { CampaignUserEntity } from '@app/campaign-user/entities/campaign-user.entity'
+import { CampaignUser } from '@app/campaign-user/entities/campaign-user.entity'
 import { Campaign } from '@app/campaign/entities/campaign.entity'
 
 export default interface BaseCampaignService {
@@ -8,6 +8,6 @@ export default interface BaseCampaignService {
 
   isConquerReward(
     campaign: Campaign,
-    campaignUser: CampaignUserEntity,
+    campaignUser: CampaignUser,
   ): Promise<boolean>
 }

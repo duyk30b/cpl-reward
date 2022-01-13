@@ -17,15 +17,6 @@
         "tsConfigPath": "apps/reward/tsconfig.app.json"
       }
     },
-    "c01": {
-      "type": "application",
-      "root": "apps/c01",
-      "entryFile": "main",
-      "sourceRoot": "apps/c01/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/c01/tsconfig.app.json"
-      }
-    },
     "kafka": {
       "type": "library",
       "root": "libs/kafka",

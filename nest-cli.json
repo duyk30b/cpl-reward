@@ -97,6 +97,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/external-user/tsconfig.lib.json"
       }
+    },
+    "campaigns": {
+      "type": "application",
+      "root": "apps/campaigns",
+      "entryFile": "main",
+      "sourceRoot": "apps/campaigns/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/campaigns/tsconfig.app.json"
+      }
     }
   }
 }

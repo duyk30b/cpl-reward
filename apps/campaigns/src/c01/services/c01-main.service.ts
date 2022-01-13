@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { CampaignUserService } from '@app/campaign-user'
 import { CampaignService } from '@app/campaign'
-import campaignConfig from './c01.config'
+import campaignConfig from '../c01.config'
 import { currentUnixTime } from '@app/common/utils'
 import BaseCampaignService from '@app/common/campaign-service.abtract'
 import { CampaignUserEntity } from '@app/campaign-user/entities/campaign-user.entity'
@@ -9,8 +9,8 @@ import { KafkaMessage } from '@app/kafka'
 import { CampaignUserLogEntity } from '@app/campaign-user-log/entities/campaign-user-log.entity'
 import { Campaign } from '@app/campaign/entities/campaign.entity'
 @Injectable()
-export class C01Service implements BaseCampaignService {
-  private readonly logger = new Logger(C01Service.name)
+export class C01MainService implements BaseCampaignService {
+  private readonly logger = new Logger(C01MainService.name)
 
   constructor(
     private readonly campaignUserService: CampaignUserService,

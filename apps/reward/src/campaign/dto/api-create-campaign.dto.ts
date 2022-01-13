@@ -13,10 +13,10 @@ export class ApiCreateCampaignDto {
   @IsNotEmpty()
   active: boolean
 
-  @ApiProperty({ name: 'money_unit' })
-  @Expose({ name: 'money_unit' })
+  @ApiProperty()
+  @Expose()
   @IsNotEmpty()
-  moneyUnit: string
+  currency: string
 
   @ApiProperty({ name: 'start_date' })
   @Expose({ name: 'start_date' })

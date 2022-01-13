@@ -2,9 +2,35 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ValidationError, ValidationPipe } from '@nestjs/common'
+import { ValidationException } from '@app/common/exceptions/validation.exception'
+import { ValidationExceptionFilter } from './exception-filter/validation-exception.filter'
+import { HttpExceptionFilter } from './exception-filter/http-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+  app.enableCors()
+  app.useGlobalPipes(
+    new ValidationPipe({
+      validateCustomDecorators: true,
+      transform: true,
+      validationError: {
+        target: false,
+        value: false,
+      },
+      transformOptions: {
+        excludeExtraneousValues: true,
+      },
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        return new ValidationException(validationErrors)
+      },
+    }),
+  )
+
+  app.useGlobalFilters(
+    new ValidationExceptionFilter(),
+    new HttpExceptionFilter(),
+  )
 
   const configService = app.get(ConfigService)
   const ENV = configService.get('ENV') || 'dev'
@@ -12,7 +38,7 @@ async function bootstrap() {
   // Apply Swagger
   if (ENV == 'dev' || ENV == 'local') {
     const config = new DocumentBuilder()
-      .setTitle('Authenticate API')
+      .setTitle('Reward API')
       .addServer(URL_PREFIX || '')
       .addBearerAuth(
         {

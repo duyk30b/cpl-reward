@@ -6,6 +6,8 @@ import { ValidationError, ValidationPipe } from '@nestjs/common'
 import { ValidationException } from '@app/common/exceptions/validation.exception'
 import { ValidationExceptionFilter } from './exception-filter/validation-exception.filter'
 import { HttpExceptionFilter } from './exception-filter/http-exception.filter'
+import * as Sentry from '@sentry/node'
+import { SentryInterceptor } from '@app/common/interceptors/sentry.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -54,6 +56,11 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('document', app, document)
   }
+
+  // Sentry
+  const SENTRY_DSN = configService.get('common.sentry_dsn')
+  Sentry.init({ dsn: SENTRY_DSN })
+  app.useGlobalInterceptors(new SentryInterceptor())
 
   await app.listen(3000)
 }

@@ -5,6 +5,8 @@ import { KafkaDecoratorProcessorService } from '@app/kafka'
 import { Environment, LogLevel } from '@app/common'
 import { KafkaOptions, Transport } from '@nestjs/microservices'
 import { CampaignsController } from './campaigns.controller'
+import { SentryInterceptor } from '@app/common/interceptors/sentry.interceptor'
+import * as Sentry from '@sentry/node'
 
 async function bootstrap() {
   const app = await NestFactory.create(CampaignsModule, {
@@ -36,6 +38,11 @@ async function bootstrap() {
   await app.startAllMicroservices()
 
   const port: number = configService.get<number>('common.campaigns_port')
+
+  // Sentry
+  const SENTRY_DSN = configService.get('common.sentry_dsn')
+  Sentry.init({ dsn: SENTRY_DSN })
+  app.useGlobalInterceptors(new SentryInterceptor())
 
   await app.listen(port, () => {
     // eslint-disable-next-line no-console

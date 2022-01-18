@@ -93,7 +93,8 @@
       "^@app/mysql(|/.*)$": "<rootDir>/libs/mysql/src/$1",
       "^@app/user(|/.*)$": "<rootDir>/libs/user/src/$1",
       "^@app/external-user(|/.*)$": "<rootDir>/libs/external-user/src/$1",
-      "^@app/campaign-group(|/.*)$": "<rootDir>/libs/campaign-group/src/$1"
+      "^@app/campaign-group(|/.*)$": "<rootDir>/libs/campaign-group/src/$1",
+      "^@app/campaign-group-map(|/.*)$": "<rootDir>/libs/campaign-group-map/src/$1"
     }
   }
 }

@@ -5,7 +5,7 @@ import { CampaignGroup } from '@app/campaign-group/entities/campaign-group.entit
 import { CampaignGroupMap } from '@app/campaign-group/entities/campaign-group-map.entity'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CampaignGroup, CampaignGroupMap])],
+  imports: [TypeOrmModule.forFeature([CampaignGroup])],
   providers: [CampaignGroupService],
   exports: [CampaignGroupService],
 })

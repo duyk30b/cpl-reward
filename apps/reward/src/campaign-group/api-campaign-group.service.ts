@@ -4,12 +4,14 @@ import { ApiUpdateCampaignGroupDto } from './dto/api-update-campaign-group.dto'
 import { CampaignGroupService } from '@app/campaign-group'
 import { ApiMapCampaignGroupDto } from './dto/api-map-campaign-group.dto'
 import { CampaignService } from '@app/campaign'
+import { CampaignGroupMapService } from '@app/campaign-group-map'
 
 @Injectable()
 export class ApiCampaignGroupService {
   constructor(
     private readonly campaignGroupService: CampaignGroupService,
     private readonly campaignService: CampaignService,
+    private readonly campaignGroupMapService: CampaignGroupMapService,
   ) {}
 
   async create(apiCreateCampaignGroupDto: ApiCreateCampaignGroupDto) {
@@ -22,7 +24,7 @@ export class ApiCampaignGroupService {
       return null
     }
 
-    const mapCampaigns = await this.campaignGroupService.getMapsByGroupId(
+    const mapCampaigns = await this.campaignGroupMapService.getMapsByGroupId(
       campaignGroup.id,
     )
 
@@ -30,9 +32,11 @@ export class ApiCampaignGroupService {
       return m.campaignId
     })
 
-    const campaigns = await this.campaignService.getByIds(campaignIds)
+    campaignGroup['campaigns'] = await this.campaignService.getByIds(
+      campaignIds,
+    )
 
-    return { campaignGroup, campaigns }
+    return campaignGroup
   }
 
   async update(
@@ -54,14 +58,14 @@ export class ApiCampaignGroupService {
   }
 
   async mapCampaigns(apiMapCampaignGroupDto: ApiMapCampaignGroupDto) {
-    return await this.campaignGroupService.mapCampaigns(
+    return await this.campaignGroupMapService.mapCampaigns(
       apiMapCampaignGroupDto.id,
       apiMapCampaignGroupDto.campaignIds,
     )
   }
 
   async unmapCampaigns(apiMapCampaignGroupDto) {
-    return await this.campaignGroupService.unmapCampaigns(
+    return await this.campaignGroupMapService.unmapCampaigns(
       apiMapCampaignGroupDto.id,
       apiMapCampaignGroupDto.campaignIds,
     )

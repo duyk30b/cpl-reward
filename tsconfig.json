@@ -66,6 +66,12 @@
       ],
       "@app/campaign-group/*": [
         "libs/campaign-group/src/*"
+      ],
+      "@app/campaign-group-map": [
+        "libs/campaign-group-map/src"
+      ],
+      "@app/campaign-group-map/*": [
+        "libs/campaign-group-map/src/*"
       ]
     }
   }

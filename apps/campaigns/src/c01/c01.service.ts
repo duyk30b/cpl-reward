@@ -21,7 +21,7 @@ export class C01Service implements BaseCampaignService {
 
   async main(eventName: string, message: any) {
     // Step 1: Insert user to campaign
-    const campaign = await this.getCampaignById(campaignConfig.id)
+    const campaign = await this.getById(campaignConfig.id)
     if (!campaign) {
       this.logger.debug(campaignConfig.id + ' not found')
       return
@@ -55,7 +55,7 @@ export class C01Service implements BaseCampaignService {
     }
 
     // Step 5: Update campaign stats
-    this.updateCampaignStats(campaignUser).then()
+    this.updateStats(campaignUser).then()
   }
 
   async upsertCampaignUser(
@@ -178,16 +178,16 @@ export class C01Service implements BaseCampaignService {
     return savedCampaignUser
   }
 
-  async updateCampaignStats(campaignUser: CampaignUser) {
-    return await this.campaignService.updateCampaignStats(
+  async updateStats(campaignUser: CampaignUser) {
+    return await this.campaignService.updateStats(
       campaignUser.campaignId,
       campaignConfig.rewardMoney,
       1,
     )
   }
 
-  async getCampaignById(campaignId) {
-    return await this.campaignService.getCampaignById(campaignId)
+  async getById(campaignId) {
+    return await this.campaignService.getById(campaignId)
   }
 
   async verify(campaign: Campaign, campaignUser: CampaignUser) {

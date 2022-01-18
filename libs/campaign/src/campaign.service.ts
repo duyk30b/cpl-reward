@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Campaign } from '@app/campaign/entities/campaign.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import {
   paginate,
   Pagination,
@@ -18,8 +18,12 @@ export class CampaignService {
     private campaignRepository: Repository<Campaign>,
   ) {}
 
-  async getById(campaignId: number) {
+  async getById(campaignId: number): Promise<Campaign> {
     return await this.campaignRepository.findOne(campaignId)
+  }
+
+  async getByIds(campaignIds: number[]): Promise<Campaign[]> {
+    return await this.campaignRepository.find({ id: In(campaignIds) })
   }
 
   async updateStats(campaignId: number, addMoney, addReward) {

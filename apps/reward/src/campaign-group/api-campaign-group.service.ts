@@ -2,18 +2,37 @@ import { Injectable } from '@nestjs/common'
 import { ApiCreateCampaignGroupDto } from './dto/api-create-campaign-group.dto'
 import { ApiUpdateCampaignGroupDto } from './dto/api-update-campaign-group.dto'
 import { CampaignGroupService } from '@app/campaign-group'
-import { ApiCreateCampaignDto } from '../campaign/dto/api-create-campaign.dto'
-import { ApiUpdateCampaignDto } from '../campaign/dto/api-update-campaign.dto'
+import { ApiMapCampaignGroupDto } from './dto/api-map-campaign-group.dto'
+import { CampaignService } from '@app/campaign'
 
 @Injectable()
 export class ApiCampaignGroupService {
-  constructor(private readonly campaignGroupService: CampaignGroupService) {}
+  constructor(
+    private readonly campaignGroupService: CampaignGroupService,
+    private readonly campaignService: CampaignService,
+  ) {}
+
   async create(apiCreateCampaignGroupDto: ApiCreateCampaignGroupDto) {
     return await this.campaignGroupService.create(apiCreateCampaignGroupDto)
   }
 
   async findOne(id: number) {
-    return await this.campaignGroupService.getById(id)
+    const campaignGroup = await this.campaignGroupService.getById(id)
+    if (!campaignGroup) {
+      return null
+    }
+
+    const mapCampaigns = await this.campaignGroupService.getMapsByGroupId(
+      campaignGroup.id,
+    )
+
+    const campaignIds = mapCampaigns.map((m) => {
+      return m.campaignId
+    })
+
+    const campaigns = await this.campaignService.getByIds(campaignIds)
+
+    return { campaignGroup, campaigns }
   }
 
   async update(
@@ -32,5 +51,19 @@ export class ApiCampaignGroupService {
       page,
       limit,
     })
+  }
+
+  async mapCampaigns(apiMapCampaignGroupDto: ApiMapCampaignGroupDto) {
+    return await this.campaignGroupService.mapCampaigns(
+      apiMapCampaignGroupDto.id,
+      apiMapCampaignGroupDto.campaignIds,
+    )
+  }
+
+  async unmapCampaigns(apiMapCampaignGroupDto) {
+    return await this.campaignGroupService.unmapCampaigns(
+      apiMapCampaignGroupDto.id,
+      apiMapCampaignGroupDto.campaignIds,
+    )
   }
 }

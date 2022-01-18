@@ -15,6 +15,7 @@ import { Pagination } from 'nestjs-typeorm-paginate'
 import { CampaignGroup } from '@app/campaign-group/entities/campaign-group.entity'
 import { ApiCreateCampaignGroupDto } from './dto/api-create-campaign-group.dto'
 import { ApiUpdateCampaignGroupDto } from './dto/api-update-campaign-group.dto'
+import { ApiMapCampaignGroupDto } from './dto/api-map-campaign-group.dto'
 
 @Controller('campaign-group')
 export class ApiCampaignGroupController {
@@ -58,5 +59,21 @@ export class ApiCampaignGroupController {
     @Body() updateCampaignGroupDto: ApiUpdateCampaignGroupDto,
   ) {
     return this.apiCampaignGroupService.update(+id, updateCampaignGroupDto)
+  }
+
+  @Post('map-campaigns')
+  @ApiOperation({
+    summary: 'Map campaigns to campaign-group',
+  })
+  mapCampaigns(@Body() mapCampaignGroupDto: ApiMapCampaignGroupDto) {
+    return this.apiCampaignGroupService.mapCampaigns(mapCampaignGroupDto)
+  }
+
+  @Post('unmap-campaigns')
+  @ApiOperation({
+    summary: 'Remove campaigns from campaign-group',
+  })
+  unmapCampaigns(@Body() mapCampaignGroupDto: ApiMapCampaignGroupDto) {
+    return this.apiCampaignGroupService.unmapCampaigns(mapCampaignGroupDto)
   }
 }

@@ -17,6 +17,7 @@ import configuration from '@app/mysql/configuration'
         password: configService.get('mysql.master.pass'),
         database: configService.get('mysql.master.db'),
         autoLoadEntities: true,
+        synchronize: true,
         // logging: true,
       }),
       inject: [ConfigService],

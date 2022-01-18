@@ -12,7 +12,7 @@ export class ApiCampaignService {
   }
 
   async findOne(id: number) {
-    return await this.campaignService.getCampaignById(id)
+    return await this.campaignService.getById(id)
   }
 
   async update(id: number, apiUpdateCampaignDto: ApiUpdateCampaignDto) {

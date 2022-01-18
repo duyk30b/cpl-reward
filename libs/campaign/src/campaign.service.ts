@@ -18,12 +18,12 @@ export class CampaignService {
     private campaignRepository: Repository<Campaign>,
   ) {}
 
-  async getCampaignById(campaignId: number) {
+  async getById(campaignId: number) {
     return await this.campaignRepository.findOne(campaignId)
   }
 
-  async updateCampaignStats(campaignId: number, addMoney, addReward) {
-    const campaign = await this.getCampaignById(campaignId)
+  async updateStats(campaignId: number, addMoney, addReward) {
+    const campaign = await this.getById(campaignId)
     if (!campaign) {
       return null
     }

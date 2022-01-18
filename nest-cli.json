@@ -97,6 +97,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/campaigns/tsconfig.app.json"
       }
+    },
+    "campaign-group": {
+      "type": "library",
+      "root": "libs/campaign-group",
+      "entryFile": "index",
+      "sourceRoot": "libs/campaign-group/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/campaign-group/tsconfig.lib.json"
+      }
     }
   }
 }

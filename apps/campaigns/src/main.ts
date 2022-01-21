@@ -16,12 +16,10 @@ async function bootstrap() {
         : Object.values(LogLevel),
   })
 
+  const configService: ConfigService = app.get(ConfigService)
   app
     .get(KafkaDecoratorProcessorService)
     .processKafkaDecorators([CampaignsController])
-
-  const configService: ConfigService = app.get(ConfigService)
-
   app.connectMicroservice<KafkaOptions>({
     transport: Transport.KAFKA,
     options: {
@@ -44,9 +42,6 @@ async function bootstrap() {
   Sentry.init({ dsn: SENTRY_DSN })
   app.useGlobalInterceptors(new SentryInterceptor())
 
-  await app.listen(port, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Campaigns is running in port ${port}`)
-  })
+  await app.listen(port)
 }
 bootstrap()

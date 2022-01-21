@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, Inject, OnModuleInit } from '@nestjs/common'
 import { CampaignUserService } from '@app/campaign-user'
 import { CampaignService } from '@app/campaign'
 import campaignConfig from './c01.config'
@@ -9,15 +9,27 @@ import { Campaign } from '@app/campaign/entities/campaign.entity'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { HlUserSpendMoney } from '@app/common/interfaces/hl-user-spend-money'
 import { EventCampaignUserLog } from '@app/common/interfaces/event-campaign-user-log'
+import InternalService from '@app/affiliate-internal/interfaces/internal.service.interface'
+import { ClientGrpc } from '@nestjs/microservices'
+import { lastValueFrom } from 'rxjs'
+import { verifyResponse } from './c01.interface'
+
 @Injectable()
-export class C01Service implements BaseCampaignService {
+export class C01Service implements BaseCampaignService, OnModuleInit {
   private readonly logger = new Logger(C01Service.name)
+  private internalService: InternalService
 
   constructor(
     private readonly campaignUserService: CampaignUserService,
     private readonly campaignService: CampaignService,
     private readonly eventEmitter: EventEmitter2,
+    @Inject('INTERNAL_PACKAGE') private client: ClientGrpc,
   ) {}
+
+  onModuleInit() {
+    this.internalService =
+      this.client.getService<InternalService>('InternalService')
+  }
 
   async main(eventName: string, message: any) {
     // Step 1: Insert user to campaign
@@ -44,18 +56,22 @@ export class C01Service implements BaseCampaignService {
 
     // Step 3: Call official external service to confirm
     const verifyConquerReward = await this.verify(campaign, campaignUser)
-    if (!verifyConquerReward) {
+    if (verifyConquerReward === null) {
       return
     }
 
     // Step 4: Call external service to give reward
-    const giveRewardSuccess = await this.give(campaign, campaignUser)
+    const giveRewardSuccess = await this.give(
+      campaign,
+      campaignUser,
+      verifyConquerReward.parentUserId,
+    )
     if (!giveRewardSuccess) {
       return
     }
 
     // Step 5: Update campaign stats
-    this.updateStats(campaignUser).then()
+    this.updateStats(campaignUser)
   }
 
   async upsertCampaignUser(
@@ -76,10 +92,7 @@ export class C01Service implements BaseCampaignService {
   }
 
   async isConquerReward(campaign: Campaign, campaignUser: CampaignUser) {
-    if (campaignUser.data['total_hl_money'] >= 50) {
-      return true
-    }
-    return false
+    return campaignUser.data['total_hl_money'] >= 50
   }
 
   async isUserCanJoinCampaign(
@@ -160,13 +173,14 @@ export class C01Service implements BaseCampaignService {
       isNewUser = true
       campaignUser = new CampaignUser()
       campaignUser.data = { total_hl_money: 0 } as any
+      campaignUser.userId = data.userId
+      campaignUser.campaignId = campaignId
     }
 
     const oldHlMoney = campaignUser.data['total_hl_money']
     campaignUser.data['total_hl_money'] = oldHlMoney + data.amount
 
     const savedCampaignUser = await this.campaignUserService.save(campaignUser)
-
     // Write campaign user log
     const eventCampaignUserLog = new EventCampaignUserLog()
     eventCampaignUserLog.name = logEventName
@@ -190,13 +204,25 @@ export class C01Service implements BaseCampaignService {
     return await this.campaignService.getById(campaignId)
   }
 
-  async verify(campaign: Campaign, campaignUser: CampaignUser) {
-    // eslint-disable-next-line no-console
-    console.log(campaignUser)
-    return true
+  async verify(
+    campaign: Campaign,
+    campaignUser: CampaignUser,
+  ): Promise<verifyResponse> {
+    const { id } = await lastValueFrom(
+      this.internalService.findParent({ id: +campaignUser.userId }),
+    )
+    if (id === 0) return null
+    return {
+      parentUserId: id,
+    }
   }
 
-  async give(campaign: Campaign, campaignUser: CampaignUser) {
+  async give(
+    campaign: Campaign,
+    campaignUser: CampaignUser,
+    parentUserId: number,
+  ) {
+    this.logger.debug('da trao thuong =)')
     return true
   }
 }

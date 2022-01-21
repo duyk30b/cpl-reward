@@ -26,6 +26,6 @@ export class CampaignsController {
       return
     }
 
-    this.eventEmitter.emit('hl_user_spend_money', message.value)
+    this.eventEmitter.emit('hl_user_spend_money', hlUserSpendMoney)
   }
 }

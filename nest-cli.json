@@ -115,6 +115,17 @@
       "compilerOptions": {
         "tsConfigPath": "libs/campaign-group-map/tsconfig.lib.json"
       }
+    },
+    "affiliate-internal": {
+      "type": "library",
+      "root": "libs/affiliate-internal",
+      "entryFile": "index",
+      "sourceRoot": "libs/affiliate-internal/src",
+      "compilerOptions": {
+        "assets": ["**/*.proto", "*.proto"],
+        "watchAssets": true,
+        "tsConfigPath": "libs/affiliate-internal/tsconfig.lib.json"
+      }
     }
   }
 }

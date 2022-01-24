@@ -1,10 +1,11 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
-import { json } from 'express'
 import { JsonColumnTransformer } from '@app/mysql/typeorm.transformer'
 
-@Entity()
+@Entity({
+  name: 'campaign_user_logs',
+})
 export class CampaignUserLog extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()

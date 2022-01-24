@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package internal;
+
+service InternalService {
+  rpc FindParent (UserById) returns (UserReferredId);
+  rpc FindManyChildren (UserById) returns (UserReferralIds);
+}
+
+message UserById {
+  int32 id = 1;
+}
+
+message UserReferredId {
+  int32 id = 1;
+}
+
+message UserReferralIds {
+  string ids = 1;
+}

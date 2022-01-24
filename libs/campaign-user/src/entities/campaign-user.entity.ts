@@ -3,7 +3,9 @@ import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
 import { JsonColumnTransformer } from '@app/mysql/typeorm.transformer'
 
-@Entity()
+@Entity({
+  name: 'campaign_user',
+})
 export class CampaignUser extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
@@ -21,15 +23,15 @@ export class CampaignUser extends MyBaseEntity {
   @Expose()
   data: string
 
-  @Column({ name: 'success_count' })
+  @Column({ name: 'success_count', default: 0 })
   @Expose({ name: 'success_count' })
   successCount: number
 
-  @Column({ name: 'money_earned' })
+  @Column({ name: 'money_earned', default: 0 })
   @Expose({ name: 'money_earned' })
   moneyEarned: number
 
-  @Column({ name: 'is_banned' })
+  @Column({ name: 'is_banned', default: false })
   @Expose({ name: 'is_banned' })
   isBanned: boolean
 }

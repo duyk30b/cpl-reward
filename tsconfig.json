@@ -72,6 +72,12 @@
       ],
       "@app/campaign-group-map/*": [
         "libs/campaign-group-map/src/*"
+      ],
+      "@app/affiliate-internal": [
+        "libs/affiliate-internal/src"
+      ],
+      "@app/affiliate-internal/*": [
+        "libs/affiliate-internal/src/*"
       ]
     }
   }

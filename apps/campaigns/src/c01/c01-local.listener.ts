@@ -14,7 +14,11 @@ export class C01LocalListener {
 
   @OnEvent(campaignConfig.eventLogPrefix + '*')
   handleCampaignLog(event: EventCampaignUserLog) {
-    const campaignUserLog = plainToInstance(CampaignUserLog, event.campaignUser)
+    const campaignUserLog = plainToInstance(
+      CampaignUserLog,
+      event.campaignUser,
+      { ignoreDecorators: true, excludePrefixes: ['id'] },
+    )
     let note = ''
     if (event.isNewUser) {
       note += 'User join the campaign. '

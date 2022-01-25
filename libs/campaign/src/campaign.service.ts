@@ -1,56 +1,39 @@
 import { Injectable } from '@nestjs/common'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
+import { plainToInstance } from 'class-transformer'
+import {
+  IPaginationOptions,
+  Pagination,
+  paginate,
+} from 'nestjs-typeorm-paginate'
 import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
-import {
-  paginate,
-  Pagination,
-  IPaginationOptions,
-} from 'nestjs-typeorm-paginate'
+import { Campaign } from '@app/campaign/entities/campaign.entity'
+import { UpdateCampaignDto } from '@app/campaign/dto/update-campaign.dto'
 import { CreateCampaignDto } from '@app/campaign/dto/create-campaign.dto'
-import { plainToInstance } from 'class-transformer'
-import { AdminUpdateCampaignDto } from '@app/campaign/dto/admin-update-campaign.dto'
+// TODO: remove below import
+// import { CampaignGroupMap } from '@app/campaign/entities/campaign-map.entity'
+// import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 
 @Injectable()
 export class CampaignService {
   constructor(
     @InjectRepository(Campaign)
-    private campaignRepository: Repository<Campaign>,
+    private campaignGroupRepository: Repository<Campaign>,
   ) {}
 
-  async getById(campaignId: number): Promise<Campaign> {
-    return await this.campaignRepository.findOne(campaignId)
+  async getById(campaignId: number) {
+    return await this.campaignGroupRepository.findOne(campaignId)
   }
 
-  async getByIds(campaignIds: number[]): Promise<Campaign[]> {
-    return await this.campaignRepository.find({ id: In(campaignIds) })
-  }
-
-  async updateStats(campaignId: number, addMoney, addReward) {
-    const campaign = await this.getById(campaignId)
-    if (!campaign) {
-      return null
-    }
-
-    campaign.releasedMoney += addMoney
-    campaign.releasedReward += addReward
-
-    return await this.campaignRepository.save(campaign)
-  }
-
-  async update(updateCampaignDto: AdminUpdateCampaignDto): Promise<Campaign> {
-    updateCampaignDto = plainToInstance(
-      AdminUpdateCampaignDto,
-      updateCampaignDto,
-      {
-        excludeExtraneousValues: true,
-      },
-    )
+  async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {
+    updateCampaignDto = plainToInstance(UpdateCampaignDto, updateCampaignDto, {
+      excludeExtraneousValues: true,
+    })
 
     const campaignEntity = plainToInstance(Campaign, updateCampaignDto, {
       ignoreDecorators: true,
     })
-    return await this.campaignRepository.save(campaignEntity)
+    return await this.campaignGroupRepository.save(campaignEntity)
   }
 
   async create(createCampaignDto: CreateCampaignDto): Promise<Campaign> {
@@ -60,11 +43,11 @@ export class CampaignService {
     const campaignEntity = plainToInstance(Campaign, createCampaignDto, {
       ignoreDecorators: true,
     })
-    return await this.campaignRepository.save(campaignEntity)
+    return await this.campaignGroupRepository.save(campaignEntity)
   }
 
   async paginate(options: IPaginationOptions): Promise<Pagination<Campaign>> {
-    const queryBuilder = this.campaignRepository.createQueryBuilder('c')
+    const queryBuilder = this.campaignGroupRepository.createQueryBuilder('c')
     queryBuilder.orderBy('c.id', 'DESC')
 
     return paginate<Campaign>(queryBuilder, options)

@@ -1,13 +1,13 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ApiCampaignModule } from './campaign/api-campaign.module'
+import { ApiMissionModule } from './mission/api-mission.module'
 import { MysqlModule } from '@app/mysql'
 import { APP_INTERCEPTOR } from '@nestjs/core'
-import { ApiCampaignGroupModule } from './campaign-group/api-campaign-group.module'
+import { ApiCampaignModule } from './campaign/api-campaign.module'
 
 @Module({
-  imports: [MysqlModule, ApiCampaignModule, ApiCampaignGroupModule],
+  imports: [MysqlModule, ApiMissionModule, ApiCampaignModule],
   controllers: [AppController],
   providers: [
     AppService,

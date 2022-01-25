@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { ApiCampaignController } from './api-campaign.controller'
 import { ApiCampaignService } from './api-campaign.service'
 
-describe('CampaignController', () => {
+describe('ApiCampaignGroupController', () => {
   let controller: ApiCampaignController
 
   beforeEach(async () => {

@@ -9,23 +9,25 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
 } from '@nestjs/common'
+import { ApiCampaignService } from './api-campaign.service'
+import { ApiOperation } from '@nestjs/swagger'
+import { Pagination } from 'nestjs-typeorm-paginate'
+import { Campaign } from '@app/campaign/entities/campaign.entity'
 import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
 import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
-import { ApiOperation } from '@nestjs/swagger'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
-import { Pagination } from 'nestjs-typeorm-paginate'
-import { ApiCampaignService } from './api-campaign.service'
+// TODO: remove below import
+// import { ApiMapCampaignGroupDto } from './dto/api-map-campaign.dto'
 
 @Controller('campaign')
 export class ApiCampaignController {
-  constructor(private readonly apiCampaignService: ApiCampaignService) {}
+  constructor(private readonly apiCampaignGroupService: ApiCampaignService) {}
 
   @Post()
   @ApiOperation({
     summary: 'Create new campaign',
   })
-  create(@Body() createCampaignDto: ApiCreateCampaignDto) {
-    return this.apiCampaignService.create(createCampaignDto)
+  create(@Body() createCampaignGroupDto: ApiCreateCampaignDto) {
+    return this.apiCampaignGroupService.create(createCampaignGroupDto)
   }
 
   @Get()
@@ -36,7 +38,7 @@ export class ApiCampaignController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
   ): Promise<Pagination<Campaign>> {
-    return this.apiCampaignService.findAll(page, limit)
+    return this.apiCampaignGroupService.findAll(page, limit)
   }
 
   @Get(':id')
@@ -44,7 +46,7 @@ export class ApiCampaignController {
     summary: 'Get campaign by ID',
   })
   findOne(@Param('id') id: string) {
-    return this.apiCampaignService.findOne(+id)
+    return this.apiCampaignGroupService.findOne(+id)
   }
 
   @Patch(':id')
@@ -53,13 +55,24 @@ export class ApiCampaignController {
   })
   update(
     @Param('id') id: string,
-    @Body() updateCampaignDto: ApiUpdateCampaignDto,
+    @Body() updateCampaignGroupDto: ApiUpdateCampaignDto,
   ) {
-    return this.apiCampaignService.update(+id, updateCampaignDto)
+    return this.apiCampaignGroupService.update(+id, updateCampaignGroupDto)
   }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.apiCampaignService.remove(+id)
+  // TODO: remove below import
+  // @Post('map-campaigns')
+  // @ApiOperation({
+  //   summary: 'Map campaigns to campaign',
+  // })
+  // mapCampaigns(@Body() mapCampaignGroupDto: ApiMapCampaignGroupDto) {
+  //   return this.apiCampaignGroupService.mapCampaigns(mapCampaignGroupDto)
+  // }
+  // @Post('unmap-campaigns')
+  // @ApiOperation({
+  //   summary: 'Remove campaigns from campaign',
+  // })
+  // unmapCampaigns(@Body() mapCampaignGroupDto: ApiMapCampaignGroupDto) {
+  //   return this.apiCampaignGroupService.unmapCampaigns(mapCampaignGroupDto)
   // }
 }

@@ -35,31 +35,31 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "campaign-user": {
+    "mission-user": {
       "type": "library",
-      "root": "libs/campaign-user",
+      "root": "libs/mission-user",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign-user/src",
+      "sourceRoot": "libs/mission-user/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign-user/tsconfig.lib.json"
+        "tsConfigPath": "libs/mission-user/tsconfig.lib.json"
       }
     },
-    "campaign": {
+    "mission": {
       "type": "library",
-      "root": "libs/campaign",
+      "root": "libs/mission",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign/src",
+      "sourceRoot": "libs/mission/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign/tsconfig.lib.json"
+        "tsConfigPath": "libs/mission/tsconfig.lib.json"
       }
     },
-    "campaign-user-log": {
+    "mission-user-log": {
       "type": "library",
-      "root": "libs/campaign-user-log",
+      "root": "libs/mission-user-log",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign-user-log/src",
+      "sourceRoot": "libs/mission-user-log/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign-user-log/tsconfig.lib.json"
+        "tsConfigPath": "libs/mission-user-log/tsconfig.lib.json"
       }
     },
     "mysql": {
@@ -89,31 +89,22 @@
         "tsConfigPath": "libs/external-user/tsconfig.lib.json"
       }
     },
-    "campaigns": {
+    "missions": {
       "type": "application",
-      "root": "apps/campaigns",
+      "root": "apps/missions",
       "entryFile": "main",
-      "sourceRoot": "apps/campaigns/src",
+      "sourceRoot": "apps/missions/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/campaigns/tsconfig.app.json"
+        "tsConfigPath": "apps/missions/tsconfig.app.json"
       }
     },
-    "campaign-group": {
+    "campaign": {
       "type": "library",
-      "root": "libs/campaign-group",
+      "root": "libs/campaign",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign-group/src",
+      "sourceRoot": "libs/campaign/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign-group/tsconfig.lib.json"
-      }
-    },
-    "campaign-group-map": {
-      "type": "library",
-      "root": "libs/campaign-group-map",
-      "entryFile": "index",
-      "sourceRoot": "libs/campaign-group-map/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/campaign-group-map/tsconfig.lib.json"
+        "tsConfigPath": "libs/campaign/tsconfig.lib.json"
       }
     },
     "affiliate-internal": {

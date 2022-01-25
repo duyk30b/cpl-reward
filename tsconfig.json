@@ -25,23 +25,23 @@
       "@app/common/*": [
         "libs/common/src/*"
       ],
-      "@app/campaign-user": [
-        "libs/campaign-user/src"
+      "@app/mission-user": [
+        "libs/mission-user/src"
       ],
-      "@app/campaign-user/*": [
-        "libs/campaign-user/src/*"
+      "@app/mission-user/*": [
+        "libs/mission-user/src/*"
       ],
-      "@app/campaign": [
-        "libs/campaign/src"
+      "@app/mission": [
+        "libs/mission/src"
       ],
-      "@app/campaign/*": [
-        "libs/campaign/src/*"
+      "@app/mission/*": [
+        "libs/mission/src/*"
       ],
-      "@app/campaign-user-log": [
-        "libs/campaign-user-log/src"
+      "@app/mission-user-log": [
+        "libs/mission-user-log/src"
       ],
-      "@app/campaign-user-log/*": [
-        "libs/campaign-user-log/src/*"
+      "@app/mission-user-log/*": [
+        "libs/mission-user-log/src/*"
       ],
       "@app/mysql": [
         "libs/mysql/src"
@@ -61,17 +61,11 @@
       "@app/external-user/*": [
         "libs/external-user/src/*"
       ],
-      "@app/campaign-group": [
-        "libs/campaign-group/src"
+      "@app/campaign": [
+        "libs/campaign/src"
       ],
-      "@app/campaign-group/*": [
-        "libs/campaign-group/src/*"
-      ],
-      "@app/campaign-group-map": [
-        "libs/campaign-group-map/src"
-      ],
-      "@app/campaign-group-map/*": [
-        "libs/campaign-group-map/src/*"
+      "@app/campaign/*": [
+        "libs/campaign/src/*"
       ],
       "@app/affiliate-internal": [
         "libs/affiliate-internal/src"

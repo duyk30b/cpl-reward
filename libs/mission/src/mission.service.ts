@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Mission } from '@app/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { In, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import {
   paginate,
   Pagination,
@@ -42,20 +42,24 @@ export class MissionService {
     updateMissionDto = plainToInstance(UpdateMissionDto, updateMissionDto, {
       excludeExtraneousValues: true,
     })
+
     const missionEntity = plainToInstance(Mission, updateMissionDto, {
       ignoreDecorators: true,
     })
+
     return await this.missionRepository.save(missionEntity)
   }
 
-  async create(createCampaignDto: CreateMissionDto): Promise<Mission> {
-    createCampaignDto = plainToInstance(CreateMissionDto, createCampaignDto, {
+  async create(createMissionDto: CreateMissionDto): Promise<Mission> {
+    createMissionDto = plainToInstance(CreateMissionDto, createMissionDto, {
       excludeExtraneousValues: true,
     })
-    const campaignEntity = plainToInstance(Mission, createCampaignDto, {
+
+    const missionEntity = plainToInstance(Mission, createMissionDto, {
       ignoreDecorators: true,
     })
-    return await this.missionRepository.save(campaignEntity)
+
+    return await this.missionRepository.save(missionEntity)
   }
 
   async paginate(options: IPaginationOptions): Promise<Pagination<Mission>> {

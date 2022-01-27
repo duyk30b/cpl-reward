@@ -6,11 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
   Query,
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
-import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
 import { AdminCampaignService } from './admin-campaign.service'
 import { Pagination } from 'nestjs-typeorm-paginate'
 import { Campaign } from '@app/campaign/entities/campaign.entity'
@@ -23,14 +21,6 @@ export class AdminCampaignController {
   @Get('init')
   async init(): Promise<{ id: number }> {
     return await this.adminCampaignService.init()
-  }
-
-  @Post()
-  @ApiOperation({
-    summary: 'Create new campaign',
-  })
-  create(@Body() createCampaignGroupDto: ApiCreateCampaignDto) {
-    return this.adminCampaignService.create(createCampaignGroupDto)
   }
 
   @Get()

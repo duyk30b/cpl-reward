@@ -1,6 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
+import { Campaign } from '@app/campaign/entities/campaign.entity'
+import { Mission } from '@app/mission/entities/mission.entity'
 
 @Entity({
   name: 'reward_rules',
@@ -55,4 +63,12 @@ export class RewardRule extends MyBaseEntity {
     name: 'release_value',
   })
   releaseValue: number
+
+  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules)
+  @JoinColumn({ name: 'campaign_id' })
+  campaign: Campaign
+
+  @ManyToOne(() => Mission, (mission) => mission.rewardRules)
+  @JoinColumn({ name: 'mission_id' })
+  mission: Mission
 }

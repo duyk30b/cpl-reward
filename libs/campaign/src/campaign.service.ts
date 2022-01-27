@@ -25,8 +25,8 @@ export class CampaignService {
     return await this.campaignRepository.save(initCampaignEntity)
   }
 
-  async getById(campaignId: number) {
-    return await this.campaignRepository.findOne(campaignId)
+  async getById(campaignId: number, options = undefined) {
+    return await this.campaignRepository.findOne(campaignId, options)
   }
 
   async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {

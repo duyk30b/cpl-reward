@@ -49,11 +49,15 @@ export class AdminCampaignService {
   }
 
   async findOne(id: number) {
-    const campaign = await this.campaignService.getById(id)
+    const campaign = await this.campaignService.getById(id, {
+      relations: ['rewardRules'],
+    })
     if (!campaign) {
       return null
     }
-
+    campaign.rewardRules = campaign.rewardRules.filter(
+      (item) => item.typeRule == 'campaign',
+    )
     return campaign
   }
 

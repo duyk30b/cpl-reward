@@ -18,8 +18,8 @@ export class MissionService {
     private missionRepository: Repository<Mission>,
   ) {}
 
-  async getById(id: number): Promise<Mission> {
-    return await this.missionRepository.findOne(id)
+  async getById(id: number, options = undefined): Promise<Mission> {
+    return await this.missionRepository.findOne(id, options)
   }
 
   // async getByIds(campaignIds: number[]): Promise<Mission[]> {

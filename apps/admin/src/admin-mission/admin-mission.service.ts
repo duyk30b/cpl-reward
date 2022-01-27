@@ -63,10 +63,15 @@ export class AdminMissionService {
   }
 
   async findOne(id: number) {
-    const mission = await this.missionService.getById(id)
+    const mission = await this.missionService.getById(id, {
+      relations: ['rewardRules'],
+    })
     if (!mission) {
       return null
     }
+    mission.rewardRules = mission.rewardRules.filter(
+      (item) => item.typeRule == 'mission',
+    )
 
     return mission
   }

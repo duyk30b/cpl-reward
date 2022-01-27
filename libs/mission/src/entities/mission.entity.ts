@@ -1,6 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
+import { RewardRule } from '@app/reward-rule/entities/reward-rule.entity'
 
 @Entity({
   name: 'missions',
@@ -41,4 +48,11 @@ export class Mission extends MyBaseEntity {
   @Column({ name: 'grant_target', default: null })
   @Expose({ name: 'grant_target' })
   grantTarget: string
+
+  @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission)
+  @JoinColumn()
+  @Expose({
+    name: 'reward_rules',
+  })
+  rewardRules: RewardRule[]
 }

@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   DefaultValuePipe,
   Get,
@@ -9,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
@@ -27,7 +25,6 @@ export class AdminCampaignController {
     return await this.adminCampaignService.init()
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Post()
   @ApiOperation({
     summary: 'Create new campaign',
@@ -36,7 +33,6 @@ export class AdminCampaignController {
     return this.adminCampaignService.create(createCampaignGroupDto)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOperation({
     summary: 'Get campaign list',
@@ -48,7 +44,6 @@ export class AdminCampaignController {
     return this.adminCampaignService.findAll(page, limit)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
   @ApiOperation({
     summary: 'Get campaign by ID',
@@ -57,7 +52,6 @@ export class AdminCampaignController {
     return this.adminCampaignService.findOne(+id)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Patch(':id')
   @ApiOperation({
     summary: 'Update campaign',

@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   DefaultValuePipe,
   Get,
@@ -9,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
 } from '@nestjs/common'
 import { AdminMissionService } from './admin-mission.service'
 import { ApiOperation } from '@nestjs/swagger'
@@ -22,7 +20,6 @@ import { Mission } from '@app/mission/entities/mission.entity'
 export class AdminMissionController {
   constructor(private readonly adminMissionService: AdminMissionService) {}
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Post()
   @ApiOperation({
     summary: 'Create new mission',
@@ -31,7 +28,6 @@ export class AdminMissionController {
     return this.adminMissionService.create(createMissionDto)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOperation({
     summary: 'Get mission list',
@@ -43,7 +39,6 @@ export class AdminMissionController {
     return this.adminMissionService.findAll(page, limit)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
   @ApiOperation({
     summary: 'Get mission by ID',
@@ -52,7 +47,6 @@ export class AdminMissionController {
     return this.adminMissionService.findOne(+id)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Patch(':id')
   @ApiOperation({
     summary: 'Update campaign',

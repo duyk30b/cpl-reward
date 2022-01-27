@@ -16,50 +16,50 @@ import { Mission } from '@app/mission/entities/mission.entity'
 import { Pagination } from 'nestjs-typeorm-paginate'
 import { ApiMissionService } from './api-mission.service'
 
-@Controller('campaign')
+@Controller('missions')
 export class ApiMissionController {
-  constructor(private readonly apiCampaignService: ApiMissionService) {}
+  constructor(private readonly apiMissionService: ApiMissionService) {}
 
   @Post()
   @ApiOperation({
-    summary: 'Create new campaign',
+    summary: 'Create new mission',
   })
   create(@Body() createCampaignDto: ApiCreateMissionDto) {
-    return this.apiCampaignService.create(createCampaignDto)
+    return this.apiMissionService.create(createCampaignDto)
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Get campaign list',
+    summary: 'Get mission list',
   })
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
   ): Promise<Pagination<Mission>> {
-    return this.apiCampaignService.findAll(page, limit)
+    return this.apiMissionService.findAll(page, limit)
   }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get campaign by ID',
+    summary: 'Get mission by ID',
   })
   findOne(@Param('id') id: string) {
-    return this.apiCampaignService.findOne(+id)
+    return this.apiMissionService.findOne(+id)
   }
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Update campaign',
+    summary: 'Update mission',
   })
   update(
     @Param('id') id: string,
     @Body() updateCampaignDto: ApiUpdateMissionDto,
   ) {
-    return this.apiCampaignService.update(+id, updateCampaignDto)
+    return this.apiMissionService.update(+id, updateCampaignDto)
   }
 
   // @Delete(':id')
   // remove(@Param('id') id: string) {
-  //   return this.apiCampaignService.remove(+id)
+  //   return this.apiMissionService.remove(+id)
   // }
 }

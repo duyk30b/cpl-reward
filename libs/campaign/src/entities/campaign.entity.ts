@@ -10,11 +10,67 @@ export class Campaign extends MyBaseEntity {
   @Expose()
   id: number
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: null,
+  })
   @Expose()
-  name: string
+  title: string
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: null,
+  })
   @Expose()
-  active: boolean
+  description: string
+
+  @Column({
+    nullable: true,
+    default: null,
+    name: 'detail_explain',
+  })
+  @Expose({
+    name: 'detail_explain',
+  })
+  detailExplain: string
+
+  @Column({
+    nullable: true,
+    default: null,
+    name: 'start_date',
+  })
+  @Expose({
+    name: 'start_date',
+  })
+  startDate: number
+
+  @Column({
+    nullable: true,
+    default: null,
+    name: 'end_date',
+  })
+  @Expose({
+    name: 'end_date',
+  })
+  endDate: number
+
+  @Column({
+    nullable: true,
+    default: null,
+    name: 'notification_link',
+  })
+  @Expose({
+    name: 'notification_link',
+  })
+  notificationLink: string
+
+  @Column({
+    nullable: true,
+    default: null,
+    name: 'campaign_image',
+  })
+  @Expose({
+    name: 'campaign_image',
+  })
+  campaignImage: string
 }

@@ -16,53 +16,29 @@ export class Mission extends MyBaseEntity {
 
   @Column()
   @Expose()
-  name: string
+  title: string
 
-  @Column()
-  @Expose()
-  active: boolean
+  @Column({ name: 'detail_explain' })
+  @Expose({ name: 'detail_explain' })
+  detailExplain: string
 
-  @Column()
-  @Expose()
-  currency: number
+  @Column({ name: 'opening_date' })
+  @Expose({ name: 'opening_date' })
+  openingDate: number
 
-  @Column({ name: 'start_date' })
-  @Expose({ name: 'start_date' })
-  startDate: number
+  @Column({ name: 'closing_date' })
+  @Expose({ name: 'closing_date' })
+  closingDate: number
 
-  @Column({ name: 'end_date' })
-  @Expose({ name: 'end_date' })
-  endDate: number
+  @Column({ name: 'judgment_conditions', default: null })
+  @Expose({ name: 'judgment_conditions' })
+  judgmentConditions: string
 
-  @Column({ name: 'limit_user_reward' })
-  @Expose({ name: 'limit_user_reward' })
-  limitUserReward: number
+  @Column({ name: 'user_conditions', default: null })
+  @Expose({ name: 'user_conditions' })
+  userConditions: string
 
-  @Column({ name: 'limit_user_money' })
-  @Expose({ name: 'limit_user_money' })
-  limitUserMoney: number
-
-  @Column({ name: 'limit_system_reward' })
-  @Expose({ name: 'limit_system_reward' })
-  limitSystemReward: number
-
-  @Column({ name: 'limit_system_money' })
-  @Expose({ name: 'limit_system_money' })
-  limitSystemMoney: number
-
-  @Column({ name: 'released_reward' })
-  @Expose({ name: 'released_reward' })
-  releasedReward: number
-
-  @Column({ name: 'released_money' })
-  @Expose({ name: 'released_money' })
-  releasedMoney: number
-
-  @Column({ name: 'prepare_data_required' })
-  @Expose({ name: 'prepare_data_required' })
-  prepareDataRequired: boolean
-
-  @Column({ name: 'prepare_data_done' })
-  @Expose({ name: 'prepare_data_done' })
-  prepareDataDone: boolean
+  @Column({ name: 'grant_target', default: null })
+  @Expose({ name: 'grant_target' })
+  grantTarget: string
 }

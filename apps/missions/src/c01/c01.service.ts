@@ -71,7 +71,7 @@ export class C01Service implements BaseMissionService, OnModuleInit {
     }
 
     // Step 5: Update mission stats
-    this.updateStats(missionUser)
+    // this.updateStats(missionUser)
   }
 
   async upsertMissionUser(eventName: string, data: any): Promise<MissionUser> {
@@ -111,14 +111,14 @@ export class C01Service implements BaseMissionService, OnModuleInit {
     }
 
     // Reach reward count or money limit
-    if (
-      missionUser.successCount >= mission.limitUserReward ||
-      missionUser.successCount >= mission.limitSystemReward ||
-      missionUser.moneyEarned >= mission.limitUserMoney ||
-      missionUser.moneyEarned >= mission.limitSystemMoney
-    ) {
-      return false
-    }
+    // if (
+    //   missionUser.successCount >= mission.limitUserReward ||
+    //   missionUser.successCount >= mission.limitSystemReward ||
+    //   missionUser.moneyEarned >= mission.limitUserMoney ||
+    //   missionUser.moneyEarned >= mission.limitSystemMoney
+    // ) {
+    //   return false
+    // }
 
     // Check if user has referer
 
@@ -127,30 +127,30 @@ export class C01Service implements BaseMissionService, OnModuleInit {
 
   async isActiveCampaign(mission: Mission): Promise<boolean> {
     // Campaign is disabled
-    if (!mission.active) {
-      return false
-    }
+    // if (!mission.active) {
+    //   return false
+    // }
 
     // Preparing data
-    if (mission.prepareDataRequired && !mission.prepareDataDone) {
-      return false
-    }
+    // if (mission.prepareDataRequired && !mission.prepareDataDone) {
+    //   return false
+    // }
 
     // Out of time range
     const nowUnixTime = currentUnixTime('second')
-    if (mission.startDate > nowUnixTime || mission.endDate < nowUnixTime) {
-      return false
-    }
+    // if (mission.startDate > nowUnixTime || mission.endDate < nowUnixTime) {
+    //   return false
+    // }
 
     // Reach limit of reward of money
-    if (
-      (mission.limitSystemReward > 0 &&
-        mission.releasedReward >= mission.limitSystemReward) ||
-      (mission.limitSystemMoney > 0 &&
-        mission.releasedMoney >= mission.limitSystemMoney)
-    ) {
-      return false
-    }
+    // if (
+    //   (mission.limitSystemReward > 0 &&
+    //     mission.releasedReward >= mission.limitSystemReward) ||
+    //   (mission.limitSystemMoney > 0 &&
+    //     mission.releasedMoney >= mission.limitSystemMoney)
+    // ) {
+    //   return false
+    // }
 
     return true
   }
@@ -189,13 +189,13 @@ export class C01Service implements BaseMissionService, OnModuleInit {
     return savedMissionUser
   }
 
-  async updateStats(missionUser: MissionUser) {
-    return await this.missionService.updateStats(
-      missionUser.missionId,
-      missionConfig.rewardMoney,
-      1,
-    )
-  }
+  // async updateStats(missionUser: MissionUser) {
+  //   return await this.missionService.updateStats(
+  //     missionUser.missionId,
+  //     missionConfig.rewardMoney,
+  //     1,
+  //   )
+  // }
 
   async getById(missionId) {
     return await this.missionService.getById(missionId)

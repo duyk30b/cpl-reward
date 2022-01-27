@@ -113,9 +113,30 @@
       "entryFile": "index",
       "sourceRoot": "libs/affiliate-internal/src",
       "compilerOptions": {
-        "assets": ["**/*.proto", "*.proto"],
+        "assets": [
+          "**/*.proto",
+          "*.proto"
+        ],
         "watchAssets": true,
         "tsConfigPath": "libs/affiliate-internal/tsconfig.lib.json"
+      }
+    },
+    "reward-rule": {
+      "type": "library",
+      "root": "libs/reward-rule",
+      "entryFile": "index",
+      "sourceRoot": "libs/reward-rule/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/reward-rule/tsconfig.lib.json"
+      }
+    },
+    "admin": {
+      "type": "application",
+      "root": "apps/admin",
+      "entryFile": "main",
+      "sourceRoot": "apps/admin/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/admin/tsconfig.app.json"
       }
     }
   }

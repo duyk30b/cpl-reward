@@ -72,6 +72,12 @@
       ],
       "@app/affiliate-internal/*": [
         "libs/affiliate-internal/src/*"
+      ],
+      "@app/reward-rule": [
+        "libs/reward-rule/src"
+      ],
+      "@app/reward-rule/*": [
+        "libs/reward-rule/src/*"
       ]
     }
   }

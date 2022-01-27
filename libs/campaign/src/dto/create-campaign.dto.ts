@@ -2,8 +2,26 @@ import { Expose } from 'class-transformer'
 
 export class CreateCampaignDto {
   @Expose()
-  name: string
+  id: number
 
   @Expose()
-  active: boolean
+  title: string
+
+  @Expose()
+  description: string
+
+  @Expose()
+  detailExplain: string
+
+  @Expose()
+  startDate: number
+
+  @Expose()
+  endDate: number
+
+  @Expose()
+  notificationLink: string
+
+  @Expose()
+  campaignImage: string
 }

@@ -2,32 +2,26 @@ import { Expose } from 'class-transformer'
 
 export class CreateMissionDto {
   @Expose()
-  name: string
+  campaignId: number
 
   @Expose()
-  active: boolean
+  title: string
 
   @Expose()
-  currency: string
+  detailExplain: string
 
-  @Expose({ name: 'start_date' })
-  startDate: number
+  @Expose()
+  openingDate: number
 
-  @Expose({ name: 'end_date' })
-  endDate: number
+  @Expose()
+  closingDate: number
 
-  @Expose({ name: 'limit_user_reward' })
-  limitUserReward: number
-
-  @Expose({ name: 'limit_user_money' })
-  limitUserMoney: number
-
-  @Expose({ name: 'limit_system_reward' })
-  limitSystemReward: number
-
-  @Expose({ name: 'limit_system_money' })
-  limitSystemMoney: number
-
-  @Expose({ name: 'prepare_data_required' })
-  prepareDataRequired: boolean
+  // @Expose({ name: 'judgment_conditions' })
+  // judgmentConditions: string
+  //
+  // @Expose({ name: 'user_conditions' })
+  // userConditions: string
+  //
+  // @Expose({ name: 'grant_target' })
+  // grantTarget: string
 }

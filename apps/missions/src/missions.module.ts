@@ -4,7 +4,7 @@ import { CommonModule } from '@app/common'
 import { C01Module } from './c01/c01.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { MysqlModule } from '@app/mysql'
-import { MissionsController } from './campaigns.controller'
+import { MissionsController } from './missions.controller'
 
 @Module({
   controllers: [MissionsController],

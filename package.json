@@ -96,7 +96,8 @@
       "^@app/user(|/.*)$": "<rootDir>/libs/user/src/$1",
       "^@app/external-user(|/.*)$": "<rootDir>/libs/external-user/src/$1",
       "^@app/campaign(|/.*)$": "<rootDir>/libs/campaign/src/$1",
-      "^@app/affiliate-internal(|/.*)$": "<rootDir>/libs/affiliate-internal/src/$1"
+      "^@app/affiliate-internal(|/.*)$": "<rootDir>/libs/affiliate-internal/src/$1",
+      "^@app/reward-rule(|/.*)$": "<rootDir>/libs/reward-rule/src/$1"
     }
   }
 }

@@ -19,6 +19,38 @@ services:
     depends_on:
       - db
       - phpmyadmin
+  admin:
+    container_name: reward_admin
+    image: reward-api-dev:1.0.0
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    command: npm run start:dev admin
+    ports:
+      - 3003:${SERVER_PORT:-3000}
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - db
+  missions:
+    container_name: reward_missions
+    image: reward-api-dev:1.0.0
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    command: npm run start:dev missions
+    ports:
+      - 3001:${SERVER_PORT:-3000}
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - db
   # Database
   db:
     image: mariadb:latest
@@ -71,24 +103,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - reward_server
-  c01:
-     container_name: reward_c01_dev
-     image: reward-api-dev:1.0.0
-     build:
-       context: .
-       dockerfile: ./Dockerfile
-       target: development
-     command: npm run start:debug campaign01
-     ports:
-       - 3001:${SERVER_PORT:-3000}
-     networks:
-       - reward_server
-     volumes:
-       - .:/usr/src/app
-       - node_modules:/usr/src/app/node_modules
-     restart: unless-stopped
-     depends_on:
-       - db
 networks:
   reward_server:
 volumes:

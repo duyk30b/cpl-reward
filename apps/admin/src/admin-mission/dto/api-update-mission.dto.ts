@@ -6,10 +6,6 @@ import { ApiConditionDto } from './api-condition.dto'
 import { ApiTargetDto } from './api-target.dto'
 
 export class ApiUpdateMissionDto {
-  @Expose({ name: 'campaign_id' })
-  @ApiProperty({ name: 'campaign_id' })
-  campaignId: number
-
   @Expose()
   @ApiProperty()
   title: string

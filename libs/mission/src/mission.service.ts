@@ -22,22 +22,6 @@ export class MissionService {
     return await this.missionRepository.findOne(id, options)
   }
 
-  // async getByIds(campaignIds: number[]): Promise<Mission[]> {
-  //   return await this.missionRepository.find({ id: In(campaignIds) })
-  // }
-  //
-  // async updateStats(campaignId: number, addMoney, addReward) {
-  //   const campaign = await this.getById(campaignId)
-  //   if (!campaign) {
-  //     return null
-  //   }
-  //
-  //   campaign.releasedMoney += addMoney
-  //   campaign.releasedReward += addReward
-  //
-  //   return await this.missionRepository.save(campaign)
-  // }
-
   async update(updateMissionDto: UpdateMissionDto): Promise<Mission> {
     updateMissionDto = plainToInstance(UpdateMissionDto, updateMissionDto, {
       excludeExtraneousValues: true,

@@ -4,11 +4,14 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   JoinColumn,
+  AfterLoad,
+  ManyToOne,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
 import { RewardRule } from '@app/reward-rule/entities/reward-rule.entity'
 import { JsonColumnTransformer } from '@app/mysql/typeorm.transformer'
+import { Campaign } from '@app/campaign/entities/campaign.entity'
 
 @Entity({
   name: 'missions',
@@ -68,4 +71,17 @@ export class Mission extends MyBaseEntity {
     name: 'reward_rules',
   })
   rewardRules: RewardRule[]
+
+  @ManyToOne(() => Campaign, (campaign) => campaign.missions, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'campaign_id' })
+  campaign: Campaign
+
+  @AfterLoad()
+  transformJsonString() {
+    this.judgmentConditions = JSON.parse(this.judgmentConditions)
+    this.userConditions = JSON.parse(this.userConditions)
+    this.grantTarget = JSON.parse(this.grantTarget)
+  }
 }

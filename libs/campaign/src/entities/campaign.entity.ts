@@ -8,6 +8,7 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
 import { RewardRule } from '@app/reward-rule/entities/reward-rule.entity'
+import { Mission } from '@app/mission/entities/mission.entity'
 
 @Entity({
   name: 'campaigns',
@@ -87,4 +88,11 @@ export class Campaign extends MyBaseEntity {
     name: 'reward_rules',
   })
   rewardRules: RewardRule[]
+
+  @OneToMany(() => Mission, (mission) => mission.campaign)
+  @JoinColumn()
+  @Expose({
+    name: 'missions',
+  })
+  missions: Mission[]
 }

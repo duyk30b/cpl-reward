@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -19,8 +20,13 @@ export class AdminCampaignController {
   constructor(private readonly adminCampaignService: AdminCampaignService) {}
 
   @Get('init')
-  async init(): Promise<{ id: number }> {
+  async init() {
     return await this.adminCampaignService.init()
+  }
+
+  @Delete('cancel/:id')
+  async cancel(@Param('id') id: string) {
+    await this.adminCampaignService.cancel(+id)
   }
 
   @Get()

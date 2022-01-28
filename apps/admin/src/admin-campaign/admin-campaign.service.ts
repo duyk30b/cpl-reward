@@ -17,6 +17,13 @@ export class AdminCampaignService {
     return { id: campaign.id }
   }
 
+  async cancel(id: number): Promise<{ affected: number }> {
+    const deleteResult = await this.campaignService.delete(id)
+    return {
+      affected: deleteResult.affected,
+    }
+  }
+
   async findAll(page: number, limit: number) {
     limit = limit > 100 ? 100 : limit
     return this.campaignService.paginate({
@@ -30,9 +37,11 @@ export class AdminCampaignService {
     if (!campaign) {
       return null
     }
-    campaign.rewardRules = campaign.rewardRules.filter(
-      (item) => item.typeRule == 'campaign',
-    )
+    if (campaign.rewardRules.length > 0) {
+      campaign.rewardRules = campaign.rewardRules.filter(
+        (item) => item.typeRule == 'campaign',
+      )
+    }
     return campaign
   }
 

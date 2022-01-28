@@ -25,6 +25,10 @@ export class CampaignService {
     return await this.campaignRepository.save(initCampaignEntity)
   }
 
+  async delete(id: number) {
+    return await this.campaignRepository.delete({ id })
+  }
+
   async getById(campaignId: number) {
     return await this.campaignRepository.findOne(campaignId, {
       relations: ['rewardRules'],

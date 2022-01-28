@@ -64,11 +64,15 @@ export class RewardRule extends MyBaseEntity {
   })
   releaseValue: number
 
-  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules)
+  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'campaign_id' })
   campaign: Campaign
 
-  @ManyToOne(() => Mission, (mission) => mission.rewardRules)
+  @ManyToOne(() => Mission, (mission) => mission.rewardRules, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'mission_id' })
   mission: Mission
 }

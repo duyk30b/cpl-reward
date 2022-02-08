@@ -1,14 +1,19 @@
 import { Expose } from 'class-transformer'
-import { IsNotEmpty, IsNumber } from 'class-validator'
-import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { ApiCreateRewardRuleDto } from './api-create-reward-rule.dto'
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-export class ApiUpdateRewardRuleDto extends PartialType(
-  ApiCreateRewardRuleDto,
-) {
-  @ApiProperty()
+export class ApiUpdateRewardRuleDto {
   @Expose()
   @IsNotEmpty()
+  @IsString()
+  key: string
+
+  @Expose()
+  @IsNotEmpty()
+  @IsString()
+  currency: string
+
+  @Expose({ name: 'limit_value' })
+  @IsNotEmpty()
   @IsNumber()
-  id: number
+  limitValue: number
 }

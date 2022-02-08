@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { MissionService } from '@app/mission'
 import { ApiCreateMissionDto } from './dto/api-create-mission.dto'
-import { plainToInstance } from 'class-transformer'
+import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { CreateRewardRuleDto } from '@app/reward-rule/dto/create-reward-rule.dto'
 import { RewardRuleService } from '@app/reward-rule'
 import { UpdateRewardRuleDto } from '@app/reward-rule/dto/update-reward-rule.dto'
 import { ApiUpdateMissionDto } from './dto/api-update-mission.dto'
+import { CreateMissionDto } from '@app/mission/dto/create-mission.dto'
+import { UpdateMissionDto } from '@app/mission/dto/update-mission.dto'
 
 @Injectable()
 export class AdminMissionService {
@@ -14,8 +16,23 @@ export class AdminMissionService {
     private readonly rewardRuleService: RewardRuleService,
   ) {}
 
+  private static convertObjectToString(
+    missionDto: ApiCreateMissionDto | ApiUpdateMissionDto,
+  ) {
+    const missionPlain = instanceToPlain(missionDto)
+    missionPlain.judgment_conditions = JSON.stringify(
+      missionPlain.judgment_conditions,
+    )
+    missionPlain.user_conditions = JSON.stringify(missionPlain.user_conditions)
+    missionPlain.grant_target = JSON.stringify(missionPlain.grant_target)
+    return missionPlain
+  }
+
   async create(createMissionDto: ApiCreateMissionDto) {
-    const mission = await this.missionService.create(createMissionDto)
+    const createMissionPlain = AdminMissionService.convertObjectToString(
+      createMissionDto,
+    ) as CreateMissionDto
+    const mission = await this.missionService.create(createMissionPlain)
     createMissionDto.reward_rules.map(async (item) => {
       const createRewardRuleDto = plainToInstance(CreateRewardRuleDto, item, {
         ignoreDecorators: true,
@@ -38,9 +55,13 @@ export class AdminMissionService {
   }
 
   async update(id: number, updateMissionDto: ApiUpdateMissionDto) {
+    const updateMissionPlain = AdminMissionService.convertObjectToString(
+      updateMissionDto,
+    ) as UpdateMissionDto
+
     const mission = await this.missionService.update({
       id,
-      ...updateMissionDto,
+      ...updateMissionPlain,
     })
     updateMissionDto.reward_rules.map(async (item) => {
       const updateRewardRuleDto = plainToInstance(UpdateRewardRuleDto, item, {
@@ -63,10 +84,15 @@ export class AdminMissionService {
   }
 
   async findOne(id: number) {
-    const mission = await this.missionService.getById(id)
+    const mission = await this.missionService.getById(id, {
+      relations: ['rewardRules'],
+    })
     if (!mission) {
       return null
     }
+    mission.rewardRules = mission.rewardRules.filter(
+      (item) => item.typeRule == 'mission',
+    )
 
     return mission
   }

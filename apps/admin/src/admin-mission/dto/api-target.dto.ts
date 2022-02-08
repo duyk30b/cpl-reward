@@ -1,19 +1,24 @@
 import { Expose } from 'class-transformer'
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-export class ApiCreateRewardRuleDto {
+export class ApiTargetDto {
   @Expose()
   @IsNotEmpty()
   @IsString()
-  key: string
+  user: string
+
+  @Expose()
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number
 
   @Expose()
   @IsNotEmpty()
   @IsString()
   currency: string
 
-  @Expose({ name: 'limit_value' })
+  @Expose()
   @IsNotEmpty()
-  @IsNumber()
-  limitValue: number
+  @IsString()
+  wallet: string
 }

@@ -32,7 +32,7 @@ export class ApiCreateMissionDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ApiCreateRewardRuleDto)
-  reward_rules: ApiCreateRewardRuleDto[]
+  rewardRules: ApiCreateRewardRuleDto[]
 
   @Expose({ name: 'judgment_conditions' })
   @ApiProperty({ name: 'judgment_conditions' })

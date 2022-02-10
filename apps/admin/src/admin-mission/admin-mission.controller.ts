@@ -1,60 +1,25 @@
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { AdminMissionService } from './admin-mission.service'
-import { ApiOperation } from '@nestjs/swagger'
-import { ApiCreateMissionDto } from './dto/api-create-mission.dto'
-import { ApiUpdateMissionDto } from './dto/api-update-mission.dto'
-import { Pagination } from 'nestjs-typeorm-paginate'
-import { Mission } from '@app/mission/entities/mission.entity'
+import { CreateInput, UpdateInput } from './admin-mission.interface'
+import { GrpcMethod } from '@nestjs/microservices'
+import { FindOneInput } from '../admin-campaign/admin-campaign.interface'
 
 @Controller('mission')
 export class AdminMissionController {
   constructor(private readonly adminMissionService: AdminMissionService) {}
 
-  @Post()
-  @ApiOperation({
-    summary: 'Create new mission',
-  })
-  create(@Body() createMissionDto: ApiCreateMissionDto) {
-    return this.adminMissionService.create(createMissionDto)
+  @GrpcMethod('GrpcAdminMissionService', 'Create')
+  async create(data: CreateInput): Promise<any> {
+    return await this.adminMissionService.create(data)
   }
 
-  @Get()
-  @ApiOperation({
-    summary: 'Get mission list',
-  })
-  async findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
-  ): Promise<Pagination<Mission>> {
-    return this.adminMissionService.findAll(page, limit)
+  @GrpcMethod('GrpcAdminMissionService', 'Update')
+  async update(data: UpdateInput): Promise<any> {
+    return await this.adminMissionService.update(data)
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get mission by ID',
-  })
-  findOne(@Param('id') id: string) {
-    return this.adminMissionService.findOne(+id)
-  }
-
-  @Patch(':id')
-  @ApiOperation({
-    summary: 'Update campaign',
-  })
-  update(
-    @Param('id') id: string,
-    @Body() updateMissionDto: ApiUpdateMissionDto,
-  ) {
-    return this.adminMissionService.update(+id, updateMissionDto)
+  @GrpcMethod('GrpcAdminMissionService', 'FindOne')
+  async findOne(data: FindOneInput): Promise<any> {
+    return await this.adminMissionService.findOne(+data.id)
   }
 }

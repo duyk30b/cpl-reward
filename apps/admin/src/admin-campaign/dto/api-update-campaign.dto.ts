@@ -11,6 +11,9 @@ import {
 import { ApiUpdateRewardRuleDto } from './api-update-reward-rule.dto'
 
 export class ApiUpdateCampaignDto {
+  @Expose()
+  id: number
+
   @ApiProperty()
   @Expose()
   @IsNotEmpty()
@@ -59,5 +62,5 @@ export class ApiUpdateCampaignDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ApiUpdateRewardRuleDto)
-  reward_rules: ApiUpdateRewardRuleDto[]
+  rewardRules: ApiUpdateRewardRuleDto[]
 }

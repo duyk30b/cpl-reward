@@ -4,6 +4,7 @@ import { plainToInstance } from 'class-transformer'
 import { UpdateRewardRuleDto } from '@app/reward-rule/dto/update-reward-rule.dto'
 import { RewardRuleService } from '@app/reward-rule'
 import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
+import { UpdateCampaignDto } from '@app/campaign/dto/update-campaign.dto'
 
 @Injectable()
 export class AdminCampaignService {
@@ -24,20 +25,14 @@ export class AdminCampaignService {
     }
   }
 
-  async findAll(page: number, limit: number) {
-    limit = limit > 100 ? 100 : limit
-    return this.campaignService.paginate({
-      page,
-      limit,
-    })
-  }
-
   async findOne(id: number) {
-    const campaign = await this.campaignService.getById(id)
+    const campaign = await this.campaignService.getById(id, {
+      relations: ['rewardRules'],
+    })
     if (!campaign) {
       return null
     }
-    if (campaign.rewardRules.length > 0) {
+    if (campaign.rewardRules !== undefined && campaign.rewardRules.length > 0) {
       campaign.rewardRules = campaign.rewardRules.filter(
         (item) => item.typeRule == 'campaign',
       )
@@ -45,26 +40,34 @@ export class AdminCampaignService {
     return campaign
   }
 
-  async update(id: number, updateCampaignDto: ApiUpdateCampaignDto) {
-    updateCampaignDto.reward_rules.map(async (item) => {
-      const updateRewardRuleDto = plainToInstance(UpdateRewardRuleDto, item, {
+  async update(updateCampaignDto: ApiUpdateCampaignDto) {
+    const rewardRules = updateCampaignDto.rewardRules
+    const updateCampaign = plainToInstance(
+      UpdateCampaignDto,
+      updateCampaignDto,
+      {
         ignoreDecorators: true,
-      })
-      const rewardRules = await this.rewardRuleService.find({
-        campaignId: id,
-        typeRule: 'campaign',
-        key: updateRewardRuleDto.key,
-      })
-      if (rewardRules.length < 1) {
-        updateRewardRuleDto.campaignId = id
+        excludeExtraneousValues: true,
+      },
+    )
+    await this.campaignService.update(updateCampaign)
+    await Promise.all(
+      rewardRules.map(async (item) => {
+        const updateRewardRuleDto = plainToInstance(UpdateRewardRuleDto, item, {
+          ignoreDecorators: true,
+        })
+        updateRewardRuleDto.campaignId = updateCampaignDto.id
         updateRewardRuleDto.typeRule = 'campaign'
         await this.rewardRuleService.update(updateRewardRuleDto)
-      }
-      return item
+        return item
+      }),
+    )
+    const campaign = await this.campaignService.getById(updateCampaign.id, {
+      relations: ['rewardRules'],
     })
-    return await this.campaignService.update({
-      id,
-      ...updateCampaignDto,
-    })
+    campaign.rewardRules = campaign.rewardRules.filter(
+      (item) => item.typeRule == 'campaign',
+    )
+    return campaign
   }
 }

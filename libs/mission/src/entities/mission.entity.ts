@@ -6,6 +6,8 @@ import {
   JoinColumn,
   AfterLoad,
   ManyToOne,
+  BeforeUpdate,
+  BeforeInsert,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@app/mysql/my-base.entity'
@@ -79,9 +81,17 @@ export class Mission extends MyBaseEntity {
   campaign: Campaign
 
   @AfterLoad()
-  transformJsonString() {
+  transformStringToJson() {
     this.judgmentConditions = JSON.parse(this.judgmentConditions)
     this.userConditions = JSON.parse(this.userConditions)
     this.grantTarget = JSON.parse(this.grantTarget)
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  transformJsonToString() {
+    this.judgmentConditions = JSON.stringify(this.judgmentConditions)
+    this.userConditions = JSON.stringify(this.userConditions)
+    this.grantTarget = JSON.stringify(this.grantTarget)
   }
 }

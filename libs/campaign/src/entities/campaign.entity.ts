@@ -18,68 +18,32 @@ export class Campaign extends MyBaseEntity {
   @Expose()
   id: number
 
-  @Column({
-    nullable: true,
-    default: null,
-  })
+  @Column()
   @Expose()
   title: string
 
-  @Column({
-    nullable: true,
-    default: null,
-  })
+  @Column()
   @Expose()
   description: string
 
-  @Column({
-    nullable: true,
-    default: null,
-    name: 'detail_explain',
-  })
-  @Expose({
-    name: 'detail_explain',
-  })
+  @Column({ name: 'detail_explain' })
+  @Expose({ name: 'detail_explain' })
   detailExplain: string
 
-  @Column({
-    nullable: true,
-    default: null,
-    name: 'start_date',
-  })
-  @Expose({
-    name: 'start_date',
-  })
+  @Column({ name: 'start_date' })
+  @Expose({ name: 'start_date' })
   startDate: number
 
-  @Column({
-    nullable: true,
-    default: null,
-    name: 'end_date',
-  })
-  @Expose({
-    name: 'end_date',
-  })
+  @Column({ name: 'end_date' })
+  @Expose({ name: 'end_date' })
   endDate: number
 
-  @Column({
-    nullable: true,
-    default: null,
-    name: 'notification_link',
-  })
-  @Expose({
-    name: 'notification_link',
-  })
+  @Column({ name: 'notification_link' })
+  @Expose({ name: 'notification_link' })
   notificationLink: string
 
-  @Column({
-    nullable: true,
-    default: null,
-    name: 'campaign_image',
-  })
-  @Expose({
-    name: 'campaign_image',
-  })
+  @Column({ name: 'campaign_image' })
+  @Expose({ name: 'campaign_image' })
   campaignImage: string
 
   @OneToMany(() => RewardRule, (rewardRule) => rewardRule.campaign)

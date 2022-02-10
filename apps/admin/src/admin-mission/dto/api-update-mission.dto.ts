@@ -7,6 +7,13 @@ import { ApiTargetDto } from './api-target.dto'
 
 export class ApiUpdateMissionDto {
   @Expose()
+  id: number
+
+  @Expose({ name: 'campaign_id' })
+  @ApiProperty({ name: 'campaign_id' })
+  campaignId: number
+
+  @Expose()
   @ApiProperty()
   title: string
 
@@ -28,7 +35,7 @@ export class ApiUpdateMissionDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ApiUpdateRewardRuleDto)
-  reward_rules: ApiUpdateRewardRuleDto[]
+  rewardRules: ApiUpdateRewardRuleDto[]
 
   @Expose({ name: 'judgment_conditions' })
   @ApiProperty({ name: 'judgment_conditions' })

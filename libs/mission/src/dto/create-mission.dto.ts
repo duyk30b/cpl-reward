@@ -1,4 +1,6 @@
-import { Expose } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
+import { ConditionDto } from '@app/mission/dto/condition.dto'
+import { TargetDto } from '@app/mission/dto/target.dto'
 
 export class CreateMissionDto {
   @Expose({ name: 'campaign_id' })
@@ -17,11 +19,14 @@ export class CreateMissionDto {
   closingDate: number
 
   @Expose({ name: 'judgment_conditions' })
-  judgmentConditions: string
+  @Type(() => ConditionDto)
+  judgmentConditions: ConditionDto[]
 
   @Expose({ name: 'user_conditions' })
-  userConditions: string
+  @Type(() => ConditionDto)
+  userConditions: ConditionDto[]
 
   @Expose({ name: 'grant_target' })
-  grantTarget: string
+  @Type(() => TargetDto)
+  grantTarget: TargetDto[]
 }

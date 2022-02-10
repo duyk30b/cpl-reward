@@ -29,17 +29,11 @@ export class CampaignService {
     return await this.campaignRepository.delete({ id })
   }
 
-  async getById(campaignId: number) {
-    return await this.campaignRepository.findOne(campaignId, {
-      relations: ['rewardRules'],
-    })
+  async getById(campaignId: number, options = undefined) {
+    return await this.campaignRepository.findOne(campaignId, options)
   }
 
   async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {
-    updateCampaignDto = plainToInstance(UpdateCampaignDto, updateCampaignDto, {
-      excludeExtraneousValues: true,
-    })
-
     const campaignEntity = plainToInstance(Campaign, updateCampaignDto, {
       ignoreDecorators: true,
     })
@@ -47,9 +41,6 @@ export class CampaignService {
   }
 
   async create(createCampaignDto: CreateCampaignDto): Promise<Campaign> {
-    createCampaignDto = plainToInstance(CreateCampaignDto, createCampaignDto, {
-      excludeExtraneousValues: true,
-    })
     const campaignEntity = plainToInstance(Campaign, createCampaignDto, {
       ignoreDecorators: true,
     })

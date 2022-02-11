@@ -5,7 +5,7 @@ package admin_campaign;
 service GrpcAdminCampaignService {
   rpc Init(Empty) returns (InitResult);
   rpc Cancel(CancelInput) returns (CancelResult);
-  rpc FindOne(FindOneInput) returns (FindOneCampaignResult);
+  rpc FindOne(FindOneInput) returns (Result);
   rpc Update(UpdateInput) returns (Result);
 }
 
@@ -47,18 +47,6 @@ message RewardRule {
 }
 
 message Result {
-  int32 id = 1;
-  string title = 2;
-  string description = 3;
-  string detailExplain = 4;
-  int32 startDate = 5;
-  int32 endDate = 6;
-  string notificationLink = 7;
-  string campaignImage = 8;
-  repeated RewardRuleResult rewardRules = 9;
-}
-
-message FindOneCampaignResult {
   int32 id = 1;
   string title = 2;
   string description = 3;

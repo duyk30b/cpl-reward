@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package admin_common;
+
+service GrpcAdminCommonService {
+  rpc CreateActionLog(CreateActionLog) returns (Result);
+}
+
+message CreateActionLog {
+  int32 adminId = 1;
+  string actionName = 2;
+  string contentData = 3;
+}
+
+message Result {
+    int32 adminId = 1;
+    string actionName = 2;
+    string contentData = 3;
+    int32 createdAt = 4;
+    int32 updatedAt = 5;
+    int32 id = 6;
+}

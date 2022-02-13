@@ -136,6 +136,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/admin/src",
       "compilerOptions": {
+        "assets": ["**/*.proto"],
+        "watchAssets": true,
         "tsConfigPath": "apps/admin/tsconfig.app.json"
       }
     },

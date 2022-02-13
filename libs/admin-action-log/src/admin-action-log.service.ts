@@ -15,14 +15,6 @@ export class AdminActionLogService {
   async create(
     createAdminActionLogDto: CreateAdminActionLogDto,
   ): Promise<AdminActionLog> {
-    createAdminActionLogDto = plainToInstance(
-      CreateAdminActionLogDto,
-      createAdminActionLogDto,
-      {
-        excludeExtraneousValues: true,
-      },
-    )
-
     const adminActionLog = plainToInstance(
       AdminActionLog,
       createAdminActionLogDto,
@@ -31,6 +23,6 @@ export class AdminActionLogService {
       },
     )
 
-    return this.adminActionLogRepository.create(adminActionLog)
+    return await this.adminActionLogRepository.save(adminActionLog)
   }
 }

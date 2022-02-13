@@ -1,4 +1,4 @@
-FROM node:14-alpine AS development
+FROM node:14-alpine3.12 AS development
 
 WORKDIR /app
 
@@ -8,11 +8,11 @@ RUN npm install
 ADD . /app
 RUN npm run build reward
 RUN npm run build admin
-RUN npm run build misions
+RUN npm run build missions
 
 RUN npm install --only=prod
 
-FROM node:14-alpine AS production
+FROM node:14-alpine3.12 AS production
 
 EXPOSE 3000
 

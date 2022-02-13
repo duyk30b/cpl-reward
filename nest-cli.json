@@ -136,9 +136,16 @@
       "entryFile": "main",
       "sourceRoot": "apps/admin/src",
       "compilerOptions": {
-        "assets": ["**/*.proto", "*.proto"],
-        "watchAssets": true,
         "tsConfigPath": "apps/admin/tsconfig.app.json"
+      }
+    },
+    "admin-action-log": {
+      "type": "library",
+      "root": "libs/admin-action-log",
+      "entryFile": "index",
+      "sourceRoot": "libs/admin-action-log/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/admin-action-log/tsconfig.lib.json"
       }
     }
   }

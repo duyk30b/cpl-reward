@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./apps/reward/test/jest-e2e.json"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.5.2",
+    "@grpc/grpc-js": "^1.5.1",
     "@grpc/proto-loader": "^0.6.9",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
@@ -97,7 +97,8 @@
       "^@app/external-user(|/.*)$": "<rootDir>/libs/external-user/src/$1",
       "^@app/campaign(|/.*)$": "<rootDir>/libs/campaign/src/$1",
       "^@app/affiliate-internal(|/.*)$": "<rootDir>/libs/affiliate-internal/src/$1",
-      "^@app/reward-rule(|/.*)$": "<rootDir>/libs/reward-rule/src/$1"
+      "^@app/reward-rule(|/.*)$": "<rootDir>/libs/reward-rule/src/$1",
+      "^@app/admin-action-log(|/.*)$": "<rootDir>/libs/admin-action-log/src/$1"
     }
   }
 }

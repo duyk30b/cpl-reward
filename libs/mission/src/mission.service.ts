@@ -2,14 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { Mission } from '@app/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import {
-  paginate,
-  Pagination,
-  IPaginationOptions,
-} from 'nestjs-typeorm-paginate'
+import { paginate, Pagination, IPaginationMeta } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@app/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
 import { UpdateMissionDto } from '@app/mission/dto/update-mission.dto'
+import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class MissionService {
@@ -36,10 +33,22 @@ export class MissionService {
     return await this.missionRepository.save(missionEntity)
   }
 
-  async paginate(options: IPaginationOptions): Promise<Pagination<Mission>> {
-    const queryBuilder = this.missionRepository.createQueryBuilder('c')
-    queryBuilder.orderBy('c.id', 'DESC')
+  async paginate(options: {
+    metaTransformer: (meta: IPaginationMeta) => CustomPaginationMetaTransformer
+    limit: number
+    page: number
+  }): Promise<Pagination<Mission, CustomPaginationMetaTransformer>> {
+    const queryBuilder = this.missionRepository.createQueryBuilder('mission')
+    queryBuilder.orderBy('mission.id', 'DESC')
+    queryBuilder.leftJoinAndSelect(
+      'mission.rewardRules',
+      'rewardRules',
+      "rewardRules.type_rule = 'mission'",
+    )
 
-    return paginate<Mission>(queryBuilder, options)
+    return paginate<Mission, CustomPaginationMetaTransformer>(
+      queryBuilder,
+      options,
+    )
   }
 }

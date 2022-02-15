@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { CampaignService } from '@app/campaign'
+import { IPaginationMeta } from 'nestjs-typeorm-paginate'
+import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class ApiCampaignService {
@@ -7,10 +9,21 @@ export class ApiCampaignService {
 
   async findAll(page: number, limit: number) {
     limit = limit > 100 ? 100 : limit
-    return this.campaignService.paginate({
+    const options = {
       page,
       limit,
-    })
+      metaTransformer: (
+        meta: IPaginationMeta,
+      ): CustomPaginationMetaTransformer =>
+        new CustomPaginationMetaTransformer(
+          meta.totalItems,
+          meta.itemCount,
+          meta.itemsPerPage,
+          meta.totalPages,
+          meta.currentPage,
+        ),
+    }
+    return this.campaignService.paginate(options)
   }
 
   async findOne(id: number) {

@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import {
-  IPaginationOptions,
-  Pagination,
-  paginate,
-} from 'nestjs-typeorm-paginate'
+import { Pagination, paginate, IPaginationMeta } from 'nestjs-typeorm-paginate'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Campaign } from '@app/campaign/entities/campaign.entity'
 import { UpdateCampaignDto } from '@app/campaign/dto/update-campaign.dto'
 import { CreateCampaignDto } from '@app/campaign/dto/create-campaign.dto'
+import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class CampaignService {
@@ -47,10 +44,22 @@ export class CampaignService {
     return await this.campaignRepository.save(campaignEntity)
   }
 
-  async paginate(options: IPaginationOptions): Promise<Pagination<Campaign>> {
-    const queryBuilder = this.campaignRepository.createQueryBuilder('c')
-    queryBuilder.orderBy('c.id', 'DESC')
+  async paginate(options: {
+    metaTransformer: (meta: IPaginationMeta) => CustomPaginationMetaTransformer
+    limit: number
+    page: number
+  }): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {
+    const queryBuilder = this.campaignRepository.createQueryBuilder('campaign')
+    queryBuilder.orderBy('campaign.id', 'DESC')
+    queryBuilder.leftJoinAndSelect(
+      'campaign.rewardRules',
+      'rewardRules',
+      "rewardRules.type_rule = 'campaign'",
+    )
 
-    return paginate<Campaign>(queryBuilder, options)
+    return paginate<Campaign, CustomPaginationMetaTransformer>(
+      queryBuilder,
+      options,
+    )
   }
 }

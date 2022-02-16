@@ -67,7 +67,9 @@ export class Mission extends MyBaseEntity {
   @Expose({ name: 'grant_target' })
   grantTarget: string
 
-  @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission)
+  @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission, {
+    eager: true,
+  })
   @JoinColumn()
   @Expose({
     name: 'reward_rules',

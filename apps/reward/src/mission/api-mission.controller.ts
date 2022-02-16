@@ -10,6 +10,7 @@ import { ApiMissionService } from './api-mission.service'
 import { ApiOperation } from '@nestjs/swagger'
 import { Pagination } from 'nestjs-typeorm-paginate'
 import { Mission } from '@app/mission/entities/mission.entity'
+import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
 
 @Controller('missions')
 export class ApiMissionController {
@@ -22,7 +23,7 @@ export class ApiMissionController {
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
-  ): Promise<Pagination<Mission>> {
+  ): Promise<Pagination<Mission, CustomPaginationMetaTransformer>> {
     return this.apiMissionService.findAll(page, limit)
   }
 

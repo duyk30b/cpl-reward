@@ -1,109 +1,100 @@
+version: '3.9'
+
 services:
   app:
-    container_name: reward_dev
+    container_name: reward_app
     image: reward-api-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: development
-    command: npm run start:debug
+      target: builder
+    command: npm run start:dev
     ports:
-      - 3000:${SERVER_PORT:-3000}
-    networks:
-      - reward_server
+      - ${APP_MAP_PORT}
     volumes:
       - .:/app
-      - node_modules:/app/node_modules
     restart: unless-stopped
     depends_on:
       - db
-      - phpmyadmin
+    networks:
+      - server
   admin:
     container_name: reward_admin
     image: reward-api-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: development
+      target: builder
     command: npm run start:dev admin
     ports:
-      - '50005:5000'
+      - ${ADMIN_KAFKA_MAP_PORT}
     volumes:
       - .:/app
-      - node_modules:/app/node_modules
     restart: unless-stopped
     depends_on:
       - db
+    networks:
+      - server
   missions:
     container_name: reward_missions
     image: reward-api-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: development
+      target: builder
     command: npm run start:dev missions
     ports:
-      - 3001:${SERVER_PORT:-3000}
+      - ${MISSIONS_MAP_PORT}
     volumes:
       - .:/app
-      - node_modules:/app/node_modules
     restart: unless-stopped
     depends_on:
       - db
-  # Database
+    networks:
+      - server
   db:
+    container_name: reward_db
     image: mariadb:latest
     volumes:
       - db_data:/var/lib/mysql
-    restart: always
+    restart: unless-stopped
     ports:
-      - '3361:3306'
+      - ${REWARD_MYSQL_MAP_PORT}
     environment:
       MYSQL_ROOT_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
       MYSQL_DATABASE: ${REWARD_MYSQL_MASTER_DB}
       MYSQL_USER: ${REWARD_MYSQL_MASTER_USER}
       MYSQL_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
     networks:
-      - reward_server
-  # phpmyadmin
-  phpmyadmin:
-    depends_on:
-      - db
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - '8080:80'
-    environment:
-      PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
-    networks:
-      - reward_server
+      - server
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+    container_name: reward_zookeeper
+    image: 'bitnami/zookeeper:latest'
     ports:
-      - 22181:2181
+      - "2181:2181"
+    restart: unless-stopped
     networks:
-      - reward_server
+      - server
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
   kafka:
-    image: confluentinc/cp-kafka:latest
+    container_name: reward_kafka
+    image: 'bitnami/kafka:latest'
+    ports:
+      - "9093:9093"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+    restart: unless-stopped
     depends_on:
       - zookeeper
-    ports:
-      - 29092:29092
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://cpl-kafka01.staging-bitcastle.work:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
-      - reward_server
+      - server
 networks:
-  reward_server:
+  server:
 volumes:
   db_data:
-  node_modules:

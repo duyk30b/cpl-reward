@@ -23,7 +23,7 @@ export class ApiMissionService {
           meta.currentPage,
         ),
     }
-    return this.missionService.paginate(options)
+    return this.missionService.snakePaginate(options)
   }
 
   async findOne(id: number) {

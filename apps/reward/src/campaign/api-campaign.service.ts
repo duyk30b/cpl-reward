@@ -23,7 +23,7 @@ export class ApiCampaignService {
           meta.currentPage,
         ),
     }
-    return this.campaignService.paginate(options)
+    return this.campaignService.snakePaginate(options)
   }
 
   async findOne(id: number) {

@@ -36,11 +36,17 @@ message UpdateInput {
   int32 endDate = 6;
   string notificationLink = 7;
   string campaignImage = 8;
-  repeated RewardRule rewardRules = 9;
+  repeated UpdateRewardRule rewardRules = 9;
 }
 
-message RewardRule {
+message UpdateRewardRule {
   int32 id = 1;
+  string key = 2;
+  string currency = 3;
+  int32 limitValue = 4;
+}
+
+message CreateRewardRule {
   string key = 2;
   string currency = 3;
   int32 limitValue = 4;
@@ -76,5 +82,5 @@ message CreateInput {
   int32 endDate = 5;
   string notificationLink = 6;
   string campaignImage = 7;
-  repeated RewardRuleResult rewardRules = 8;
+  repeated CreateRewardRule rewardRules = 8;
 }

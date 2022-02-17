@@ -16,13 +16,13 @@ message CreateInput {
   string detailExplain = 3;
   int32 openingDate = 4;
   int32 closingDate = 5;
-  repeated CreateRewardRuleInput rewardRules = 6;
+  repeated CreateRewardRule rewardRules = 6;
   repeated JudgmentConditions judgmentConditions = 7;
   repeated UserConditions userConditions = 8;
   repeated GrantTarget grantTarget = 9;
 }
 
-message CreateRewardRuleInput {
+message CreateRewardRule {
   string key = 1;
   string currency = 2;
   int32 limitValue = 3;
@@ -63,12 +63,12 @@ message UpdateInput {
   string detailExplain = 4;
   int32 openingDate = 5;
   int32 closingDate = 6;
-  repeated UpdateRewardRuleInput rewardRules = 7;
+  repeated UpdateRewardRule rewardRules = 7;
   repeated JudgmentConditions judgmentConditions = 8;
   repeated UserConditions userConditions = 9;
   repeated GrantTarget grantTarget = 10;
 }
-message UpdateRewardRuleInput {
+message UpdateRewardRule {
   int32 id =1;
   string key = 2;
   string currency = 3;

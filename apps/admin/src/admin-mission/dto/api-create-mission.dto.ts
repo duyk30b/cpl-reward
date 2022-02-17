@@ -2,8 +2,9 @@ import { Expose, Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { ArrayMinSize, IsArray, ValidateNested } from 'class-validator'
 import { ApiCreateRewardRuleDto } from './api-create-reward-rule.dto'
-import { ApiConditionDto } from './api-condition.dto'
 import { ApiTargetDto } from './api-target.dto'
+import { ApiUserConditionDto } from './api-user-condition.dto'
+import { ApiJudgmentConditionDto } from './api-judgment-condition.dto'
 
 export class ApiCreateMissionDto {
   @Expose({ name: 'campaign_id' })
@@ -39,16 +40,16 @@ export class ApiCreateMissionDto {
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => ApiConditionDto)
-  judgmentConditions: ApiConditionDto[]
+  @Type(() => ApiJudgmentConditionDto)
+  judgmentConditions: ApiJudgmentConditionDto[]
 
   @Expose({ name: 'user_conditions' })
   @ApiProperty({ name: 'user_conditions' })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => ApiConditionDto)
-  userConditions: ApiConditionDto[]
+  @Type(() => ApiUserConditionDto)
+  userConditions: ApiUserConditionDto[]
 
   @Expose({ name: 'grant_target' })
   @ApiProperty({ name: 'grant_target' })

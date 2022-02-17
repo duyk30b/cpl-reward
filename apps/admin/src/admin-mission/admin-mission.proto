@@ -17,8 +17,8 @@ message CreateInput {
   int32 openingDate = 4;
   int32 closingDate = 5;
   repeated CreateRewardRuleInput rewardRules = 6;
-  repeated Conditions judgmentConditions = 7;
-  repeated Conditions userConditions = 8;
+  repeated JudgmentConditions judgmentConditions = 7;
+  repeated UserConditions userConditions = 8;
   repeated GrantTarget grantTarget = 9;
 }
 
@@ -26,12 +26,6 @@ message CreateRewardRuleInput {
   string key = 1;
   string currency = 2;
   int32 limitValue = 3;
-}
-
-message Conditions {
-  string name = 1;
-  string operator = 2;
-  string value = 3;
 }
 message GrantTarget {
   string user = 1;
@@ -55,8 +49,8 @@ message Result {
   int32 openingDate = 4;
   int32 closingDate = 5;
   repeated RewardRuleResult rewardRules = 6;
-  repeated Conditions judgmentConditions = 7;
-  repeated Conditions userConditions = 8;
+  repeated JudgmentConditions judgmentConditions = 7;
+  repeated UserConditions userConditions = 8;
   repeated GrantTarget grantTarget = 9;
   int32 id = 10;
   int32 createdAt = 11;
@@ -70,8 +64,8 @@ message UpdateInput {
   int32 openingDate = 5;
   int32 closingDate = 6;
   repeated UpdateRewardRuleInput rewardRules = 7;
-  repeated Conditions judgmentConditions = 8;
-  repeated Conditions userConditions = 9;
+  repeated JudgmentConditions judgmentConditions = 8;
+  repeated UserConditions userConditions = 9;
   repeated GrantTarget grantTarget = 10;
 }
 message UpdateRewardRuleInput {
@@ -82,4 +76,15 @@ message UpdateRewardRuleInput {
 }
 message FindOneInput {
   int32 id = 1;
+}
+message JudgmentConditions {
+  string eventName = 1;
+  string property = 2;
+  string operator = 3;
+  string value = 4;
+}
+message UserConditions {
+  string property = 1;
+  string operator = 2;
+  string value = 3;
 }

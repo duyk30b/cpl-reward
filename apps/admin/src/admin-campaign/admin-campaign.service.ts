@@ -5,6 +5,9 @@ import { UpdateRewardRuleDto } from '@app/reward-rule/dto/update-reward-rule.dto
 import { RewardRuleService } from '@app/reward-rule'
 import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
 import { UpdateCampaignDto } from '@app/campaign/dto/update-campaign.dto'
+import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
+import { CreateCampaignDto } from '@app/campaign/dto/create-campaign.dto'
+import { CreateRewardRuleDto } from '@app/reward-rule/dto/create-reward-rule.dto'
 
 @Injectable()
 export class AdminCampaignService {
@@ -12,11 +15,6 @@ export class AdminCampaignService {
     private readonly campaignService: CampaignService,
     private readonly rewardRuleService: RewardRuleService,
   ) {}
-
-  async init(): Promise<{ id: number }> {
-    const campaign = await this.campaignService.init()
-    return { id: campaign.id }
-  }
 
   async cancel(id: number): Promise<{ affected: number }> {
     const deleteResult = await this.campaignService.delete(id)
@@ -37,6 +35,37 @@ export class AdminCampaignService {
         (item) => item.typeRule == 'campaign',
       )
     }
+    return campaign
+  }
+
+  async create(createCampaignDto: ApiCreateCampaignDto) {
+    const rewardRules = createCampaignDto.rewardRules
+    const createCampaign = plainToInstance(
+      CreateCampaignDto,
+      createCampaignDto,
+      {
+        ignoreDecorators: true,
+        excludeExtraneousValues: true,
+      },
+    )
+    let campaign = await this.campaignService.create(createCampaign)
+    await Promise.all(
+      rewardRules.map(async (item) => {
+        const createRewardRuleDto = plainToInstance(CreateRewardRuleDto, item, {
+          ignoreDecorators: true,
+        })
+        createRewardRuleDto.campaignId = campaign.id
+        createRewardRuleDto.typeRule = 'campaign'
+        await this.rewardRuleService.create(createRewardRuleDto)
+        return item
+      }),
+    )
+    campaign = await this.campaignService.getById(campaign.id, {
+      relations: ['rewardRules'],
+    })
+    campaign.rewardRules = campaign.rewardRules.filter(
+      (item) => item.typeRule == 'campaign',
+    )
     return campaign
   }
 

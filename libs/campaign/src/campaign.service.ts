@@ -17,13 +17,6 @@ export class CampaignService {
     private campaignRepository: Repository<Campaign>,
   ) {}
 
-  async init() {
-    const initCampaignEntity = plainToInstance(Campaign, {
-      title: 'Init Campaign',
-    })
-    return await this.campaignRepository.save(initCampaignEntity)
-  }
-
   async delete(id: number) {
     return await this.campaignRepository.delete({ id })
   }

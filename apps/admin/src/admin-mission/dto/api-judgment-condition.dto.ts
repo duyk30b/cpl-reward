@@ -1,11 +1,16 @@
 import { Expose } from 'class-transformer'
 import { IsNotEmpty, IsString } from 'class-validator'
 
-export class ApiConditionDto {
+export class ApiJudgmentConditionDto {
+  @Expose({ name: 'event_name' })
+  @IsNotEmpty()
+  @IsString()
+  eventName: string
+
   @Expose()
   @IsNotEmpty()
   @IsString()
-  name: string
+  property: string
 
   @Expose()
   @IsNotEmpty()

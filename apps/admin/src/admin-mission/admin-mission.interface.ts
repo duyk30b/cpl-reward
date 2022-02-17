@@ -5,8 +5,8 @@ export interface CreateInput {
   openingDate: number
   closingDate: number
   rewardRules: CreateRewardRule[]
-  judgmentConditions: Condition[]
-  userConditions: Condition[]
+  judgmentConditions: JudgmentCondition[]
+  userConditions: UserCondition[]
   grantTarget: GrantTarget[]
 }
 
@@ -15,8 +15,14 @@ interface CreateRewardRule {
   currency: string
   limitValue: number
 }
-interface Condition {
-  name: string
+interface JudgmentCondition {
+  eventName: string
+  property: string
+  operator: string
+  value: string
+}
+interface UserCondition {
+  property: string
   operator: string
   value: string
 }
@@ -34,8 +40,8 @@ export interface UpdateInput {
   openingDate: number
   closingDate: number
   rewardRules: UpdateRewardRule[]
-  judgmentConditions: Condition[]
-  userConditions: Condition[]
+  judgmentConditions: JudgmentCondition[]
+  userConditions: UserCondition[]
   grantTarget: GrantTarget[]
 }
 interface UpdateRewardRule {

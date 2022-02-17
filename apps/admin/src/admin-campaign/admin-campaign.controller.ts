@@ -3,6 +3,7 @@ import { AdminCampaignService } from './admin-campaign.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import {
   CancelInput,
+  CreateInput,
   FindOneInput,
   UpdateInput,
 } from './admin-campaign.interface'
@@ -12,9 +13,9 @@ import { Campaign } from '@app/campaign/entities/campaign.entity'
 export class AdminCampaignController {
   constructor(private readonly adminCampaignService: AdminCampaignService) {}
 
-  @GrpcMethod('GrpcAdminCampaignService', 'Init')
-  async init(): Promise<{ id: number }> {
-    return await this.adminCampaignService.init()
+  @GrpcMethod('GrpcAdminCampaignService', 'Create')
+  async create(data: CreateInput): Promise<Campaign> {
+    return await this.adminCampaignService.create(data)
   }
 
   @GrpcMethod('GrpcAdminCampaignService', 'Cancel')

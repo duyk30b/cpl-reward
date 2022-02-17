@@ -12,20 +12,20 @@ export class MissionsController {
 
   constructor(private eventEmitter: EventEmitter2) {}
 
-  @KafkaTopic('kafka.hl_user_spend_money')
-  async createOrder(@Payload() message: KafkaMessage): Promise<void> {
-    // Transform message
-    const hlUserSpendMoney = plainToInstance(HlUserSpendMoney, message.value, {
-      enableImplicitConversion: true,
-    })
-    if (!(await validate(hlUserSpendMoney))) {
-      this.logger.warn(
-        'Wrong hl_user_spend_money message struct: ' +
-          JSON.stringify(hlUserSpendMoney),
-      )
-      return
-    }
-
-    this.eventEmitter.emit('hl_user_spend_money', hlUserSpendMoney)
-  }
+  // @KafkaTopic('kafka.hl_user_spend_money')
+  // async createOrder(@Payload() message: KafkaMessage): Promise<void> {
+  //   // Transform message
+  //   const hlUserSpendMoney = plainToInstance(HlUserSpendMoney, message.value, {
+  //     enableImplicitConversion: true,
+  //   })
+  //   if (!(await validate(hlUserSpendMoney))) {
+  //     this.logger.warn(
+  //       'Wrong hl_user_spend_money message struct: ' +
+  //         JSON.stringify(hlUserSpendMoney),
+  //     )
+  //     return
+  //   }
+  //
+  //   this.eventEmitter.emit('hl_user_spend_money', hlUserSpendMoney)
+  // }
 }

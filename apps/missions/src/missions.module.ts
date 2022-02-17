@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
 import { KafkaModule } from '@app/kafka'
 import { CommonModule } from '@app/common'
-import { C01Module } from './c01/c01.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { MysqlModule } from '@app/mysql'
 import { MissionsController } from './missions.controller'
+import { DemoModule } from './demo/demo.module';
 
 @Module({
   controllers: [MissionsController],
@@ -16,7 +16,7 @@ import { MissionsController } from './missions.controller'
       wildcard: true,
       delimiter: '_',
     }),
-    C01Module,
+    DemoModule,
   ],
   providers: [],
 })

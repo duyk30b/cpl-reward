@@ -18,4 +18,7 @@ export class CreateRewardRuleDto {
 
   @Expose()
   limitValue: number
+
+  @Expose()
+  releaseValue: number
 }

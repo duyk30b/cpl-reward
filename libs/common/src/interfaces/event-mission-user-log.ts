@@ -1,4 +1,4 @@
-import { MissionUser } from '@app/mission-user/entities/mission-user.entity'
+import { MissionUser } from '@lib/mission-user/entities/mission-user.entity'
 
 export class EventMissionUserLog {
   name: string

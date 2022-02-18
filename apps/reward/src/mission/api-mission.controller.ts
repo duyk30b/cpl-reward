@@ -9,8 +9,8 @@ import {
 import { ApiMissionService } from './api-mission.service'
 import { ApiOperation } from '@nestjs/swagger'
 import { Pagination } from 'nestjs-typeorm-paginate'
-import { Mission } from '@app/mission/entities/mission.entity'
-import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
+import { Mission } from '@lib/mission/entities/mission.entity'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Controller('missions')
 export class ApiMissionController {

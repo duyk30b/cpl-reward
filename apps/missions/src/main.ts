@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core'
 import { MissionsModule } from './missions.module'
 import { ConfigService } from '@nestjs/config'
-import { KafkaDecoratorProcessorService } from '@app/kafka'
-import { Environment, LogLevel } from '@app/common'
+import { KafkaDecoratorProcessorService } from '@lib/kafka'
+import { Environment, LogLevel } from '@lib/common'
 import { KafkaOptions, Transport } from '@nestjs/microservices'
 import { MissionsController } from './missions.controller'
-import { SentryInterceptor } from '@app/common/interceptors/sentry.interceptor'
+import { SentryInterceptor } from '@lib/common/interceptors/sentry.interceptor'
 import * as Sentry from '@sentry/node'
 
 async function bootstrap() {

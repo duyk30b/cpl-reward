@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
-import { KafkaModule } from '@app/kafka'
-import { CommonModule } from '@app/common'
+import { KafkaModule } from '@lib/kafka'
+import { CommonModule } from '@lib/common'
 import { EventEmitterModule } from '@nestjs/event-emitter'
-import { MysqlModule } from '@app/mysql'
+import { MysqlModule } from '@lib/mysql'
 import { MissionsController } from './missions.controller'
 import { DemoModule } from './demo/demo.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
@@ -29,7 +29,7 @@ import { join } from 'path'
         return ClientProxyFactory.create({
           transport: Transport.GRPC,
           options: {
-            url: 'localhost:58948',
+            url: 'host.docker.internal:53385',
             package: ['user'],
             protoPath: join(__dirname, 'demo/user.proto'),
           },

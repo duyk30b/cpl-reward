@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { MissionUserService } from './mission-user.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { MissionUser } from '@app/mission-user/entities/mission-user.entity'
+import { MissionUser } from '@lib/mission-user/entities/mission-user.entity'
 
 @Module({
   imports: [TypeOrmModule.forFeature([MissionUser])],

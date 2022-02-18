@@ -1,4 +1,4 @@
-import { MyBaseEntity } from '@app/mysql/my-base.entity'
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 import { Expose } from 'class-transformer'
 

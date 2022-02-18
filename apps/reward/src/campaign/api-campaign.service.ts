@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { CampaignService } from '@app/campaign'
+import { CampaignService } from '@lib/campaign'
 import { IPaginationMeta } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class ApiCampaignService {

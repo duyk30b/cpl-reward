@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ApiMissionController } from './api-mission.controller'
-import { MissionModule } from '@app/mission'
+import { MissionModule } from '@lib/mission'
 import { ApiMissionService } from './api-mission.service'
-import { RewardRuleModule } from '@app/reward-rule'
+import { RewardRuleModule } from '@lib/reward-rule'
 
 @Module({
   imports: [MissionModule, RewardRuleModule],

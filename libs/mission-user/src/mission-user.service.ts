@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { MissionUser } from '@app/mission-user/entities/mission-user.entity'
+import { MissionUser } from '@lib/mission-user/entities/mission-user.entity'
 import { plainToInstance } from 'class-transformer'
 
 @Injectable()

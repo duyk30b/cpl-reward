@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
-import { CampaignService } from '@app/campaign'
-import { MissionService } from '@app/mission'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { CampaignService } from '@lib/campaign'
+import { MissionService } from '@lib/mission'
 
 @Injectable()
 export class DemoService {

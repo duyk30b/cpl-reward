@@ -1,6 +1,6 @@
 import { Expose, Type } from 'class-transformer'
-import { ConditionDto } from '@app/mission/dto/condition.dto'
-import { TargetDto } from '@app/mission/dto/target.dto'
+import { ConditionDto } from '@lib/mission/dto/condition.dto'
+import { TargetDto } from '@lib/mission/dto/target.dto'
 
 export class CreateMissionDto {
   @Expose({ name: 'campaign_id' })

@@ -13,29 +13,34 @@ export class DemoInternalListener {
 
   @OnEvent('auth_user_login')
   async handleAuthUserLoginEvent(data: { id: string }) {
-    // Step 1: from event get mission/campaign
-    const campaignId = 17
-    const missionId = 45
+    const campaignId = 23
+    const missionId = 47
+    this.logger.log(
+      `[STEP 2] from event get mission/campaign, campaign_id: ${campaignId}, mission_id: ${missionId}`,
+    )
 
-    // Step 2: get mission
     const mission = await this.demoService.getMissionById(missionId)
-    if (!mission) this.logger.warn('Mission not exist!!!')
-
-    // Step 3: get campaign
-    const campaign = await this.demoService.getCampaignById(campaignId)
-    if (!campaign) this.logger.warn('Campaign not exist!!!')
+    if (!mission) {
+      this.logger.error('Mission not exist!!!')
+      return
+    }
 
     const grantTarget = JSON.parse(JSON.stringify(mission.grantTarget))
 
-    // Step 4: call to balance to send reward
     grantTarget.map((target) => {
       const sendReward = {
-        currency: target.currency.toLowerCase(),
+        userId: +data.id,
+        currency: target.currency,
         amount: target.amount,
         type: 'reward',
-        campaignId: campaign.id,
-        missionId: mission.id,
+        campaignId: campaignId,
+        missionId: missionId,
       }
+      this.logger.log(
+        `[STEP 3] using Event to send reward to BALANCE service, data: ${JSON.stringify(
+          sendReward,
+        )}`,
+      )
       this.eventEmitter.emit('send_reward_to_balance', sendReward)
     })
   }

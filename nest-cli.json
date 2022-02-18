@@ -95,6 +95,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/missions/src",
       "compilerOptions": {
+        "assets": ["**/*.proto"],
+        "watchAssets": true,
         "tsConfigPath": "apps/missions/tsconfig.app.json"
       }
     },

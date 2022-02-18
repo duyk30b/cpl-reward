@@ -23,6 +23,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.5.1",
     "@grpc/proto-loader": "^0.6.9",
+    "@nestjs/axios": "0.0.5",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
     "@nestjs/core": "^8.0.0",
@@ -98,7 +99,8 @@
       "^@app/campaign(|/.*)$": "<rootDir>/libs/campaign/src/$1",
       "^@app/affiliate-internal(|/.*)$": "<rootDir>/libs/affiliate-internal/src/$1",
       "^@app/reward-rule(|/.*)$": "<rootDir>/libs/reward-rule/src/$1",
-      "^@app/admin-action-log(|/.*)$": "<rootDir>/libs/admin-action-log/src/$1"
+      "^@app/admin-action-log(|/.*)$": "<rootDir>/libs/admin-action-log/src/$1",
+      "^@lib/external-balance(|/.*)$": "<rootDir>/libs/external-balance/src/$1"
     }
   }
 }

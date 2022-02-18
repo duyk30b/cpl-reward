@@ -136,7 +136,9 @@
       "entryFile": "main",
       "sourceRoot": "apps/admin/src",
       "compilerOptions": {
-        "assets": ["**/*.proto"],
+        "assets": [
+          "**/*.proto"
+        ],
         "watchAssets": true,
         "tsConfigPath": "apps/admin/tsconfig.app.json"
       }
@@ -148,6 +150,15 @@
       "sourceRoot": "libs/admin-action-log/src",
       "compilerOptions": {
         "tsConfigPath": "libs/admin-action-log/tsconfig.lib.json"
+      }
+    },
+    "external-balance": {
+      "type": "library",
+      "root": "libs/external-balance",
+      "entryFile": "index",
+      "sourceRoot": "libs/external-balance/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/external-balance/tsconfig.lib.json"
       }
     }
   }

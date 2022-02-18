@@ -84,6 +84,12 @@
       ],
       "@app/admin-action-log/*": [
         "libs/admin-action-log/src/*"
+      ],
+      "@lib/external-balance": [
+        "libs/external-balance/src"
+      ],
+      "@lib/external-balance/*": [
+        "libs/external-balance/src/*"
       ]
     }
   }

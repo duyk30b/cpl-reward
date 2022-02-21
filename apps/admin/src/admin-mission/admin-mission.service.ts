@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common'
-import { MissionService } from '@app/mission'
+import { MissionService } from '@lib/mission'
 import { ApiCreateMissionDto } from './dto/api-create-mission.dto'
 import { plainToInstance } from 'class-transformer'
-import { CreateRewardRuleDto } from '@app/reward-rule/dto/create-reward-rule.dto'
-import { RewardRuleService } from '@app/reward-rule'
-import { UpdateRewardRuleDto } from '@app/reward-rule/dto/update-reward-rule.dto'
+import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
+import { RewardRuleService } from '@lib/reward-rule'
+import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 import { ApiUpdateMissionDto } from './dto/api-update-mission.dto'
-import { CreateMissionDto } from '@app/mission/dto/create-mission.dto'
-import { UpdateMissionDto } from '@app/mission/dto/update-mission.dto'
-import { Mission } from '@app/mission/entities/mission.entity'
+import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
+import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
+import { Mission } from '@lib/mission/entities/mission.entity'
 
 @Injectable()
 export class AdminMissionService {
@@ -18,13 +18,15 @@ export class AdminMissionService {
   ) {}
 
   async create(createMissionDto: ApiCreateMissionDto) {
+    const rewardRules = createMissionDto.rewardRules
     const createMission = plainToInstance(CreateMissionDto, createMissionDto, {
       ignoreDecorators: true,
+      excludeExtraneousValues: true,
     })
     let mission = await this.missionService.create(createMission)
 
     await Promise.all(
-      createMissionDto.rewardRules.map(async (item) => {
+      rewardRules.map(async (item) => {
         const createRewardRuleDto = plainToInstance(CreateRewardRuleDto, item, {
           ignoreDecorators: true,
         })

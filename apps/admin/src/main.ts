@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { AdminModule } from './admin.module'
 import { ConfigService } from '@nestjs/config'
 import * as Sentry from '@sentry/node'
-import { SentryInterceptor } from '@app/common/interceptors/sentry.interceptor'
+import { SentryInterceptor } from '@lib/common/interceptors/sentry.interceptor'
 import { join } from 'path'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 

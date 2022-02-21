@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config'
-import { Environment } from '@app/common'
+import { Environment } from '@lib/common'
 
 export default registerAs('common', () => ({
   env: process.env.ENV || Environment.Local,

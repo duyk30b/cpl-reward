@@ -1,8 +1,8 @@
 import { CreateActionLogInput } from './admin-common.interface'
 import { plainToInstance } from 'class-transformer'
-import { CreateAdminActionLogDto } from '@app/admin-action-log/dto/create-admin-action-log.dto'
+import { CreateAdminActionLogDto } from '@lib/admin-action-log/dto/create-admin-action-log.dto'
 import { Injectable } from '@nestjs/common'
-import { AdminActionLogService } from '@app/admin-action-log'
+import { AdminActionLogService } from '@lib/admin-action-log'
 
 @Injectable()
 export class AdminCommonService {

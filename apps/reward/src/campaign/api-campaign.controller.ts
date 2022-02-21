@@ -9,8 +9,8 @@ import {
 import { ApiCampaignService } from './api-campaign.service'
 import { ApiOperation } from '@nestjs/swagger'
 import { Pagination } from 'nestjs-typeorm-paginate'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
-import { CustomPaginationMetaTransformer } from '@app/common/transformers/custom-pagination-meta.transformer'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Controller('campaigns')
 export class ApiCampaignController {

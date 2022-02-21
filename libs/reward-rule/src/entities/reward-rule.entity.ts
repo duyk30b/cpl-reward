@@ -6,9 +6,9 @@ import {
   JoinColumn,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
-import { MyBaseEntity } from '@app/mysql/my-base.entity'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
-import { Mission } from '@app/mission/entities/mission.entity'
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { Mission } from '@lib/mission/entities/mission.entity'
 
 @Entity({
   name: 'reward_rules',

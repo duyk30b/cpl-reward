@@ -3,11 +3,11 @@ import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ValidationError, ValidationPipe } from '@nestjs/common'
-import { ValidationException } from '@app/common/exceptions/validation.exception'
+import { ValidationException } from '@lib/common/exceptions/validation.exception'
 import { ValidationExceptionFilter } from './exception-filter/validation-exception.filter'
 import { HttpExceptionFilter } from './exception-filter/http-exception.filter'
 import * as Sentry from '@sentry/node'
-import { SentryInterceptor } from '@app/common/interceptors/sentry.interceptor'
+import { SentryInterceptor } from '@lib/common/interceptors/sentry.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

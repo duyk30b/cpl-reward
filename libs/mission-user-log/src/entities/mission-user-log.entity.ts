@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
 import { Expose } from 'class-transformer'
-import { MyBaseEntity } from '@app/mysql/my-base.entity'
-import { JsonColumnTransformer } from '@app/mysql/typeorm.transformer'
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
+import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
 
 @Entity({
   name: 'mission_user_logs',

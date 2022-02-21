@@ -10,10 +10,10 @@ import {
   BeforeInsert,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
-import { MyBaseEntity } from '@app/mysql/my-base.entity'
-import { RewardRule } from '@app/reward-rule/entities/reward-rule.entity'
-import { JsonColumnTransformer } from '@app/mysql/typeorm.transformer'
-import { Campaign } from '@app/campaign/entities/campaign.entity'
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
+import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
+import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Entity({
   name: 'missions',

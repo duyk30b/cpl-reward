@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
-import { CampaignService } from '@app/campaign'
+import { CampaignService } from '@lib/campaign'
 import { plainToInstance } from 'class-transformer'
-import { UpdateRewardRuleDto } from '@app/reward-rule/dto/update-reward-rule.dto'
-import { RewardRuleService } from '@app/reward-rule'
+import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
+import { RewardRuleService } from '@lib/reward-rule'
 import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
-import { UpdateCampaignDto } from '@app/campaign/dto/update-campaign.dto'
+import { UpdateCampaignDto } from '@lib/campaign/dto/update-campaign.dto'
 import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
-import { CreateCampaignDto } from '@app/campaign/dto/create-campaign.dto'
-import { CreateRewardRuleDto } from '@app/reward-rule/dto/create-reward-rule.dto'
+import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
+import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 
 @Injectable()
 export class AdminCampaignService {

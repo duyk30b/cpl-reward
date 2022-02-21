@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { MysqlService } from './mysql.service'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import configuration from '@app/mysql/configuration'
+import configuration from '@lib/mysql/configuration'
 
 @Module({
   imports: [

@@ -1,7 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { TransformInt } from './decorators/transform.decorator'
-import { currentUnixTime } from '@app/common/utils'
+import { currentUnixTime } from '@lib/common/utils'
 
 @Entity()
 export class MyBaseEntity {

@@ -5,9 +5,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { MysqlModule } from '@lib/mysql'
 import { MissionsController } from './missions.controller'
 import { DemoModule } from './demo/demo.module'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { ClientProxyFactory, Transport } from '@nestjs/microservices'
-import { join } from 'path'
+import { ConfigModule } from '@nestjs/config'
+import { ExternalUserModule } from '@lib/external-user'
 
 @Module({
   controllers: [MissionsController],
@@ -21,22 +20,7 @@ import { join } from 'path'
     }),
     DemoModule,
     ConfigModule,
-  ],
-  providers: [
-    {
-      provide: 'USER_PACKAGE',
-      useFactory: (configService: ConfigService) => {
-        return ClientProxyFactory.create({
-          transport: Transport.GRPC,
-          options: {
-            url: 'host.docker.internal:53385',
-            package: ['user'],
-            protoPath: join(__dirname, 'demo/user.proto'),
-          },
-        })
-      },
-      inject: [ConfigService],
-    },
+    ExternalUserModule,
   ],
 })
 export class MissionsModule {}

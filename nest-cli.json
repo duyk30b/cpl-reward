@@ -86,6 +86,11 @@
       "entryFile": "index",
       "sourceRoot": "libs/external-user/src",
       "compilerOptions": {
+        "assets": [
+          "**/*.proto",
+          "*.proto"
+        ],
+        "watchAssets": true,
         "tsConfigPath": "libs/external-user/tsconfig.lib.json"
       }
     },
@@ -95,8 +100,6 @@
       "entryFile": "main",
       "sourceRoot": "apps/missions/src",
       "compilerOptions": {
-        "assets": ["**/*.proto"],
-        "watchAssets": true,
         "tsConfigPath": "apps/missions/tsconfig.app.json"
       }
     },
@@ -139,7 +142,8 @@
       "sourceRoot": "apps/admin/src",
       "compilerOptions": {
         "assets": [
-          "**/*.proto"
+          "**/*.proto",
+          "*.proto"
         ],
         "watchAssets": true,
         "tsConfigPath": "apps/admin/tsconfig.app.json"

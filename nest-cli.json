@@ -166,6 +166,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/external-balance/tsconfig.lib.json"
       }
+    },
+    "mission-event": {
+      "type": "library",
+      "root": "libs/mission-event",
+      "entryFile": "index",
+      "sourceRoot": "libs/mission-event/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mission-event/tsconfig.lib.json"
+      }
     }
   }
 }

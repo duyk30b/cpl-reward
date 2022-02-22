@@ -90,6 +90,12 @@
       ],
       "@lib/external-balance/*": [
         "libs/external-balance/src/*"
+      ],
+      "@lib/mission-event": [
+        "libs/mission-event/src"
+      ],
+      "@lib/mission-event/*": [
+        "libs/mission-event/src/*"
       ]
     }
   }

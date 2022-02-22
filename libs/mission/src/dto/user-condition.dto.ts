@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer'
 
-export class ConditionDto {
+export class UserConditionDto {
   @Expose()
   name: string
 

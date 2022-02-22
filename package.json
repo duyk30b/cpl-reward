@@ -100,7 +100,8 @@
       "^@lib/affiliate-internal(|/.*)$": "<rootDir>/libs/affiliate-internal/src/$1",
       "^@lib/reward-rule(|/.*)$": "<rootDir>/libs/reward-rule/src/$1",
       "^@lib/admin-action-log(|/.*)$": "<rootDir>/libs/admin-action-log/src/$1",
-      "^@lib/external-balance(|/.*)$": "<rootDir>/libs/external-balance/src/$1"
+      "^@lib/external-balance(|/.*)$": "<rootDir>/libs/external-balance/src/$1",
+      "^@lib/mission-event(|/.*)$": "<rootDir>/libs/mission-event/src/$1"
     }
   }
 }

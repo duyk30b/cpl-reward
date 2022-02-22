@@ -9,12 +9,15 @@ import { ApiUpdateMissionDto } from './dto/api-update-mission.dto'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
 import { Mission } from '@lib/mission/entities/mission.entity'
+import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
+import { MissionEventService } from '@lib/mission-event'
 
 @Injectable()
 export class AdminMissionService {
   constructor(
     private readonly missionService: MissionService,
     private readonly rewardRuleService: RewardRuleService,
+    private readonly missionEventService: MissionEventService,
   ) {}
 
   async create(createMissionDto: ApiCreateMissionDto) {
@@ -30,7 +33,7 @@ export class AdminMissionService {
         const createRewardRuleDto = plainToInstance(CreateRewardRuleDto, item, {
           ignoreDecorators: true,
         })
-        createRewardRuleDto.campaignId = createMissionDto.campaignId
+        createRewardRuleDto.campaignId = createMission.campaignId
         createRewardRuleDto.missionId = mission.id
         createRewardRuleDto.typeRule = 'mission'
 
@@ -44,6 +47,11 @@ export class AdminMissionService {
           await this.rewardRuleService.create(createRewardRuleDto)
         }
       }),
+    )
+    await this.mappingMissionEvent(
+      createMission.judgmentConditions,
+      createMission.campaignId,
+      mission.id,
     )
     mission = await this.missionService.getById(mission.id, {
       relations: ['rewardRules'],
@@ -68,6 +76,11 @@ export class AdminMissionService {
         return item
       }),
     )
+    await this.mappingMissionEvent(
+      updateMission.judgmentConditions,
+      updateMission.campaignId,
+      mission.id,
+    )
     mission = await this.missionService.getById(mission.id, {
       relations: ['rewardRules'],
     })
@@ -86,5 +99,22 @@ export class AdminMissionService {
     )
 
     return mission
+  }
+
+  private async mappingMissionEvent(
+    judgmentConditions: JudgmentConditionDto[],
+    campaignId: number,
+    missionId: number,
+  ) {
+    await this.missionEventService.delete(campaignId, missionId)
+    await Promise.all(
+      judgmentConditions.map(async (item) => {
+        await this.missionEventService.create({
+          campaignId,
+          missionId,
+          eventName: item.eventName,
+        })
+      }),
+    )
   }
 }

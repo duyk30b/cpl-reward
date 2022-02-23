@@ -3,3 +3,6 @@ export interface CreateActionLogInput {
   actionName: string
   contentData: string
 }
+export interface ListPropertiesByEventInput {
+  eventName: string
+}

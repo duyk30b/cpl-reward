@@ -8,11 +8,7 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
-
-export enum EVENTS {
-  NONE = '',
-  AUTH_USER_LOGIN = 'auth_user_login',
-}
+import { EVENTS } from '@lib/mission/enum'
 
 @Entity({
   name: 'mission_event',

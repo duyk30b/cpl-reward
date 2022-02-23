@@ -4,6 +4,28 @@ package admin_common;
 
 service GrpcAdminCommonService {
   rpc CreateActionLog(CreateActionLog) returns (Result);
+  rpc ListEvents(Empty) returns (ListEvents);
+  rpc ListPropertiesByEvent(InputPropertiesByEvent) returns (ResultPropertiesByEvent);
+  rpc ListGrantTarget(Empty) returns (ResultGrantTarget);
+}
+
+message ResultGrantTarget {
+  string user = 1;
+  string wallet = 2;
+}
+
+message InputPropertiesByEvent {
+  string eventName = 1;
+}
+
+message ResultPropertiesByEvent {
+  string list = 1;
+}
+
+message Empty {}
+
+message ListEvents {
+  string list = 1;
 }
 
 message CreateActionLog {

@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer'
 
 export class UserConditionDto {
   @Expose()
-  name: string
+  property: string
 
   @Expose()
   operator: string

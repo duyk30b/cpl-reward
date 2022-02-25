@@ -47,6 +47,7 @@ export class Mission extends MyBaseEntity {
     name: 'judgment_conditions',
     default: null,
     transformer: JsonColumnTransformer,
+    type: 'text',
   })
   @Expose({ name: 'judgment_conditions' })
   judgmentConditions: string
@@ -55,6 +56,7 @@ export class Mission extends MyBaseEntity {
     name: 'user_conditions',
     default: null,
     transformer: JsonColumnTransformer,
+    type: 'text',
   })
   @Expose({ name: 'user_conditions' })
   userConditions: string
@@ -63,6 +65,7 @@ export class Mission extends MyBaseEntity {
     name: 'grant_target',
     default: null,
     transformer: JsonColumnTransformer,
+    type: 'text',
   })
   @Expose({ name: 'grant_target' })
   grantTarget: string

@@ -20,6 +20,7 @@ message CreateInput {
   repeated JudgmentConditions judgmentConditions = 7;
   repeated UserConditions userConditions = 8;
   repeated GrantTarget grantTarget = 9;
+  int32 priority = 10;
 }
 
 message CreateRewardRule {
@@ -27,6 +28,15 @@ message CreateRewardRule {
   string currency = 2;
   int32 limitValue = 3;
 }
+
+/*
+ * user = [user, referer_user]
+ * wallet = [
+     REWARD_BALANCE, REWARD_CASHBACK,
+     REWARD_DIVIDEND, DIRECT_BALANCE,
+     DIRECT_CASHBACK, DIRECT_DIVIDEND,
+   ]
+ */
 message GrantTarget {
   string user = 1;
   int32 amount = 2;
@@ -55,6 +65,7 @@ message Result {
   int32 id = 10;
   int32 createdAt = 11;
   int32 updatedAt = 12;
+  int32 priority = 13; // default: 0
 }
 message UpdateInput {
   int32 id = 1;
@@ -67,6 +78,7 @@ message UpdateInput {
   repeated JudgmentConditions judgmentConditions = 8;
   repeated UserConditions userConditions = 9;
   repeated GrantTarget grantTarget = 10;
+  int32 priority = 11; // default: 0
 }
 message UpdateRewardRule {
   int32 id =1;
@@ -77,6 +89,14 @@ message UpdateRewardRule {
 message FindOneInput {
   int32 id = 1;
 }
+
+/*
+ * eventName = [
+      AUTH_USER_LOGIN, AUTH_USER_CHANGE_EMAIL,
+      AUTH_USER_CREATED, AUTH_USER_LOGOUT,
+      AUTH_USER_CHANGE_PASSWORD, AUTH_USER_AUTHENTICATOR_STATUS_UPDATED
+   ]
+ */
 message JudgmentConditions {
   string eventName = 1;
   string property = 2;

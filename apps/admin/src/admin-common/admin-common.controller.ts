@@ -29,7 +29,15 @@ export class AdminCommonController {
 
   @GrpcMethod('GrpcAdminCommonService', 'ListGrantTarget')
   listGrantTarget() {
-    const wallets = this.adminCommonService.listGrantTargetWallet()
-    return { user: 'user,referer_user', wallet: wallets }
+    const users = this.adminCommonService.listGrantTargetUsers()
+    const wallets = this.adminCommonService.listGrantTargetWallets()
+    return { users, wallets }
+  }
+
+  @GrpcMethod('GrpcAdminCommonService', 'ListUserConditions')
+  listUserConditions() {
+    return {
+      list: 'kyc_verify_status,user_info_status,authenticator_verify_status,email_verify_status',
+    }
   }
 }

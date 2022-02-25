@@ -28,20 +28,45 @@ export class AdminCommonService {
   }
 
   listEvents() {
-    const events = Object.values(EVENTS).filter((item) => item !== '')
-    return events.toString()
+    return Object.keys(EVENTS)
+      .filter((key) => EVENTS[key] !== '')
+      .map((key) => {
+        return {
+          key,
+          value: EVENTS[key],
+        }
+      })
   }
 
   listPropertiesByEvent(data: ListPropertiesByEventInput) {
-    const events = Object.values(EVENTS).filter((item) => item !== '')
-    const eventName = data.eventName
-    if (events.filter((item) => item === eventName).length < 1) return ''
-
-    return this.configService.get(`mission.${eventName}_properties`)
+    const eventKey = data.eventKey
+    if (EVENTS[eventKey] === undefined) return ''
+    const propertiesString = this.configService.get(
+      `mission.${EVENTS[eventKey]}_properties`,
+    )
+    if (propertiesString === undefined) return ''
+    return propertiesString
   }
 
-  listGrantTargetWallet() {
-    const wallets = Object.values(GRANT_TARGET_WALLET)
-    return wallets.toString()
+  listGrantTargetWallets() {
+    return Object.keys(GRANT_TARGET_WALLET).map((key) => {
+      return {
+        key,
+        value: GRANT_TARGET_WALLET[key],
+      }
+    })
+  }
+
+  listGrantTargetUsers() {
+    return [
+      {
+        key: 'user',
+        value: 'User',
+      },
+      {
+        key: 'referer_user',
+        value: 'Referer User',
+      },
+    ]
   }
 }

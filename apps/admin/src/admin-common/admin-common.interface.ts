@@ -4,5 +4,5 @@ export interface CreateActionLogInput {
   contentData: string
 }
 export interface ListPropertiesByEventInput {
-  eventName: string
+  eventKey: string
 }

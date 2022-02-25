@@ -10,6 +10,8 @@ export enum EVENTS {
 export enum GRANT_TARGET_WALLET {
   REWARD_BALANCE = 'reward_balance',
   REWARD_CASHBACK = 'reward_cashback',
+  REWARD_DIVIDEND = 'reward_dividend',
   DIRECT_BALANCE = 'direct_balance',
   DIRECT_CASHBACK = 'direct_cashback',
+  DIRECT_DIVIDEND = 'direct_dividend',
 }

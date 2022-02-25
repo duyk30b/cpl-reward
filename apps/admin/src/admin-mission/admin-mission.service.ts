@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { MissionService } from '@lib/mission'
+import { EVENTS, MissionService } from '@lib/mission'
 import { ApiCreateMissionDto } from './dto/api-create-mission.dto'
 import { plainToInstance } from 'class-transformer'
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
@@ -109,11 +109,13 @@ export class AdminMissionService {
     await this.missionEventService.delete(campaignId, missionId)
     await Promise.all(
       judgmentConditions.map(async (item) => {
-        await this.missionEventService.create({
-          campaignId,
-          missionId,
-          eventName: item.eventName,
-        })
+        if (EVENTS[item.eventName] !== undefined) {
+          await this.missionEventService.create({
+            campaignId,
+            missionId,
+            eventName: item.eventName,
+          })
+        }
       }),
     )
   }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 export class ApiCampaignDto {
   @ApiProperty()
@@ -44,4 +44,16 @@ export class ApiCampaignDto {
   @IsNotEmpty()
   @IsString()
   campaignImage: string
+
+  @ApiProperty()
+  @Expose()
+  @IsNotEmpty()
+  @IsNumber()
+  priority: number
+
+  @ApiProperty({ name: 'is_system' })
+  @Expose({ name: 'is_system' })
+  @IsNotEmpty()
+  @IsBoolean()
+  isSystem: boolean
 }

@@ -21,4 +21,10 @@ export class CreateCampaignDto {
 
   @Expose({ name: 'campaign_image' })
   campaignImage: string
+
+  @Expose()
+  priority: number
+
+  @Expose({ name: 'is_system' })
+  isSystem: boolean
 }

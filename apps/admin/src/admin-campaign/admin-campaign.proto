@@ -36,7 +36,9 @@ message UpdateInput {
   int32 endDate = 6;
   string notificationLink = 7;
   string campaignImage = 8;
-  repeated UpdateRewardRule rewardRules = 9;
+  int32 priority = 9;
+  bool isSystem = 10;
+  repeated UpdateRewardRule rewardRules = 11;
 }
 
 message UpdateRewardRule {
@@ -61,7 +63,9 @@ message Result {
   int32 endDate = 6;
   string notificationLink = 7;
   string campaignImage = 8;
-  repeated RewardRuleResult rewardRules = 9;
+  int32 priority = 9; // default: 0
+  bool isSystem = 10; // default: false
+  repeated RewardRuleResult rewardRules = 11;
 }
 
 message RewardRuleResult {
@@ -82,5 +86,7 @@ message CreateInput {
   int32 endDate = 5;
   string notificationLink = 6;
   string campaignImage = 7;
-  repeated CreateRewardRule rewardRules = 8;
+  int32 priority = 8; // default: 0
+  bool isSystem = 9; // default: false
+  repeated CreateRewardRule rewardRules = 10;
 }

@@ -30,4 +30,7 @@ export class CreateMissionDto {
   @Expose({ name: 'grant_target' })
   @Type(() => TargetDto)
   grantTarget: TargetDto[]
+
+  @Expose()
+  priority: number
 }

@@ -67,6 +67,10 @@ export class Mission extends MyBaseEntity {
   @Expose({ name: 'grant_target' })
   grantTarget: string
 
+  @Column({ default: 0 })
+  @Expose()
+  priority: number
+
   @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission, {
     eager: true,
   })

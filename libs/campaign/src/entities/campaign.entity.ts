@@ -46,6 +46,14 @@ export class Campaign extends MyBaseEntity {
   @Expose({ name: 'campaign_image' })
   campaignImage: string
 
+  @Column({ default: 0 })
+  @Expose()
+  priority: number
+
+  @Column({ name: 'is_system', default: false })
+  @Expose({ name: 'is_system' })
+  isSystem: boolean
+
   @OneToMany(() => RewardRule, (rewardRule) => rewardRule.campaign, {
     eager: true,
   })

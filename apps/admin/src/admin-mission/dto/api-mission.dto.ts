@@ -1,6 +1,12 @@
 import { Expose, Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
-import { ArrayMinSize, IsArray, ValidateNested } from 'class-validator'
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator'
 import { ApiTargetDto } from './api-target.dto'
 import { ApiUserConditionDto } from './api-user-condition.dto'
 import { ApiJudgmentConditionDto } from './api-judgment-condition.dto'
@@ -49,4 +55,10 @@ export class ApiMissionDto {
   @ValidateNested({ each: true })
   @Type(() => ApiTargetDto)
   grantTarget: ApiTargetDto[]
+
+  @ApiProperty()
+  @Expose()
+  @IsNotEmpty()
+  @IsNumber()
+  priority: number
 }

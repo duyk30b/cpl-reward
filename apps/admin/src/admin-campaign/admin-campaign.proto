@@ -7,6 +7,29 @@ service GrpcAdminCampaignService {
   rpc Cancel(CancelInput) returns (CancelResult);
   rpc FindOne(FindOneInput) returns (Result);
   rpc Update(UpdateInput) returns (Result);
+  rpc List(ListInput) returns (ListResult);
+}
+
+message ListResult {
+  repeated ListCampaign items = 1;
+  ListMeta meta = 2;
+}
+
+message ListMeta {
+   int32 totalItems = 1;
+   int32 itemCount = 2;
+   int32 itemsPerPage = 3;
+   int32 totalPages = 4;
+   int32 currentPage = 5;
+}
+
+message ListCampaign {
+  string title = 1;
+}
+
+message ListInput {
+  int32 page = 1;
+  int32 limit = 2;
 }
 
 message CancelInput {

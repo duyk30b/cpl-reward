@@ -39,28 +39,34 @@ export class CampaignService {
     return await this.campaignRepository.save(campaignEntity)
   }
 
+  initQueryBuilder(): SelectQueryBuilder<Campaign> {
+    return this.campaignRepository.createQueryBuilder('campaign')
+  }
+
   private queryBuilder(): SelectQueryBuilder<Campaign> {
-    const queryBuilder = this.campaignRepository.createQueryBuilder('campaign')
-    queryBuilder.orderBy('campaign.id', 'DESC')
-    queryBuilder.leftJoinAndSelect(
-      'campaign.rewardRules',
-      'rewardRules',
-      "rewardRules.type_rule = 'campaign'",
-    )
+    const queryBuilder = this.initQueryBuilder()
     return queryBuilder
+      .orderBy('campaign.id', 'DESC')
+      .leftJoinAndSelect(
+        'campaign.rewardRules',
+        'rewardRules',
+        "rewardRules.type_rule = 'campaign'",
+      )
   }
 
   async camelPaginate(
     options: IPaginationOptions,
+    queryBuilder: SelectQueryBuilder<Campaign> = null,
   ): Promise<Pagination<Campaign>> {
-    const queryBuilder = this.queryBuilder()
+    if (queryBuilder === null) queryBuilder = this.queryBuilder()
     return paginate<Campaign>(queryBuilder, options)
   }
 
   async snakePaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
+    queryBuilder: SelectQueryBuilder<Campaign> = null,
   ): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {
-    const queryBuilder = this.queryBuilder()
+    if (queryBuilder === null) queryBuilder = this.queryBuilder()
     return paginate<Campaign, CustomPaginationMetaTransformer>(
       queryBuilder,
       options,

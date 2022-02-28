@@ -8,6 +8,8 @@ import { UpdateCampaignDto } from '@lib/campaign/dto/update-campaign.dto'
 import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
 import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
+import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Injectable()
 export class AdminCampaignService {
@@ -98,5 +100,20 @@ export class AdminCampaignService {
       (item) => item.typeRule == 'campaign',
     )
     return campaign
+  }
+
+  async findAll(page: number, limit: number) {
+    limit = limit > 100 ? 100 : limit
+    const options = { page, limit }
+    const queryBuilder = this.queryBuilder()
+    return this.campaignService.camelPaginate(options, queryBuilder)
+  }
+
+  private queryBuilder(): SelectQueryBuilder<Campaign> {
+    const queryBuilder = this.campaignService.initQueryBuilder()
+    return queryBuilder
+      .select('campaign.title')
+      .orderBy('campaign.priority', 'DESC')
+      .addOrderBy('campaign.id', 'DESC')
   }
 }

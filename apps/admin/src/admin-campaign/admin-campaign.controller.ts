@@ -4,6 +4,7 @@ import { GrpcMethod } from '@nestjs/microservices'
 import { CancelInput, FindOneInput } from './admin-campaign.interface'
 import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
 import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
+import { ApiListCampaignDto } from './dto/api-list-campaign.dto'
 
 @Controller('campaign')
 export class AdminCampaignController {
@@ -27,5 +28,13 @@ export class AdminCampaignController {
   @GrpcMethod('GrpcAdminCampaignService', 'Update')
   async update(data: ApiUpdateCampaignDto) {
     return await this.adminCampaignService.update(data)
+  }
+
+  @GrpcMethod('GrpcAdminCampaignService', 'List')
+  async list(data: ApiListCampaignDto) {
+    return await this.adminCampaignService.findAll(
+      data.page || 1,
+      data.limit || 10,
+    )
   }
 }

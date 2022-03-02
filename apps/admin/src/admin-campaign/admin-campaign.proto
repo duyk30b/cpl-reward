@@ -11,7 +11,7 @@ service GrpcAdminCampaignService {
 }
 
 message ListResult {
-  repeated ListCampaign items = 1;
+  repeated CampaignWithoutRules items = 1;
   ListMeta meta = 2;
 }
 
@@ -75,6 +75,19 @@ message CreateRewardRule {
   string key = 2;
   string currency = 3;
   int32 limitValue = 4;
+}
+
+message CampaignWithoutRules {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string detailExplain = 4;
+  int32 startDate = 5;
+  int32 endDate = 6;
+  string notificationLink = 7;
+  string campaignImage = 8;
+  int32 priority = 9; // default: 0
+  bool isSystem = 10; // default: false
 }
 
 message Result {

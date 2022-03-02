@@ -112,7 +112,6 @@ export class AdminCampaignService {
   private queryBuilder(): SelectQueryBuilder<Campaign> {
     const queryBuilder = this.campaignService.initQueryBuilder()
     return queryBuilder
-      .select('campaign.title')
       .orderBy('campaign.priority', 'DESC')
       .addOrderBy('campaign.id', 'DESC')
   }

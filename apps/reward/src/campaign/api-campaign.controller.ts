@@ -1,16 +1,10 @@
-import {
-  Controller,
-  DefaultValuePipe,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiCampaignService } from './api-campaign.service'
-import { ApiOperation } from '@nestjs/swagger'
+import { ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { Pagination } from 'nestjs-typeorm-paginate'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 
 @Controller('campaigns')
 export class ApiCampaignController {
@@ -20,11 +14,11 @@ export class ApiCampaignController {
   @ApiOperation({
     summary: 'Get campaign list',
   })
+  @ApiQuery({ type: ApiCampaignFilterDto })
   async findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+    @Query() apiCampaignFilterDto: ApiCampaignFilterDto,
   ): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {
-    return this.apiCampaignService.findAll(page, limit)
+    return this.apiCampaignService.findAll(apiCampaignFilterDto)
   }
 
   @Get(':id')

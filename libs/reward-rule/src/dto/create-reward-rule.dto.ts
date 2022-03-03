@@ -2,13 +2,13 @@ import { Expose } from 'class-transformer'
 
 export class CreateRewardRuleDto {
   @Expose()
-  campaignId: number
+  campaignId?: number
 
   @Expose()
-  missionId: number
+  missionId?: number
 
   @Expose()
-  typeRule: string
+  typeRule?: string
 
   @Expose()
   key: string
@@ -20,5 +20,5 @@ export class CreateRewardRuleDto {
   limitValue: number
 
   @Expose()
-  releaseValue: number
+  releaseValue?: number
 }

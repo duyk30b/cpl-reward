@@ -1,17 +1,20 @@
 import { Controller } from '@nestjs/common'
 import { AdminCampaignService } from './admin-campaign.service'
 import { GrpcMethod } from '@nestjs/microservices'
-import { CancelInput, FindOneInput } from './admin-campaign.interface'
-import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
-import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
-import { ApiListCampaignDto } from './dto/api-list-campaign.dto'
+import {
+  CancelInput,
+  CreateCampaignInput,
+  FindOneInput,
+  ICampaignFilter,
+  UpdateCampaignInput,
+} from './admin-campaign.interface'
 
 @Controller('campaign')
 export class AdminCampaignController {
   constructor(private readonly adminCampaignService: AdminCampaignService) {}
 
   @GrpcMethod('GrpcAdminCampaignService', 'Create')
-  async create(data: ApiCreateCampaignDto) {
+  async create(data: CreateCampaignInput) {
     return await this.adminCampaignService.create(data)
   }
 
@@ -26,15 +29,12 @@ export class AdminCampaignController {
   }
 
   @GrpcMethod('GrpcAdminCampaignService', 'Update')
-  async update(data: ApiUpdateCampaignDto) {
+  async update(data: UpdateCampaignInput) {
     return await this.adminCampaignService.update(data)
   }
 
   @GrpcMethod('GrpcAdminCampaignService', 'List')
-  async list(data: ApiListCampaignDto) {
-    return await this.adminCampaignService.findAll(
-      data.page || 1,
-      data.limit || 10,
-    )
+  async list(campaignFilter: ICampaignFilter) {
+    return await this.adminCampaignService.findAll(campaignFilter)
   }
 }

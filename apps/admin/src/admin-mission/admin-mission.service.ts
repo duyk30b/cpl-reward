@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { EVENTS, MissionService } from '@lib/mission'
-import { ApiCreateMissionDto } from './dto/api-create-mission.dto'
-import { plainToInstance } from 'class-transformer'
-import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import { RewardRuleService } from '@lib/reward-rule'
-import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
-import { ApiUpdateMissionDto } from './dto/api-update-mission.dto'
-import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
-import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
+import {
+  CreateMissionInput,
+  UpdateMissionInput,
+} from './admin-mission.interface'
 
 @Injectable()
 export class AdminMissionService {
@@ -20,37 +17,20 @@ export class AdminMissionService {
     private readonly missionEventService: MissionEventService,
   ) {}
 
-  async create(createMissionDto: ApiCreateMissionDto) {
-    const rewardRules = createMissionDto.rewardRules
-    const createMission = plainToInstance(CreateMissionDto, createMissionDto, {
-      ignoreDecorators: true,
-      excludeExtraneousValues: true,
-    })
-    let mission = await this.missionService.create(createMission)
-
+  async create(createMissionInput: CreateMissionInput) {
+    let mission = await this.missionService.create(createMissionInput)
     await Promise.all(
-      rewardRules.map(async (item) => {
-        const createRewardRuleDto = plainToInstance(CreateRewardRuleDto, item, {
-          ignoreDecorators: true,
+      createMissionInput.rewardRules.map(async (item) => {
+        await this.rewardRuleService.create(item, {
+          campaignId: createMissionInput.campaignId,
+          missionId: mission.id,
+          typeRule: 'mission',
         })
-        createRewardRuleDto.campaignId = createMission.campaignId
-        createRewardRuleDto.missionId = mission.id
-        createRewardRuleDto.typeRule = 'mission'
-
-        const rewardRules = await this.rewardRuleService.find({
-          campaignId: createRewardRuleDto.campaignId,
-          missionId: createRewardRuleDto.missionId,
-          typeRule: createRewardRuleDto.typeRule,
-          key: createRewardRuleDto.key,
-        })
-        if (rewardRules.length < 1) {
-          await this.rewardRuleService.create(createRewardRuleDto)
-        }
       }),
     )
     await this.mappingMissionEvent(
-      createMission.judgmentConditions,
-      createMission.campaignId,
+      createMissionInput.judgmentConditions,
+      createMissionInput.campaignId,
       mission.id,
     )
     mission = await this.missionService.getById(mission.id, {
@@ -59,26 +39,21 @@ export class AdminMissionService {
     return mission
   }
 
-  async update(updateMissionDto: ApiUpdateMissionDto) {
-    const updateMission = plainToInstance(UpdateMissionDto, updateMissionDto, {
-      ignoreDecorators: true,
-    })
-    let mission = await this.missionService.update(updateMission)
+  async update(updateMissionInput: UpdateMissionInput) {
+    let mission = await this.missionService.update(updateMissionInput)
     await Promise.all(
-      updateMissionDto.rewardRules.map(async (item) => {
-        const updateRewardRuleDto = plainToInstance(UpdateRewardRuleDto, item, {
-          ignoreDecorators: true,
+      updateMissionInput.rewardRules.map(async (item) => {
+        await this.rewardRuleService.update(item, {
+          campaignId: mission.campaignId,
+          missionId: mission.id,
+          typeRule: 'mission',
         })
-        updateRewardRuleDto.campaignId = mission.campaignId
-        updateRewardRuleDto.missionId = mission.id
-        updateRewardRuleDto.typeRule = 'mission'
-        await this.rewardRuleService.update(updateRewardRuleDto)
         return item
       }),
     )
     await this.mappingMissionEvent(
-      updateMission.judgmentConditions,
-      updateMission.campaignId,
+      updateMissionInput.judgmentConditions,
+      updateMissionInput.campaignId,
       mission.id,
     )
     mission = await this.missionService.getById(mission.id, {

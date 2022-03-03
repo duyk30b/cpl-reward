@@ -23,13 +23,13 @@ message ListMeta {
    int32 currentPage = 5;
 }
 
-message ListCampaign {
-  string title = 1;
-}
-
 message ListInput {
   int32 page = 1;
   int32 limit = 2;
+  string searchField = 3;
+  string searchText = 4;
+  string sort = 5;
+  string sortType = 6;
 }
 
 message CancelInput {
@@ -102,6 +102,7 @@ message Result {
   int32 priority = 9; // default: 0
   bool isSystem = 10; // default: false
   repeated RewardRuleResult rewardRules = 11;
+  int32 status = 12;
 }
 
 message RewardRuleResult {
@@ -125,4 +126,5 @@ message CreateInput {
   int32 priority = 8; // default: 0
   bool isSystem = 9; // default: false
   repeated CreateRewardRule rewardRules = 10;
+  int32 status = 11;
 }

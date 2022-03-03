@@ -22,14 +22,22 @@ export class MissionService {
   }
 
   async update(updateMissionDto: UpdateMissionDto): Promise<Mission> {
-    const missionEntity = plainToInstance(Mission, updateMissionDto, {
+    const updateMission = plainToInstance(UpdateMissionDto, updateMissionDto, {
+      ignoreDecorators: true,
+      excludeExtraneousValues: true,
+    })
+    const missionEntity = plainToInstance(Mission, updateMission, {
       ignoreDecorators: true,
     })
     return await this.missionRepository.save(missionEntity)
   }
 
   async create(createMissionDto: CreateMissionDto): Promise<Mission> {
-    const missionEntity = plainToInstance(Mission, createMissionDto, {
+    const createMission = plainToInstance(CreateMissionDto, createMissionDto, {
+      ignoreDecorators: true,
+      excludeExtraneousValues: true,
+    })
+    const missionEntity = plainToInstance(Mission, createMission, {
       ignoreDecorators: true,
     })
     return await this.missionRepository.save(missionEntity)

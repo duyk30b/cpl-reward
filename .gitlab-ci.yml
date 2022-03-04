@@ -1,0 +1,52 @@
+stages:
+  - build
+  - deploy
+
+.build_template:
+  stage: build
+  image:
+    name: amazon/aws-cli:2.2.38
+    entrypoint: [""]
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://0.0.0.0:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - amazon-linux-extras install docker
+    - aws --version
+    - docker --version
+  script:
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_HOST
+    - docker build -f $DOCKERFILE_PATH -t $ECR_HOST/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker push $ECR_HOST/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+
+.deploy_template:
+  stage: deploy
+  image: curlimages/curl
+  script:
+    - |
+      curl -X POST "$GITOPS_HOOK_URL" \
+      -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
+      -H "Content-Type: application/json"
+
+build_dev:
+  extends: .build_template
+  environment:
+    name: dev
+  variables:
+    IMAGE_NAME: customer-reward-dev
+    DOCKERFILE_PATH: ./Dockerfile
+  only:
+    - dev
+
+deploy_dev:
+  extends: .deploy_template
+  environment:
+    name: dev
+  variables:
+    VALUES_PATH: /_helm_templates/cpl-customer-reward/values-dev.yaml
+    IMAGE_TAG_KEY: tag
+  only:
+    - dev

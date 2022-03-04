@@ -36,7 +36,7 @@ build_dev:
   environment:
     name: dev
   variables:
-    IMAGE_NAME: customer-reward-dev
+    IMAGE_NAME: dev-customer-reward
     DOCKERFILE_PATH: ./Dockerfile
   only:
     - dev

@@ -12,7 +12,7 @@ services:
     ports:
       - ${APP_MAP_PORT}
     volumes:
-      - .:/app
+      - .:/usr/src/app
     restart: unless-stopped
     depends_on:
       - db
@@ -29,7 +29,7 @@ services:
     ports:
       - ${ADMIN_KAFKA_MAP_PORT}
     volumes:
-      - .:/app
+      - .:/usr/src/app
     restart: unless-stopped
     depends_on:
       - db
@@ -46,7 +46,7 @@ services:
     ports:
       - ${MISSIONS_MAP_PORT}
     volumes:
-      - .:/app
+      - .:/usr/src/app
     restart: unless-stopped
     depends_on:
       - db

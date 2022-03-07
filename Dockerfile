@@ -1,4 +1,4 @@
-FROM node:14-alpine AS development
+FROM node:14-alpine AS builder
 
 WORKDIR /usr/src/app
 
@@ -19,7 +19,7 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
 
 FROM node:14-alpine AS production
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
@@ -31,4 +31,4 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe
 
-COPY --from=development /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/dist ./dist

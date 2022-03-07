@@ -6,3 +6,12 @@ export interface CreateActionLogInput {
 export interface ListPropertiesByEventInput {
   eventKey: string
 }
+export interface CreateRewardRule {
+  key: string
+  currency: string
+  limitValue: number
+}
+
+export interface UpdateRewardRule extends CreateRewardRule {
+  id: number
+}

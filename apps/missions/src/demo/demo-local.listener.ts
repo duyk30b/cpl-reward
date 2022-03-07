@@ -49,7 +49,7 @@ export class DemoLocalListener {
     )
     campaignRewardRule.releaseValue++
     campaignRewardRule.limitValue--
-    await this.rewardRuleService.update(campaignRewardRule)
+    // await this.rewardRuleService.update(campaignRewardRule)
     this.logger.log(
       `[STEP 5.2] After unit, releaseValue: ${campaignRewardRule.releaseValue}, limitValue: ${campaignRewardRule.limitValue}`,
     )
@@ -66,7 +66,7 @@ export class DemoLocalListener {
     )
     missionRewardRule.releaseValue++
     missionRewardRule.limitValue--
-    await this.rewardRuleService.update(missionRewardRule)
+    // await this.rewardRuleService.update(missionRewardRule)
     this.logger.log(
       `[STEP 6.2] After unit, releaseValue: ${missionRewardRule.releaseValue}, limitValue: ${missionRewardRule.limitValue}`,
     )

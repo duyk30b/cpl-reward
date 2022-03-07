@@ -26,14 +26,30 @@ export class CampaignService {
   }
 
   async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {
-    const campaignEntity = plainToInstance(Campaign, updateCampaignDto, {
+    const updateCampaign = plainToInstance(
+      UpdateCampaignDto,
+      updateCampaignDto,
+      {
+        ignoreDecorators: true,
+        excludeExtraneousValues: true,
+      },
+    )
+    const campaignEntity = plainToInstance(Campaign, updateCampaign, {
       ignoreDecorators: true,
     })
     return await this.campaignRepository.save(campaignEntity)
   }
 
   async create(createCampaignDto: CreateCampaignDto): Promise<Campaign> {
-    const campaignEntity = plainToInstance(Campaign, createCampaignDto, {
+    const createCampaign = plainToInstance(
+      CreateCampaignDto,
+      createCampaignDto,
+      {
+        ignoreDecorators: true,
+        excludeExtraneousValues: true,
+      },
+    )
+    const campaignEntity = plainToInstance(Campaign, createCampaign, {
       ignoreDecorators: true,
     })
     return await this.campaignRepository.save(campaignEntity)

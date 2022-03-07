@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common'
-import { CampaignService } from '@lib/campaign'
-import { plainToInstance } from 'class-transformer'
-import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
+import {
+  CAMPAIGN_SEARCH_FIELD_MAP,
+  CAMPAIGN_SORT_FIELD_MAP,
+  CampaignService,
+} from '@lib/campaign'
 import { RewardRuleService } from '@lib/reward-rule'
-import { ApiUpdateCampaignDto } from './dto/api-update-campaign.dto'
-import { UpdateCampaignDto } from '@lib/campaign/dto/update-campaign.dto'
-import { ApiCreateCampaignDto } from './dto/api-create-campaign.dto'
-import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
-import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import {
+  CreateCampaignInput,
+  ICampaignFilter,
+  UpdateCampaignInput,
+} from './admin-campaign.interface'
+import { Brackets } from 'typeorm'
 
 @Injectable()
 export class AdminCampaignService {
@@ -40,25 +43,15 @@ export class AdminCampaignService {
     return campaign
   }
 
-  async create(createCampaignDto: ApiCreateCampaignDto) {
-    const rewardRules = createCampaignDto.rewardRules
-    const createCampaign = plainToInstance(
-      CreateCampaignDto,
-      createCampaignDto,
-      {
-        ignoreDecorators: true,
-        excludeExtraneousValues: true,
-      },
-    )
-    let campaign = await this.campaignService.create(createCampaign)
+  async create(createCampaignInput: CreateCampaignInput) {
+    let campaign = await this.campaignService.create(createCampaignInput)
     await Promise.all(
-      rewardRules.map(async (item) => {
-        const createRewardRuleDto = plainToInstance(CreateRewardRuleDto, item, {
-          ignoreDecorators: true,
+      createCampaignInput.rewardRules.map(async (item) => {
+        await this.rewardRuleService.create(item, {
+          campaignId: campaign.id,
+          missionId: null,
+          typeRule: 'campaign',
         })
-        createRewardRuleDto.campaignId = campaign.id
-        createRewardRuleDto.typeRule = 'campaign'
-        await this.rewardRuleService.create(createRewardRuleDto)
         return item
       }),
     )
@@ -71,29 +64,19 @@ export class AdminCampaignService {
     return campaign
   }
 
-  async update(updateCampaignDto: ApiUpdateCampaignDto) {
-    const rewardRules = updateCampaignDto.rewardRules
-    const updateCampaign = plainToInstance(
-      UpdateCampaignDto,
-      updateCampaignDto,
-      {
-        ignoreDecorators: true,
-        excludeExtraneousValues: true,
-      },
-    )
-    await this.campaignService.update(updateCampaign)
+  async update(updateCampaignInput: UpdateCampaignInput) {
+    let campaign = await this.campaignService.update(updateCampaignInput)
     await Promise.all(
-      rewardRules.map(async (item) => {
-        const updateRewardRuleDto = plainToInstance(UpdateRewardRuleDto, item, {
-          ignoreDecorators: true,
+      updateCampaignInput.rewardRules.map(async (item) => {
+        await this.rewardRuleService.update(item, {
+          campaignId: campaign.id,
+          missionId: null,
+          typeRule: 'campaign',
         })
-        updateRewardRuleDto.campaignId = updateCampaignDto.id
-        updateRewardRuleDto.typeRule = 'campaign'
-        await this.rewardRuleService.update(updateRewardRuleDto)
         return item
       }),
     )
-    const campaign = await this.campaignService.getById(updateCampaign.id, {
+    campaign = await this.campaignService.getById(campaign.id, {
       relations: ['rewardRules'],
     })
     campaign.rewardRules = campaign.rewardRules.filter(
@@ -102,17 +85,52 @@ export class AdminCampaignService {
     return campaign
   }
 
-  async findAll(page: number, limit: number) {
-    limit = limit > 100 ? 100 : limit
+  async findAll(campaignFilter: ICampaignFilter) {
+    const limit =
+      (campaignFilter.limit > 100 ? 100 : campaignFilter.limit) || 20
+    const page = campaignFilter.page || 1
     const options = { page, limit }
-    const queryBuilder = this.queryBuilder()
+    const queryBuilder = this.queryBuilder(campaignFilter)
     return this.campaignService.camelPaginate(options, queryBuilder)
   }
 
-  private queryBuilder(): SelectQueryBuilder<Campaign> {
+  private queryBuilder(
+    campaignFilter: ICampaignFilter,
+  ): SelectQueryBuilder<Campaign> {
+    const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    if (searchText) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          if (searchField && CAMPAIGN_SEARCH_FIELD_MAP[searchField]) {
+            qb.where(`${CAMPAIGN_SEARCH_FIELD_MAP[searchField]} LIKE :keyword`)
+          } else {
+            Object.keys(CAMPAIGN_SEARCH_FIELD_MAP).forEach((field) => {
+              qb.orWhere(`${CAMPAIGN_SEARCH_FIELD_MAP[field]} LIKE :keyword`)
+            })
+          }
+        }),
+        {
+          keyword: `%${AdminCampaignService.escapeLikeChars(searchText)}%`,
+        },
+      )
+    }
+
+    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
+      queryBuilder
+        .orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
+        .addOrderBy('campaign.priority', 'DESC')
+        .addOrderBy('campaign.id', 'DESC')
+    } else {
+      queryBuilder
+        .orderBy('campaign.priority', 'DESC')
+        .addOrderBy('campaign.id', 'DESC')
+    }
+
     return queryBuilder
-      .orderBy('campaign.priority', 'DESC')
-      .addOrderBy('campaign.id', 'DESC')
+  }
+
+  private static escapeLikeChars(str: string) {
+    return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
   }
 }

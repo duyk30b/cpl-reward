@@ -43,6 +43,10 @@ export class MissionService {
     return await this.missionRepository.save(missionEntity)
   }
 
+  initQueryBuilder(): SelectQueryBuilder<Mission> {
+    return this.missionRepository.createQueryBuilder('mission')
+  }
+
   private queryBuilder(): SelectQueryBuilder<Mission> {
     const queryBuilder = this.missionRepository.createQueryBuilder('mission')
     queryBuilder.orderBy('mission.id', 'DESC')
@@ -56,15 +60,17 @@ export class MissionService {
 
   async camelPaginate(
     options: IPaginationOptions,
+    queryBuilder: SelectQueryBuilder<Mission> = null,
   ): Promise<Pagination<Mission>> {
-    const queryBuilder = this.queryBuilder()
+    if (queryBuilder === null) queryBuilder = this.queryBuilder()
     return paginate<Mission>(queryBuilder, options)
   }
 
   async snakePaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
+    queryBuilder: SelectQueryBuilder<Mission> = null,
   ): Promise<Pagination<Mission, CustomPaginationMetaTransformer>> {
-    const queryBuilder = this.queryBuilder()
+    if (queryBuilder === null) queryBuilder = this.queryBuilder()
     return paginate<Mission, CustomPaginationMetaTransformer>(
       queryBuilder,
       options,

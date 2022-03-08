@@ -6,7 +6,7 @@ import { plainToInstance } from 'class-transformer'
 import { CreateAdminActionLogDto } from '@lib/admin-action-log/dto/create-admin-action-log.dto'
 import { Injectable } from '@nestjs/common'
 import { AdminActionLogService } from '@lib/admin-action-log'
-import { EVENTS, GRANT_TARGET_WALLET } from '@lib/mission'
+import { EVENTS, GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission'
 import { ConfigService } from '@nestjs/config'
 
 @Injectable()
@@ -60,12 +60,12 @@ export class AdminCommonService {
   listGrantTargetUsers() {
     return [
       {
-        key: 'user',
+        key: GRANT_TARGET_USER.USER,
         value: 'User',
       },
       {
-        key: 'referer_user',
-        value: 'Referer User',
+        key: GRANT_TARGET_USER.REFERRAL_USER,
+        value: 'Referral User',
       },
     ]
   }

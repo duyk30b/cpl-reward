@@ -8,18 +8,30 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
+import { IPaginationMeta } from 'nestjs-typeorm-paginate'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class ApiMissionService {
   constructor(private readonly missionService: MissionService) {}
 
-  async findAll(apiMissionFilterDto: ApiMissionFilterDto) {
+  async findAll(apiMissionFilterDto: ApiMissionFilterDto, userId: number) {
     const limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
     const page = apiMissionFilterDto.page || 1
     const options = {
       page,
       limit,
+      metaTransformer: (
+        meta: IPaginationMeta,
+      ): CustomPaginationMetaTransformer =>
+        new CustomPaginationMetaTransformer(
+          meta.totalItems,
+          meta.itemCount,
+          meta.itemsPerPage,
+          meta.totalPages,
+          meta.currentPage,
+        ),
     }
     const queryBuilder = this.queryBuilder(apiMissionFilterDto)
     return this.missionService.snakePaginate(options, queryBuilder)

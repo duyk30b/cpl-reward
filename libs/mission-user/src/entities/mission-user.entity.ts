@@ -31,7 +31,11 @@ export class MissionUser extends MyBaseEntity {
   @Expose({ name: 'money_earned' })
   moneyEarned: number
 
-  @Column({ name: 'is_banned', default: false })
-  @Expose({ name: 'is_banned' })
-  isBanned: boolean
+  @Column({ name: 'total_money_earned', default: 0 })
+  @Expose({ name: 'total_money_earned' })
+  totalMoneyEarned: number
+
+  @Column({ name: 'referred_user_info', transformer: JsonColumnTransformer })
+  @Expose({ name: 'referred_user_info' })
+  referredUserInfo: string
 }

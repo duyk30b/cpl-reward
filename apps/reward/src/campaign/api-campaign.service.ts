@@ -10,12 +10,14 @@ import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { Brackets } from 'typeorm'
+import { IPaginationMeta } from 'nestjs-typeorm-paginate'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class ApiCampaignService {
   constructor(private readonly campaignService: CampaignService) {}
 
-  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto) {
+  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto, userId: number) {
     const limit =
       (apiCampaignFilterDto.limit > 100 ? 100 : apiCampaignFilterDto.limit) ||
       20
@@ -23,6 +25,16 @@ export class ApiCampaignService {
     const options = {
       page,
       limit,
+      metaTransformer: (
+        meta: IPaginationMeta,
+      ): CustomPaginationMetaTransformer =>
+        new CustomPaginationMetaTransformer(
+          meta.totalItems,
+          meta.itemCount,
+          meta.itemsPerPage,
+          meta.totalPages,
+          meta.currentPage,
+        ),
     }
     const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
     return this.campaignService.snakePaginate(options, queryBuilder)
@@ -33,6 +45,7 @@ export class ApiCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.select(['campaign.title', 'campaign.id'])
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: IS_SYSTEM.FALSE,
     })

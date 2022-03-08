@@ -96,6 +96,12 @@
       ],
       "@lib/mission-event/*": [
         "libs/mission-event/src/*"
+      ],
+      "@lib/user-reward-history": [
+        "libs/user-reward-history/src"
+      ],
+      "@lib/user-reward-history/*": [
+        "libs/user-reward-history/src/*"
       ]
     }
   }

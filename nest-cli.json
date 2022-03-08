@@ -175,6 +175,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/mission-event/tsconfig.lib.json"
       }
+    },
+    "user-reward-history": {
+      "type": "library",
+      "root": "libs/user-reward-history",
+      "entryFile": "index",
+      "sourceRoot": "libs/user-reward-history/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/user-reward-history/tsconfig.lib.json"
+      }
     }
   }
 }

@@ -3,10 +3,9 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
+  IS_SYSTEM,
   STATUS,
 } from '@lib/campaign'
-import { IPaginationMeta } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
@@ -24,16 +23,6 @@ export class ApiCampaignService {
     const options = {
       page,
       limit,
-      metaTransformer: (
-        meta: IPaginationMeta,
-      ): CustomPaginationMetaTransformer =>
-        new CustomPaginationMetaTransformer(
-          meta.totalItems,
-          meta.itemCount,
-          meta.itemsPerPage,
-          meta.totalPages,
-          meta.currentPage,
-        ),
     }
     const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
     return this.campaignService.snakePaginate(options, queryBuilder)
@@ -44,9 +33,11 @@ export class ApiCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
-    queryBuilder.where('campaign.isSystem = :is_system ', { is_system: false })
+    queryBuilder.where('campaign.isSystem = :is_system ', {
+      is_system: IS_SYSTEM.FALSE,
+    })
     queryBuilder.andWhere('campaign.status = :status ', {
-      status: STATUS.ACTIVE,
+      status: `${STATUS.ACTIVE}`,
     })
     if (searchText) {
       queryBuilder.andWhere(

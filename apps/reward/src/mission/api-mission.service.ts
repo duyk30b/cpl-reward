@@ -1,29 +1,68 @@
 import { Injectable } from '@nestjs/common'
-import { MissionService } from '@lib/mission'
-import { IPaginationMeta } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import {
+  MISSION_SEARCH_FIELD_MAP,
+  MISSION_SORT_FIELD_MAP,
+  MissionService,
+} from '@lib/mission'
+import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
+import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
+import { Brackets } from 'typeorm'
+import { Mission } from '@lib/mission/entities/mission.entity'
 
 @Injectable()
 export class ApiMissionService {
   constructor(private readonly missionService: MissionService) {}
 
-  async findAll(page: number, limit: number) {
-    limit = limit > 100 ? 100 : limit
+  async findAll(apiMissionFilterDto: ApiMissionFilterDto) {
+    const limit =
+      (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
+    const page = apiMissionFilterDto.page || 1
     const options = {
       page,
       limit,
-      metaTransformer: (
-        meta: IPaginationMeta,
-      ): CustomPaginationMetaTransformer =>
-        new CustomPaginationMetaTransformer(
-          meta.totalItems,
-          meta.itemCount,
-          meta.itemsPerPage,
-          meta.totalPages,
-          meta.currentPage,
-        ),
     }
-    return this.missionService.snakePaginate(options)
+    const queryBuilder = this.queryBuilder(apiMissionFilterDto)
+    return this.missionService.snakePaginate(options, queryBuilder)
+  }
+
+  private queryBuilder(
+    missionFilter: ApiMissionFilterDto,
+  ): SelectQueryBuilder<Mission> {
+    const { searchField, searchText, sort, sortType } = missionFilter
+    const queryBuilder = this.missionService.initQueryBuilder()
+    if (searchText) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          if (searchField && MISSION_SEARCH_FIELD_MAP[searchField]) {
+            qb.where(`${MISSION_SEARCH_FIELD_MAP[searchField]} LIKE :keyword`)
+          } else {
+            Object.keys(MISSION_SEARCH_FIELD_MAP).forEach((field) => {
+              qb.orWhere(`${MISSION_SEARCH_FIELD_MAP[field]} LIKE :keyword`)
+            })
+          }
+        }),
+        {
+          keyword: `%${ApiMissionService.escapeLikeChars(searchText)}%`,
+        },
+      )
+    }
+
+    if (sort && MISSION_SORT_FIELD_MAP[sort]) {
+      queryBuilder
+        .orderBy(MISSION_SORT_FIELD_MAP[sort], sortType || 'ASC')
+        .addOrderBy('mission.priority', 'DESC')
+        .addOrderBy('mission.id', 'DESC')
+    } else {
+      queryBuilder
+        .orderBy('mission.priority', 'DESC')
+        .addOrderBy('mission.id', 'DESC')
+    }
+
+    return queryBuilder
+  }
+
+  private static escapeLikeChars(str: string) {
+    return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
   }
 
   async findOne(id: number) {

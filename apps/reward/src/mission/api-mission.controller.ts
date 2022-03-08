@@ -1,16 +1,10 @@
-import {
-  Controller,
-  DefaultValuePipe,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiMissionService } from './api-mission.service'
-import { ApiOperation } from '@nestjs/swagger'
+import { ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { Pagination } from 'nestjs-typeorm-paginate'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 
 @Controller('missions')
 export class ApiMissionController {
@@ -20,11 +14,11 @@ export class ApiMissionController {
   @ApiOperation({
     summary: 'Get mission list',
   })
+  @ApiQuery({ type: ApiMissionFilterDto })
   async findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+    @Query() apiMissionFilterDto: ApiMissionFilterDto,
   ): Promise<Pagination<Mission, CustomPaginationMetaTransformer>> {
-    return this.apiMissionService.findAll(page, limit)
+    return this.apiMissionService.findAll(apiMissionFilterDto)
   }
 
   @Get(':id')

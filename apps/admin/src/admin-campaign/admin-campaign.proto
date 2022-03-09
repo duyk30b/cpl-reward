@@ -88,6 +88,7 @@ message CampaignWithoutRules {
   string campaignImage = 8;
   int32 priority = 9; // default: 0
   bool isSystem = 10; // default: false
+  int32 status = 11;
 }
 
 message Result {

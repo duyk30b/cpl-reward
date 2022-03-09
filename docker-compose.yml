@@ -35,23 +35,23 @@ services:
       - db
     networks:
       - server
-  missions:
-    container_name: reward_missions
-    image: reward-api-dev:1.0.0
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: builder
-    command: npm run start:dev missions
-    ports:
-      - ${MISSIONS_MAP_PORT}
-    volumes:
-      - .:/usr/src/app
-    restart: unless-stopped
-    depends_on:
-      - db
-    networks:
-      - server
+#  missions:
+#    container_name: reward_missions
+#    image: reward-api-dev:1.0.0
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#      target: builder
+#    command: npm run start:dev missions
+#    ports:
+#      - ${MISSIONS_MAP_PORT}
+#    volumes:
+#      - .:/usr/src/app
+#    restart: unless-stopped
+#    depends_on:
+#      - db
+#    networks:
+#      - server
   db:
     container_name: reward_db
     image: mariadb:latest

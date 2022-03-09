@@ -34,7 +34,14 @@ export class ApiMissionService {
         ),
     }
     const queryBuilder = this.queryBuilder(apiMissionFilterDto)
-    return this.missionService.snakePaginate(options, queryBuilder)
+    const result = await this.missionService.snakePaginate(
+      options,
+      queryBuilder,
+    )
+    return {
+      pagination: result.meta,
+      data: result.items,
+    }
   }
 
   private queryBuilder(
@@ -42,6 +49,10 @@ export class ApiMissionService {
   ): SelectQueryBuilder<Mission> {
     const { searchField, searchText, sort, sortType } = missionFilter
     const queryBuilder = this.missionService.initQueryBuilder()
+    if (missionFilter.campaignId !== undefined)
+      queryBuilder.where('mission.campaignId = :campaign_id ', {
+        campaign_id: Number(missionFilter.campaignId),
+      })
     if (searchText) {
       queryBuilder.andWhere(
         new Brackets((qb) => {

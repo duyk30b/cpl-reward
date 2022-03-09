@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 
 export class ApiMissionFilterDto {
-  @ApiProperty({ name: 'campaign_id', required: true, example: 1 })
+  @ApiProperty({ name: 'campaign_id', required: false, example: 1 })
   @Expose({ name: 'campaign_id' })
   campaignId: number
 

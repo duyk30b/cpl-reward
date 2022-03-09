@@ -12,7 +12,7 @@ export const ApiPaginatedResponse = <TModel extends Type<any>>(
           { $ref: getSchemaPath(PaginatedDto) },
           {
             properties: {
-              items: {
+              data: {
                 type: 'array',
                 items: { $ref: getSchemaPath(model) },
               },

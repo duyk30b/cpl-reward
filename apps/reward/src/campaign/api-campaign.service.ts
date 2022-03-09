@@ -10,8 +10,9 @@ import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { Brackets } from 'typeorm'
-import { IPaginationMeta } from 'nestjs-typeorm-paginate'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 
 @Injectable()
 export class ApiCampaignService {
@@ -22,22 +23,30 @@ export class ApiCampaignService {
       (apiCampaignFilterDto.limit > 100 ? 100 : apiCampaignFilterDto.limit) ||
       20
     const page = apiCampaignFilterDto.page || 1
-    const options = {
+    const options: IPaginationOptions<CustomPaginationMetaTransformer> = {
       page,
       limit,
       metaTransformer: (
-        meta: IPaginationMeta,
+        pagination: IPaginationMeta,
       ): CustomPaginationMetaTransformer =>
         new CustomPaginationMetaTransformer(
-          meta.totalItems,
-          meta.itemCount,
-          meta.itemsPerPage,
-          meta.totalPages,
-          meta.currentPage,
+          pagination.totalItems,
+          pagination.itemCount,
+          pagination.itemsPerPage,
+          pagination.totalPages,
+          pagination.currentPage,
         ),
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
-    return this.campaignService.snakePaginate(options, queryBuilder)
+    const result = await this.campaignService.snakePaginate(
+      options,
+      queryBuilder,
+    )
+    return {
+      pagination: result.meta,
+      data: result.items,
+    }
   }
 
   private queryBuilder(

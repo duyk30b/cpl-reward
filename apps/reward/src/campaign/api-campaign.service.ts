@@ -31,11 +31,13 @@ export class ApiCampaignService {
       ): CustomPaginationMetaTransformer =>
         new CustomPaginationMetaTransformer(
           pagination.totalItems,
-          pagination.itemCount,
           pagination.itemsPerPage,
-          pagination.totalPages,
           pagination.currentPage,
+
+          pagination.itemCount,
+          pagination.totalPages,
         ),
+      route: '/campaigns',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
@@ -46,6 +48,7 @@ export class ApiCampaignService {
     return {
       pagination: result.meta,
       data: result.items,
+      links: result.links,
     }
   }
 

@@ -6,7 +6,10 @@ import { Repository } from 'typeorm'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { UpdateCampaignDto } from '@lib/campaign/dto/update-campaign.dto'
 import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import {
+  CustomPaginationMetaCamelTransformer,
+  CustomPaginationMetaTransformer,
+} from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 
@@ -70,12 +73,15 @@ export class CampaignService {
       )
   }
 
-  async camelPaginate(
-    options: IPaginationOptions,
+  async grpcPaginate(
+    options: IPaginationOptions<CustomPaginationMetaCamelTransformer>,
     queryBuilder: SelectQueryBuilder<Campaign> = null,
-  ): Promise<Pagination<Campaign>> {
+  ): Promise<Pagination<Campaign, CustomPaginationMetaCamelTransformer>> {
     if (queryBuilder === null) queryBuilder = this.queryBuilder()
-    return paginate<Campaign>(queryBuilder, options)
+    return paginate<Campaign, CustomPaginationMetaCamelTransformer>(
+      queryBuilder,
+      options,
+    )
   }
 
   async snakePaginate(

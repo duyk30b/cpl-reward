@@ -7,6 +7,7 @@ export enum EVENTS {
   AUTH_USER_CHANGE_PASSWORD = 'auth_user_change_password',
   AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',
 }
+
 export enum GRANT_TARGET_WALLET {
   REWARD_BALANCE = 'reward_balance',
   REWARD_CASHBACK = 'reward_cashback',
@@ -14,4 +15,9 @@ export enum GRANT_TARGET_WALLET {
   DIRECT_BALANCE = 'direct_balance',
   DIRECT_CASHBACK = 'direct_cashback',
   DIRECT_DIVIDEND = 'direct_dividend',
+}
+
+export enum GRANT_TARGET_USER {
+  USER = 'user',
+  REFERRAL_USER = 'referral_user',
 }

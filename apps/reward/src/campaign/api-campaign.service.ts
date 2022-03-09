@@ -10,22 +10,43 @@ import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { Brackets } from 'typeorm'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 
 @Injectable()
 export class ApiCampaignService {
   constructor(private readonly campaignService: CampaignService) {}
 
-  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto) {
+  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto, userId: number) {
     const limit =
       (apiCampaignFilterDto.limit > 100 ? 100 : apiCampaignFilterDto.limit) ||
       20
     const page = apiCampaignFilterDto.page || 1
-    const options = {
+    const options: IPaginationOptions<CustomPaginationMetaTransformer> = {
       page,
       limit,
+      metaTransformer: (
+        pagination: IPaginationMeta,
+      ): CustomPaginationMetaTransformer =>
+        new CustomPaginationMetaTransformer(
+          pagination.totalItems,
+          pagination.itemCount,
+          pagination.itemsPerPage,
+          pagination.totalPages,
+          pagination.currentPage,
+        ),
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
-    return this.campaignService.snakePaginate(options, queryBuilder)
+    const result = await this.campaignService.snakePaginate(
+      options,
+      queryBuilder,
+    )
+    return {
+      pagination: result.meta,
+      data: result.items,
+    }
   }
 
   private queryBuilder(
@@ -33,6 +54,7 @@ export class ApiCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.select(['campaign.title', 'campaign.id'])
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: IS_SYSTEM.FALSE,
     })

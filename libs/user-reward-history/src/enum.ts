@@ -1,0 +1,6 @@
+export enum STATUS {
+  NOT_RECEIVE = 0,
+  AUTO_RECEIVED = 1,
+  MANUAL_NOT_RECEIVE = 2,
+  MANUAL_RECEIVED = 3,
+}

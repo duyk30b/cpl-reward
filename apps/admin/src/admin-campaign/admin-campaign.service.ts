@@ -13,6 +13,8 @@ import {
   UpdateCampaignInput,
 } from './admin-campaign.interface'
 import { Brackets } from 'typeorm'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
+import { CustomPaginationMetaCamelTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class AdminCampaignService {
@@ -89,9 +91,33 @@ export class AdminCampaignService {
     const limit =
       (campaignFilter.limit > 100 ? 100 : campaignFilter.limit) || 20
     const page = campaignFilter.page || 1
-    const options = { page, limit }
+    const options = {
+      page,
+      limit,
+      metaTransformer: (
+        pagination: IPaginationMeta,
+      ): CustomPaginationMetaCamelTransformer =>
+        new CustomPaginationMetaCamelTransformer(
+          pagination.totalItems,
+          pagination.itemsPerPage,
+          pagination.currentPage,
+
+          pagination.itemCount,
+          pagination.totalPages,
+        ),
+      route: '/campaigns',
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
+    }
     const queryBuilder = this.queryBuilder(campaignFilter)
-    return this.campaignService.camelPaginate(options, queryBuilder)
+    const result = await this.campaignService.grpcPaginate(
+      options,
+      queryBuilder,
+    )
+    return {
+      pagination: result.meta,
+      data: result.items,
+      links: result.links,
+    }
   }
 
   private queryBuilder(

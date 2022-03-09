@@ -35,7 +35,7 @@ export class ApiMissionController {
       STATUS.MANUAL_NOT_RECEIVE,
       STATUS.MANUAL_RECEIVED,
     ]
-    const items = temp.items.map((mission) => {
+    const data = temp.data.map((mission) => {
       return {
         id: mission.id,
         title: mission.title,
@@ -45,8 +45,8 @@ export class ApiMissionController {
       }
     })
     return {
-      meta: temp.meta,
-      items,
+      pagination: temp.pagination,
+      data,
     }
   }
 

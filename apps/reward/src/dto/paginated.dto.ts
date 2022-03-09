@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-class Meta {
+class Pagination {
   @ApiProperty({ name: 'total_items', example: 1 })
   totalItems: number
 
@@ -19,8 +19,8 @@ class Meta {
 
 export class PaginatedDto<TData> {
   @ApiProperty()
-  meta: Meta
+  pagination: Pagination
 
   @ApiProperty()
-  items: TData[]
+  data: TData[]
 }

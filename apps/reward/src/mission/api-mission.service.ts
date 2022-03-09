@@ -8,8 +8,9 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { IPaginationMeta } from 'nestjs-typeorm-paginate'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { STATUS } from '@lib/user-reward-history'
 
 @Injectable()
 export class ApiMissionService {
@@ -23,24 +24,44 @@ export class ApiMissionService {
       page,
       limit,
       metaTransformer: (
-        meta: IPaginationMeta,
+        pagination: IPaginationMeta,
       ): CustomPaginationMetaTransformer =>
         new CustomPaginationMetaTransformer(
-          meta.totalItems,
-          meta.itemCount,
-          meta.itemsPerPage,
-          meta.totalPages,
-          meta.currentPage,
+          pagination.totalItems,
+          pagination.itemsPerPage,
+          pagination.currentPage,
+
+          pagination.itemCount,
+          pagination.totalPages,
         ),
+      route: '/missions',
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(apiMissionFilterDto)
     const result = await this.missionService.snakePaginate(
       options,
       queryBuilder,
     )
+    // TODO: fake response data for frontend team integrate
+    const statusList = [
+      STATUS.NOT_RECEIVE,
+      STATUS.AUTO_RECEIVED,
+      STATUS.MANUAL_NOT_RECEIVE,
+      STATUS.MANUAL_RECEIVED,
+    ]
+    const data = result.items.map((mission) => {
+      return {
+        id: mission.id,
+        title: mission.title,
+        amount: Math.floor(Math.random() * 100),
+        currency: 'USDT',
+        status: statusList[Math.floor(Math.random() * statusList.length)],
+      }
+    })
     return {
       pagination: result.meta,
-      data: result.items,
+      data,
+      links: result.links,
     }
   }
 

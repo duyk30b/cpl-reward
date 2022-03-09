@@ -8,10 +8,16 @@ service GrpcAdminCampaignService {
   rpc FindOne(FindOneInput) returns (Result);
   rpc Update(UpdateInput) returns (Result);
   rpc List(ListInput) returns (ListResult);
+  rpc ListWithRules(ListInput) returns (ListResultWithRules);
 }
 
 message ListResult {
   repeated CampaignWithoutRules items = 1;
+  ListMeta meta = 2;
+}
+
+message ListResultWithRules {
+  repeated Result items = 1;
   ListMeta meta = 2;
 }
 
@@ -114,6 +120,9 @@ message RewardRuleResult {
   string currency = 5;
   int32 limitValue = 6;
   int32 releaseValue = 7;
+  int32 campaignId = 8;
+  int32 missionId = 9;
+  string typeRule = 10;
 }
 
 message CreateInput {

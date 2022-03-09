@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import { Pagination, paginate } from 'nestjs-typeorm-paginate'
+import { Pagination, paginate, paginateRaw } from 'nestjs-typeorm-paginate'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
@@ -68,6 +68,13 @@ export class CampaignService {
         'rewardRules',
         "rewardRules.type_rule = 'campaign'",
       )
+  }
+
+  async rawPaginate(
+    options: IPaginationOptions,
+    queryBuilder: SelectQueryBuilder<Campaign> = null,
+  ) {
+    return paginateRaw(queryBuilder, options)
   }
 
   async camelPaginate(

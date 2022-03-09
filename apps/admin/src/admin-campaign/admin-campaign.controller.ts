@@ -37,4 +37,9 @@ export class AdminCampaignController {
   async list(campaignFilter: ICampaignFilter) {
     return await this.adminCampaignService.findAll(campaignFilter)
   }
+
+  @GrpcMethod('GrpcAdminCampaignService', 'ListWithRules')
+  async listWithRules(campaignFilter: ICampaignFilter) {
+    return await this.adminCampaignService.findAllWithRules(campaignFilter)
+  }
 }

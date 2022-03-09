@@ -94,6 +94,20 @@ export class AdminCampaignService {
     return this.campaignService.camelPaginate(options, queryBuilder)
   }
 
+  async findAllWithRules(campaignFilter: ICampaignFilter) {
+    const limit =
+      (campaignFilter.limit > 100 ? 100 : campaignFilter.limit) || 20
+    const page = campaignFilter.page || 1
+    const options = { page, limit }
+    const queryBuilder = this.queryBuilder(campaignFilter)
+    queryBuilder.leftJoinAndSelect(
+      'campaign.rewardRules',
+      'rewardRules',
+      "rewardRules.type_rule = 'campaign'",
+    )
+    return this.campaignService.snakePaginate(options, queryBuilder)
+  }
+
   private queryBuilder(
     campaignFilter: ICampaignFilter,
   ): SelectQueryBuilder<Campaign> {

@@ -27,9 +27,7 @@ export class RewardRule extends MyBaseEntity {
     default: null,
     name: 'mission_id',
   })
-  @Expose({
-    name: 'mission_id',
-  })
+  @Expose({ name: 'mission_id' })
   missionId: number
 
   @Column({ name: 'type_rule' })

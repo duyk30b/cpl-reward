@@ -5,7 +5,6 @@ package admin_common;
 service GrpcAdminCommonService {
   rpc CreateActionLog(CreateActionLog) returns (Result);
   rpc ListEvents(Empty) returns (ListEventsResult);
-  rpc ListPropertiesByEvent(InputPropertiesByEvent) returns (ResultPropertiesByEvent);
   rpc ListGrantTarget(Empty) returns (GrantTargetResult);
   rpc ListUserConditions(Empty) returns (ResultUserConditions);
 }
@@ -30,7 +29,7 @@ message ResultUserConditions {
 message Empty {}
 
 message ListEventsResult {
-  repeated EventResult list = 1;
+  string events = 1;
 }
 
 message EventResult {

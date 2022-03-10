@@ -1,7 +1,4 @@
-import {
-  CreateActionLogInput,
-  ListPropertiesByEventInput,
-} from './admin-common.interface'
+import { CreateActionLogInput } from './admin-common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateAdminActionLogDto } from '@lib/admin-action-log/dto/create-admin-action-log.dto'
 import { Injectable } from '@nestjs/common'
@@ -28,24 +25,7 @@ export class AdminCommonService {
   }
 
   listEvents() {
-    return Object.keys(EVENTS)
-      .filter((key) => EVENTS[key] !== '')
-      .map((key) => {
-        return {
-          key,
-          value: EVENTS[key],
-        }
-      })
-  }
-
-  listPropertiesByEvent(data: ListPropertiesByEventInput) {
-    const eventKey = data.eventKey
-    if (EVENTS[eventKey] === undefined) return ''
-    const propertiesString = this.configService.get(
-      `mission.${EVENTS[eventKey]}_properties`,
-    )
-    if (propertiesString === undefined) return ''
-    return propertiesString
+    return { events: JSON.stringify(EVENTS) }
   }
 
   listGrantTargetWallets() {

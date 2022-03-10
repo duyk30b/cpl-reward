@@ -27,7 +27,7 @@ export class Campaign extends MyBaseEntity {
   @Expose()
   description: string
 
-  @Column({ name: 'detail_explain' })
+  @Column({ name: 'detail_explain', default: '' })
   @Expose({ name: 'detail_explain' })
   detailExplain: string
 
@@ -39,11 +39,11 @@ export class Campaign extends MyBaseEntity {
   @Expose({ name: 'end_date' })
   endDate: number
 
-  @Column({ name: 'notification_link' })
+  @Column({ name: 'notification_link', default: '' })
   @Expose({ name: 'notification_link' })
   notificationLink: string
 
-  @Column({ name: 'campaign_image' })
+  @Column({ name: 'campaign_image', default: '' })
   @Expose({ name: 'campaign_image' })
   campaignImage: string
 

@@ -1,13 +1,13 @@
 import { Expose } from 'class-transformer'
 
 export class CreateRewardRuleDto {
-  @Expose()
+  @Expose({ name: 'campaign_id' })
   campaignId?: number
 
-  @Expose()
+  @Expose({ name: 'mission_id' })
   missionId?: number
 
-  @Expose()
+  @Expose({ name: 'type_rule' })
   typeRule?: string
 
   @Expose()
@@ -16,9 +16,9 @@ export class CreateRewardRuleDto {
   @Expose()
   currency: string
 
-  @Expose()
+  @Expose({ name: 'limit_value' })
   limitValue: number
 
-  @Expose()
+  @Expose({ name: 'release_value' })
   releaseValue?: number
 }

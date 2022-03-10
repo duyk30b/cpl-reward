@@ -8,7 +8,6 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
-import { EVENTS } from '@lib/mission/enum'
 
 @Entity({
   name: 'mission_event',
@@ -28,12 +27,9 @@ export class MissionEvent extends MyBaseEntity {
 
   @Column({
     name: 'event_name',
-    type: 'enum',
-    enum: EVENTS,
-    default: EVENTS.NONE,
   })
   @Expose({ name: 'event_name' })
-  eventName: EVENTS
+  eventName: string
 
   @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules, {
     onDelete: 'CASCADE',

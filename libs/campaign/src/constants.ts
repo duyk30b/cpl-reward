@@ -3,6 +3,7 @@ export const CAMPAIGN_SEARCH_FIELD_MAP = {
 }
 
 export const CAMPAIGN_SORT_FIELD_MAP = {
+  id: 'campaign.id',
   title: 'campaign.title',
   description: 'campaign.description',
   detail_explain: 'campaign.detailExplain',

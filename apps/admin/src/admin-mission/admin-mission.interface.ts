@@ -1,7 +1,5 @@
-import {
-  CreateRewardRule,
-  UpdateRewardRule,
-} from '../admin-common/admin-common.interface'
+import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
+import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 
 interface MissionInput {
   campaignId: number
@@ -36,10 +34,10 @@ interface Target {
 }
 
 export interface CreateMissionInput extends MissionInput {
-  rewardRules: CreateRewardRule[]
+  rewardRules: CreateRewardRuleDto[]
 }
 
 export interface UpdateMissionInput extends MissionInput {
   id: number
-  rewardRules: UpdateRewardRule[]
+  rewardRules: UpdateRewardRuleDto[]
 }

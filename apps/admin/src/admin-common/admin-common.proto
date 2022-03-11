@@ -28,10 +28,6 @@ message ResultUserConditions {
 
 message Empty {}
 
-message ListEventsResult {
-  string events = 1;
-}
-
 message EventResult {
   string key = 1;
   string value = 2;
@@ -44,10 +40,25 @@ message CreateActionLog {
 }
 
 message Result {
-    int32 adminId = 1;
-    string actionName = 2;
-    string contentData = 3;
-    int32 createdAt = 4;
-    int32 updatedAt = 5;
-    int32 id = 6;
+  int32 adminId = 1;
+  string actionName = 2;
+  string contentData = 3;
+  int32 createdAt = 4;
+  int32 updatedAt = 5;
+  int32 id = 6;
+}
+
+message ListEventsResult {
+  repeated EventDetail events = 1;
+}
+
+message EventDetail {
+  string eventName = 1;
+  repeated EventDetailProperty properties = 2;
+}
+
+message EventDetailProperty {
+  string key = 1;
+  string type = 2;
+  string description = 3;
 }

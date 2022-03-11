@@ -1,8 +1,6 @@
-import {
-  CreateRewardRule,
-  UpdateRewardRule,
-} from '../admin-common/admin-common.interface'
 import { Expose, Type } from 'class-transformer'
+import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
+import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 
 export interface CancelInput {
   campaignId: number
@@ -45,15 +43,15 @@ export class CampaignInput {
 }
 
 export class CreateCampaignInput extends CampaignInput {
-  @Type(() => CreateRewardRule)
+  @Type(() => CreateRewardRuleDto)
   @Expose({ name: 'reward_rules' })
-  rewardRules: CreateRewardRule[]
+  rewardRules: CreateRewardRuleDto[]
 }
 
 export class UpdateCampaignInput extends CampaignInput {
   @Expose()
   id: number
   @Expose({ name: 'reward_rules' })
-  @Type(() => UpdateRewardRule)
-  rewardRules: UpdateRewardRule[]
+  @Type(() => UpdateRewardRuleDto)
+  rewardRules: UpdateRewardRuleDto[]
 }

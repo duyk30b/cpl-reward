@@ -14,7 +14,8 @@ export class AdminCommonController {
 
   @GrpcMethod('GrpcAdminCommonService', 'ListEvents')
   listEvents() {
-    return this.adminCommonService.listEvents()
+    const events = this.adminCommonService.listEvents()
+    return { events }
   }
 
   @GrpcMethod('GrpcAdminCommonService', 'ListGrantTarget')

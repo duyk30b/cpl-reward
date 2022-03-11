@@ -31,7 +31,7 @@ export class UserRewardHistory extends MyBaseEntity {
     default: GRANT_TARGET_USER.USER,
   })
   @Expose({ name: 'user_type' })
-  userType: string
+  userType: GRANT_TARGET_USER
 
   @Column()
   @Expose()
@@ -47,7 +47,7 @@ export class UserRewardHistory extends MyBaseEntity {
     default: GRANT_TARGET_WALLET.REWARD_BALANCE,
   })
   @Expose()
-  wallet: string
+  wallet: GRANT_TARGET_WALLET
 
   @Column({
     type: 'enum',
@@ -55,5 +55,5 @@ export class UserRewardHistory extends MyBaseEntity {
     default: STATUS.NOT_RECEIVE,
   })
   @Expose()
-  status: string
+  status: STATUS
 }

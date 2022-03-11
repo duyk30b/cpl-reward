@@ -3,15 +3,15 @@ import { plainToInstance } from 'class-transformer'
 import { CreateAdminActionLogDto } from '@lib/admin-action-log/dto/create-admin-action-log.dto'
 import { Injectable } from '@nestjs/common'
 import { AdminActionLogService } from '@lib/admin-action-log'
-import { EVENTS, GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission'
-import { ConfigService } from '@nestjs/config'
+import {
+  GRANT_TARGET_USER,
+  GRANT_TARGET_WALLET,
+  INFO_EVENTS,
+} from '@lib/mission'
 
 @Injectable()
 export class AdminCommonService {
-  constructor(
-    private readonly adminActionLogService: AdminActionLogService,
-    private configService: ConfigService,
-  ) {}
+  constructor(private readonly adminActionLogService: AdminActionLogService) {}
 
   createLogAction(createActionLogInput: CreateActionLogInput) {
     const createActionLog = plainToInstance(
@@ -25,7 +25,7 @@ export class AdminCommonService {
   }
 
   listEvents() {
-    return { events: JSON.stringify(EVENTS) }
+    return INFO_EVENTS
   }
 
   listGrantTargetWallets() {

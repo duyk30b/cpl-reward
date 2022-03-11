@@ -12,9 +12,8 @@ export class MissionEventService {
     private missionEventRepository: Repository<MissionEvent>,
   ) {}
 
-  async create(
-    createMissionEventDto: CreateMissionEventDto,
-  ): Promise<MissionEvent> {
+  // TODO: update later
+  async upsert(createMissionEventDto: CreateMissionEventDto): Promise<void> {
     const missionEventEntity = plainToInstance(
       MissionEvent,
       createMissionEventDto,
@@ -22,10 +21,8 @@ export class MissionEventService {
         ignoreDecorators: true,
       },
     )
-    return await this.missionEventRepository.save(missionEventEntity)
-  }
-
-  async delete(campaignId: number, missionId: number) {
-    return await this.missionEventRepository.delete({ campaignId, missionId })
+    await this.missionEventRepository.upsert(missionEventEntity, {
+      conflictPaths: ['missionId', 'campaignId', 'eventName'],
+    })
   }
 }

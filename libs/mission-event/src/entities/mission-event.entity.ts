@@ -1,13 +1,6 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
-import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Entity({
   name: 'mission_event',
@@ -25,15 +18,7 @@ export class MissionEvent extends MyBaseEntity {
   @Expose({ name: 'campaign_id' })
   campaignId: number
 
-  @Column({
-    name: 'event_name',
-  })
+  @Column({ name: 'event_name' })
   @Expose({ name: 'event_name' })
   eventName: string
-
-  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'campaign_id' })
-  campaign: Campaign
 }

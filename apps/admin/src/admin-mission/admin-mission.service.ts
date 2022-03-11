@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { EVENTS, MissionService } from '@lib/mission'
-import { RewardRuleService } from '@lib/reward-rule'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
@@ -24,15 +24,15 @@ export class AdminMissionService {
         await this.rewardRuleService.create(item, {
           campaignId: createMissionInput.campaignId,
           missionId: mission.id,
-          typeRule: 'mission',
+          typeRule: TYPE_RULE.MISSION,
         })
       }),
     )
-    await this.mappingMissionEvent(
-      createMissionInput.judgmentConditions,
-      createMissionInput.campaignId,
-      mission.id,
-    )
+    // await this.mappingMissionEvent(
+    //   createMissionInput.judgmentConditions,
+    //   createMissionInput.campaignId,
+    //   mission.id,
+    // )
     mission = await this.missionService.getById(mission.id, {
       relations: ['rewardRules'],
     })
@@ -46,16 +46,16 @@ export class AdminMissionService {
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,
-          typeRule: 'mission',
+          typeRule: TYPE_RULE.MISSION,
         })
         return item
       }),
     )
-    await this.mappingMissionEvent(
-      updateMissionInput.judgmentConditions,
-      updateMissionInput.campaignId,
-      mission.id,
-    )
+    // await this.mappingMissionEvent(
+    //   updateMissionInput.judgmentConditions,
+    //   updateMissionInput.campaignId,
+    //   mission.id,
+    // )
     mission = await this.missionService.getById(mission.id, {
       relations: ['rewardRules'],
     })
@@ -76,21 +76,40 @@ export class AdminMissionService {
     return mission
   }
 
+  // TODO: update later
   private async mappingMissionEvent(
     judgmentConditions: JudgmentConditionDto[],
     campaignId: number,
     missionId: number,
   ) {
-    await this.missionEventService.delete(campaignId, missionId)
+    const arrEvents = Object.keys(EVENTS).map(function (event) {
+      return EVENTS[event]
+    })
+    const availableEvents = []
+    const infoEvents = []
+    judgmentConditions.forEach((item) => {
+      if (
+        arrEvents.includes(item.eventName) &&
+        !availableEvents.includes(item.eventName)
+      ) {
+        availableEvents.push(item.eventName)
+        infoEvents.push({
+          campaignId,
+          missionId,
+          eventName: item.eventName,
+        })
+      }
+    })
     await Promise.all(
-      judgmentConditions.map(async (item) => {
-        if (EVENTS[item.eventName] !== undefined) {
-          await this.missionEventService.create({
-            campaignId,
-            missionId,
+      infoEvents.map(async (item) => {
+        if (arrEvents.includes(item.eventName)) {
+          await this.missionEventService.upsert({
+            campaignId: item.campaignId,
+            missionId: item.missionId,
             eventName: item.eventName,
           })
         }
+        return item
       }),
     )
   }

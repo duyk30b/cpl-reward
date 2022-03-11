@@ -4,7 +4,7 @@ import {
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
 } from '@lib/campaign'
-import { RewardRuleService } from '@lib/reward-rule'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -39,7 +39,7 @@ export class AdminCampaignService {
     }
     if (campaign.rewardRules !== undefined && campaign.rewardRules.length > 0) {
       campaign.rewardRules = campaign.rewardRules.filter(
-        (item) => item.typeRule == 'campaign',
+        (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
       )
     }
     return campaign
@@ -52,7 +52,7 @@ export class AdminCampaignService {
         await this.rewardRuleService.create(item, {
           campaignId: campaign.id,
           missionId: null,
-          typeRule: 'campaign',
+          typeRule: TYPE_RULE.CAMPAIGN,
         })
         return item
       }),
@@ -61,7 +61,7 @@ export class AdminCampaignService {
       relations: ['rewardRules'],
     })
     campaign.rewardRules = campaign.rewardRules.filter(
-      (item) => item.typeRule == 'campaign',
+      (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
     )
     return campaign
   }
@@ -73,7 +73,7 @@ export class AdminCampaignService {
         await this.rewardRuleService.update(item, {
           campaignId: campaign.id,
           missionId: null,
-          typeRule: 'campaign',
+          typeRule: TYPE_RULE.CAMPAIGN,
         })
         return item
       }),
@@ -82,7 +82,7 @@ export class AdminCampaignService {
       relations: ['rewardRules'],
     })
     campaign.rewardRules = campaign.rewardRules.filter(
-      (item) => item.typeRule == 'campaign',
+      (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
     )
     return campaign
   }

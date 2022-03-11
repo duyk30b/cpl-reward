@@ -6,7 +6,6 @@ import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto
 import { plainToInstance } from 'class-transformer'
 import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 import { OptionalRewardRule } from '@lib/reward-rule/reward-rule.interface'
-import { CreateRewardRule } from '../../../apps/admin/src/admin-common/admin-common.interface'
 
 @Injectable()
 export class RewardRuleService {
@@ -16,7 +15,7 @@ export class RewardRuleService {
   ) {}
 
   async create(
-    createRewardRule: CreateRewardRule,
+    createRewardRule: CreateRewardRuleDto,
     optionalRewardRule: OptionalRewardRule,
   ): Promise<RewardRule> {
     createRewardRule.campaignId = optionalRewardRule.campaignId
@@ -34,14 +33,6 @@ export class RewardRuleService {
     updateRewardRuleDto: UpdateRewardRuleDto,
     optionalRewardRule: OptionalRewardRule,
   ): Promise<RewardRule> {
-    updateRewardRuleDto = plainToInstance(
-      UpdateRewardRuleDto,
-      updateRewardRuleDto,
-      {
-        ignoreDecorators: true,
-        excludeExtraneousValues: true,
-      },
-    )
     updateRewardRuleDto.campaignId = optionalRewardRule.campaignId
     updateRewardRuleDto.missionId = optionalRewardRule.missionId
     updateRewardRuleDto.typeRule = optionalRewardRule.typeRule

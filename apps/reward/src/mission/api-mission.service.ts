@@ -8,7 +8,11 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
+import {
+  IPaginationLinks,
+  IPaginationMeta,
+  PaginationTypeEnum,
+} from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { STATUS } from '@lib/user-reward-history'
 
@@ -61,7 +65,16 @@ export class ApiMissionService {
     return {
       pagination: result.meta,
       data,
-      links: result.links,
+      links: ApiMissionService.customLinks(result.links),
+    }
+  }
+
+  private static customLinks(links: IPaginationLinks) {
+    return {
+      first: links.first,
+      prev: links.previous,
+      last: links.last,
+      next: links.next,
     }
   }
 

@@ -10,7 +10,11 @@ import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { Brackets } from 'typeorm'
-import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
+import {
+  IPaginationLinks,
+  IPaginationMeta,
+  PaginationTypeEnum,
+} from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 
@@ -45,10 +49,20 @@ export class ApiCampaignService {
       options,
       queryBuilder,
     )
+    ApiCampaignService.customLinks(result.links)
     return {
       pagination: result.meta,
       data: result.items,
-      links: result.links,
+      links: ApiCampaignService.customLinks(result.links),
+    }
+  }
+
+  private static customLinks(links: IPaginationLinks) {
+    return {
+      first: links.first,
+      prev: links.previous,
+      last: links.last,
+      next: links.next,
     }
   }
 

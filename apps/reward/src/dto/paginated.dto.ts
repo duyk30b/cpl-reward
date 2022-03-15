@@ -1,27 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger'
 
 class Pagination {
-  @ApiProperty({ name: 'total_items', example: 1 })
-  totalItems: number
+  @ApiProperty({ example: 10 })
+  total: number
 
-  @ApiProperty({ name: 'item_count', example: 1 })
-  itemCount: number
+  @ApiProperty({ example: 20 })
+  size: number
 
-  @ApiProperty({ name: 'items_per_page', example: 20 })
-  itemsPerPage: number
+  @ApiProperty({ example: 2 })
+  page: number
 
-  @ApiProperty({ name: 'total_pages', example: 1 })
-  totalPages: number
+  // @ApiProperty({ name: 'item_count', example: 1 })
+  // itemCount: number
 
-  @ApiProperty({ name: 'current_page', example: 1 })
-  currentPage: number
+  // @ApiProperty({ name: 'total_pages', example: 1 })
+  // totalPages: number
 }
 
 class Links {
   @ApiProperty({ example: '/xxx?limit=3' })
   first: string
   @ApiProperty({ example: '/xxx?page=1&limit=3' })
-  previous: string
+  prev: string
   @ApiProperty({ example: '/xxx?page=2&limit=3' })
   next: string
   @ApiProperty({ example: '/xxx?page=4&limit=3' })

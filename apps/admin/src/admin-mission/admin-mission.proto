@@ -6,6 +6,7 @@ service GrpcAdminMissionService {
   rpc Create(CreateInput) returns (Result);
   rpc Update(UpdateInput) returns (Result);
   rpc FindOne(FindOneInput) returns (Result);
+  rpc GetMissionsByCampaign(MissionFilterInput) returns (MissionsResult);
 }
 
 message Empty {}
@@ -107,4 +108,12 @@ message UserConditions {
   string property = 1;
   string operator = 2;
   string value = 3;
+}
+
+message MissionFilterInput {
+  string campaignId = 1;
+}
+
+message MissionsResult {
+  repeated Result missions = 1;
 }

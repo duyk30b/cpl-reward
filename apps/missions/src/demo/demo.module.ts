@@ -4,20 +4,25 @@ import { CampaignModule } from '@lib/campaign'
 import { RewardRuleModule } from '@lib/reward-rule'
 import { MissionModule } from '@lib/mission'
 import { DemoInternalListener } from './demo-internal.listener'
-import { CommonModule } from '@lib/common'
+import { CommonService } from '@lib/common'
 import { MissionEventModule } from '@lib/mission-event'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
+import { MissionsService } from '../missions.service'
 
 @Module({
   imports: [
     CampaignModule,
     RewardRuleModule,
     MissionModule,
-    CommonModule,
     MissionEventModule,
     UserRewardHistoryModule,
   ],
   exports: [DemoService],
-  providers: [DemoService, DemoInternalListener],
+  providers: [
+    DemoService,
+    DemoInternalListener,
+    MissionsService,
+    CommonService,
+  ],
 })
 export class DemoModule {}

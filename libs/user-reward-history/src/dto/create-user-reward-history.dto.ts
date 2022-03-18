@@ -17,8 +17,8 @@ export class CreateUserRewardHistoryDto {
   amount: number
 
   @Expose()
-  currency: number
+  currency: string
 
   @Expose()
-  wallet: number
+  wallet: string
 }

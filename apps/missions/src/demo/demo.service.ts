@@ -1,18 +1,25 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { CampaignService } from '@lib/campaign'
-import { EVENTS, MissionService } from '@lib/mission'
+import { GRANT_TARGET_WALLET, MissionService } from '@lib/mission'
 import { MissionEventService } from '@lib/mission-event'
-import { RewardRuleService } from '@lib/reward-rule'
-import { IUser, JudgmentCondition, UserCondition } from './demo.interface'
+import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { Target } from './demo.interface'
+import { UserRewardHistoryService } from '@lib/user-reward-history'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Injectable()
 export class DemoService {
+  private readonly logger = new Logger(DemoService.name)
+
   constructor(
+    private eventEmitter: EventEmitter2,
     private readonly campaignService: CampaignService,
     private readonly missionService: MissionService,
     private readonly missionEventService: MissionEventService,
     private readonly rewardRuleService: RewardRuleService,
+    private readonly userRewardHistoryService: UserRewardHistoryService,
   ) {}
 
   async getEventsByName(eventName: string) {
@@ -31,56 +38,83 @@ export class DemoService {
     return mission
   }
 
-  async getRulesByIds(campaignId: number, missionId: number) {
-    return this.rewardRuleService.find({ campaignId, missionId })
-  }
-
-  checkJudgmentConditions(
-    judgmentConditions: JudgmentCondition[],
-    messageValue: any,
+  async updateReleaseLimitValue(
+    missionRewardRule: RewardRule,
+    campaignId: number,
+    amount: number,
+    type: string,
+    currency: string,
   ) {
-    if (judgmentConditions.length === 0) return true
-    let result = false
-    for (const idx in judgmentConditions) {
-      const currentCondition = judgmentConditions[idx]
-      if (currentCondition.eventName !== EVENTS.AUTH_USER_LOGIN) continue
-
-      const checkExistMessageValue = messageValue[currentCondition.property]
-      if (checkExistMessageValue === undefined) continue
-
-      const checkJudgmentCondition = eval(`${DemoService.inspectStringNumber(
-        messageValue[currentCondition.property],
-      )}
-            ${currentCondition.operator}
-            ${DemoService.inspectStringNumber(currentCondition.value)}`)
-      if (!checkJudgmentCondition) break
-      result = true
+    const updateMissionRewardRule = await this.rewardRuleService.updateValue(
+      missionRewardRule,
+      amount,
+    )
+    if (updateMissionRewardRule.affected === 0) {
+      this.logger.error(
+        `Update Value of Reward Rule fail, ` +
+          `input: rewardRule => ${JSON.stringify(missionRewardRule)}` +
+          `, amount => ${amount}`,
+      )
     }
-    return result
+    const campaignRewardRules = await this.rewardRuleService.find({
+      campaignId: campaignId,
+      typeRule: TYPE_RULE.CAMPAIGN,
+    })
+    if (campaignRewardRules.length > 0) {
+      for (const idx in campaignRewardRules) {
+        if (
+          campaignRewardRules[idx].currency !== currency ||
+          campaignRewardRules[idx].key !== type
+        )
+          continue
+
+        await this.rewardRuleService.updateValue(
+          campaignRewardRules[idx],
+          amount,
+        )
+      }
+    }
   }
 
-  private static inspectStringNumber(input: string | number) {
-    if (typeof input === 'string') return `'${input}'`
-    return input
-  }
+  async commonFlowReward(
+    missionRewardRule: RewardRule,
+    campaignId: number,
+    userTarget: Target,
+    userId: number,
+    missionId: number,
+  ) {
+    // update release_value, limit_value of campaign/mission
+    await this.updateReleaseLimitValue(
+      missionRewardRule,
+      campaignId,
+      userTarget.amount,
+      userTarget.type,
+      userTarget.currency,
+    )
 
-  checkUserConditions(userConditions: UserCondition[], user: IUser) {
-    if (userConditions.length === 0) return true
-    let result = false
-    for (const idx in userConditions) {
-      const currentCondition = userConditions[idx]
+    const userRewardHistory = await this.userRewardHistoryService.save({
+      campaignId: campaignId,
+      missionId: missionId,
+      userId,
+      userType: userTarget.user,
+      amount: userTarget.amount,
+      currency: userTarget.currency,
+      wallet: GRANT_TARGET_WALLET[userTarget.wallet],
+    })
 
-      const checkExistUserProperty = user[currentCondition.property]
-      if (checkExistUserProperty === undefined) continue
-
-      const checkUserCondition = eval(`${DemoService.inspectStringNumber(
-        user[currentCondition.property],
-      )}
-            ${currentCondition.operator}
-            ${DemoService.inspectStringNumber(currentCondition.value)}`)
-      if (!checkUserCondition) break
-      result = true
+    if (
+      GRANT_TARGET_WALLET[userTarget.wallet] ===
+        GRANT_TARGET_WALLET.DIRECT_BALANCE &&
+      userRewardHistory
+    ) {
+      this.eventEmitter.emit('send_reward_to_balance', {
+        id: userRewardHistory.id,
+        userId: userId,
+        amount: userTarget.amount,
+        currency: userTarget.currency,
+        // TODO: recheck below value
+        type: 'balance',
+      })
     }
-    return result
   }
 }

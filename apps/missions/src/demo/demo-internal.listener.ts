@@ -7,9 +7,10 @@ import {
   Target,
   UserCondition,
 } from './demo.interface'
-import { GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission'
+import { GRANT_TARGET_USER } from '@lib/mission'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
-import { RewardRuleService } from '@lib/reward-rule'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { MissionsService } from '../missions.service'
 
 @Injectable()
 export class DemoInternalListener {
@@ -20,6 +21,7 @@ export class DemoInternalListener {
     private readonly demoService: DemoService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly rewardRuleService: RewardRuleService,
+    private readonly missionsService: MissionsService,
   ) {}
 
   @OnEvent('auth_user_login')
@@ -33,20 +35,25 @@ export class DemoInternalListener {
       return
     }
 
-    // TODO: check số tiền còn lại của campaign
+    // TODO: check số tiền còn lại của campaign/mission
+
+    // TODO: check time con lai cua campaign/mission
 
     // TODO: check điều kiện user nhận thưởng 1 lần hay nhiều lần
 
-    const checkJudgmentConditions = this.demoService.checkJudgmentConditions(
-      mission.judgmentConditions as unknown as JudgmentCondition[],
-      data.messageValue,
-    )
+    // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
+    const checkJudgmentConditions =
+      this.missionsService.checkJudgmentConditions(
+        mission.judgmentConditions as unknown as JudgmentCondition[],
+        data.messageValue,
+      )
     if (!checkJudgmentConditions) {
       this.logger.error('Judgment conditions were not pass!!')
       return
     }
 
-    const checkUserConditions = this.demoService.checkUserConditions(
+    // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
+    const checkUserConditions = this.missionsService.checkUserConditions(
       mission.userConditions as unknown as UserCondition[],
       data.user,
     )
@@ -55,41 +62,47 @@ export class DemoInternalListener {
       return
     }
 
-    const rewardRules = await this.demoService.getRulesByIds(
-      data.campaignId,
-      data.missionId,
-    )
-    const grantTargets = mission.grantTarget as unknown as Target[]
+    // Lấy danh sách phần thưởng theo mission
+    const missionRewardRules = await this.rewardRuleService.find({
+      campaignId: data.campaignId,
+      missionId: data.missionId,
+      typeRule: TYPE_RULE.MISSION,
+    })
 
-    if (rewardRules.length === 0 || grantTargets.length === 0) {
-      this.logger.error('RewardRules or GrantTargets not exist!!!')
+    // Lấy thông tin tiền thưởng cho từng đối tượng
+    const grantTargets = mission.grantTarget as unknown as Target[]
+    if (grantTargets.length === 0) {
+      this.logger.error('GrantTargets not exist!!!')
       return
     }
-    let user, referredUser
+    let user = null,
+      referredUser = null
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) user = target
       return target
     })
 
-    for (const idx in rewardRules) {
+    if (missionRewardRules.length === 0) {
+      this.logger.error('Mission reward rules was not exist!!!')
+      return
+    }
+
+    for (const idx in missionRewardRules) {
       if (
         user !== null &&
-        rewardRules[idx].currency === user.currency &&
-        rewardRules[idx].key === user.type
+        missionRewardRules[idx].currency === user.currency &&
+        missionRewardRules[idx].key === user.type
       ) {
         // user
-        const updateRewardRule = await this.rewardRuleService.updateValue(
-          rewardRules[idx],
-          user.amount,
+
+        await this.demoService.commonFlowReward(
+          missionRewardRules[idx],
+          data.campaignId,
+          user,
+          userId,
+          data.missionId,
         )
-        if (updateRewardRule.affected === 0) {
-          this.logger.error(
-            `Update Value of Reward Rule fail, ` +
-              `input: rewardRule => ${JSON.stringify(rewardRules[idx])}` +
-              `, amount => ${user.amount}`,
-          )
-        }
 
         const referredUserInfo = {
           ...referredUser,
@@ -102,75 +115,22 @@ export class DemoInternalListener {
           eventName: 'auth_user_login',
           moneyEarned: user.amount,
         })
-
-        const userRewardHistory = await this.userRewardHistoryService.save({
-          campaignId: data.campaignId,
-          missionId: data.missionId,
-          userId,
-          userType: user.user,
-          amount: user.amount,
-          currency: user.currency,
-          wallet: GRANT_TARGET_WALLET[user.wallet],
-        })
-
-        if (
-          GRANT_TARGET_WALLET[referredUser.wallet] ===
-            GRANT_TARGET_WALLET.DIRECT_BALANCE &&
-          userRewardHistory
-        ) {
-          this.eventEmitter.emit('send_reward_to_balance', {
-            id: userRewardHistory.id,
-            userId,
-            amount: user.amount,
-            currency: user.currency,
-            // TODO: recheck below value
-            type: 'balance',
-          })
-        }
       }
 
       if (
         referredUser !== null &&
-        rewardRules[idx].currency === referredUser.currency &&
-        rewardRules[idx].key === referredUser.type
+        missionRewardRules[idx].currency === referredUser.currency &&
+        missionRewardRules[idx].key === referredUser.type
       ) {
         // referred user
-        const updateRewardRule = await this.rewardRuleService.updateValue(
-          rewardRules[idx],
-          referredUser.amount,
+
+        await this.demoService.commonFlowReward(
+          missionRewardRules[idx],
+          data.campaignId,
+          referredUser,
+          referredUserId,
+          data.missionId,
         )
-        if (updateRewardRule.affected === 0) {
-          this.logger.error(
-            `Update Value of Reward Rule fail, ` +
-              `input: rewardRule => ${JSON.stringify(rewardRules[idx])}` +
-              `, amount => ${referredUser.amount}`,
-          )
-        }
-
-        const userRewardHistory = await this.userRewardHistoryService.save({
-          campaignId: data.campaignId,
-          missionId: data.missionId,
-          userId: referredUserId,
-          userType: referredUser.user,
-          amount: referredUser.amount,
-          currency: referredUser.currency,
-          wallet: GRANT_TARGET_WALLET[referredUser.wallet],
-        })
-
-        if (
-          GRANT_TARGET_WALLET[referredUser.wallet] ===
-            GRANT_TARGET_WALLET.DIRECT_BALANCE &&
-          userRewardHistory
-        ) {
-          this.eventEmitter.emit('send_reward_to_balance', {
-            id: userRewardHistory.id,
-            userId: referredUserId,
-            amount: referredUser.amount,
-            currency: referredUser.currency,
-            // TODO: recheck below value
-            type: 'balance',
-          })
-        }
       }
     }
   }

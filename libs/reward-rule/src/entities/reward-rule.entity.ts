@@ -7,7 +7,7 @@ import {
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
-import { Campaign } from '@lib/campaign/entities/campaign.entity'
+// import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { TYPE_RULE } from '../enum'
 
@@ -68,11 +68,11 @@ export class RewardRule extends MyBaseEntity {
   })
   releaseValue: number
 
-  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'campaign_id' })
-  campaign: Campaign
+  // @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules, {
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'campaign_id' })
+  // campaign: Campaign
 
   @ManyToOne(() => Mission, (mission) => mission.rewardRules, {
     onDelete: 'CASCADE',

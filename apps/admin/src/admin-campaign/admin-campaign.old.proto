@@ -7,10 +7,17 @@ service GrpcAdminCampaignService {
   rpc Cancel(CancelInput) returns (CancelResult);
   rpc FindOne(FindOneInput) returns (Result);
   rpc Update(UpdateInput) returns (Result);
+  rpc ListWithRules(ListInput) returns (ListCampaignResultWithRules);
   rpc List(ListInput) returns (ListCampaignResult);
 }
 
 message ListCampaignResult {
+  repeated CampaignWithoutRules data = 1;
+  Pagination pagination = 2;
+  Links links = 3;
+}
+
+message ListCampaignResultWithRules {
   repeated Result data = 1;
   Pagination pagination = 2;
   Links links = 3;
@@ -69,9 +76,23 @@ message UpdateInput {
   string campaignImage = 8;
   int32 priority = 9;
   bool isSystem = 10;
+  repeated UpdateRewardRule rewardRules = 11;
 }
 
-message Result {
+message UpdateRewardRule {
+  int32 id = 1;
+  string key = 2;
+  string currency = 3;
+  int32 limitValue = 4;
+}
+
+message CreateRewardRule {
+  string key = 2;
+  string currency = 3;
+  int32 limitValue = 4;
+}
+
+message CampaignWithoutRules {
   int32 id = 1;
   string title = 2;
   string description = 3;
@@ -85,6 +106,34 @@ message Result {
   int32 status = 11;
 }
 
+message Result {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string detailExplain = 4;
+  int32 startDate = 5;
+  int32 endDate = 6;
+  string notificationLink = 7;
+  string campaignImage = 8;
+  int32 priority = 9; // default: 0
+  bool isSystem = 10; // default: false
+  repeated RewardRuleResult rewardRules = 11;
+  int32 status = 12;
+}
+
+message RewardRuleResult {
+  int32 createdAt = 1;
+  int32 updatedAt = 2;
+  int32 id = 3;
+  string key = 4;
+  string currency = 5;
+  int32 limitValue = 6;
+  int32 releaseValue = 7;
+  int32 campaignId = 8;
+  int32 missionId = 9;
+  string typeRule = 10;
+}
+
 message CreateInput {
   string title = 1;
   string description = 2;
@@ -95,5 +144,6 @@ message CreateInput {
   string campaignImage = 7;
   int32 priority = 8; // default: 0
   bool isSystem = 9; // default: false
-  int32 status = 10;
+  repeated CreateRewardRule rewardRules = 10;
+  int32 status = 11;
 }

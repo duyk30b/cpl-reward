@@ -27,6 +27,10 @@ class MissionInput {
   grantTarget: TargetDto[]
   @Expose()
   priority: number
+  @Expose({ name: 'guide_link' })
+  guideLink: string
+  @Expose({ name: 'limit_received_reward' })
+  limitReceivedReward: number
 }
 
 export class CreateMissionInput extends MissionInput {

@@ -4,7 +4,7 @@ import {
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
 } from '@lib/campaign'
-import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+// import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -19,8 +19,7 @@ import { CustomPaginationMetaCamelTransformer } from '@lib/common/transformers/c
 @Injectable()
 export class AdminCampaignService {
   constructor(
-    private readonly campaignService: CampaignService,
-    private readonly rewardRuleService: RewardRuleService,
+    private readonly campaignService: CampaignService, // private readonly rewardRuleService: RewardRuleService,
   ) {}
 
   async cancel(id: number): Promise<{ affected: number }> {
@@ -30,6 +29,24 @@ export class AdminCampaignService {
     }
   }
 
+  /**
+   * Do not use below function to find one campaign yet
+   */
+  // async findOneOld(id: number) {
+  //   const campaign = await this.campaignService.getById(id, {
+  //     relations: ['rewardRules'],
+  //   })
+  //   if (!campaign) {
+  //     return null
+  //   }
+  //   if (campaign.rewardRules !== undefined && campaign.rewardRules.length > 0) {
+  //     campaign.rewardRules = campaign.rewardRules.filter(
+  //       (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
+  //     )
+  //   }
+  //   return campaign
+  // }
+
   async findOne(id: number) {
     const campaign = await this.campaignService.getById(id, {
       relations: ['rewardRules'],
@@ -37,90 +54,66 @@ export class AdminCampaignService {
     if (!campaign) {
       return null
     }
-    if (campaign.rewardRules !== undefined && campaign.rewardRules.length > 0) {
-      campaign.rewardRules = campaign.rewardRules.filter(
-        (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
-      )
-    }
     return campaign
   }
+
+  /**
+   * Do not use below function to create campaign yet
+   */
+  // async createOld(createCampaignInput: CreateCampaignInput) {
+  //   let campaign = await this.campaignService.create(createCampaignInput)
+  //   await Promise.all(
+  //     createCampaignInput.rewardRules.map(async (item) => {
+  //       await this.rewardRuleService.create(item, {
+  //         campaignId: campaign.id,
+  //         missionId: null,
+  //         typeRule: TYPE_RULE.CAMPAIGN,
+  //       })
+  //       return item
+  //     }),
+  //   )
+  //   campaign = await this.campaignService.getById(campaign.id, {
+  //     relations: ['rewardRules'],
+  //   })
+  //   campaign.rewardRules = campaign.rewardRules.filter(
+  //     (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
+  //   )
+  //   return campaign
+  // }
 
   async create(createCampaignInput: CreateCampaignInput) {
-    let campaign = await this.campaignService.create(createCampaignInput)
-    await Promise.all(
-      createCampaignInput.rewardRules.map(async (item) => {
-        await this.rewardRuleService.create(item, {
-          campaignId: campaign.id,
-          missionId: null,
-          typeRule: TYPE_RULE.CAMPAIGN,
-        })
-        return item
-      }),
-    )
-    campaign = await this.campaignService.getById(campaign.id, {
-      relations: ['rewardRules'],
-    })
-    campaign.rewardRules = campaign.rewardRules.filter(
-      (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
-    )
-    return campaign
+    return await this.campaignService.create(createCampaignInput)
   }
 
+  /**
+   * Do not use below function to update campaign yet
+   */
+  // async updateOld(updateCampaignInput: UpdateCampaignInput) {
+  //   let campaign = await this.campaignService.update(updateCampaignInput)
+  //   await Promise.all(
+  //     updateCampaignInput.rewardRules.map(async (item) => {
+  //       await this.rewardRuleService.update(item, {
+  //         campaignId: campaign.id,
+  //         missionId: null,
+  //         typeRule: TYPE_RULE.CAMPAIGN,
+  //       })
+  //       return item
+  //     }),
+  //   )
+  //   campaign = await this.campaignService.getById(campaign.id, {
+  //     relations: ['rewardRules'],
+  //   })
+  //   campaign.rewardRules = campaign.rewardRules.filter(
+  //     (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
+  //   )
+  //   return campaign
+  // }
+
   async update(updateCampaignInput: UpdateCampaignInput) {
-    let campaign = await this.campaignService.update(updateCampaignInput)
-    await Promise.all(
-      updateCampaignInput.rewardRules.map(async (item) => {
-        await this.rewardRuleService.update(item, {
-          campaignId: campaign.id,
-          missionId: null,
-          typeRule: TYPE_RULE.CAMPAIGN,
-        })
-        return item
-      }),
-    )
-    campaign = await this.campaignService.getById(campaign.id, {
-      relations: ['rewardRules'],
-    })
-    campaign.rewardRules = campaign.rewardRules.filter(
-      (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
-    )
-    return campaign
+    return await this.campaignService.update(updateCampaignInput)
   }
 
   async findAll(campaignFilter: ICampaignFilter) {
-    const limit =
-      (campaignFilter.limit > 100 ? 100 : campaignFilter.limit) || 20
-    const page = campaignFilter.page || 1
-    const options = {
-      page,
-      limit,
-      metaTransformer: (
-        pagination: IPaginationMeta,
-      ): CustomPaginationMetaCamelTransformer =>
-        new CustomPaginationMetaCamelTransformer(
-          pagination.totalItems,
-          pagination.itemsPerPage,
-          pagination.currentPage,
-
-          pagination.itemCount,
-          pagination.totalPages,
-        ),
-      route: '/campaigns',
-      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
-    }
-    const queryBuilder = this.queryBuilder(campaignFilter)
-    const result = await this.campaignService.grpcPaginate(
-      options,
-      queryBuilder,
-    )
-    return {
-      pagination: result.meta,
-      data: result.items,
-      links: result.links,
-    }
-  }
-
-  async findAllWithRules(campaignFilter: ICampaignFilter) {
     const limit =
       (campaignFilter.limit > 100 ? 100 : campaignFilter.limit) || 20
     const page = campaignFilter.page || 1
@@ -144,11 +137,11 @@ export class AdminCampaignService {
     const queryBuilder = this.queryBuilder(campaignFilter)
 
     // TODO: Wrong totalItems count, due to this issue: https://github.com/nestjsx/nestjs-typeorm-paginate/issues/627
-    queryBuilder.leftJoinAndSelect(
-      'campaign.rewardRules',
-      'rewardRules',
-      "rewardRules.type_rule = 'campaign'",
-    )
+    // queryBuilder.leftJoinAndSelect(
+    //   'campaign.rewardRules',
+    //   'rewardRules',
+    //   "rewardRules.type_rule = 'campaign'",
+    // )
 
     const result = await this.campaignService.grpcPaginate(
       options,

@@ -159,7 +159,9 @@ export class AdminMissionService {
   }
 
   async getMissionsByCampaign(input: MissionFilterInput) {
-    const missions = await this.missionService.findByCampainId(input.campaignId)
+    const missions = await this.missionService.findByCampaignId(
+      input.campaignId,
+    )
 
     return { missions: missions }
   }

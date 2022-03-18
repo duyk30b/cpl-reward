@@ -39,6 +39,7 @@ export class DemoService {
     judgmentConditions: JudgmentCondition[],
     messageValue: any,
   ) {
+    if (judgmentConditions.length === 0) return true
     let result = false
     for (const idx in judgmentConditions) {
       const currentCondition = judgmentConditions[idx]
@@ -64,6 +65,7 @@ export class DemoService {
   }
 
   checkUserConditions(userConditions: UserCondition[], user: IUser) {
+    if (userConditions.length === 0) return true
     let result = false
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]

@@ -16,6 +16,8 @@ export class ValidateAuthMiddleware implements NestMiddleware {
     const xBceRole = req.header('X-BCE-ROLE') || null
     const xBceUid = req.header('X-BCE-UID') || null
 
+    // TODO: uncomment when push code
+    // const user = 1
     let user = null
     if (xBceUid !== null)
       user = await this.externalUserService.getUserInfo(xBceUid)

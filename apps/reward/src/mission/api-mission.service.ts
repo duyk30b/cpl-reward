@@ -50,8 +50,8 @@ export class ApiMissionService {
     const statusList = [
       STATUS.NOT_RECEIVE,
       STATUS.AUTO_RECEIVED,
-      STATUS.MANUAL_NOT_RECEIVE,
       STATUS.MANUAL_RECEIVED,
+      STATUS.FAIL,
     ]
     const data = result.items.map((mission) => {
       return {

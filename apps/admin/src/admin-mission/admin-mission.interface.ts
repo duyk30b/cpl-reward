@@ -1,43 +1,45 @@
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
+import { Expose, Type } from 'class-transformer'
+import { TargetDto } from '@lib/mission/dto/target.dto'
+import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
+import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 
-interface MissionInput {
+class MissionInput {
+  @Expose({ name: 'campaign_id' })
   campaignId: number
+  @Expose()
   title: string
+  @Expose({ name: 'detail_explain' })
   detailExplain: string
+  @Expose({ name: 'opening_date' })
   openingDate: number
+  @Expose({ name: 'closing_date' })
   closingDate: number
-  judgmentConditions: JudgmentCondition[]
-  userConditions: UserCondition[]
-  grantTarget: Target[]
+  @Type(() => JudgmentConditionDto)
+  @Expose({ name: 'judgment_conditions' })
+  judgmentConditions: JudgmentConditionDto[]
+  @Type(() => UserConditionDto)
+  @Expose({ name: 'user_conditions' })
+  userConditions: UserConditionDto[]
+  @Type(() => TargetDto)
+  @Expose({ name: 'grant_target' })
+  grantTarget: TargetDto[]
+  @Expose()
   priority: number
 }
 
-interface JudgmentCondition {
-  eventName: string
-  property: string
-  operator: string
-  value: string
-}
-
-interface UserCondition {
-  property: string
-  operator: string
-  value: string
-}
-
-interface Target {
-  user: string
-  amount: number
-  currency: string
-  wallet: string
-}
-
-export interface CreateMissionInput extends MissionInput {
+export class CreateMissionInput extends MissionInput {
+  @Type(() => CreateRewardRuleDto)
+  @Expose({ name: 'reward_rules' })
   rewardRules: CreateRewardRuleDto[]
 }
 
-export interface UpdateMissionInput extends MissionInput {
+export class UpdateMissionInput extends MissionInput {
+  @Expose()
   id: number
+
+  @Type(() => CreateRewardRuleDto)
+  @Expose({ name: 'reward_rules' })
   rewardRules: UpdateRewardRuleDto[]
 }

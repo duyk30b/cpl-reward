@@ -19,8 +19,8 @@ export class PaginatedMissionDto {
     description:
       `${STATUS.NOT_RECEIVE}: NOT_RECEIVE, ` +
       `${STATUS.AUTO_RECEIVED}: AUTO_RECEIVED, ` +
-      `${STATUS.MANUAL_NOT_RECEIVE}: MANUAL_NOT_RECEIVE, ` +
-      `${STATUS.MANUAL_RECEIVED}: MANUAL_RECEIVED`,
+      `${STATUS.MANUAL_RECEIVED}: MANUAL_RECEIVED, ` +
+      `${STATUS.FAIL}: FAIL`,
   })
   status: number
 }

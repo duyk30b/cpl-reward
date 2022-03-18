@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common'
+import { Controller, Get, Query, Req } from '@nestjs/common'
 import { ApiCampaignService } from './api-campaign.service'
 import {
   ApiExtraModels,
@@ -34,11 +34,11 @@ export class ApiCampaignController {
     return this.apiCampaignService.findAll(apiCampaignFilterDto, request.userId)
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get campaign by ID',
-  })
-  findOne(@Param('id') id: string) {
-    return this.apiCampaignService.findOne(+id)
-  }
+  // @Get(':id')
+  // @ApiOperation({
+  //   summary: 'Get campaign by ID',
+  // })
+  // findOne(@Param('id') id: string) {
+  //   return this.apiCampaignService.findOne(+id)
+  // }
 }

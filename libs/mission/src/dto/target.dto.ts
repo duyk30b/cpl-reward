@@ -12,4 +12,7 @@ export class TargetDto {
 
   @Expose()
   wallet: string
+
+  @Expose()
+  type?: string
 }

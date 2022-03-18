@@ -7,6 +7,7 @@ import { MissionEventService } from '@lib/mission-event'
 import {
   CreateMissionInput,
   UpdateMissionInput,
+  MissionFilterInput,
 } from './admin-mission.interface'
 import { TargetDto } from '@lib/mission/dto/target.dto'
 
@@ -155,5 +156,11 @@ export class AdminMissionService {
         return item
       }),
     )
+  }
+
+  async getMissionsByCampaign(input: MissionFilterInput) {
+    const missions = await this.missionService.findByCampainId(input.campaignId)
+
+    return { missions: missions }
   }
 }

@@ -5,6 +5,7 @@ import { FindOneInput } from '../admin-campaign/admin-campaign.interface'
 import {
   CreateMissionInput,
   UpdateMissionInput,
+  MissionFilterInput,
 } from './admin-mission.interface'
 
 @Controller('mission')
@@ -24,5 +25,10 @@ export class AdminMissionController {
   @GrpcMethod('GrpcAdminMissionService', 'FindOne')
   async findOne(data: FindOneInput) {
     return await this.adminMissionService.findOne(+data.id)
+  }
+
+  @GrpcMethod('GrpcAdminMissionService', 'GetMissionsByCampaign')
+  async getMissionsByCampaign(input: MissionFilterInput) {
+    return await this.adminMissionService.getMissionsByCampaign(input)
   }
 }

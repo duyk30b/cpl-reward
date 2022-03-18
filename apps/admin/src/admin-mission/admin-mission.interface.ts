@@ -43,3 +43,7 @@ export class UpdateMissionInput extends MissionInput {
   @Expose({ name: 'reward_rules' })
   rewardRules: UpdateRewardRuleDto[]
 }
+
+export interface MissionFilterInput {
+  campaignId: number
+}

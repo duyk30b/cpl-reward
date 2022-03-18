@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, AfterLoad } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
@@ -19,10 +19,6 @@ export class MissionUser extends MyBaseEntity {
   @Expose({ name: 'user_id' })
   userId: number
 
-  @Column({ transformer: JsonColumnTransformer })
-  @Expose()
-  data: string
-
   @Column({ name: 'success_count', default: 0 })
   @Expose({ name: 'success_count' })
   successCount: number
@@ -38,4 +34,9 @@ export class MissionUser extends MyBaseEntity {
   @Column({ name: 'referred_user_info', transformer: JsonColumnTransformer })
   @Expose({ name: 'referred_user_info' })
   referredUserInfo: string
+
+  @AfterLoad()
+  transformStringToJson() {
+    this.referredUserInfo = JSON.parse(this.referredUserInfo)
+  }
 }

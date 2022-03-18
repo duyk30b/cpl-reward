@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common'
+import { Controller, Get, Query, Req } from '@nestjs/common'
 import { ApiMissionService } from './api-mission.service'
 import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
@@ -26,11 +26,11 @@ export class ApiMissionController {
     return this.apiMissionService.findAll(apiMissionFilterDto, request.userId)
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get mission by ID',
-  })
-  findOne(@Param('id') id: string) {
-    return this.apiMissionService.findOne(+id)
-  }
+  // @Get(':id')
+  // @ApiOperation({
+  //   summary: 'Get mission by ID',
+  // })
+  // findOne(@Param('id') id: string) {
+  //   return this.apiMissionService.findOne(+id)
+  // }
 }

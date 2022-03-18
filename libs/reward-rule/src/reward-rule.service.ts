@@ -51,4 +51,17 @@ export class RewardRuleService {
   async findOne(conditions: any): Promise<RewardRule> {
     return await this.rewardRuleRepository.findOne(conditions)
   }
+
+  async updateValue(rewardRule: RewardRule, amount: number) {
+    return await this.rewardRuleRepository
+      .createQueryBuilder('reward_rule')
+      .update(RewardRule)
+      .where({ id: rewardRule.id })
+      .set({
+        releaseValue: () => 'release_value + :amount',
+        limitValue: () => 'limit_value - :amount',
+      })
+      .setParameter('amount', amount)
+      .execute()
+  }
 }

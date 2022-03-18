@@ -76,4 +76,12 @@ export class MissionService {
       options,
     )
   }
+
+  async findByCampainId(campaignId: number) {
+    return await this.missionRepository.find({
+      where: {
+        campaignId,
+      },
+    })
+  }
 }

@@ -29,7 +29,7 @@ export class Mission extends MyBaseEntity {
   @Expose()
   title: string
 
-  @Column({ name: 'detail_explain' })
+  @Column({ name: 'detail_explain', type: 'text', default: '' })
   @Expose({ name: 'detail_explain' })
   detailExplain: string
 
@@ -71,6 +71,19 @@ export class Mission extends MyBaseEntity {
   @Column({ default: 0 })
   @Expose()
   priority: number
+
+  @Column({
+    name: 'guide_link',
+    default: null,
+    transformer: JsonColumnTransformer,
+    type: 'text',
+  })
+  @Expose({ name: 'guide_link' })
+  guideLink: string
+
+  @Column({ name: 'limit_received_reward', default: 1 })
+  @Expose({ name: 'limit_received_reward' })
+  limitReceivedReward: number
 
   @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission, {
     eager: true,

@@ -33,4 +33,10 @@ export class CreateMissionDto {
 
   @Expose()
   priority: number
+
+  @Expose({ name: 'guide_link' })
+  guideLink: string
+
+  @Expose({ name: 'limit_received_reward' })
+  limitReceivedReward: number
 }

@@ -14,6 +14,7 @@ import { MissionUserModule } from '@lib/mission-user'
 import { RewardRuleModule } from '@lib/reward-rule'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { ExternalListener } from './listeners/external.listener'
+import { MissionsService } from './missions.service'
 
 @Module({
   controllers: [MissionsController],
@@ -34,6 +35,6 @@ import { ExternalListener } from './listeners/external.listener'
     RewardRuleModule,
     UserRewardHistoryModule,
   ],
-  providers: [CommonListener, ExternalListener],
+  providers: [CommonListener, ExternalListener, MissionsService],
 })
 export class MissionsModule {}

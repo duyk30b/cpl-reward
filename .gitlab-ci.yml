@@ -50,3 +50,13 @@ deploy_dev:
     IMAGE_TAG_KEY: tag
   only:
     - dev
+
+deploy_dev_exchange:
+  extends: .deploy_template
+  environment:
+    name: dev-exchange
+  variables:
+    VALUES_PATH: /_helm_templates/cpl-customer-reward/values-dev-exchange.yaml
+    IMAGE_TAG_KEY: tag
+  only:
+    - dev

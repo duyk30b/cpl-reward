@@ -7,10 +7,11 @@ import {
   Target,
   UserCondition,
 } from './demo.interface'
-import { GRANT_TARGET_USER } from '@lib/mission'
+import { EVENTS, GRANT_TARGET_USER } from '@lib/mission'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { MissionsService } from '../missions.service'
+import * as moment from 'moment-timezone'
 
 @Injectable()
 export class DemoInternalListener {
@@ -26,18 +27,27 @@ export class DemoInternalListener {
 
   @OnEvent('auth_user_login')
   async handleAuthUserLoginEvent(data: AuthUserLoginInput) {
+    const now = moment().unix()
     const userId = Number(data.user.id)
     const referredUserId = Number(data.user.referredById)
     const mission = await this.demoService.getMissionById(data.missionId)
     const campaign = await this.demoService.getCampaignById(data.campaignId)
-    if (!mission || !campaign) {
-      this.logger.error('Campaign or Mission not exist!!!')
+
+    // Kiểm tra thời gian khả dụng của campaign và mission
+    if (!mission || now < campaign.startDate || now > campaign.endDate) {
+      this.logger.error(
+        `[EVENT ${EVENTS.AUTH_USER_LOGIN}]. Reason: Campaign not found or is over time!`,
+      )
+      return
+    }
+    if (!mission || now < mission.openingDate || now > mission.closingDate) {
+      this.logger.error(
+        `[EVENT ${EVENTS.AUTH_USER_LOGIN}]. Reason: Mission not found or is over time!`,
+      )
       return
     }
 
-    // TODO: check số tiền còn lại của campaign/mission
-
-    // TODO: check time con lai cua campaign/mission
+    // TODO: check số tiền còn lại của mission
 
     // TODO: check điều kiện user nhận thưởng 1 lần hay nhiều lần
 
@@ -48,7 +58,10 @@ export class DemoInternalListener {
         data.messageValue,
       )
     if (!checkJudgmentConditions) {
-      this.logger.error('Judgment conditions were not pass!!')
+      this.logger.error(
+        `[EVENT ${EVENTS.AUTH_USER_LOGIN}]. Reason: users are not eligible to participate ` +
+          `in the reward - Judgment Condition`,
+      )
       return
     }
 
@@ -58,12 +71,15 @@ export class DemoInternalListener {
       data.user,
     )
     if (!checkUserConditions) {
-      this.logger.error('User conditions were not pass!!')
+      this.logger.error(
+        `[EVENT ${EVENTS.AUTH_USER_LOGIN}]. Reason: users are not eligible to participate ` +
+          `in the reward - User Condition`,
+      )
       return
     }
 
     // Lấy danh sách phần thưởng theo mission
-    const missionRewardRules = await this.rewardRuleService.find({
+    const rewardRules = await this.rewardRuleService.find({
       campaignId: data.campaignId,
       missionId: data.missionId,
       typeRule: TYPE_RULE.MISSION,
@@ -72,7 +88,9 @@ export class DemoInternalListener {
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const grantTargets = mission.grantTarget as unknown as Target[]
     if (grantTargets.length === 0) {
-      this.logger.error('GrantTargets not exist!!!')
+      this.logger.error(
+        `[EVENT ${EVENTS.AUTH_USER_LOGIN}]. Reason: Grant Target was not found!`,
+      )
       return
     }
     let user = null,
@@ -83,21 +101,21 @@ export class DemoInternalListener {
       return target
     })
 
-    if (missionRewardRules.length === 0) {
+    if (rewardRules.length === 0) {
       this.logger.error('Mission reward rules was not exist!!!')
       return
     }
 
-    for (const idx in missionRewardRules) {
+    for (const idx in rewardRules) {
       if (
         user !== null &&
-        missionRewardRules[idx].currency === user.currency &&
-        missionRewardRules[idx].key === user.type
+        rewardRules[idx].currency === user.currency &&
+        rewardRules[idx].key === user.type
       ) {
         // user
 
         await this.demoService.commonFlowReward(
-          missionRewardRules[idx],
+          rewardRules[idx],
           data.campaignId,
           user,
           userId,
@@ -119,13 +137,13 @@ export class DemoInternalListener {
 
       if (
         referredUser !== null &&
-        missionRewardRules[idx].currency === referredUser.currency &&
-        missionRewardRules[idx].key === referredUser.type
+        rewardRules[idx].currency === referredUser.currency &&
+        rewardRules[idx].key === referredUser.type
       ) {
         // referred user
 
         await this.demoService.commonFlowReward(
-          missionRewardRules[idx],
+          rewardRules[idx],
           data.campaignId,
           referredUser,
           referredUserId,

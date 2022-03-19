@@ -113,18 +113,18 @@ export class ApiCampaignService {
     return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
   }
 
-  async findOne(id: number) {
-    const campaign = await this.campaignService.getById(id, {
-      relations: ['rewardRules'],
-    })
-    if (!campaign) {
-      return null
-    }
-    if (campaign.rewardRules.length > 0) {
-      campaign.rewardRules = campaign.rewardRules.filter(
-        (item) => item.typeRule == 'campaign',
-      )
-    }
-    return campaign
-  }
+  // async findOne(id: number) {
+  //   const campaign = await this.campaignService.getById(id, {
+  //     relations: ['rewardRules'],
+  //   })
+  //   if (!campaign) {
+  //     return null
+  //   }
+  //   if (campaign.rewardRules.length > 0) {
+  //     campaign.rewardRules = campaign.rewardRules.filter(
+  //       (item) => item.typeRule == 'campaign',
+  //     )
+  //   }
+  //   return campaign
+  // }
 }

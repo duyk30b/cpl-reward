@@ -4,7 +4,8 @@ import { CampaignService } from '@lib/campaign'
 import { GRANT_TARGET_WALLET, MissionService } from '@lib/mission'
 import { MissionEventService } from '@lib/mission-event'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
-import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { RewardRuleService } from '@lib/reward-rule'
+// import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { Target } from './demo.interface'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
 import { EventEmitter2 } from '@nestjs/event-emitter'
@@ -38,12 +39,18 @@ export class DemoService {
     return mission
   }
 
+  /**
+   *
+   * @param missionRewardRule
+   * @param campaignId
+   * @param amount
+   * remove type
+   * remove currency
+   */
   async updateReleaseLimitValue(
     missionRewardRule: RewardRule,
     campaignId: number,
     amount: number,
-    type: string,
-    currency: string,
   ) {
     const updateMissionRewardRule = await this.rewardRuleService.updateValue(
       missionRewardRule,
@@ -56,24 +63,24 @@ export class DemoService {
           `, amount => ${amount}`,
       )
     }
-    const campaignRewardRules = await this.rewardRuleService.find({
-      campaignId: campaignId,
-      typeRule: TYPE_RULE.CAMPAIGN,
-    })
-    if (campaignRewardRules.length > 0) {
-      for (const idx in campaignRewardRules) {
-        if (
-          campaignRewardRules[idx].currency !== currency ||
-          campaignRewardRules[idx].key !== type
-        )
-          continue
-
-        await this.rewardRuleService.updateValue(
-          campaignRewardRules[idx],
-          amount,
-        )
-      }
-    }
+    // const campaignRewardRules = await this.rewardRuleService.find({
+    //   campaignId: campaignId,
+    //   typeRule: TYPE_RULE.CAMPAIGN,
+    // })
+    // if (campaignRewardRules.length > 0) {
+    //   for (const idx in campaignRewardRules) {
+    //     if (
+    //       campaignRewardRules[idx].currency !== currency ||
+    //       campaignRewardRules[idx].key !== type
+    //     )
+    //       continue
+    //
+    //     await this.rewardRuleService.updateValue(
+    //       campaignRewardRules[idx],
+    //       amount,
+    //     )
+    //   }
+    // }
   }
 
   async commonFlowReward(
@@ -84,12 +91,15 @@ export class DemoService {
     missionId: number,
   ) {
     // update release_value, limit_value of campaign/mission
+    /**
+     * remove type and currency yet!
+     *   userTarget.type,
+     *   userTarget.currency,
+     */
     await this.updateReleaseLimitValue(
       missionRewardRule,
       campaignId,
       userTarget.amount,
-      userTarget.type,
-      userTarget.currency,
     )
 
     const userRewardHistory = await this.userRewardHistoryService.save({

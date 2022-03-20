@@ -31,7 +31,7 @@ export class ApiMissionController {
     return this.apiMissionService.findAll(apiMissionFilterDto, request.userId)
   }
 
-  @Get('affiliate_earned')
+  @Get('money/earned')
   @ApiOperation({
     summary: 'Get money earned',
   })
@@ -39,8 +39,8 @@ export class ApiMissionController {
     schema: {
       properties: {
         amount: {
-          type: 'int',
-          example: 70,
+          type: 'string',
+          example: '12.33333344',
         },
         currency: {
           type: 'string',
@@ -50,10 +50,7 @@ export class ApiMissionController {
     },
   })
   async getEarned(@Req() request: IRequestWithUserId) {
-    return {
-      amount: Math.floor(Math.random() * 100),
-      currency: 'USDT',
-    }
+    return this.apiMissionService.getAmountEarned(request.userId)
   }
 
   // @Get(':id')

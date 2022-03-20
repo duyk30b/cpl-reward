@@ -12,6 +12,7 @@ import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 
 @Entity({
   name: 'missions',
@@ -99,6 +100,17 @@ export class Mission extends MyBaseEntity {
   })
   @JoinColumn({ name: 'campaign_id' })
   campaign: Campaign
+
+  @OneToMany(
+    () => UserRewardHistory,
+    (userRewardHistory) => userRewardHistory.mission,
+    { eager: true },
+  )
+  @JoinColumn()
+  @Expose({
+    name: 'user_reward_histories',
+  })
+  userRewardHistories: UserRewardHistory[]
 
   @AfterLoad()
   transformStringToJson() {

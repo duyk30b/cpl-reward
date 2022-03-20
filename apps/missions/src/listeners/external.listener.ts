@@ -27,14 +27,13 @@ export class ExternalListener {
         amount: data.amount,
       })
     if (!sendRewardToCashback) {
-      const result = await this.userRewardHistoryService.updateStatus(
-        data.id,
-        STATUS.FAIL,
-      )
+      const result = await this.userRewardHistoryService.updateById(data.id, {
+        status: STATUS.AUTO_FAIL,
+      })
       if (result.affected === 0) {
         this.logger.error(
           `Update reward history fail. ` +
-            `Input: id => ${data.id}, status => ${STATUS.FAIL}`,
+            `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
         )
       }
       this.logger.error(
@@ -44,10 +43,9 @@ export class ExternalListener {
       return
     }
 
-    const result = await this.userRewardHistoryService.updateStatus(
-      data.id,
-      STATUS.AUTO_RECEIVED,
-    )
+    const result = await this.userRewardHistoryService.updateById(data.id, {
+      status: STATUS.AUTO_RECEIVED,
+    })
     if (result.affected === 0) {
       this.logger.error(
         `Update reward history fail. ` +
@@ -66,14 +64,13 @@ export class ExternalListener {
         data.type,
       )
     if (!sendRewardToBalance) {
-      const result = await this.userRewardHistoryService.updateStatus(
-        data.id,
-        STATUS.FAIL,
-      )
+      const result = await this.userRewardHistoryService.updateById(data.id, {
+        status: STATUS.AUTO_FAIL,
+      })
       if (result.affected === 0) {
         this.logger.error(
           `Update reward history fail. ` +
-            `Input: id => ${data.id}, status => ${STATUS.FAIL}`,
+            `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
         )
       }
       this.logger.error(
@@ -83,10 +80,9 @@ export class ExternalListener {
       return
     }
 
-    const result = await this.userRewardHistoryService.updateStatus(
-      data.id,
-      STATUS.AUTO_RECEIVED,
-    )
+    const result = await this.userRewardHistoryService.updateById(data.id, {
+      status: STATUS.AUTO_RECEIVED,
+    })
     if (result.affected === 0) {
       this.logger.error(
         `Update reward history fail. ` +

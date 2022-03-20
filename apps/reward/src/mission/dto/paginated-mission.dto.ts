@@ -17,11 +17,12 @@ export class PaginatedMissionDto {
   @ApiProperty({
     example: 2,
     description:
-      `${STATUS.NOT_RECEIVE}: NOT_RECEIVE, ` +
-      `${STATUS.AUTO_RECEIVED}: AUTO_RECEIVED, ` +
+      `${STATUS.AUTO_NOT_RECEIVE}: AUTO_NOT_RECEIVE, ` +
       `${STATUS.MANUAL_NOT_RECEIVE}: MANUAL_NOT_RECEIVE, ` +
+      `${STATUS.AUTO_RECEIVED}: AUTO_RECEIVED, ` +
       `${STATUS.MANUAL_RECEIVED}: MANUAL_RECEIVED, ` +
-      `${STATUS.FAIL}: FAIL`,
+      `${STATUS.AUTO_FAIL}: AUTO_FAIL` +
+      `${STATUS.MANUAL_FAIL}: MANUAL_FAIL`,
   })
   status: number
 }

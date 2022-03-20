@@ -7,7 +7,11 @@ import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { RewardRuleService } from '@lib/reward-rule'
 // import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { Target } from './demo.interface'
-import { UserRewardHistoryService } from '@lib/user-reward-history'
+import {
+  RECEIVE_TYPE,
+  STATUS,
+  UserRewardHistoryService,
+} from '@lib/user-reward-history'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MissionUserService } from '@lib/mission-user'
 
@@ -138,6 +142,20 @@ export class DemoService {
         userId: userId,
         amount: userTarget.amount,
         currency: userTarget.currency,
+      })
+    }
+
+    if (
+      [
+        GRANT_TARGET_WALLET.REWARD_BALANCE,
+        GRANT_TARGET_WALLET.REWARD_DIVIDEND,
+        GRANT_TARGET_WALLET.REWARD_CASHBACK,
+      ].includes(GRANT_TARGET_WALLET[userTarget.wallet]) &&
+      userRewardHistory
+    ) {
+      await this.userRewardHistoryService.updateById(userRewardHistory.id, {
+        status: STATUS.MANUAL_NOT_RECEIVE,
+        receiveType: RECEIVE_TYPE.MANUAL,
       })
     }
   }

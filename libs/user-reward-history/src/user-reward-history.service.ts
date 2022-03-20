@@ -34,8 +34,8 @@ export class UserRewardHistoryService {
     return await this.userRewardHistoryRepository.save(userRewardHistoryEntity)
   }
 
-  async updateStatus(id: number, status: STATUS) {
-    return await this.userRewardHistoryRepository.update({ id }, { status })
+  async updateById(id: number, conditions: any) {
+    return await this.userRewardHistoryRepository.update({ id }, conditions)
   }
 
   async getAmountReceivedByUser(missionIds: number[], userId: number) {

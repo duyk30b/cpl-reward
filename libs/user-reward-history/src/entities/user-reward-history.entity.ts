@@ -60,7 +60,7 @@ export class UserRewardHistory extends MyBaseEntity {
   @Column({
     type: 'enum',
     enum: STATUS,
-    default: STATUS.NOT_RECEIVE,
+    default: STATUS.AUTO_NOT_RECEIVE,
   })
   @Expose()
   status: STATUS

@@ -48,9 +48,7 @@ export class AdminCampaignService {
   // }
 
   async findOne(id: number) {
-    const campaign = await this.campaignService.getById(id, {
-      relations: ['rewardRules'],
-    })
+    const campaign = await this.campaignService.getById(id)
     if (!campaign) {
       return null
     }

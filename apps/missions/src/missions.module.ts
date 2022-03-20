@@ -10,11 +10,12 @@ import { ExternalUserModule } from '@lib/external-user'
 import { CommonListener } from './listeners/common.listener'
 import { ExternalBalanceModule } from '@lib/external-balance'
 import { MissionUserLogModule } from '@lib/mission-user-log'
-import { MissionUserModule } from '@lib/mission-user'
 import { RewardRuleModule } from '@lib/reward-rule'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { ExternalListener } from './listeners/external.listener'
 import { MissionsService } from './missions.service'
+import { MissionUserModule } from '@lib/mission-user'
+import { ExternalBoModule } from '@lib/external-bo'
 
 @Module({
   controllers: [MissionsController],
@@ -31,9 +32,10 @@ import { MissionsService } from './missions.service'
     ExternalUserModule,
     ExternalBalanceModule,
     MissionUserLogModule,
-    MissionUserModule,
     RewardRuleModule,
     UserRewardHistoryModule,
+    MissionUserModule,
+    ExternalBoModule,
   ],
   providers: [CommonListener, ExternalListener, MissionsService],
 })

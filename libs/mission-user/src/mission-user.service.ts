@@ -29,7 +29,7 @@ export class MissionUserService {
     const missionUserEntity = plainToInstance(MissionUser, updateMissionUser, {
       ignoreDecorators: true,
     })
-    return await this.missionUserRepository.update(
+    return this.missionUserRepository.update(
       { missionId: missionId, userId: userId },
       missionUserEntity,
     )
@@ -47,10 +47,10 @@ export class MissionUserService {
     const missionUserEntity = plainToInstance(MissionUser, createMissionUser, {
       ignoreDecorators: true,
     })
-    return await this.missionUserRepository.save(missionUserEntity)
+    return this.missionUserRepository.save(missionUserEntity)
   }
 
   async getOneMissionUser(condition) {
-    return await this.missionUserRepository.findOne(condition)
+    return this.missionUserRepository.findOne(condition)
   }
 }

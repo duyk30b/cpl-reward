@@ -8,6 +8,13 @@ export interface SendRewardToBalanceInput {
   type: string
 }
 
+export interface SendRewardToCashbackInput {
+  id: number
+  userId: number
+  currency: string
+  amount: string
+}
+
 export interface AuthUserLoginInput {
   userId: number
   referredById: number

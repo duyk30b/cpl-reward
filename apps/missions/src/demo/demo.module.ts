@@ -8,6 +8,7 @@ import { CommonService } from '@lib/common'
 import { MissionEventModule } from '@lib/mission-event'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { MissionsService } from '../missions.service'
+import { MissionUserModule } from '@lib/mission-user'
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MissionsService } from '../missions.service'
     MissionModule,
     MissionEventModule,
     UserRewardHistoryModule,
+    MissionUserModule,
   ],
   exports: [DemoService],
   providers: [

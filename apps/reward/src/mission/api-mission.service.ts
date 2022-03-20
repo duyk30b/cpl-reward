@@ -77,7 +77,7 @@ export class ApiMissionService {
             id: item.id,
             title: item.title,
             currency: '',
-            status: STATUS.NOT_RECEIVE,
+            status: STATUS.AUTO_NOT_RECEIVE,
             totalAmount: 0,
           }
         }),

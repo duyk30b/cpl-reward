@@ -7,11 +7,7 @@ import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { RewardRuleService } from '@lib/reward-rule'
 // import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { Target } from './demo.interface'
-import {
-  RECEIVE_TYPE,
-  STATUS,
-  UserRewardHistoryService,
-} from '@lib/user-reward-history'
+import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MissionUserService } from '@lib/mission-user'
 
@@ -155,7 +151,6 @@ export class DemoService {
     ) {
       await this.userRewardHistoryService.updateById(userRewardHistory.id, {
         status: STATUS.MANUAL_NOT_RECEIVE,
-        receiveType: RECEIVE_TYPE.MANUAL,
       })
     }
   }

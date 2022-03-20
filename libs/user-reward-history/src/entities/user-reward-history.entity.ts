@@ -1,8 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
-import { GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission'
 import { STATUS } from '@lib/user-reward-history/enum'
+
+import { Mission } from '@lib/mission/entities/mission.entity'
+import { GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission/enum'
 
 @Entity({
   name: 'user_reward_histories',
@@ -56,4 +64,8 @@ export class UserRewardHistory extends MyBaseEntity {
   })
   @Expose()
   status: STATUS
+
+  @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
+  @JoinColumn({ name: 'mission_id' })
+  mission: Mission
 }

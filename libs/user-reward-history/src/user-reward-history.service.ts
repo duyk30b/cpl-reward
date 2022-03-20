@@ -5,6 +5,7 @@ import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { STATUS } from './enum'
+import { GRANT_TARGET_USER } from '@lib/mission'
 
 @Injectable()
 export class UserRewardHistoryService {
@@ -35,5 +36,59 @@ export class UserRewardHistoryService {
 
   async updateStatus(id: number, status: STATUS) {
     return await this.userRewardHistoryRepository.update({ id }, { status })
+  }
+
+  async getAmountReceivedByUser(missionIds: number[], userId: number) {
+    const queryBuilder =
+      this.userRewardHistoryRepository.createQueryBuilder('history')
+    queryBuilder.where('history.missionId IN (:...mission_ids)', {
+      mission_ids: missionIds,
+    })
+    queryBuilder.andWhere('history.userId = :user_id', {
+      user_id: userId,
+    })
+    queryBuilder.andWhere("history.status = ':status_type'", {
+      status_type: STATUS.MANUAL_NOT_RECEIVE,
+    })
+    queryBuilder.groupBy('history.currency')
+    queryBuilder.select('history.currency')
+    queryBuilder.addSelect('history.missionId')
+    queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
+    const histories = await queryBuilder.getRawMany()
+    if (histories.length === 0) return null
+
+    const result = {}
+    for (const idx in histories) {
+      if (result[histories[idx].history_mission_id] === undefined) {
+        result[histories[idx].history_mission_id] = []
+      }
+      result[histories[idx].history_mission_id].push({
+        currency: histories[idx].history_currency,
+        totalAmount: histories[idx].total_amount,
+      })
+    }
+    return result
+  }
+
+  async getAmountEarned(userId: number) {
+    const queryBuilder =
+      this.userRewardHistoryRepository.createQueryBuilder('history')
+    queryBuilder.where('history.userId = :user_id', {
+      user_id: userId,
+    })
+    queryBuilder.andWhere(
+      "(history.status = ':status_type_auto' OR history.status = ':status_type_manual')",
+      {
+        status_type_auto: STATUS.AUTO_RECEIVED,
+        status_type_manual: STATUS.MANUAL_RECEIVED,
+      },
+    )
+    queryBuilder.andWhere('history.userType = :user_type', {
+      user_type: GRANT_TARGET_USER.REFERRAL_USER,
+    })
+    queryBuilder.groupBy('history.currency')
+    queryBuilder.select('history.currency')
+    queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
+    return queryBuilder.getRawMany()
   }
 }

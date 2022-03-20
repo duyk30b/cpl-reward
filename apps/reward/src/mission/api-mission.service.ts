@@ -14,11 +14,14 @@ import {
   PaginationTypeEnum,
 } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
-import { STATUS } from '@lib/user-reward-history'
+import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 
 @Injectable()
 export class ApiMissionService {
-  constructor(private readonly missionService: MissionService) {}
+  constructor(
+    private readonly missionService: MissionService,
+    private readonly userRewardHistoryService: UserRewardHistoryService,
+  ) {}
 
   async findAll(apiMissionFilterDto: ApiMissionFilterDto, userId: number) {
     const limit =
@@ -46,25 +49,55 @@ export class ApiMissionService {
       options,
       queryBuilder,
     )
-    // TODO: fake response data for frontend team integrate
-    const statusList = [
-      STATUS.NOT_RECEIVE,
-      STATUS.AUTO_RECEIVED,
-      STATUS.MANUAL_RECEIVED,
-      STATUS.FAIL,
-    ]
-    const data = result.items.map((mission) => {
+
+    if (result.items.length === 0) {
       return {
-        id: mission.id,
-        title: mission.title,
-        amount: Math.floor(Math.random() * 100),
-        currency: 'USDT',
-        status: statusList[Math.floor(Math.random() * statusList.length)],
+        count: result.items.length,
+        pagination: result.meta,
+        data: result.items,
+        links: ApiMissionService.customLinks(result.links),
       }
-    })
+    }
+
+    const missionIds = []
+    for (const idx in result.items) {
+      missionIds.push(result.items[idx].id)
+    }
+    const histories =
+      await this.userRewardHistoryService.getAmountReceivedByUser(
+        missionIds,
+        userId,
+      )
+    if (histories === null) {
+      return {
+        count: result.items.length,
+        pagination: result.meta,
+        data: result.items.map((item) => {
+          return {
+            id: item.id,
+            title: item.title,
+            currency: '',
+            status: STATUS.NOT_RECEIVE,
+            totalAmount: 0,
+          }
+        }),
+        links: ApiMissionService.customLinks(result.links),
+      }
+    }
     return {
+      count: result.items.length,
       pagination: result.meta,
-      data,
+      data: result.items.map((item) => {
+        return {
+          id: item.id,
+          title: item.title,
+          currency: !histories[item.id] ? '' : histories[item.id][0].currency,
+          status: STATUS.MANUAL_NOT_RECEIVE,
+          totalAmount: !histories[item.id]
+            ? 0
+            : histories[item.id][0].totalAmount,
+        }
+      }),
       links: ApiMissionService.customLinks(result.links),
     }
   }
@@ -114,7 +147,6 @@ export class ApiMissionService {
         .orderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     }
-
     return queryBuilder
   }
 
@@ -136,5 +168,18 @@ export class ApiMissionService {
     }
 
     return mission
+  }
+
+  async getAmountEarned(userId: number) {
+    const result = await this.userRewardHistoryService.getAmountEarned(userId)
+    if (result.length === 0)
+      return {
+        amount: '0',
+        currency: '',
+      }
+    return {
+      amount: result[0].total_amount,
+      currency: result[0].history_currency,
+    }
   }
 }

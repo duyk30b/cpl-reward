@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { paginate, Pagination } from 'nestjs-typeorm-paginate'
+import {
+  paginate,
+  paginateRawAndEntities,
+  Pagination,
+} from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
 import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
@@ -61,16 +65,24 @@ export class MissionService {
   async camelPaginate(
     options: IPaginationOptions,
     queryBuilder: SelectQueryBuilder<Mission> = null,
-  ): Promise<Pagination<Mission>> {
+    isRaw = false,
+  ): Promise<Pagination<Mission> | any> {
     if (queryBuilder === null) queryBuilder = this.queryBuilder()
+    if (isRaw) {
+      return paginateRawAndEntities(queryBuilder, options)
+    }
     return paginate<Mission>(queryBuilder, options)
   }
 
   async snakePaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Mission> = null,
-  ): Promise<Pagination<Mission, CustomPaginationMetaTransformer>> {
+    isRaw = false,
+  ): Promise<Pagination<Mission, CustomPaginationMetaTransformer> | any> {
     if (queryBuilder === null) queryBuilder = this.queryBuilder()
+    if (isRaw) {
+      return paginateRawAndEntities(queryBuilder, options)
+    }
     return paginate<Mission, CustomPaginationMetaTransformer>(
       queryBuilder,
       options,

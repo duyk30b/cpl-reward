@@ -9,6 +9,7 @@ import { RewardRuleService } from '@lib/reward-rule'
 import { Target } from './demo.interface'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { MissionUserService } from '@lib/mission-user'
 
 @Injectable()
 export class DemoService {
@@ -21,6 +22,7 @@ export class DemoService {
     private readonly missionEventService: MissionEventService,
     private readonly rewardRuleService: RewardRuleService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
+    private readonly missionUserService: MissionUserService,
   ) {}
 
   async getEventsByName(eventName: string) {
@@ -122,9 +124,40 @@ export class DemoService {
         userId: userId,
         amount: userTarget.amount,
         currency: userTarget.currency,
-        // TODO: recheck below value
-        type: 'balance',
+        type: 'reward',
       })
     }
+
+    if (
+      GRANT_TARGET_WALLET[userTarget.wallet] ===
+        GRANT_TARGET_WALLET.DIRECT_CASHBACK &&
+      userRewardHistory
+    ) {
+      this.eventEmitter.emit('send_reward_to_cashback', {
+        id: userRewardHistory.id,
+        userId: userId,
+        amount: userTarget.amount,
+        currency: userTarget.currency,
+      })
+    }
+  }
+
+  /**
+   * check điều kiện user nhận thưởng 1 lần hay nhiều lần
+   *
+   * @param missionId
+   * @param userId
+   * @param limitReceivedReward
+   */
+  async checkLimitReceivedReward(
+    missionId: number,
+    userId: number,
+    limitReceivedReward: number,
+  ) {
+    const missionUser = await this.missionUserService.getOneMissionUser({
+      missionId,
+      userId,
+    })
+    return missionUser && missionUser.successCount < limitReceivedReward
   }
 }

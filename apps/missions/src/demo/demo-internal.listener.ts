@@ -49,8 +49,6 @@ export class DemoInternalListener {
 
     // TODO: check số tiền còn lại của mission
 
-    // TODO: check điều kiện user nhận thưởng 1 lần hay nhiều lần
-
     // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
     const checkJudgmentConditions =
       this.missionsService.checkJudgmentConditions(
@@ -106,11 +104,18 @@ export class DemoInternalListener {
       return
     }
 
+    const checkLimitReceivedReward =
+      await this.demoService.checkLimitReceivedReward(
+        data.missionId,
+        userId,
+        mission.limitReceivedReward,
+      )
     for (const idx in rewardRules) {
       if (
         user !== null &&
         rewardRules[idx].currency === user.currency &&
-        rewardRules[idx].key === user.type
+        rewardRules[idx].key === user.type &&
+        checkLimitReceivedReward
       ) {
         // user
 
@@ -138,7 +143,8 @@ export class DemoInternalListener {
       if (
         referredUser !== null &&
         rewardRules[idx].currency === referredUser.currency &&
-        rewardRules[idx].key === referredUser.type
+        rewardRules[idx].key === referredUser.type &&
+        checkLimitReceivedReward
       ) {
         // referred user
 

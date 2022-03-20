@@ -102,6 +102,12 @@
       ],
       "@lib/user-reward-history/*": [
         "libs/user-reward-history/src/*"
+      ],
+      "@lib/external-bo": [
+        "libs/external-bo/src"
+      ],
+      "@lib/external-bo/*": [
+        "libs/external-bo/src/*"
       ]
     }
   }

@@ -1,8 +1,14 @@
 import { IUser, JudgmentCondition, UserCondition } from './demo/demo.interface'
 import { EVENTS } from '@lib/mission'
 import { CommonService } from '@lib/common'
+import { Injectable } from '@nestjs/common'
 
+@Injectable()
 export class MissionsService {
+  /**
+   * @param judgmentConditions
+   * @param messageValue
+   */
   checkJudgmentConditions(
     judgmentConditions: JudgmentCondition[],
     messageValue: any,
@@ -27,6 +33,10 @@ export class MissionsService {
     return result
   }
 
+  /**
+   * @param userConditions
+   * @param user
+   */
   checkUserConditions(userConditions: UserCondition[], user: IUser) {
     if (userConditions.length === 0) return true
     let result = false

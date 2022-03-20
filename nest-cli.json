@@ -184,6 +184,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/user-reward-history/tsconfig.lib.json"
       }
+    },
+    "external-bo": {
+      "type": "library",
+      "root": "libs/external-bo",
+      "entryFile": "index",
+      "sourceRoot": "libs/external-bo/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/external-bo/tsconfig.lib.json"
+      }
     }
   }
 }

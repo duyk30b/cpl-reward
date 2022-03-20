@@ -14,6 +14,7 @@ import { ValidateAuthMiddleware } from './middlewares/validate-auth.middleware'
 import { ApiCampaignController } from './campaign/api-campaign.controller'
 import { ExternalUserModule } from '@lib/external-user'
 import { ApiMissionController } from './mission/api-mission.controller'
+import { ExternalBoModule } from '@lib/external-bo'
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ApiMissionController } from './mission/api-mission.controller'
     ApiMissionModule,
     ApiCampaignModule,
     ExternalUserModule,
+    ExternalBoModule,
   ],
   controllers: [AppController],
   providers: [

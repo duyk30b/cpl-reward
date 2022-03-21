@@ -4,9 +4,10 @@ import { RewardRuleModule } from '@lib/reward-rule'
 import { AdminMissionController } from './admin-mission.controller'
 import { AdminMissionService } from './admin-mission.service'
 import { MissionEventModule } from '@lib/mission-event'
+import { CommonModule } from '@lib/common'
 
 @Module({
-  imports: [MissionModule, RewardRuleModule, MissionEventModule],
+  imports: [MissionModule, RewardRuleModule, MissionEventModule, CommonModule],
   controllers: [AdminMissionController],
   providers: [AdminMissionService],
 })

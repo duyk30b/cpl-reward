@@ -57,6 +57,10 @@ export class AdminMissionService {
     let mission = await this.missionService.create(createMissionInput)
     await Promise.all(
       createMissionInput.rewardRules.map(async (item) => {
+        if (item.limitValue !== undefined)
+          item.limitValue = Number(item.limitValue)
+        if (item.releaseValue !== undefined)
+          item.releaseValue = Number(item.releaseValue)
         await this.rewardRuleService.create(item, {
           campaignId: createMissionInput.campaignId,
           missionId: mission.id,
@@ -85,6 +89,10 @@ export class AdminMissionService {
     let mission = await this.missionService.update(updateMissionInput)
     await Promise.all(
       updateMissionInput.rewardRules.map(async (item) => {
+        if (item.limitValue !== undefined)
+          item.limitValue = Number(item.limitValue)
+        if (item.releaseValue !== undefined)
+          item.releaseValue = Number(item.releaseValue)
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,

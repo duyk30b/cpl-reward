@@ -8,13 +8,10 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import {
-  IPaginationLinks,
-  IPaginationMeta,
-  PaginationTypeEnum,
-} from 'nestjs-typeorm-paginate'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
+import { CommonService } from '@lib/common'
 
 @Injectable()
 export class ApiMissionService {
@@ -37,9 +34,6 @@ export class ApiMissionService {
           pagination.totalItems,
           pagination.itemsPerPage,
           pagination.currentPage,
-
-          pagination.itemCount,
-          pagination.totalPages,
         ),
       route: '/missions',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
@@ -55,7 +49,7 @@ export class ApiMissionService {
         count: result.items.length,
         pagination: result.meta,
         data: result.items,
-        links: ApiMissionService.customLinks(result.links),
+        links: CommonService.customLinks(result.links),
       }
     }
 
@@ -81,7 +75,7 @@ export class ApiMissionService {
             totalAmount: 0,
           }
         }),
-        links: ApiMissionService.customLinks(result.links),
+        links: CommonService.customLinks(result.links),
       }
     }
     return {
@@ -98,16 +92,7 @@ export class ApiMissionService {
             : histories[item.id][0].totalAmount,
         }
       }),
-      links: ApiMissionService.customLinks(result.links),
-    }
-  }
-
-  private static customLinks(links: IPaginationLinks) {
-    return {
-      first: links.first,
-      prev: links.previous,
-      last: links.last,
-      next: links.next,
+      links: CommonService.customLinks(result.links),
     }
   }
 

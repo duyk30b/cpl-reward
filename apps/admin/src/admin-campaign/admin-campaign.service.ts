@@ -14,7 +14,8 @@ import {
 } from './admin-campaign.interface'
 import { Brackets } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaCamelTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { CommonService } from '@lib/common'
 
 @Injectable()
 export class AdminCampaignService {
@@ -49,9 +50,7 @@ export class AdminCampaignService {
 
   async findOne(id: number) {
     const campaign = await this.campaignService.getById(id)
-    if (!campaign) {
-      return null
-    }
+    if (campaign === undefined) return null
     return campaign
   }
 
@@ -120,17 +119,14 @@ export class AdminCampaignService {
       limit,
       metaTransformer: (
         pagination: IPaginationMeta,
-      ): CustomPaginationMetaCamelTransformer =>
-        new CustomPaginationMetaCamelTransformer(
+      ): CustomPaginationMetaTransformer =>
+        new CustomPaginationMetaTransformer(
           pagination.totalItems,
           pagination.itemsPerPage,
           pagination.currentPage,
-
-          pagination.itemCount,
-          pagination.totalPages,
         ),
       route: '/campaigns',
-      paginationType: PaginationTypeEnum.TAKE_AND_SKIP,
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(campaignFilter)
 
@@ -148,7 +144,7 @@ export class AdminCampaignService {
     return {
       pagination: result.meta,
       data: result.items,
-      links: result.links,
+      links: CommonService.customLinks(result.links),
     }
   }
 

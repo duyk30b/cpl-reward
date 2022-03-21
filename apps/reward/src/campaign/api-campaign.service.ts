@@ -19,10 +19,11 @@ import { CommonService } from '@lib/common'
 export class ApiCampaignService {
   constructor(private readonly campaignService: CampaignService) {}
 
-  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto, userId: number) {
+  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto) {
     const limit =
-      (apiCampaignFilterDto.limit > 100 ? 100 : apiCampaignFilterDto.limit) ||
-      20
+      (Number(apiCampaignFilterDto.limit) > 100
+        ? 100
+        : Number(apiCampaignFilterDto.limit)) || 20
     const page = apiCampaignFilterDto.page || 1
     const options: IPaginationOptions<CustomPaginationMetaTransformer> = {
       page,
@@ -56,7 +57,16 @@ export class ApiCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
-    queryBuilder.select(['campaign.title', 'campaign.id'])
+    queryBuilder.select([
+      'campaign.title',
+      'campaign.id',
+      'campaign.description',
+      'campaign.detailExplain',
+      'campaign.notificationLink',
+      'campaign.campaignImage',
+      'campaign.startDate',
+      'campaign.endDate',
+    ])
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: IS_SYSTEM.FALSE,
     })

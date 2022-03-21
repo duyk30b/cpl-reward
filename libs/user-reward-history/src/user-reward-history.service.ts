@@ -51,6 +51,7 @@ export class UserRewardHistoryService {
       status_type: STATUS.MANUAL_NOT_RECEIVE,
     })
     queryBuilder.groupBy('history.currency')
+    queryBuilder.addGroupBy('history.missionId')
     queryBuilder.select('history.currency')
     queryBuilder.addSelect('history.missionId')
     queryBuilder.addSelect('SUM (history.amount)', 'total_amount')

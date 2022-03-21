@@ -7,7 +7,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
-import { IRequestWithUserId } from '../interfaces/request-with-user-id'
+// import { IRequestWithUserId } from '../interfaces/request-with-user-id'
 import { PaginatedCampaignDto } from './dto/paginated-campaign.dto'
 import { PaginatedDto } from '../dto/paginated.dto'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
@@ -29,9 +29,10 @@ export class ApiCampaignController {
   @ApiPaginatedResponse(PaginatedCampaignDto)
   async findAll(
     @Query() apiCampaignFilterDto: ApiCampaignFilterDto,
-    @Req() request: IRequestWithUserId,
+    // @Req() request: IRequestWithUserId,
   ) {
-    return this.apiCampaignService.findAll(apiCampaignFilterDto, request.userId)
+    // request.userId
+    return this.apiCampaignService.findAll(apiCampaignFilterDto)
   }
 
   // @Get(':id')

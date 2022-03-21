@@ -10,13 +10,10 @@ import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { Brackets } from 'typeorm'
-import {
-  IPaginationLinks,
-  IPaginationMeta,
-  PaginationTypeEnum,
-} from 'nestjs-typeorm-paginate'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
+import { CommonService } from '@lib/common'
 
 @Injectable()
 export class ApiCampaignService {
@@ -37,9 +34,6 @@ export class ApiCampaignService {
           pagination.totalItems,
           pagination.itemsPerPage,
           pagination.currentPage,
-
-          pagination.itemCount,
-          pagination.totalPages,
         ),
       route: '/campaigns',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
@@ -49,20 +43,11 @@ export class ApiCampaignService {
       options,
       queryBuilder,
     )
-    ApiCampaignService.customLinks(result.links)
+    CommonService.customLinks(result.links)
     return {
       pagination: result.meta,
       data: result.items,
-      links: ApiCampaignService.customLinks(result.links),
-    }
-  }
-
-  private static customLinks(links: IPaginationLinks) {
-    return {
-      first: links.first,
-      prev: links.previous,
-      last: links.last,
-      next: links.next,
+      links: CommonService.customLinks(result.links),
     }
   }
 

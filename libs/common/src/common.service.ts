@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { IPaginationLinks } from 'nestjs-typeorm-paginate'
 
 @Injectable()
 export class CommonService {
@@ -15,5 +16,14 @@ export class CommonService {
       .map((word) => word.replace(word[0], word[0].toString().toUpperCase()))
       .join('')
     return STR.replace(STR[0], STR[0].toLowerCase())
+  }
+
+  static customLinks(links: IPaginationLinks) {
+    return {
+      first: links.first,
+      prev: links.previous,
+      last: links.last,
+      next: links.next,
+    }
   }
 }

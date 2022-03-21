@@ -15,6 +15,8 @@ import { ApiCampaignController } from './campaign/api-campaign.controller'
 import { ExternalUserModule } from '@lib/external-user'
 import { ApiMissionController } from './mission/api-mission.controller'
 import { ExternalBoModule } from '@lib/external-bo'
+import { ConfigModule } from '@nestjs/config'
+import configuration from '@lib/common/configuration'
 
 @Module({
   imports: [
@@ -23,6 +25,9 @@ import { ExternalBoModule } from '@lib/external-bo'
     ApiCampaignModule,
     ExternalUserModule,
     ExternalBoModule,
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
   ],
   controllers: [AppController],
   providers: [

@@ -11,7 +11,7 @@ import { Mission } from '@lib/mission/entities/mission.entity'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
-import { CommonService } from '@lib/common'
+import { CommonService } from '@lib/common/common.service'
 
 @Injectable()
 export class ApiMissionService {

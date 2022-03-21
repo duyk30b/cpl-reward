@@ -12,12 +12,16 @@ import { IRequestWithUserId } from '../interfaces/request-with-user-id'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
 import { PaginatedMissionDto } from './dto/paginated-mission.dto'
 
+// import { EventEmitter2 } from '@nestjs/event-emitter'
+
 @ApiTags('missions')
 @Controller('missions')
 @ApiExtraModels(PaginatedDto)
 @ApiExtraModels(PaginatedMissionDto)
 export class ApiMissionController {
-  constructor(private readonly apiMissionService: ApiMissionService) {}
+  constructor(
+    private readonly apiMissionService: ApiMissionService, // private eventEmitter: EventEmitter2,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -52,6 +56,15 @@ export class ApiMissionController {
   async getEarned(@Req() request: IRequestWithUserId) {
     return this.apiMissionService.getAmountEarned(request.userId)
   }
+
+  /**
+   * TODO: below api using only for test
+   */
+  // @Get('phake')
+  // async fakeData() {
+  //   this.eventEmitter.emit('phake_data', {})
+  //   return 'DONE'
+  // }
 
   // @Get(':id')
   // @ApiOperation({

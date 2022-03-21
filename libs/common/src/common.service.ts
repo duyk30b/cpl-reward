@@ -26,4 +26,8 @@ export class CommonService {
       next: links.next,
     }
   }
+
+  static randomItem(items) {
+    return items[Math.floor(Math.random() * items.length)]
+  }
 }

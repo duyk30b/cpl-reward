@@ -58,12 +58,11 @@ export class UserRewardHistory extends MyBaseEntity {
   wallet: GRANT_TARGET_WALLET
 
   @Column({
-    type: 'enum',
-    enum: STATUS,
+    type: 'smallint',
     default: STATUS.AUTO_NOT_RECEIVE,
   })
   @Expose()
-  status: STATUS
+  status: number
 
   @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
   @JoinColumn({ name: 'mission_id' })

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { EVENTS, GRANT_TARGET_WALLET, MissionService } from '@lib/mission'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
-import { Mission } from '@lib/mission/entities/mission.entity'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
@@ -45,6 +44,7 @@ export class AdminMissionService {
       )
         target.type = 'dividend'
 
+      target.amount = Number(target.amount)
       return target
     })
     return grantTarget
@@ -54,7 +54,7 @@ export class AdminMissionService {
     createMissionInput.grantTarget = AdminMissionService.updateTypeInTarget(
       createMissionInput.grantTarget,
     )
-    let mission = await this.missionService.create(createMissionInput)
+    const mission = await this.missionService.create(createMissionInput)
     await Promise.all(
       createMissionInput.rewardRules.map(async (item) => {
         if (item.limitValue !== undefined)
@@ -73,20 +73,14 @@ export class AdminMissionService {
       createMissionInput.campaignId,
       mission.id,
     )
-    mission = await this.missionService.getById(mission.id, {
-      relations: ['rewardRules'],
-    })
-    mission.rewardRules = mission.rewardRules.filter(
-      (item) => item.typeRule == TYPE_RULE.MISSION,
-    )
-    return mission
+    return await this.findOne(mission.id)
   }
 
   async update(updateMissionInput: UpdateMissionInput) {
     updateMissionInput.grantTarget = AdminMissionService.updateTypeInTarget(
       updateMissionInput.grantTarget,
     )
-    let mission = await this.missionService.update(updateMissionInput)
+    const mission = await this.missionService.update(updateMissionInput)
     await Promise.all(
       updateMissionInput.rewardRules.map(async (item) => {
         if (item.limitValue !== undefined)
@@ -106,13 +100,7 @@ export class AdminMissionService {
       updateMissionInput.campaignId,
       mission.id,
     )
-    mission = await this.missionService.getById(mission.id, {
-      relations: ['rewardRules'],
-    })
-    mission.rewardRules = mission.rewardRules.filter(
-      (item) => item.typeRule == TYPE_RULE.MISSION,
-    )
-    return mission
+    return await this.findOne(mission.id)
   }
 
   async findOne(id: number) {
@@ -120,12 +108,11 @@ export class AdminMissionService {
       relations: ['rewardRules'],
     })
     if (!mission) {
-      return new Mission()
+      return {}
     }
     mission.rewardRules = mission.rewardRules.filter(
-      (item) => item.typeRule == 'mission',
+      (item) => item.typeRule == TYPE_RULE.MISSION,
     )
-
     return mission
   }
 

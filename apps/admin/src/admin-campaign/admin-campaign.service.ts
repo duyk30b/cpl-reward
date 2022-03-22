@@ -3,6 +3,7 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
+  STATUS,
 } from '@lib/campaign'
 // import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -153,6 +154,9 @@ export class AdminCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.where('campaign.status = :status_campaign', {
+      status_campaign: STATUS.ACTIVE,
+    })
     if (searchText) {
       queryBuilder.andWhere(
         new Brackets((qb) => {

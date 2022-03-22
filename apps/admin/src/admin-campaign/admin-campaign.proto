@@ -67,7 +67,7 @@ message UpdateInput {
   string campaignImage = 8;
   int32 priority = 9; // default: 0
   bool isSystem = 10; // default: false
-  int32 status = 11; // enum('0','1') => default: '1' (ACTIVE)
+  int32 status = 11; // default: 1 (ACTIVE) / 0 (INACTIVE)
 }
 
 message Result {
@@ -81,7 +81,7 @@ message Result {
   string campaignImage = 8;
   int32 priority = 9;
   bool isSystem = 10;
-  int32 status = 11; // enum('0','1') => default: '1' (ACTIVE)
+  int32 status = 11; // default: 1 (ACTIVE) / 0 (INACTIVE)
 }
 
 message CreateInput {
@@ -94,5 +94,5 @@ message CreateInput {
   string campaignImage = 7;
   int32 priority = 8; // default: 0
   bool isSystem = 9; // default: false
-  int32 status = 10; // enum('0','1') => default: '1' (ACTIVE)
+  int32 status = 10; // default: 1 (ACTIVE) / 0 (INACTIVE)
 }

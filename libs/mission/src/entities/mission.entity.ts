@@ -13,6 +13,7 @@ import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
+import { STATUS } from '../enum'
 
 @Entity({
   name: 'missions',
@@ -111,6 +112,13 @@ export class Mission extends MyBaseEntity {
     name: 'user_reward_histories',
   })
   userRewardHistories: UserRewardHistory[]
+
+  @Column({
+    type: 'smallint',
+    default: STATUS.ACTIVE,
+  })
+  @Expose()
+  status: number
 
   @AfterLoad()
   transformStringToJson() {

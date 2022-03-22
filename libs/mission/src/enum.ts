@@ -20,3 +20,8 @@ export enum EVENTS {
   AUTH_USER_CHANGE_PASSWORD = 'auth_user_change_password',
   AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',
 }
+
+export enum STATUS {
+  INACTIVE = 0,
+  ACTIVE = 1,
+}

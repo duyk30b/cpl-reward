@@ -7,13 +7,14 @@ import {
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
+import { CampaignEntityOld } from '@lib/campaign/entities/campaign.entity.old'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { KEY_REWARD_RULE, TYPE_RULE } from '../enum'
 
 @Entity({
   name: 'reward_rules',
 })
-export class RewardRule extends MyBaseEntity {
+export class RewardRuleEntityOld extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number
@@ -58,12 +59,6 @@ export class RewardRule extends MyBaseEntity {
     nullable: true,
     default: 0,
     name: 'limit_value',
-    transformer: {
-      to: (value) => value,
-      from: (value) => {
-        return parseFloat(value)
-      },
-    },
   })
   @Expose({
     name: 'limit_value',
@@ -77,17 +72,17 @@ export class RewardRule extends MyBaseEntity {
     nullable: true,
     default: 0,
     name: 'release_value',
-    transformer: {
-      to: (value) => value,
-      from: (value) => {
-        return parseFloat(value)
-      },
-    },
   })
   @Expose({
     name: 'release_value',
   })
   releaseValue: number
+
+  @ManyToOne(() => CampaignEntityOld, (campaign) => campaign.rewardRules, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'campaign_id' })
+  campaign: CampaignEntityOld
 
   @ManyToOne(() => Mission, (mission) => mission.rewardRules, {
     onDelete: 'CASCADE',

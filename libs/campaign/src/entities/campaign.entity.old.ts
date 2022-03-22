@@ -9,11 +9,12 @@ import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { STATUS } from '../enum'
+import { RewardRuleEntityOld } from '@lib/reward-rule/entities/reward-rule.entity.old'
 
 @Entity({
   name: 'campaigns',
 })
-export class Campaign extends MyBaseEntity {
+export class CampaignEntityOld extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number
@@ -55,11 +56,20 @@ export class Campaign extends MyBaseEntity {
   isSystem: boolean
 
   @Column({
-    type: 'smallint',
+    type: 'tinyint',
     default: STATUS.ACTIVE,
   })
   @Expose()
   status: number
+
+  @OneToMany(() => RewardRuleEntityOld, (rewardRule) => rewardRule.campaign, {
+    eager: true,
+  })
+  @JoinColumn()
+  @Expose({
+    name: 'reward_rules',
+  })
+  rewardRules: RewardRuleEntityOld[]
 
   @OneToMany(() => Mission, (mission) => mission.campaign)
   @JoinColumn()

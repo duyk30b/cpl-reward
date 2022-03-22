@@ -24,6 +24,7 @@ message CreateInput {
   int32 priority = 10;
   string guideLink = 11;
   int32 limitReceivedReward = 12;
+  int32 status = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
 }
 
 message CreateRewardRule {
@@ -42,7 +43,7 @@ message CreateRewardRule {
  */
 message GrantTarget {
   string user = 1;
-  int32 amount = 2;
+  string amount = 2;
   string currency = 3;
   string wallet = 4;
 }
@@ -71,6 +72,7 @@ message Result {
   int32 priority = 13; // default: 0
   string guideLink = 14;
   int32 limitReceivedReward = 15; // default: 1
+  int32 status = 16;
 }
 message UpdateInput {
   int32 id = 1;
@@ -86,6 +88,7 @@ message UpdateInput {
   int32 priority = 11; // default: 0
   string guideLink = 12;
   int32 limitReceivedReward = 13;
+  int32 status = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
 }
 message UpdateRewardRule {
   int32 id = 1;

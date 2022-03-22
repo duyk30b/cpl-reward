@@ -31,6 +31,8 @@ class MissionInput {
   guideLink: string
   @Expose({ name: 'limit_received_reward' })
   limitReceivedReward?: number
+  @Expose()
+  status?: number
 }
 
 export class CreateMissionInput extends MissionInput {

@@ -25,6 +25,7 @@ export class ExternalListener {
         user_id: data.userId,
         currency: data.currency,
         amount: data.amount,
+        historyId: data.historyId,
       })
     if (!sendRewardToCashback) {
       const result = await this.userRewardHistoryService.updateById(data.id, {

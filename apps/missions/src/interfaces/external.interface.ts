@@ -11,4 +11,5 @@ export interface ISendRewardToCashback {
   userId: number
   currency: string
   amount: string
+  historyId: number
 }

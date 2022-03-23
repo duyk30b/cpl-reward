@@ -125,6 +125,7 @@ export class MissionsService {
         userId: userId,
         amount: userTarget.amount,
         currency: userTarget.currency,
+        historyId: userRewardHistory.id,
       })
     }
 

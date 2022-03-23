@@ -28,14 +28,14 @@ export class ExternalBoService {
    * auto_confirm: 1
    */
   async changeUserCashback(input: ChangeUserCashback): Promise<any> {
-    const boToken = this.configService.get('bo.token')
+    // const boToken = this.configService.get('bo.token')
     const postBoUrl = this.configService.get('bo.url') + '/transaction/create'
 
     const postData = {
       ...input,
       balance_type: 'CASHBACK',
-      transaction_type: 'MANUALLY',
-      reference_id: '',
+      transaction_type: 'REWARD',
+      reference_id: `${input.historyId}`,
       fee_currency: '0',
       fee_balance_type: 'CASHBACK',
       fee_transaction_type: 'MANUALLY',
@@ -46,10 +46,10 @@ export class ExternalBoService {
       const result = await firstValueFrom(
         await this.httpService
           .post(postBoUrl, JSON.stringify(postData), {
-            // headers: {
-            //   Authorization: 'Bearer ' + boToken,
-            //   'Content-Type': 'application/json',
-            // },
+            headers: {
+              //   Authorization: 'Bearer ' + boToken,
+              'Content-Type': 'application/json',
+            },
           })
           .pipe(map((response) => response.data)),
       )
@@ -59,6 +59,7 @@ export class ExternalBoService {
       return result
     } catch (e) {
       this.logger.error(e)
+      return null
     }
   }
 }

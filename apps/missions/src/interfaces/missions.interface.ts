@@ -1,27 +1,8 @@
-import { ReferredUserInfoDto } from '@lib/mission-user/dto/referred-user-info.dto'
-
-export interface SendRewardToBalanceInput {
-  id: number
-  userId: number
-  currency: string
-  amount: number
-  type: string
-}
-
-export interface SendRewardToCashbackInput {
-  id: number
-  userId: number
-  currency: string
-  amount: string
-}
-
-export interface AuthUserLoginInput {
-  userId: number
-  referredById: number
+export interface IGiveRewardToUser {
+  messageValue: any
   missionId: number
   campaignId: number
-  user: IUser
-  messageValue: any
+  eventName: string
 }
 
 export interface IUser {
@@ -57,16 +38,8 @@ export interface UserCondition {
 
 export interface Target {
   user: string
-  amount: number
+  amount: string
   currency: string
   wallet: string
   type?: string
-}
-
-export interface UpdateMissionUser {
-  userId: number
-  missionId: number
-  referredUserInfo: ReferredUserInfoDto
-  eventName: string
-  moneyEarned: number
 }

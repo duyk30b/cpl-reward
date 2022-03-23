@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, AfterLoad } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
+import { FixedNumber } from 'ethers'
 
 @Entity({
   name: 'mission_user',
@@ -23,12 +24,48 @@ export class MissionUser extends MyBaseEntity {
   @Expose({ name: 'success_count' })
   successCount: number
 
-  @Column({ name: 'money_earned', default: 0 })
-  @Expose({ name: 'money_earned' })
+  @Column({
+    type: 'decimal',
+    precision: 49,
+    scale: 18,
+    nullable: true,
+    default: 0,
+    name: 'money_earned',
+    transformer: {
+      to: (value) => {
+        if (value !== undefined && typeof value === 'string') {
+          return FixedNumber.fromString(value).toUnsafeFloat()
+        }
+        return value
+      },
+      from: (value) => value,
+    },
+  })
+  @Expose({
+    name: 'money_earned',
+  })
   moneyEarned: number
 
-  @Column({ name: 'total_money_earned', default: 0 })
-  @Expose({ name: 'total_money_earned' })
+  @Column({
+    type: 'decimal',
+    precision: 49,
+    scale: 18,
+    nullable: true,
+    default: 0,
+    name: 'total_money_earned',
+    transformer: {
+      to: (value) => {
+        if (value !== undefined && typeof value === 'string') {
+          return FixedNumber.fromString(value).toUnsafeFloat()
+        }
+        return value
+      },
+      from: (value) => value,
+    },
+  })
+  @Expose({
+    name: 'total_money_earned',
+  })
   totalMoneyEarned: number
 
   @Column({ name: 'referred_user_info', transformer: JsonColumnTransformer })

@@ -9,6 +9,8 @@ import {
   MissionFilterInput,
 } from './admin-mission.interface'
 import { TargetDto } from '@lib/mission/dto/target.dto'
+import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
+import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class AdminMissionService {
@@ -43,8 +45,6 @@ export class AdminMissionService {
         ].includes(GRANT_TARGET_WALLET[target.wallet])
       )
         target.type = 'dividend'
-
-      target.amount = Number(target.amount)
       return target
     })
     return grantTarget
@@ -57,10 +57,6 @@ export class AdminMissionService {
     const mission = await this.missionService.create(createMissionInput)
     await Promise.all(
       createMissionInput.rewardRules.map(async (item) => {
-        if (item.limitValue !== undefined)
-          item.limitValue = Number(item.limitValue)
-        if (item.releaseValue !== undefined)
-          item.releaseValue = Number(item.releaseValue)
         await this.rewardRuleService.create(item, {
           campaignId: createMissionInput.campaignId,
           missionId: mission.id,
@@ -83,10 +79,6 @@ export class AdminMissionService {
     const mission = await this.missionService.update(updateMissionInput)
     await Promise.all(
       updateMissionInput.rewardRules.map(async (item) => {
-        if (item.limitValue !== undefined)
-          item.limitValue = Number(item.limitValue)
-        if (item.releaseValue !== undefined)
-          item.releaseValue = Number(item.releaseValue)
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,
@@ -110,10 +102,19 @@ export class AdminMissionService {
     if (!mission) {
       return {}
     }
-    mission.rewardRules = mission.rewardRules.filter(
-      (item) => item.typeRule == TYPE_RULE.MISSION,
-    )
-    return mission
+    const grpcMission = mission as unknown as GrpcMissionDto
+    grpcMission.rewardRules
+      .filter((item) => item.typeRule == TYPE_RULE.MISSION)
+      .map((item) => {
+        item.limitValue = FixedNumber.fromString(
+          String(item.limitValue),
+        ).toString()
+        item.releaseValue = FixedNumber.fromString(
+          String(item.releaseValue),
+        ).toString()
+        return item
+      })
+    return grpcMission
   }
 
   private async mappingMissionEvent(

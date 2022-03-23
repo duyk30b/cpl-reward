@@ -4,7 +4,6 @@ import { CommonModule } from '@lib/common'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { MysqlModule } from '@lib/mysql'
 import { MissionsController } from './missions.controller'
-import { DemoModule } from './demo/demo.module'
 import { ConfigModule } from '@nestjs/config'
 import { ExternalUserModule } from '@lib/external-user'
 import { CommonListener } from './listeners/common.listener'
@@ -16,6 +15,10 @@ import { ExternalListener } from './listeners/external.listener'
 import { MissionsService } from './missions.service'
 import { MissionUserModule } from '@lib/mission-user'
 import { ExternalBoModule } from '@lib/external-bo'
+import { MissionsListener } from './listeners/missions.listener'
+import { MissionEventModule } from '@lib/mission-event'
+import { CampaignModule } from '@lib/campaign'
+import { MissionModule } from '@lib/mission'
 
 @Module({
   controllers: [MissionsController],
@@ -27,7 +30,6 @@ import { ExternalBoModule } from '@lib/external-bo'
       wildcard: true,
       delimiter: '_',
     }),
-    DemoModule,
     ConfigModule,
     ExternalUserModule,
     ExternalBalanceModule,
@@ -36,7 +38,15 @@ import { ExternalBoModule } from '@lib/external-bo'
     UserRewardHistoryModule,
     MissionUserModule,
     ExternalBoModule,
+    MissionEventModule,
+    CampaignModule,
+    MissionModule,
   ],
-  providers: [CommonListener, ExternalListener, MissionsService],
+  providers: [
+    CommonListener,
+    ExternalListener,
+    MissionsService,
+    MissionsListener,
+  ],
 })
 export class MissionsModule {}

@@ -17,8 +17,8 @@ export class CreateRewardRuleDto {
   currency: string
 
   @Expose({ name: 'limit_value' })
-  limitValue: number
+  limitValue: string
 
   @Expose({ name: 'release_value' })
-  releaseValue?: number
+  releaseValue?: string
 }

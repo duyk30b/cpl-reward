@@ -2,9 +2,8 @@ import { Controller, Logger } from '@nestjs/common'
 import { KafkaMessage, KafkaTopic } from '@lib/kafka'
 import { Payload } from '@nestjs/microservices'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { ExternalUserService } from '@lib/external-user'
 import { EVENTS } from '@lib/mission'
-import { DemoService } from './demo/demo.service'
+import { MissionsService } from './missions.service'
 
 @Controller()
 export class MissionsController {
@@ -12,40 +11,38 @@ export class MissionsController {
 
   constructor(
     private eventEmitter: EventEmitter2,
-    private externalUserService: ExternalUserService,
-    private readonly demoService: DemoService,
+    private readonly missionsService: MissionsService,
   ) {}
 
   @KafkaTopic('kafka.auth_user_login')
   async authUserLogin(@Payload() message: KafkaMessage) {
+    const eventName = 'AUTH_USER_LOGIN'
     if (message.value.user_id === undefined) {
       this.logger.error(
-        'Wrong auth_user_login message struct: ' +
-          JSON.stringify(message.value),
+        `[EVENT ${
+          EVENTS[eventName]
+        }] Wrong auth_user_login message struct: ${JSON.stringify(
+          message.value,
+        )}`,
       )
       return
     }
-    const user = await this.externalUserService.getUserInfo(
-      message.value.user_id,
-    )
-    if (user === null) {
-      this.logger.error('Wrong user info: ' + JSON.stringify(user))
-      return
-    }
 
-    const events = await this.demoService.getEventsByName(
+    const events = await this.missionsService.getEventsByName(
       EVENTS.AUTH_USER_LOGIN,
     )
     if (events.length === 0) {
-      this.logger.error('no mission/campaign in event auth_user_login: ')
+      this.logger.error(
+        `[EVENT ${EVENTS[eventName]}] no mission/campaign in event auth_user_login`,
+      )
       return
     }
     events.map((event) => {
-      this.eventEmitter.emit('auth_user_login', {
-        user,
+      this.eventEmitter.emit('give_reward_to_user', {
+        messageValue: message.value,
         missionId: event.missionId,
         campaignId: event.campaignId,
-        messageValue: message.value,
+        eventName,
       })
     })
   }

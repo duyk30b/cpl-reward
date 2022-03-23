@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import {
-  SendRewardToBalanceInput,
-  SendRewardToCashbackInput,
-} from '../demo/demo.interface'
+  ISendRewardToBalance,
+  ISendRewardToCashback,
+} from '../interfaces/external.interface'
 import { ExternalBalanceService } from '@lib/external-balance'
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { ExternalBoService } from '@lib/external-bo'
@@ -19,7 +19,7 @@ export class ExternalListener {
   ) {}
 
   @OnEvent('send_reward_to_cashback')
-  async handleSendRewardToCashbackEvent(data: SendRewardToCashbackInput) {
+  async handleSendRewardToCashbackEvent(data: ISendRewardToCashback) {
     const sendRewardToCashback =
       await this.externalBoService.changeUserCashback({
         user_id: data.userId,
@@ -55,7 +55,7 @@ export class ExternalListener {
   }
 
   @OnEvent('send_reward_to_balance')
-  async handleSendRewardToBalanceEvent(data: SendRewardToBalanceInput) {
+  async handleISendRewardToBalanceEvent(data: ISendRewardToBalance) {
     const sendRewardToBalance =
       await this.externalBalanceService.changeUserBalance(
         data.userId,

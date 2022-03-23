@@ -13,11 +13,7 @@ export class MissionUserService {
     private missionUserRepository: Repository<MissionUser>,
   ) {}
 
-  async update(
-    missionId: number,
-    userId: number,
-    updateMissionUserDto: UpdateMissionUserDto,
-  ) {
+  async update(id: number, updateMissionUserDto: UpdateMissionUserDto) {
     const updateMissionUser = plainToInstance(
       UpdateMissionUserDto,
       updateMissionUserDto,
@@ -29,10 +25,7 @@ export class MissionUserService {
     const missionUserEntity = plainToInstance(MissionUser, updateMissionUser, {
       ignoreDecorators: true,
     })
-    return this.missionUserRepository.update(
-      { missionId: missionId, userId: userId },
-      missionUserEntity,
-    )
+    return this.missionUserRepository.update({ id }, missionUserEntity)
   }
 
   async save(missionUserDto: CreateMissionUserDto) {

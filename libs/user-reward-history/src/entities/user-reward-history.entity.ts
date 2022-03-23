@@ -11,6 +11,7 @@ import { STATUS } from '@lib/user-reward-history/enum'
 
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission/enum'
+import { FixedNumber } from 'ethers'
 
 @Entity({
   name: 'user_reward_histories',
@@ -41,7 +42,22 @@ export class UserRewardHistory extends MyBaseEntity {
   @Expose({ name: 'user_type' })
   userType: GRANT_TARGET_USER
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 49,
+    scale: 18,
+    nullable: true,
+    default: 0,
+    transformer: {
+      to: (value) => {
+        if (value !== undefined && typeof value === 'string') {
+          return FixedNumber.fromString(value).toUnsafeFloat()
+        }
+        return value
+      },
+      from: (value) => value,
+    },
+  })
   @Expose()
   amount: number
 

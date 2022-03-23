@@ -9,6 +9,7 @@ import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { KEY_REWARD_RULE, TYPE_RULE } from '../enum'
+import { FixedNumber } from 'ethers'
 
 @Entity({
   name: 'reward_rules',
@@ -53,16 +54,19 @@ export class RewardRule extends MyBaseEntity {
 
   @Column({
     type: 'decimal',
-    precision: 24,
+    precision: 49,
     scale: 18,
     nullable: true,
     default: 0,
     name: 'limit_value',
     transformer: {
-      to: (value) => value,
-      from: (value) => {
-        return parseFloat(value)
+      to: (value) => {
+        if (value !== undefined && typeof value === 'string') {
+          return FixedNumber.fromString(value).toUnsafeFloat()
+        }
+        return value
       },
+      from: (value) => value,
     },
   })
   @Expose({
@@ -72,16 +76,19 @@ export class RewardRule extends MyBaseEntity {
 
   @Column({
     type: 'decimal',
-    precision: 24,
+    precision: 49,
     scale: 18,
     nullable: true,
     default: 0,
     name: 'release_value',
     transformer: {
-      to: (value) => value,
-      from: (value) => {
-        return parseFloat(value)
+      to: (value) => {
+        if (value !== undefined && typeof value === 'string') {
+          return FixedNumber.fromString(value).toUnsafeFloat()
+        }
+        return value
       },
+      from: (value) => value,
     },
   })
   @Expose({

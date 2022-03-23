@@ -8,7 +8,7 @@ export class ReferredUserInfoDto {
   user: number
 
   @Expose()
-  amount: number
+  amount: string
 
   @Expose()
   currency: number

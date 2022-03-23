@@ -23,8 +23,8 @@ export const INFO_EVENTS = [
       },
       {
         key: 'lang',
-        type: 'number',
-        description: 'ID of user who just logged in',
+        type: 'string',
+        description: 'Language of user (en/jp...)',
       },
       {
         key: 'ip',
@@ -34,12 +34,12 @@ export const INFO_EVENTS = [
       {
         key: 'is_register',
         type: 'boolean',
-        description: 'Is brand new account',
+        description: 'Is brand new account?',
       },
       {
-        key: 'is_register',
+        key: 'time',
         type: 'number',
-        description: 'Time',
+        description: 'Register time (unix timestamp)',
       },
     ],
   },

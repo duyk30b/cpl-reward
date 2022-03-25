@@ -29,7 +29,7 @@ export class AdminMissionService {
 
   private updateTypeInTarget(grantTarget: TargetDto[]) {
     this.logger.debug(`before grantarget: ${JSON.stringify(grantTarget)}`)
-    grantTarget.map((target) => {
+    const newGranTarget = grantTarget.map((target) => {
       if (
         [
           GRANT_TARGET_WALLET.REWARD_BALANCE,
@@ -56,7 +56,7 @@ export class AdminMissionService {
       return target
     })
     this.logger.debug(`after grantarget: ${JSON.stringify(grantTarget)}`)
-    return grantTarget
+    return newGranTarget
   }
 
   async create(createMissionInput: CreateMissionInput) {

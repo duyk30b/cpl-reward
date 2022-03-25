@@ -43,20 +43,46 @@ export class MissionsListener {
     const mission = await this.missionsService.getMissionById(data.missionId)
     const campaign = await this.missionsService.getCampaignById(data.campaignId)
 
-    // Kiểm tra thời gian khả dụng của campaign và mission
-    if (!mission || now < campaign.startDate || now > campaign.endDate) {
+    // Kiểm tra thời gian khả dụng của campaign
+    if (!campaign) {
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
-        }]. Reason: Campaign not found or is over time!`,
+        }]. Reason: Campaign was not found!. CampaignId: ${
+          data.campaignId
+        }, campaign: ${JSON.stringify(campaign)}`,
       )
       return
     }
-    if (!mission || now < mission.openingDate || now > mission.closingDate) {
+    if (now < campaign.startDate || now > campaign.endDate) {
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
-        }]. Reason: Mission not found or is over time!`,
+        }]. Reason: Campaign was over time!. now: ${now}, campaign: ${JSON.stringify(
+          campaign,
+        )}`,
+      )
+      return
+    }
+
+    // Kiểm tra thời gian khả dụng của mission
+    if (!mission) {
+      this.logger.error(
+        `[EVENT ${
+          EVENTS[data.eventName]
+        }]. Reason: Mission was not found!. MissionId: ${
+          data.missionId
+        }, mission: ${JSON.stringify(mission)}`,
+      )
+      return
+    }
+    if (now < mission.openingDate || now > mission.closingDate) {
+      this.logger.error(
+        `[EVENT ${
+          EVENTS[data.eventName]
+        }]. Reason: Mission was over time!. now: ${now}, mission: ${JSON.stringify(
+          mission,
+        )}`,
       )
       return
     }

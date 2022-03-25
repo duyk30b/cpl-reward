@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -16,6 +16,8 @@ import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 
 @Injectable()
 export class MissionService {
+  private readonly logger = new Logger(MissionService.name)
+
   constructor(
     @InjectRepository(Mission)
     private missionRepository: Repository<Mission>,
@@ -41,9 +43,16 @@ export class MissionService {
       ignoreDecorators: true,
       excludeExtraneousValues: true,
     })
+
+    this.logger.debug(
+      `createMission grantTarget: ${JSON.stringify(createMission.grantTarget)}`,
+    )
     const missionEntity = plainToInstance(Mission, createMission, {
       ignoreDecorators: true,
     })
+    this.logger.debug(
+      `missionEntity grantTarget: ${JSON.stringify(missionEntity.grantTarget)}`,
+    )
     return await this.missionRepository.save(missionEntity)
   }
 

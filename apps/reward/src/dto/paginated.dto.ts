@@ -7,7 +7,7 @@ class Pagination {
   @ApiProperty({ example: 20 })
   size: number
 
-  @ApiProperty({ example: 2 })
+  @ApiProperty({ example: 1 })
   page: number
 
   // @ApiProperty({ name: 'item_count', example: 1 })

@@ -17,13 +17,12 @@ export class MissionsController {
   @KafkaTopic('kafka.auth_user_login')
   async authUserLogin(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_LOGIN'
-    if (message.value.user_id === undefined) {
+    const value = message.value
+    if (value.data.user_id === undefined) {
       this.logger.error(
         `[EVENT ${
           EVENTS[eventName]
-        }] Wrong auth_user_login message struct: ${JSON.stringify(
-          message.value,
-        )}`,
+        }] Wrong auth_user_login message struct: ${JSON.stringify(value)}`,
       )
       return
     }
@@ -39,7 +38,7 @@ export class MissionsController {
     }
     events.map((event) => {
       this.eventEmitter.emit('give_reward_to_user', {
-        messageValue: message.value,
+        messageValue: message.value.data,
         missionId: event.missionId,
         campaignId: event.campaignId,
         eventName,

@@ -137,6 +137,11 @@ export class MissionsListener {
     let mainUser = null,
       referredUser = null
     grantTargets.map((target) => {
+      this.logger.debug(
+        `target: ${JSON.stringify(target)}, grant targets: ${JSON.stringify(
+          GRANT_TARGET_USER,
+        )}`,
+      )
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
       return target

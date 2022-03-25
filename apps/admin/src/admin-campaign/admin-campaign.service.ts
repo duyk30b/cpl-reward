@@ -3,7 +3,6 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  STATUS,
 } from '@lib/campaign'
 // import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -138,10 +137,7 @@ export class AdminCampaignService {
     //   "rewardRules.type_rule = 'campaign'",
     // )
 
-    const result = await this.campaignService.grpcPaginate(
-      options,
-      queryBuilder,
-    )
+    const result = await this.campaignService.paginate(options, queryBuilder)
     return {
       pagination: result.meta,
       data: result.items,
@@ -154,9 +150,6 @@ export class AdminCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
-    queryBuilder.where('campaign.status = :status_campaign', {
-      status_campaign: STATUS.ACTIVE,
-    })
     if (searchText) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
@@ -174,16 +167,13 @@ export class AdminCampaignService {
       )
     }
 
-    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
-      queryBuilder
-        .orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
-        .addOrderBy('campaign.priority', 'DESC')
-        .addOrderBy('campaign.id', 'DESC')
-    } else {
-      queryBuilder
-        .orderBy('campaign.priority', 'DESC')
-        .addOrderBy('campaign.id', 'DESC')
-    }
+    if (!sort || sort !== 'priority')
+      queryBuilder.addOrderBy('campaign.priority', 'DESC')
+
+    if (!sort || sort !== 'id') queryBuilder.addOrderBy('campaign.id', 'DESC')
+
+    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort])
+      queryBuilder.addOrderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
 
     return queryBuilder
   }

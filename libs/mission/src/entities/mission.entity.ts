@@ -122,8 +122,11 @@ export class Mission extends MyBaseEntity {
 
   @AfterLoad()
   transformStringToJson() {
-    this.judgmentConditions = JSON.parse(this.judgmentConditions)
-    this.userConditions = JSON.parse(this.userConditions)
-    this.grantTarget = JSON.parse(this.grantTarget)
+    if (this.judgmentConditions !== undefined)
+      this.judgmentConditions = JSON.parse(this.judgmentConditions)
+    if (this.userConditions !== undefined)
+      this.userConditions = JSON.parse(this.userConditions)
+    if (this.grantTarget !== undefined)
+      this.grantTarget = JSON.parse(this.grantTarget)
   }
 }

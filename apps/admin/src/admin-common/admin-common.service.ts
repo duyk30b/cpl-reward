@@ -29,12 +29,19 @@ export class AdminCommonService {
   }
 
   listGrantTargetWallets() {
-    return Object.keys(GRANT_TARGET_WALLET).map((key) => {
-      return {
-        key,
-        value: GRANT_TARGET_WALLET[key],
-      }
-    })
+    return Object.keys(GRANT_TARGET_WALLET)
+      .filter((key) =>
+        [
+          GRANT_TARGET_WALLET.DIRECT_BALANCE,
+          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
+        ].includes(GRANT_TARGET_WALLET[key]),
+      )
+      .map((key) => {
+        return {
+          key,
+          value: GRANT_TARGET_WALLET[key],
+        }
+      })
   }
 
   listGrantTargetUsers() {

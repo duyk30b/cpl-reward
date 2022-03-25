@@ -35,7 +35,7 @@ message ListInput {
   string searchField = 3;
   string searchText = 4;
   string sort = 5;
-  string sortType = 6;
+  string sortType = 6; // ASC / DESC
 }
 
 message CancelInput {

@@ -40,10 +40,7 @@ export class ApiCampaignService {
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
-    const result = await this.campaignService.snakePaginate(
-      options,
-      queryBuilder,
-    )
+    const result = await this.campaignService.paginate(options, queryBuilder)
     CommonService.customLinks(result.links)
     return {
       pagination: result.meta,

@@ -13,4 +13,6 @@ export const CAMPAIGN_SORT_FIELD_MAP = {
   campaign_image: 'campaign.campaignImage',
   is_system: 'campaign.isSystem',
   status: 'campaign.status',
+  priority: 'campaign.priority',
+  created_at: 'campaign.created_at',
 }

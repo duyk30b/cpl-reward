@@ -78,6 +78,7 @@ export class MissionUserLog extends MyBaseEntity {
 
   @AfterLoad()
   transformStringToJson() {
-    this.referredUserInfo = JSON.parse(this.referredUserInfo)
+    if (this.referredUserInfo !== undefined)
+      this.referredUserInfo = JSON.parse(this.referredUserInfo)
   }
 }

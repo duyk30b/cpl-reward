@@ -12,6 +12,7 @@ import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { CommonService } from '@lib/common/common.service'
+import { instanceToPlain } from 'class-transformer'
 
 @Injectable()
 export class ApiMissionService {
@@ -39,16 +40,11 @@ export class ApiMissionService {
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.queryBuilder(apiMissionFilterDto)
-    const result = await this.missionService.snakePaginate(
-      options,
-      queryBuilder,
-    )
+    const result = await this.missionService.paginate(options, queryBuilder)
 
     if (result.items.length === 0) {
       return {
-        count: result.items.length,
-        pagination: result.meta,
-        data: result.items,
+        ...result,
         links: CommonService.customLinks(result.links),
       }
     }
@@ -62,34 +58,20 @@ export class ApiMissionService {
         missionIds,
         userId,
       )
-    if (histories === null) {
-      return {
-        count: result.items.length,
-        pagination: result.meta,
-        data: result.items.map((item) => {
-          return {
-            id: item.id,
-            title: item.title,
-            currency: '',
-            status: STATUS.AUTO_NOT_RECEIVE,
-            totalAmount: 0,
-          }
-        }),
-        links: CommonService.customLinks(result.links),
-      }
-    }
     return {
-      count: result.items.length,
       pagination: result.meta,
       data: result.items.map((item) => {
         return {
-          id: item.id,
-          title: item.title,
-          currency: !histories[item.id] ? '' : histories[item.id][0].currency,
+          ...instanceToPlain(item, { exposeUnsetFields: false }),
+          currency:
+            histories === null || !histories[item.id]
+              ? ''
+              : histories[item.id][0].currency,
           status: STATUS.MANUAL_NOT_RECEIVE,
-          totalAmount: !histories[item.id]
-            ? 0
-            : histories[item.id][0].totalAmount,
+          total_amount:
+            histories === null || !histories[item.id]
+              ? '0'
+              : histories[item.id][0].totalAmount,
         }
       }),
       links: CommonService.customLinks(result.links),
@@ -101,6 +83,15 @@ export class ApiMissionService {
   ): SelectQueryBuilder<Mission> {
     const { searchField, searchText, sort, sortType } = missionFilter
     const queryBuilder = this.missionService.initQueryBuilder()
+    queryBuilder.select([
+      'mission.title',
+      'mission.id',
+      'mission.detailExplain',
+      'mission.openingDate',
+      'mission.closingDate',
+      'mission.guideLink',
+      'mission.limitReceivedReward',
+    ])
     if (missionFilter.campaignId !== undefined)
       queryBuilder.where('mission.campaignId = :campaign_id ', {
         campaign_id: Number(missionFilter.campaignId),

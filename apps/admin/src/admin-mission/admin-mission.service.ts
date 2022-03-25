@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import {
   EVENTS,
   GRANT_TARGET_WALLET,
@@ -10,8 +10,8 @@ import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
   CreateMissionInput,
-  UpdateMissionInput,
   MissionFilterInput,
+  UpdateMissionInput,
 } from './admin-mission.interface'
 import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
@@ -19,8 +19,6 @@ import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class AdminMissionService {
-  private readonly logger = new Logger(AdminMissionService.name)
-
   constructor(
     private readonly missionService: MissionService,
     private readonly rewardRuleService: RewardRuleService,
@@ -28,20 +26,7 @@ export class AdminMissionService {
   ) {}
 
   private updateTypeInTarget(grantTarget: TargetDto[]) {
-    this.logger.debug(`before grantarget: ${JSON.stringify(grantTarget)}`)
-    const newGranTarget = grantTarget.map((target) => {
-      this.logger.debug(
-        'in target balance',
-        [
-          GRANT_TARGET_WALLET.REWARD_BALANCE,
-          GRANT_TARGET_WALLET.DIRECT_BALANCE,
-        ].includes(GRANT_TARGET_WALLET[target.wallet]),
-        [
-          GRANT_TARGET_WALLET.REWARD_BALANCE,
-          GRANT_TARGET_WALLET.DIRECT_BALANCE,
-        ],
-        GRANT_TARGET_WALLET[target.wallet],
-      )
+    return grantTarget.map((target) => {
       if (
         [
           GRANT_TARGET_WALLET.REWARD_BALANCE,
@@ -50,18 +35,6 @@ export class AdminMissionService {
       )
         target.type = 'balance'
 
-      this.logger.debug(
-        'in target cashback',
-        [
-          GRANT_TARGET_WALLET.REWARD_CASHBACK,
-          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
-        ].includes(GRANT_TARGET_WALLET[target.wallet]),
-        [
-          GRANT_TARGET_WALLET.REWARD_CASHBACK,
-          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
-        ],
-        GRANT_TARGET_WALLET[target.wallet],
-      )
       if (
         [
           GRANT_TARGET_WALLET.REWARD_CASHBACK,
@@ -70,18 +43,6 @@ export class AdminMissionService {
       )
         target.type = 'cashback'
 
-      this.logger.debug(
-        'in target dividend',
-        [
-          GRANT_TARGET_WALLET.REWARD_DIVIDEND,
-          GRANT_TARGET_WALLET.DIRECT_DIVIDEND,
-        ].includes(GRANT_TARGET_WALLET[target.wallet]),
-        [
-          GRANT_TARGET_WALLET.REWARD_DIVIDEND,
-          GRANT_TARGET_WALLET.DIRECT_DIVIDEND,
-        ],
-        GRANT_TARGET_WALLET[target.wallet],
-      )
       if (
         [
           GRANT_TARGET_WALLET.REWARD_DIVIDEND,
@@ -91,19 +52,11 @@ export class AdminMissionService {
         target.type = 'dividend'
       return target
     })
-    this.logger.debug(`after grantarget: ${JSON.stringify(grantTarget)}`)
-    return newGranTarget
   }
 
   async create(createMissionInput: CreateMissionInput) {
     createMissionInput.grantTarget = this.updateTypeInTarget(
       createMissionInput.grantTarget,
-    )
-
-    this.logger.debug(
-      `createMissionInput grantTarget: ${JSON.stringify(
-        createMissionInput.grantTarget,
-      )}`,
     )
     const mission = await this.missionService.create(createMissionInput)
     await Promise.all(

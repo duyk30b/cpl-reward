@@ -39,7 +39,8 @@ export class MissionsListener {
 
     const now = moment().unix()
     const userId = Number(user.id)
-    const referredUserId = Number(user.referredById)
+    const referredUserId =
+      user.referredById === undefined ? 0 : Number(user.referredById)
     const mission = await this.missionsService.getMissionById(data.missionId)
     const campaign = await this.missionsService.getCampaignById(data.campaignId)
 
@@ -137,23 +138,8 @@ export class MissionsListener {
     let mainUser = null,
       referredUser = null
     grantTargets.map((target) => {
-      this.logger.debug(`grant targets: ${JSON.stringify(GRANT_TARGET_USER)}`)
-      this.logger.debug(`target: ${JSON.stringify(target)}`)
-      this.logger.debug(
-        `compare: ${target.user === GRANT_TARGET_USER.REFERRAL_USER}`,
-      )
-      this.logger.debug(
-        `target.user: ${target.user}, GRANT_TARGET_USER.REFERRAL_USER: ${GRANT_TARGET_USER.REFERRAL_USER}`,
-      )
-      this.logger.debug(`compare: ${target.user === GRANT_TARGET_USER.USER}`)
-      this.logger.debug(
-        `target.user: ${target.user}, GRANT_TARGET_USER.USER: ${GRANT_TARGET_USER.USER}`,
-      )
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
-
-      this.logger.debug(`referredUser: ${JSON.stringify(referredUser)}`)
-      this.logger.debug(`mainUser: ${JSON.stringify(mainUser)}`)
       return target
     })
 
@@ -172,12 +158,6 @@ export class MissionsListener {
       )
 
     for (const idx in rewardRules) {
-      this.logger.debug(`rewardRule idx: ${idx}`)
-      this.logger.debug(`currency rewardRule ${rewardRules[idx].currency}`)
-      this.logger.debug(`currency mainUser ${mainUser.currency}`)
-      this.logger.debug(`key rewardRule ${rewardRules[idx].key}`)
-      this.logger.debug(`key mainUser ${mainUser.key}`)
-      this.logger.debug(`checkLimitReceivedReward ${checkLimitReceivedReward}`)
       if (
         mainUser !== null &&
         rewardRules[idx].currency === mainUser.currency &&
@@ -205,10 +185,13 @@ export class MissionsListener {
             data.missionId,
           )
 
-          const referredUserInfo = {
-            ...referredUser,
-            referredUserId,
-          }
+          const referredUserInfo =
+            referredUserId === 0
+              ? null
+              : {
+                  ...referredUser,
+                  referredUserId,
+                }
           this.eventEmitter.emit('update_mission_user', {
             userId: userId,
             missionId: data.missionId,
@@ -219,34 +202,35 @@ export class MissionsListener {
         }
       }
 
-      if (
-        referredUser !== null &&
-        rewardRules[idx].currency === referredUser.currency &&
-        rewardRules[idx].key === referredUser.type &&
-        checkLimitReceivedReward
-      ) {
-        // referred user
-
-        const checkMoneyReward = this.missionsService.checkMoneyReward(
-          String(rewardRules[idx].limitValue),
-          referredUser.amount,
-        )
-        if (!checkMoneyReward) {
-          this.logger.error(
-            `[EVENT ${
-              EVENTS[data.eventName]
-            }]. Reason: Mission is not enough money to send referred user: ${userId}!`,
-          )
-        } else {
-          await this.missionsService.commonFlowReward(
-            rewardRules[idx],
-            data.campaignId,
-            referredUser,
-            referredUserId,
-            data.missionId,
-          )
-        }
-      }
+      // if (
+      //   referredUserId !== 0 &&
+      //   referredUser !== null &&
+      //   rewardRules[idx].currency === referredUser.currency &&
+      //   rewardRules[idx].key === referredUser.type &&
+      //   checkLimitReceivedReward
+      // ) {
+      //   // referred user
+      //
+      //   const checkMoneyReward = this.missionsService.checkMoneyReward(
+      //     String(rewardRules[idx].limitValue),
+      //     referredUser.amount,
+      //   )
+      //   if (!checkMoneyReward) {
+      //     this.logger.error(
+      //       `[EVENT ${
+      //         EVENTS[data.eventName]
+      //       }]. Reason: Mission is not enough money to send referred user: ${userId}!`,
+      //     )
+      //   } else {
+      //     await this.missionsService.commonFlowReward(
+      //       rewardRules[idx],
+      //       data.campaignId,
+      //       referredUser,
+      //       referredUserId,
+      //       data.missionId,
+      //     )
+      //   }
+      // }
     }
   }
 }

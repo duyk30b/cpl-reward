@@ -27,15 +27,14 @@ export class MissionsController {
       return
     }
 
-    this.logger.debug(`eventName: ${eventName}, value: ${EVENTS[eventName]}`)
     const events = await this.missionsService.getEventsByName(EVENTS[eventName])
-    this.logger.debug(`events: ${JSON.stringify(events)}`)
     if (events.length === 0) {
       this.logger.error(
         `[EVENT ${EVENTS[eventName]}] no mission/campaign in event auth_user_login`,
       )
       return
     }
+    this.logger.log(`events: ${JSON.stringify(events)}`)
     events.map((event) => {
       this.eventEmitter.emit('give_reward_to_user', {
         messageValue: message.value.data,

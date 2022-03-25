@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   EVENTS,
   GRANT_TARGET_WALLET,
@@ -19,13 +19,16 @@ import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class AdminMissionService {
+  private readonly logger = new Logger(AdminMissionService.name)
+
   constructor(
     private readonly missionService: MissionService,
     private readonly rewardRuleService: RewardRuleService,
     private readonly missionEventService: MissionEventService,
   ) {}
 
-  private static updateTypeInTarget(grantTarget: TargetDto[]) {
+  private updateTypeInTarget(grantTarget: TargetDto[]) {
+    this.logger.debug(`before grantarget: ${JSON.stringify(grantTarget)}`)
     grantTarget.map((target) => {
       if (
         [
@@ -52,12 +55,19 @@ export class AdminMissionService {
         target.type = 'dividend'
       return target
     })
+    this.logger.debug(`after grantarget: ${JSON.stringify(grantTarget)}`)
     return grantTarget
   }
 
   async create(createMissionInput: CreateMissionInput) {
-    createMissionInput.grantTarget = AdminMissionService.updateTypeInTarget(
+    createMissionInput.grantTarget = this.updateTypeInTarget(
       createMissionInput.grantTarget,
+    )
+
+    this.logger.debug(
+      `createMissionInput grantTarget: ${JSON.stringify(
+        createMissionInput.grantTarget,
+      )}`,
     )
     const mission = await this.missionService.create(createMissionInput)
     await Promise.all(
@@ -78,7 +88,7 @@ export class AdminMissionService {
   }
 
   async update(updateMissionInput: UpdateMissionInput) {
-    updateMissionInput.grantTarget = AdminMissionService.updateTypeInTarget(
+    updateMissionInput.grantTarget = this.updateTypeInTarget(
       updateMissionInput.grantTarget,
     )
     const mission = await this.missionService.update(updateMissionInput)

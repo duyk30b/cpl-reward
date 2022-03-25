@@ -63,19 +63,7 @@ export class MissionService {
     return queryBuilder
   }
 
-  async camelPaginate(
-    options: IPaginationOptions,
-    queryBuilder: SelectQueryBuilder<Mission> = null,
-    isRaw = false,
-  ): Promise<Pagination<Mission> | any> {
-    if (queryBuilder === null) queryBuilder = this.queryBuilder()
-    if (isRaw) {
-      return paginateRawAndEntities(queryBuilder, options)
-    }
-    return paginate<Mission>(queryBuilder, options)
-  }
-
-  async snakePaginate(
+  async paginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Mission> = null,
     isRaw = false,

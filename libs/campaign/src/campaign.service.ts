@@ -70,18 +70,7 @@ export class CampaignService {
       )
   }
 
-  async grpcPaginate(
-    options: IPaginationOptions<CustomPaginationMetaTransformer>,
-    queryBuilder: SelectQueryBuilder<Campaign> = null,
-  ): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {
-    if (queryBuilder === null) queryBuilder = this.queryBuilder()
-    return paginate<Campaign, CustomPaginationMetaTransformer>(
-      queryBuilder,
-      options,
-    )
-  }
-
-  async snakePaginate(
+  async paginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Campaign> = null,
   ): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {

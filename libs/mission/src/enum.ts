@@ -19,6 +19,17 @@ export enum EVENTS {
   AUTH_USER_LOGOUT = 'auth_user_logout',
   AUTH_USER_CHANGE_PASSWORD = 'auth_user_change_password',
   AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',
+
+  // BCE
+  BCE_TRADING_MATCHED = 'bce_trading_matched',
+  BCE_DEPOSIT = 'bce_deposit',
+  BCE_WITHDRAW = 'bce_withdraw',
+
+  // BO
+  HIGH_LOW_CREATE = 'high_low_create',
+  HIGH_LOW_WIN = 'high_low_win',
+  HIGH_LOW_LOST = 'high_low_lost',
+  HIGH_LOW_CANCEL = 'high_low_cancel',
 }
 
 export enum STATUS {

@@ -189,5 +189,741 @@ export const INFO_EVENTS = [
       },
     ],
   },
+  {
+    eventName: EVENTS.BCE_TRADING_MATCHED,
+    properties: [],
+  },
+  {
+    eventName: EVENTS.BCE_DEPOSIT,
+    properties: [
+      //id,transaction_id, user_id, type, currency, amount, fee, is_first
+      {
+        key: 'id',
+        type: 'number',
+        description: 'ID',
+      },
+      {
+        key: 'transaction_id',
+        type: 'string',
+        description: 'Transaction ID',
+      },
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'type',
+        type: 'string',
+        description: 'Type',
+      },
+      {
+        key: 'currency',
+        type: 'string',
+        description: 'Currency',
+      },
+      {
+        key: 'amount',
+        type: 'string',
+        description: 'Amount',
+      },
+      {
+        key: 'fee',
+        type: 'string',
+        description: 'Fee',
+      },
+      {
+        key: 'is_first',
+        type: 'boolean',
+        description: 'Is First',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.BCE_WITHDRAW,
+    properties: [
+      //id,transaction_id, user_id, type, currency, amount, fee, is_first
+      {
+        key: 'id',
+        type: 'number',
+        description: 'ID',
+      },
+      {
+        key: 'transaction_id',
+        type: 'string',
+        description: 'Transaction ID',
+      },
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'type',
+        type: 'string',
+        description: 'Type',
+      },
+      {
+        key: 'currency',
+        type: 'string',
+        description: 'Currency',
+      },
+      {
+        key: 'amount',
+        type: 'string',
+        description: 'Amount',
+      },
+      {
+        key: 'fee',
+        type: 'string',
+        description: 'Fee',
+      },
+      {
+        key: 'is_first',
+        type: 'boolean',
+        description: 'Is First',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.HIGH_LOW_CREATE,
+    properties: [
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'balance_id',
+        type: 'number',
+        description: 'Balance ID',
+      },
+      {
+        key: 'mode_id',
+        type: 'number',
+        description: 'Mode ID',
+      },
+      {
+        key: 'strike',
+        type: 'number',
+        description: 'Strike',
+      },
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      {
+        key: 'pair_id',
+        type: 'number',
+        description: 'Pair ID',
+      },
+      {
+        key: 'invest',
+        type: 'number',
+        description: 'Invest',
+      },
+      {
+        key: 'start_time',
+        type: 'string',
+        description: 'Start Time',
+      },
+      {
+        key: 'end_time',
+        type: 'string',
+        description: 'End Time',
+      },
+      {
+        key: 'buy_time',
+        type: 'string',
+        description: 'Buy Time',
+      },
+      {
+        key: 'expire_time',
+        type: 'string',
+        description: 'Expire Time',
+      },
+      {
+        key: 'payout',
+        type: 'number',
+        description: 'Payout',
+      },
+      {
+        key: 'expire_payout',
+        type: 'number',
+        description: 'Expire Payout',
+      },
+      {
+        key: 'profit',
+        type: 'number',
+        description: 'Profit',
+      },
+      {
+        key: 'bcast_use',
+        type: 'number',
+        description: 'Bcast Use',
+      },
+      {
+        key: 'buy_payout',
+        type: 'number',
+        description: 'Buy Payout',
+      },
+      {
+        key: 'rank_payout',
+        type: 'number',
+        description: 'Rank Payout',
+      },
+      {
+        key: 'decimal_part',
+        type: 'number',
+        description: 'Decimal Part',
+      },
+      {
+        key: 'status',
+        type: 'string',
+        description: 'Status',
+      },
+      {
+        key: 'created_at',
+        type: 'string',
+        description: 'Created At',
+      },
+      {
+        key: 'allow_resell',
+        type: 'number',
+        description: 'Allow Resell',
+      },
+      {
+        key: 'resell_expire',
+        type: 'string',
+        description: 'Resell Expire',
+      },
+      {
+        key: 'odds_mode',
+        type: 'number',
+        description: 'Odds Mode',
+      },
+      {
+        key: 'odds_fee',
+        type: 'number',
+        description: 'Odds Fee',
+      },
+      {
+        key: 'pair_index',
+        type: 'number',
+        description: 'Pair Index',
+      },
+      {
+        key: 'frame_active',
+        type: 'string',
+        description: 'Frame Active',
+      },
+      {
+        key: 'is_demo',
+        type: 'number',
+        description: 'Is Demo',
+      },
+      {
+        key: 'closing_rate',
+        type: 'number',
+        description: 'Closing Rate',
+      },
+      {
+        key: 'sell_payout',
+        type: 'number',
+        description: 'Sell Payout',
+      },
+      {
+        key: 'updated_at',
+        type: 'string',
+        description: 'Updated At',
+      },
+      {
+        key: 'id',
+        type: 'number',
+        description: 'ID',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.HIGH_LOW_LOST,
+    properties: [
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'balance_id',
+        type: 'number',
+        description: 'Balance ID',
+      },
+      {
+        key: 'mode_id',
+        type: 'number',
+        description: 'Mode ID',
+      },
+      {
+        key: 'strike',
+        type: 'number',
+        description: 'Strike',
+      },
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      {
+        key: 'pair_id',
+        type: 'number',
+        description: 'Pair ID',
+      },
+      {
+        key: 'invest',
+        type: 'number',
+        description: 'Invest',
+      },
+      {
+        key: 'start_time',
+        type: 'string',
+        description: 'Start Time',
+      },
+      {
+        key: 'end_time',
+        type: 'string',
+        description: 'End Time',
+      },
+      {
+        key: 'buy_time',
+        type: 'string',
+        description: 'Buy Time',
+      },
+      {
+        key: 'expire_time',
+        type: 'string',
+        description: 'Expire Time',
+      },
+      {
+        key: 'payout',
+        type: 'number',
+        description: 'Payout',
+      },
+      {
+        key: 'expire_payout',
+        type: 'number',
+        description: 'Expire Payout',
+      },
+      {
+        key: 'profit',
+        type: 'number',
+        description: 'Profit',
+      },
+      {
+        key: 'bcast_use',
+        type: 'number',
+        description: 'Bcast Use',
+      },
+      {
+        key: 'buy_payout',
+        type: 'number',
+        description: 'Buy Payout',
+      },
+      {
+        key: 'rank_payout',
+        type: 'number',
+        description: 'Rank Payout',
+      },
+      {
+        key: 'decimal_part',
+        type: 'number',
+        description: 'Decimal Part',
+      },
+      {
+        key: 'status',
+        type: 'string',
+        description: 'Status',
+      },
+      {
+        key: 'created_at',
+        type: 'string',
+        description: 'Created At',
+      },
+      {
+        key: 'allow_resell',
+        type: 'number',
+        description: 'Allow Resell',
+      },
+      {
+        key: 'resell_expire',
+        type: 'string',
+        description: 'Resell Expire',
+      },
+      {
+        key: 'odds_mode',
+        type: 'number',
+        description: 'Odds Mode',
+      },
+      {
+        key: 'odds_fee',
+        type: 'number',
+        description: 'Odds Fee',
+      },
+      {
+        key: 'pair_index',
+        type: 'number',
+        description: 'Pair Index',
+      },
+      {
+        key: 'frame_active',
+        type: 'string',
+        description: 'Frame Active',
+      },
+      {
+        key: 'is_demo',
+        type: 'number',
+        description: 'Is Demo',
+      },
+      {
+        key: 'closing_rate',
+        type: 'number',
+        description: 'Closing Rate',
+      },
+      {
+        key: 'sell_payout',
+        type: 'number',
+        description: 'Sell Payout',
+      },
+      {
+        key: 'updated_at',
+        type: 'string',
+        description: 'Updated At',
+      },
+      {
+        key: 'id',
+        type: 'number',
+        description: 'ID',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.HIGH_LOW_CANCEL,
+    properties: [
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'balance_id',
+        type: 'number',
+        description: 'Balance ID',
+      },
+      {
+        key: 'mode_id',
+        type: 'number',
+        description: 'Mode ID',
+      },
+      {
+        key: 'strike',
+        type: 'number',
+        description: 'Strike',
+      },
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      {
+        key: 'pair_id',
+        type: 'number',
+        description: 'Pair ID',
+      },
+      {
+        key: 'invest',
+        type: 'number',
+        description: 'Invest',
+      },
+      {
+        key: 'start_time',
+        type: 'string',
+        description: 'Start Time',
+      },
+      {
+        key: 'end_time',
+        type: 'string',
+        description: 'End Time',
+      },
+      {
+        key: 'buy_time',
+        type: 'string',
+        description: 'Buy Time',
+      },
+      {
+        key: 'expire_time',
+        type: 'string',
+        description: 'Expire Time',
+      },
+      {
+        key: 'payout',
+        type: 'number',
+        description: 'Payout',
+      },
+      {
+        key: 'expire_payout',
+        type: 'number',
+        description: 'Expire Payout',
+      },
+      {
+        key: 'profit',
+        type: 'number',
+        description: 'Profit',
+      },
+      {
+        key: 'bcast_use',
+        type: 'number',
+        description: 'Bcast Use',
+      },
+      {
+        key: 'buy_payout',
+        type: 'number',
+        description: 'Buy Payout',
+      },
+      {
+        key: 'rank_payout',
+        type: 'number',
+        description: 'Rank Payout',
+      },
+      {
+        key: 'decimal_part',
+        type: 'number',
+        description: 'Decimal Part',
+      },
+      {
+        key: 'status',
+        type: 'string',
+        description: 'Status',
+      },
+      {
+        key: 'created_at',
+        type: 'string',
+        description: 'Created At',
+      },
+      {
+        key: 'allow_resell',
+        type: 'number',
+        description: 'Allow Resell',
+      },
+      {
+        key: 'resell_expire',
+        type: 'string',
+        description: 'Resell Expire',
+      },
+      {
+        key: 'odds_mode',
+        type: 'number',
+        description: 'Odds Mode',
+      },
+      {
+        key: 'odds_fee',
+        type: 'number',
+        description: 'Odds Fee',
+      },
+      {
+        key: 'pair_index',
+        type: 'number',
+        description: 'Pair Index',
+      },
+      {
+        key: 'frame_active',
+        type: 'string',
+        description: 'Frame Active',
+      },
+      {
+        key: 'is_demo',
+        type: 'number',
+        description: 'Is Demo',
+      },
+      {
+        key: 'closing_rate',
+        type: 'number',
+        description: 'Closing Rate',
+      },
+      {
+        key: 'sell_payout',
+        type: 'number',
+        description: 'Sell Payout',
+      },
+      {
+        key: 'updated_at',
+        type: 'string',
+        description: 'Updated At',
+      },
+      {
+        key: 'id',
+        type: 'number',
+        description: 'ID',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.HIGH_LOW_WIN,
+    properties: [
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'balance_id',
+        type: 'number',
+        description: 'Balance ID',
+      },
+      {
+        key: 'mode_id',
+        type: 'number',
+        description: 'Mode ID',
+      },
+      {
+        key: 'strike',
+        type: 'number',
+        description: 'Strike',
+      },
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      {
+        key: 'pair_id',
+        type: 'number',
+        description: 'Pair ID',
+      },
+      {
+        key: 'invest',
+        type: 'number',
+        description: 'Invest',
+      },
+      {
+        key: 'start_time',
+        type: 'string',
+        description: 'Start Time',
+      },
+      {
+        key: 'end_time',
+        type: 'string',
+        description: 'End Time',
+      },
+      {
+        key: 'buy_time',
+        type: 'string',
+        description: 'Buy Time',
+      },
+      {
+        key: 'expire_time',
+        type: 'string',
+        description: 'Expire Time',
+      },
+      {
+        key: 'payout',
+        type: 'number',
+        description: 'Payout',
+      },
+      {
+        key: 'expire_payout',
+        type: 'number',
+        description: 'Expire Payout',
+      },
+      {
+        key: 'profit',
+        type: 'number',
+        description: 'Profit',
+      },
+      {
+        key: 'bcast_use',
+        type: 'number',
+        description: 'Bcast Use',
+      },
+      {
+        key: 'buy_payout',
+        type: 'number',
+        description: 'Buy Payout',
+      },
+      {
+        key: 'rank_payout',
+        type: 'number',
+        description: 'Rank Payout',
+      },
+      {
+        key: 'decimal_part',
+        type: 'number',
+        description: 'Decimal Part',
+      },
+      {
+        key: 'status',
+        type: 'string',
+        description: 'Status',
+      },
+      {
+        key: 'created_at',
+        type: 'string',
+        description: 'Created At',
+      },
+      {
+        key: 'allow_resell',
+        type: 'number',
+        description: 'Allow Resell',
+      },
+      {
+        key: 'resell_expire',
+        type: 'string',
+        description: 'Resell Expire',
+      },
+      {
+        key: 'odds_mode',
+        type: 'number',
+        description: 'Odds Mode',
+      },
+      {
+        key: 'odds_fee',
+        type: 'number',
+        description: 'Odds Fee',
+      },
+      {
+        key: 'pair_index',
+        type: 'number',
+        description: 'Pair Index',
+      },
+      {
+        key: 'frame_active',
+        type: 'string',
+        description: 'Frame Active',
+      },
+      {
+        key: 'is_demo',
+        type: 'number',
+        description: 'Is Demo',
+      },
+      {
+        key: 'closing_rate',
+        type: 'number',
+        description: 'Closing Rate',
+      },
+      {
+        key: 'sell_payout',
+        type: 'number',
+        description: 'Sell Payout',
+      },
+      {
+        key: 'updated_at',
+        type: 'string',
+        description: 'Updated At',
+      },
+      {
+        key: 'id',
+        type: 'number',
+        description: 'ID',
+      },
+    ],
+  },
 ]
 // AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',

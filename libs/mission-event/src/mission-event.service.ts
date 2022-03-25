@@ -12,7 +12,7 @@ export class MissionEventService {
     private missionEventRepository: Repository<MissionEvent>,
   ) {}
 
-  async findOneByEventName(eventName: string): Promise<MissionEvent[]> {
+  async findByEventName(eventName: string): Promise<MissionEvent[]> {
     return await this.missionEventRepository.find({ eventName })
   }
 

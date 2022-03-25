@@ -30,6 +30,18 @@ export class AdminMissionService {
   private updateTypeInTarget(grantTarget: TargetDto[]) {
     this.logger.debug(`before grantarget: ${JSON.stringify(grantTarget)}`)
     const newGranTarget = grantTarget.map((target) => {
+      this.logger.debug(
+        'in target balance',
+        [
+          GRANT_TARGET_WALLET.REWARD_BALANCE,
+          GRANT_TARGET_WALLET.DIRECT_BALANCE,
+        ].includes(GRANT_TARGET_WALLET[target.wallet]),
+        [
+          GRANT_TARGET_WALLET.REWARD_BALANCE,
+          GRANT_TARGET_WALLET.DIRECT_BALANCE,
+        ],
+        GRANT_TARGET_WALLET[target.wallet],
+      )
       if (
         [
           GRANT_TARGET_WALLET.REWARD_BALANCE,
@@ -38,6 +50,18 @@ export class AdminMissionService {
       )
         target.type = 'balance'
 
+      this.logger.debug(
+        'in target cashback',
+        [
+          GRANT_TARGET_WALLET.REWARD_CASHBACK,
+          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
+        ].includes(GRANT_TARGET_WALLET[target.wallet]),
+        [
+          GRANT_TARGET_WALLET.REWARD_CASHBACK,
+          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
+        ],
+        GRANT_TARGET_WALLET[target.wallet],
+      )
       if (
         [
           GRANT_TARGET_WALLET.REWARD_CASHBACK,
@@ -46,6 +70,18 @@ export class AdminMissionService {
       )
         target.type = 'cashback'
 
+      this.logger.debug(
+        'in target dividend',
+        [
+          GRANT_TARGET_WALLET.REWARD_DIVIDEND,
+          GRANT_TARGET_WALLET.DIRECT_DIVIDEND,
+        ].includes(GRANT_TARGET_WALLET[target.wallet]),
+        [
+          GRANT_TARGET_WALLET.REWARD_DIVIDEND,
+          GRANT_TARGET_WALLET.DIRECT_DIVIDEND,
+        ],
+        GRANT_TARGET_WALLET[target.wallet],
+      )
       if (
         [
           GRANT_TARGET_WALLET.REWARD_DIVIDEND,

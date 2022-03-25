@@ -137,10 +137,17 @@ export class MissionsListener {
     let mainUser = null,
       referredUser = null
     grantTargets.map((target) => {
+      this.logger.debug(`grant targets: ${JSON.stringify(GRANT_TARGET_USER)}`)
+      this.logger.debug(`target: ${JSON.stringify(target)}`)
       this.logger.debug(
-        `target: ${JSON.stringify(target)}, grant targets: ${JSON.stringify(
-          GRANT_TARGET_USER,
-        )}`,
+        `compare: ${target.user === GRANT_TARGET_USER.REFERRAL_USER}`,
+      )
+      this.logger.debug(
+        `target.user: ${target.user}, GRANT_TARGET_USER.REFERRAL_USER: ${GRANT_TARGET_USER.REFERRAL_USER}`,
+      )
+      this.logger.debug(`compare: ${target.user === GRANT_TARGET_USER.USER}`)
+      this.logger.debug(
+        `target.user: ${target.user}, GRANT_TARGET_USER.USER: ${GRANT_TARGET_USER.USER}`,
       )
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target

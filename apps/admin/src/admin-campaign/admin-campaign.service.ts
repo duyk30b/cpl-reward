@@ -150,6 +150,7 @@ export class AdminCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.addSelect('campaign.*')
     if (searchText) {
       queryBuilder.andWhere(
         new Brackets((qb) => {

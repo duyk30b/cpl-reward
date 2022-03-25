@@ -45,7 +45,8 @@ export class ApiMissionService {
 
     if (result.items.length === 0) {
       return {
-        ...result,
+        pagination: result.meta,
+        data: result.items,
         links: CommonService.customLinks(result.links),
       }
     }

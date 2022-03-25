@@ -13,6 +13,7 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain } from 'class-transformer'
+import { STATUS as MISSION_STATUS } from '@lib/mission'
 
 @Injectable()
 export class ApiMissionService {
@@ -92,8 +93,11 @@ export class ApiMissionService {
       'mission.guideLink',
       'mission.limitReceivedReward',
     ])
+    queryBuilder.where('mission.status = :status ', {
+      status: MISSION_STATUS.ACTIVE,
+    })
     if (missionFilter.campaignId !== undefined)
-      queryBuilder.where('mission.campaignId = :campaign_id ', {
+      queryBuilder.andWhere('mission.campaignId = :campaign_id ', {
         campaign_id: Number(missionFilter.campaignId),
       })
     if (searchText) {

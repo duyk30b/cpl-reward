@@ -13,7 +13,6 @@ import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
-import { STATUS } from './enum'
 
 @Injectable()
 export class MissionService {
@@ -78,12 +77,7 @@ export class MissionService {
     )
   }
 
-  async findByCampaignId(campaignId: number) {
-    return await this.missionRepository.find({
-      where: {
-        campaignId,
-        status: STATUS.ACTIVE,
-      },
-    })
+  async find(conditions: any) {
+    return this.missionRepository.find(conditions)
   }
 }

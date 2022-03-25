@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { EVENTS, GRANT_TARGET_WALLET, MissionService } from '@lib/mission'
+import {
+  EVENTS,
+  GRANT_TARGET_WALLET,
+  MissionService,
+  STATUS,
+} from '@lib/mission'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
@@ -155,9 +160,10 @@ export class AdminMissionService {
   }
 
   async getMissionsByCampaign(input: MissionFilterInput) {
-    const missions = await this.missionService.findByCampaignId(
-      input.campaignId,
-    )
+    const missions = await this.missionService.find({
+      campaignId: input.campaignId,
+      status: STATUS.ACTIVE,
+    })
 
     return { missions: missions }
   }

@@ -68,7 +68,7 @@ export class ApiCampaignService {
       is_system: IS_SYSTEM.FALSE,
     })
     queryBuilder.andWhere('campaign.status = :status ', {
-      status: `${STATUS.ACTIVE}`,
+      status: STATUS.ACTIVE,
     })
     if (searchText) {
       queryBuilder.andWhere(

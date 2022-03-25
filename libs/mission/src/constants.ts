@@ -15,7 +15,7 @@ export const INFO_EVENTS = [
   {
     eventName: EVENTS.AUTH_USER_LOGIN,
     properties: [
-      //user_id,lang,ip,is_register,time
+      //user_id,lang,ip,is_register,time,channel_id
       {
         key: 'user_id',
         type: 'number',
@@ -40,6 +40,11 @@ export const INFO_EVENTS = [
         key: 'time',
         type: 'number',
         description: 'Register time (unix timestamp)',
+      },
+      {
+        key: 'channel_id',
+        type: 'number',
+        description: 'Channel ID',
       },
     ],
   },
@@ -68,7 +73,7 @@ export const INFO_EVENTS = [
     eventName: EVENTS.AUTH_USER_CREATED,
     properties: [
       // uuid,last_login,referrer_code,email,email_verify_at,created_at,updated_at,id,status,type,email_verify_status,' +
-      //     'authenticator_verify_status,kyc_verify_status,referred_by_id
+      //     'authenticator_verify_status,kyc_verify_status,referred_by_id, channel_id
       {
         key: 'uuid',
         type: 'number',
@@ -139,6 +144,11 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Referred by user id',
       },
+      {
+        key: 'channel_id',
+        type: 'number',
+        description: 'Channel ID',
+      },
     ],
   },
   {
@@ -174,7 +184,7 @@ export const INFO_EVENTS = [
     ],
   },
   {
-    eventName: EVENTS.AUTH_USER_CHANGE_PASSWORD,
+    eventName: EVENTS.AUTH_USER_AUTHENTICATOR_STATUS_UPDATED,
     properties: [
       //status,user_id,otp_secret
       {
@@ -188,10 +198,6 @@ export const INFO_EVENTS = [
         description: 'Status',
       },
     ],
-  },
-  {
-    eventName: EVENTS.BCE_TRADING_MATCHED,
-    properties: [],
   },
   {
     eventName: EVENTS.BCE_DEPOSIT,
@@ -926,4 +932,3 @@ export const INFO_EVENTS = [
     ],
   },
 ]
-// AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',

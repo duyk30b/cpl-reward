@@ -164,7 +164,7 @@ export class MissionsService {
   }
 
   async getEventsByName(eventName: string) {
-    return await this.missionEventService.findOneByEventName(eventName)
+    return await this.missionEventService.findByEventName(eventName)
   }
 
   async getCampaignById(campaignId: number): Promise<Campaign> {

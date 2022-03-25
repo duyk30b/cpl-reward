@@ -27,9 +27,9 @@ export class MissionsController {
       return
     }
 
-    const events = await this.missionsService.getEventsByName(
-      EVENTS.AUTH_USER_LOGIN,
-    )
+    this.logger.debug(`eventName: ${eventName}, value: ${EVENTS[eventName]}`)
+    const events = await this.missionsService.getEventsByName(EVENTS[eventName])
+    this.logger.debug(`events: ${JSON.stringify(events)}`)
     if (events.length === 0) {
       this.logger.error(
         `[EVENT ${EVENTS[eventName]}] no mission/campaign in event auth_user_login`,

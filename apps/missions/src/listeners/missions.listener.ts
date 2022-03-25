@@ -151,6 +151,9 @@ export class MissionsListener {
       )
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
+
+      this.logger.debug(`referredUser: ${JSON.stringify(referredUser)}`)
+      this.logger.debug(`mainUser: ${JSON.stringify(mainUser)}`)
       return target
     })
 

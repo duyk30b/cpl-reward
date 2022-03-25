@@ -39,7 +39,7 @@ export class AdminCommonService {
       .map((key) => {
         return {
           key,
-          value: GRANT_TARGET_WALLET[key],
+          value: GRANT_TARGET_WALLET[key].replace(/_/g, ' ').toUpperCase(),
         }
       })
   }

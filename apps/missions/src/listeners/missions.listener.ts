@@ -157,6 +157,12 @@ export class MissionsListener {
       )
 
     for (const idx in rewardRules) {
+      this.logger.debug(`rewardRule idx: ${idx}`)
+      this.logger.debug(`currency rewardRule ${rewardRules[idx].currency}`)
+      this.logger.debug(`currency mainUser ${mainUser.currency}`)
+      this.logger.debug(`key rewardRule ${rewardRules[idx].key}`)
+      this.logger.debug(`key mainUser ${mainUser.key}`)
+      this.logger.debug(`checkLimitReceivedReward ${checkLimitReceivedReward}`)
       if (
         mainUser !== null &&
         rewardRules[idx].currency === mainUser.currency &&

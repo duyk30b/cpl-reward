@@ -61,35 +61,35 @@ export class MissionsListener {
       return
     }
     // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
-    const checkJudgmentConditions =
-      this.missionsService.checkJudgmentConditions(
-        mission.judgmentConditions as unknown as JudgmentCondition[],
-        data.messageValue,
-      )
-    if (!checkJudgmentConditions) {
-      this.logger.error(
-        `[EVENT ${
-          EVENTS[data.eventName]
-        }]. Reason: users are not eligible to participate ` +
-          `in the reward - Judgment Condition`,
-      )
-      return
-    }
+    // const checkJudgmentConditions =
+    //   this.missionsService.checkJudgmentConditions(
+    //     mission.judgmentConditions as unknown as JudgmentCondition[],
+    //     data.messageValue,
+    //   )
+    // if (!checkJudgmentConditions) {
+    //   this.logger.error(
+    //     `[EVENT ${
+    //       EVENTS[data.eventName]
+    //     }]. Reason: users are not eligible to participate ` +
+    //       `in the reward - Judgment Condition`,
+    //   )
+    //   return
+    // }
 
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
-    const checkUserConditions = this.missionsService.checkUserConditions(
-      mission.userConditions as unknown as UserCondition[],
-      user,
-    )
-    if (!checkUserConditions) {
-      this.logger.error(
-        `[EVENT ${
-          EVENTS[data.eventName]
-        }]. Reason: users are not eligible to participate ` +
-          `in the reward - User Condition`,
-      )
-      return
-    }
+    // const checkUserConditions = this.missionsService.checkUserConditions(
+    //   mission.userConditions as unknown as UserCondition[],
+    //   user,
+    // )
+    // if (!checkUserConditions) {
+    //   this.logger.error(
+    //     `[EVENT ${
+    //       EVENTS[data.eventName]
+    //     }]. Reason: users are not eligible to participate ` +
+    //       `in the reward - User Condition`,
+    //   )
+    //   return
+    // }
 
     // Lấy danh sách phần thưởng theo mission
     const rewardRules = await this.rewardRuleService.find({

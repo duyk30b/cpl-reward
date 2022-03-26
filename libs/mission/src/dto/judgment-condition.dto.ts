@@ -12,4 +12,7 @@ export class JudgmentConditionDto {
 
   @Expose()
   value: string
+
+  @Expose()
+  type?: string
 }

@@ -182,25 +182,31 @@ export class MissionsService {
   /**
    * @param judgmentConditions
    * @param messageValue
+   * @param eventName
    */
   checkJudgmentConditions(
     judgmentConditions: JudgmentCondition[],
     messageValue: any,
+    eventName: string,
   ) {
     if (judgmentConditions.length === 0) return true
     let result = false
     for (const idx in judgmentConditions) {
       const currentCondition = judgmentConditions[idx]
-      if (currentCondition.eventName !== EVENTS.AUTH_USER_LOGIN) continue
+      if (currentCondition.eventName !== EVENTS[eventName]) continue
 
       const checkExistMessageValue = messageValue[currentCondition.property]
       if (checkExistMessageValue === undefined) continue
 
       const checkJudgmentCondition = eval(`${CommonService.inspectStringNumber(
         messageValue[currentCondition.property],
+        currentCondition.type,
       )}
             ${currentCondition.operator}
-            ${CommonService.inspectStringNumber(currentCondition.value)}`)
+            ${CommonService.inspectStringNumber(
+              currentCondition.value,
+              currentCondition.type,
+            )}`)
       if (!checkJudgmentCondition) break
       result = true
     }
@@ -225,9 +231,13 @@ export class MissionsService {
 
       const checkUserCondition = eval(`${CommonService.inspectStringNumber(
         user[currentCondition.property],
+        currentCondition.type,
       )}
             ${currentCondition.operator}
-            ${CommonService.inspectStringNumber(currentCondition.value)}`)
+            ${CommonService.inspectStringNumber(
+              currentCondition.value,
+              currentCondition.type,
+            )}`)
       if (!checkUserCondition) break
       result = true
     }

@@ -13,6 +13,7 @@ import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
+import { INFO_EVENTS } from '@lib/mission/constants'
 
 @Injectable()
 export class MissionService {
@@ -79,5 +80,16 @@ export class MissionService {
 
   async find(conditions: any) {
     return this.missionRepository.find(conditions)
+  }
+
+  getInfoEventsByKey() {
+    const result = {}
+    INFO_EVENTS.forEach((item) => {
+      if (result[item.eventName] === undefined) result[item.eventName] = {}
+      item.properties.forEach((property) => {
+        result[item.eventName][property.key] = property.type
+      })
+    })
+    return result
   }
 }

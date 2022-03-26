@@ -3,8 +3,9 @@ import { IPaginationLinks } from 'nestjs-typeorm-paginate'
 
 @Injectable()
 export class CommonService {
-  static inspectStringNumber(input: string | number) {
-    if (typeof input === 'string') return `'${input}'`
+  static inspectStringNumber(input: string | number, type: string) {
+    if (type === 'string') return `'${input}'`
+    if (type === 'number') return Number(input)
     return input
   }
 

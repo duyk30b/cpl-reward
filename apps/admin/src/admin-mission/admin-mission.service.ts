@@ -4,6 +4,7 @@ import {
   GRANT_TARGET_WALLET,
   MissionService,
   STATUS,
+  USER_CONDITION_TYPES,
 } from '@lib/mission'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
@@ -16,6 +17,7 @@ import {
 import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
 import { FixedNumber } from 'ethers'
+import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 
 @Injectable()
 export class AdminMissionService {
@@ -54,9 +56,35 @@ export class AdminMissionService {
     })
   }
 
+  private updateTypeInJudgment(judgmentConditions: JudgmentConditionDto[]) {
+    const typeOfProperties = this.missionService.getInfoEventsByKey()
+    return judgmentConditions.map((condition) => {
+      const propertyType =
+        typeOfProperties[condition.eventName][condition.property]
+      condition.type = propertyType === undefined ? '' : propertyType
+
+      return condition
+    })
+  }
+
+  private updateTypeInUser(userConditions: UserConditionDto[]) {
+    return userConditions.map((condition) => {
+      const propertyType = USER_CONDITION_TYPES[condition.property]
+      condition.type = propertyType === undefined ? '' : propertyType
+
+      return condition
+    })
+  }
+
   async create(createMissionInput: CreateMissionInput) {
     createMissionInput.grantTarget = this.updateTypeInTarget(
       createMissionInput.grantTarget,
+    )
+    createMissionInput.judgmentConditions = this.updateTypeInJudgment(
+      createMissionInput.judgmentConditions,
+    )
+    createMissionInput.userConditions = this.updateTypeInUser(
+      createMissionInput.userConditions,
     )
     const mission = await this.missionService.create(createMissionInput)
     await Promise.all(
@@ -79,6 +107,12 @@ export class AdminMissionService {
   async update(updateMissionInput: UpdateMissionInput) {
     updateMissionInput.grantTarget = this.updateTypeInTarget(
       updateMissionInput.grantTarget,
+    )
+    updateMissionInput.judgmentConditions = this.updateTypeInJudgment(
+      updateMissionInput.judgmentConditions,
+    )
+    updateMissionInput.userConditions = this.updateTypeInUser(
+      updateMissionInput.userConditions,
     )
     const mission = await this.missionService.update(updateMissionInput)
     await Promise.all(

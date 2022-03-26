@@ -9,4 +9,7 @@ export class UserConditionDto {
 
   @Expose()
   value: string
+
+  @Expose()
+  type?: string
 }

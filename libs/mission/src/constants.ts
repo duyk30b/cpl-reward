@@ -11,6 +11,13 @@ export const MISSION_SORT_FIELD_MAP = {
   closing_date: 'campaign.closingDate',
 }
 
+export const USER_CONDITION_TYPES = {
+  kyc_verify_status: 'string',
+  user_info_status: 'string',
+  authenticator_verify_status: 'string',
+  email_verify_status: 'string',
+}
+
 export const INFO_EVENTS = [
   {
     eventName: EVENTS.AUTH_USER_LOGIN,

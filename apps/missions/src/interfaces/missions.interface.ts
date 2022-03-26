@@ -28,12 +28,14 @@ export interface JudgmentCondition {
   property: string
   operator: string
   value: string
+  type?: string
 }
 
 export interface UserCondition {
   property: string
   operator: string
   value: string
+  type?: string
 }
 
 export interface Target {

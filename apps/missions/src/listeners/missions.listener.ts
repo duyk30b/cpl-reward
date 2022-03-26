@@ -5,6 +5,7 @@ import {
   JudgmentCondition,
   UserCondition,
   Target,
+  IGetEventsByName,
 } from '../interfaces/missions.interface'
 import { ExternalUserService } from '@lib/external-user'
 import { EVENTS, GRANT_TARGET_USER } from '@lib/mission'
@@ -23,10 +24,31 @@ export class MissionsListener {
     private rewardRuleService: RewardRuleService,
   ) {}
 
+  @OnEvent('get_events_by_name')
+  async handleGetEventsByName(data: IGetEventsByName) {
+    const events = await this.missionsService.getEventsByName(
+      EVENTS[data.eventName],
+    )
+    if (events.length === 0) {
+      this.logger.error(
+        `[EVENT ${EVENTS[data.eventName]}] no mission/campaign in event`,
+      )
+      return
+    }
+    events.map((event) => {
+      this.eventEmitter.emit('give_reward_to_user', {
+        messageValueData: data.messageValueData,
+        missionId: event.missionId,
+        campaignId: event.campaignId,
+        eventName: data.eventName,
+      })
+    })
+  }
+
   @OnEvent('give_reward_to_user')
   async handleGiveRewardToUser(data: IGiveRewardToUser) {
     const user = await this.externalUserService.getUserInfo(
-      data.messageValue.user_id,
+      data.messageValueData.user_id,
     )
     if (user === null) {
       this.logger.error(
@@ -92,7 +114,7 @@ export class MissionsListener {
     const checkJudgmentConditions =
       this.missionsService.checkJudgmentConditions(
         mission.judgmentConditions as unknown as JudgmentCondition[],
-        data.messageValue,
+        data.messageValueData,
         data.eventName,
       )
     if (!checkJudgmentConditions) {

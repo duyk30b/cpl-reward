@@ -45,8 +45,8 @@ import { MissionModule } from '@lib/mission'
   providers: [
     CommonListener,
     ExternalListener,
-    MissionsService,
     MissionsListener,
+    MissionsService,
   ],
 })
 export class MissionsModule {}

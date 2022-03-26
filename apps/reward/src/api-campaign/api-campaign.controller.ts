@@ -1,7 +1,16 @@
-import { Controller, Get, Query, Req } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Query,
+  Req,
+  Param,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common'
 import { ApiCampaignService } from './api-campaign.service'
 import {
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -11,6 +20,7 @@ import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { PaginatedCampaignDto } from './dto/paginated-campaign.dto'
 import { PaginatedDto } from '../dto/paginated.dto'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
+import { GetCampaignByIdResponse } from './constants'
 
 @ApiTags('campaigns')
 @Controller('campaigns')
@@ -35,11 +45,16 @@ export class ApiCampaignController {
     return this.apiCampaignService.findAll(apiCampaignFilterDto)
   }
 
-  // @Get(':id')
-  // @ApiOperation({
-  //   summary: 'Get campaign by ID',
-  // })
-  // findOne(@Param('id') id: string) {
-  //   return this.apiCampaignService.findOne(+id)
-  // }
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get campaign by ID',
+  })
+  @ApiOkResponse(GetCampaignByIdResponse)
+  async findOne(@Param('id') id: string) {
+    const result = await this.apiCampaignService.findOne(+id)
+    if (result === undefined) {
+      throw new HttpException('Campaign was not found!', HttpStatus.NOT_FOUND)
+    }
+    return result
+  }
 }

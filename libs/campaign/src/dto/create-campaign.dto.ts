@@ -30,4 +30,7 @@ export class CreateCampaignDto {
 
   @Expose()
   status?: number
+
+  @Expose({ name: 'is_active' })
+  isActive?: number
 }

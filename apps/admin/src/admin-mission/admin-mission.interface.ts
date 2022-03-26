@@ -33,6 +33,8 @@ class MissionInput {
   limitReceivedReward?: number
   @Expose()
   status?: number
+  @Expose({ name: 'is_active' })
+  isActive?: number
 }
 
 export class CreateMissionInput extends MissionInput {

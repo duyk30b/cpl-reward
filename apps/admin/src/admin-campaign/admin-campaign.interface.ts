@@ -41,6 +41,8 @@ export class CampaignInput {
   isSystem?: boolean
   @Expose()
   status?: number
+  @Expose({ name: 'is_active' })
+  isActive?: number
 }
 
 export class CreateCampaignInput extends CampaignInput {

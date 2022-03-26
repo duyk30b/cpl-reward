@@ -26,6 +26,10 @@ export class MissionService {
     return await this.missionRepository.findOne(id, options)
   }
 
+  async findOne(options): Promise<Mission> {
+    return await this.missionRepository.findOne(options)
+  }
+
   async update(updateMissionDto: UpdateMissionDto): Promise<Mission> {
     const updateMission = plainToInstance(UpdateMissionDto, updateMissionDto, {
       ignoreDecorators: true,

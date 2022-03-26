@@ -26,7 +26,7 @@ export class AdminCampaignController {
   @GrpcMethod('GrpcAdminCampaignService', 'FindOne')
   async findOne(data: FindOneInput) {
     const result = await this.adminCampaignService.findOne(+data.id)
-    if (result !== null) return result
+    if (result !== undefined) return result
     return {}
   }
 

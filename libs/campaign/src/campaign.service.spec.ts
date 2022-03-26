@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CampaignService } from './campaign.service'
 
-describe('CampaignService', () => {
+describe('CampaignGroupService', () => {
   let service: CampaignService
 
   beforeEach(async () => {

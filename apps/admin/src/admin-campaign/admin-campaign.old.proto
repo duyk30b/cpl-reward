@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package admin_campaign;
+
+service GrpcAdminCampaignService {
+  rpc Create(CreateInput) returns (Result);
+  rpc Cancel(CancelInput) returns (CancelResult);
+  rpc FindOne(FindOneInput) returns (Result);
+  rpc Update(UpdateInput) returns (Result);
+  rpc ListWithRules(ListInput) returns (ListCampaignResultWithRules);
+  rpc List(ListInput) returns (ListCampaignResult);
+}
+
+message ListCampaignResult {
+  repeated CampaignWithoutRules data = 1;
+  Pagination pagination = 2;
+  Links links = 3;
+}
+
+message ListCampaignResultWithRules {
+  repeated Result data = 1;
+  Pagination pagination = 2;
+  Links links = 3;
+}
+
+message Links {
+  string first = 1;
+  string previous = 2;
+  string next = 3;
+  string last = 4;
+}
+
+message Pagination {
+  int32 total = 1;
+  int32 size = 2;
+  int32 page = 3;
+  int32 itemCount = 4;
+  int32 totalPages = 5;
+}
+
+message ListInput {
+  int32 page = 1;
+  int32 limit = 2;
+  string searchField = 3;
+  string searchText = 4;
+  string sort = 5;
+  string sortType = 6;
+}
+
+message CancelInput {
+  int32 campaignId = 1;
+}
+
+message CancelResult {
+  int32 affected = 1;
+}
+
+message Empty {}
+
+message InitResult {
+  int32 id = 1;
+}
+
+message FindOneInput {
+  int32 id = 1;
+}
+
+message UpdateInput {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string detailExplain = 4;
+  int32 startDate = 5;
+  int32 endDate = 6;
+  string notificationLink = 7;
+  string campaignImage = 8;
+  int32 priority = 9;
+  bool isSystem = 10;
+  repeated UpdateRewardRule rewardRules = 11;
+}
+
+message UpdateRewardRule {
+  int32 id = 1;
+  string key = 2;
+  string currency = 3;
+  int32 limitValue = 4;
+}
+
+message CreateRewardRule {
+  string key = 2;
+  string currency = 3;
+  int32 limitValue = 4;
+}
+
+message CampaignWithoutRules {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string detailExplain = 4;
+  int32 startDate = 5;
+  int32 endDate = 6;
+  string notificationLink = 7;
+  string campaignImage = 8;
+  int32 priority = 9; // default: 0
+  bool isSystem = 10; // default: false
+  int32 status = 11;
+}
+
+message Result {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string detailExplain = 4;
+  int32 startDate = 5;
+  int32 endDate = 6;
+  string notificationLink = 7;
+  string campaignImage = 8;
+  int32 priority = 9; // default: 0
+  bool isSystem = 10; // default: false
+  repeated RewardRuleResult rewardRules = 11;
+  int32 status = 12;
+}
+
+message RewardRuleResult {
+  int32 createdAt = 1;
+  int32 updatedAt = 2;
+  int32 id = 3;
+  string key = 4;
+  string currency = 5;
+  int32 limitValue = 6;
+  int32 releaseValue = 7;
+  int32 campaignId = 8;
+  int32 missionId = 9;
+  string typeRule = 10;
+}
+
+message CreateInput {
+  string title = 1;
+  string description = 2;
+  string detailExplain = 3;
+  int32 startDate = 4;
+  int32 endDate = 5;
+  string notificationLink = 6;
+  string campaignImage = 7;
+  int32 priority = 8; // default: 0
+  bool isSystem = 9; // default: false
+  repeated CreateRewardRule rewardRules = 10;
+  int32 status = 11;
+}

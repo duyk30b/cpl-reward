@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package admin_mission;
+
+service GrpcAdminMissionService {
+  rpc Create(CreateInput) returns (Result);
+  rpc Update(UpdateInput) returns (Result);
+  rpc FindOne(FindOneInput) returns (Result);
+  rpc GetMissionsByCampaign(MissionFilterInput) returns (MissionsResult);
+}
+
+message Empty {}
+
+message CreateInput {
+  int32 campaignId = 1;
+  string title = 2;
+  string detailExplain = 3;
+  int32 openingDate = 4; // example: 1642668896
+  int32 closingDate = 5;
+  repeated CreateRewardRule rewardRules = 6;
+  repeated JudgmentConditions judgmentConditions = 7;
+  repeated UserConditions userConditions = 8;
+  repeated GrantTarget grantTarget = 9;
+  int32 priority = 10;
+  string guideLink = 11;
+  int32 limitReceivedReward = 12;
+  int32 status = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
+}
+
+message CreateRewardRule {
+  string key = 1; // enum('cashback', 'balance', 'dividend')
+  string currency = 2; // 'USDT' ....
+  string limitValue = 3; // example: 12.443
+}
+
+/*
+ * user = [user, referer_user]
+ * wallet = [
+     REWARD_BALANCE, REWARD_CASHBACK,
+     REWARD_DIVIDEND, DIRECT_BALANCE,
+     DIRECT_CASHBACK, DIRECT_DIVIDEND,
+   ]
+ */
+message GrantTarget {
+  string user = 1;
+  string amount = 2;
+  string currency = 3;
+  string wallet = 4;
+}
+message UpdateInput {
+  int32 id = 1;
+  int32 campaignId = 2;
+  string title = 3;
+  string detailExplain = 4;
+  int32 openingDate = 5;
+  int32 closingDate = 6;
+  repeated UpdateRewardRule rewardRules = 7;
+  repeated JudgmentConditions judgmentConditions = 8;
+  repeated UserConditions userConditions = 9;
+  repeated GrantTarget grantTarget = 10;
+  int32 priority = 11; // default: 0
+  string guideLink = 12;
+  int32 limitReceivedReward = 13;
+  int32 status = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
+}
+message UpdateRewardRule {
+  int32 id = 1;
+  string key = 2;
+  string currency = 3;
+  string limitValue = 4; // example: 12.443
+}
+message FindOneInput {
+  int32 id = 1;
+}
+
+/*
+ * eventName = [
+      auth_user_login, auth_user_change_email,
+      auth_user_created, auth_user_logout,
+      auth_user_change_password, auth_user_authenticator_status_updated
+   ]
+ */
+message JudgmentConditions {
+  string eventName = 1;
+  string property = 2;
+  string operator = 3;
+  string value = 4;
+}
+message UserConditions {
+  string property = 1;
+  string operator = 2;
+  string value = 3;
+}
+
+message MissionFilterInput {
+  string campaignId = 1;
+}
+
+message MissionsResult {
+  repeated Result missions = 1;
+}
+
+message Result {
+  int32 campaignId = 1;
+  string title = 2;
+  string detailExplain = 3;
+  int32 openingDate = 4;
+  int32 closingDate = 5;
+  repeated RewardRuleResult rewardRules = 6;
+  repeated JudgmentConditions judgmentConditions = 7;
+  repeated UserConditions userConditions = 8;
+  repeated GrantTarget grantTarget = 9;
+  int32 id = 10;
+  int32 createdAt = 11;
+  int32 updatedAt = 12;
+  int32 priority = 13; // default: 0
+  string guideLink = 14;
+  int32 limitReceivedReward = 15; // default: 1
+  int32 status = 16;
+}
+
+message RewardRuleResult {
+  int32 createdAt = 1;
+  int32 updatedAt = 2;
+  int32 id = 3;
+  string key = 4;
+  string currency = 5;
+  string limitValue = 6; // example: 12.443
+  string releaseValue = 7; // example: 12.443
+}

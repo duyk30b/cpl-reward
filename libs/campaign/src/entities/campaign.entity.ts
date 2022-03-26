@@ -1,24 +1,34 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm'
 import { Expose } from 'class-transformer'
-import { MyBaseEntity } from '@app/mysql/my-base.entity'
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
+import { Mission } from '@lib/mission/entities/mission.entity'
+import { STATUS } from '../enum'
 
-@Entity()
-export class CampaignEntity extends MyBaseEntity {
+@Entity({
+  name: 'campaigns',
+})
+export class Campaign extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number
 
   @Column()
   @Expose()
-  name: string
+  title: string
 
-  @Column()
+  @Column({ type: 'text', default: '' })
   @Expose()
-  active: string
+  description: string
 
-  @Column({ name: 'money_unit' })
-  @Expose({ name: 'money_unit' })
-  moneyUnit: number
+  @Column({ name: 'detail_explain', type: 'text', default: '' })
+  @Expose({ name: 'detail_explain' })
+  detailExplain: string
 
   @Column({ name: 'start_date' })
   @Expose({ name: 'start_date' })
@@ -28,35 +38,33 @@ export class CampaignEntity extends MyBaseEntity {
   @Expose({ name: 'end_date' })
   endDate: number
 
-  @Column({ name: 'limit_user_reward' })
-  @Expose({ name: 'limit_user_reward' })
-  limitUserReward: number
+  @Column({ name: 'notification_link', type: 'text', default: '' })
+  @Expose({ name: 'notification_link' })
+  notificationLink: string
 
-  @Column({ name: 'limit_user_money' })
-  @Expose({ name: 'limit_user_money' })
-  limitUserMoney: number
+  @Column({ name: 'campaign_image', type: 'text', default: '' })
+  @Expose({ name: 'campaign_image' })
+  campaignImage: string
 
-  @Column({ name: 'limit_system_reward' })
-  @Expose({ name: 'limit_system_reward' })
-  limitSystemReward: number
+  @Column({ default: 0 })
+  @Expose()
+  priority: number
 
-  @Column({ name: 'limit_system_money' })
-  @Expose({ name: 'limit_system_money' })
-  limitSystemMoney: number
+  @Column({ name: 'is_system', default: false })
+  @Expose({ name: 'is_system' })
+  isSystem: boolean
 
-  @Column({ name: 'released_reward' })
-  @Expose({ name: 'released_reward' })
-  releasedReward: number
+  @Column({
+    type: 'smallint',
+    default: STATUS.ACTIVE,
+  })
+  @Expose()
+  status: number
 
-  @Column({ name: 'released_money' })
-  @Expose({ name: 'released_money' })
-  releasedMoney: number
-
-  @Column({ name: 'prepare_data_required' })
-  @Expose({ name: 'prepare_data_required' })
-  prepareDataRequired: boolean
-
-  @Column({ name: 'prepare_data_done' })
-  @Expose({ name: 'prepare_data_done' })
-  prepareDataDone: boolean
+  @OneToMany(() => Mission, (mission) => mission.campaign)
+  @JoinColumn()
+  @Expose({
+    name: 'missions',
+  })
+  missions: Mission[]
 }

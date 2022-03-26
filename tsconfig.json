@@ -13,53 +13,101 @@
     "incremental": true,
     "skipLibCheck": true,
     "paths": {
-      "@app/kafka": [
+      "@lib/kafka": [
         "libs/kafka/src"
       ],
-      "@app/kafka/*": [
+      "@lib/kafka/*": [
         "libs/kafka/src/*"
       ],
-      "@app/common": [
+      "@lib/common": [
         "libs/common/src"
       ],
-      "@app/common/*": [
+      "@lib/common/*": [
         "libs/common/src/*"
       ],
-      "@app/campaign-user": [
-        "libs/campaign-user/src"
+      "@lib/mission-user": [
+        "libs/mission-user/src"
       ],
-      "@app/campaign-user/*": [
-        "libs/campaign-user/src/*"
+      "@lib/mission-user/*": [
+        "libs/mission-user/src/*"
       ],
-      "@app/campaign": [
-        "libs/campaign/src"
+      "@lib/mission": [
+        "libs/mission/src"
       ],
-      "@app/campaign/*": [
-        "libs/campaign/src/*"
+      "@lib/mission/*": [
+        "libs/mission/src/*"
       ],
-      "@app/campaign-user-log": [
-        "libs/campaign-user-log/src"
+      "@lib/mission-user-log": [
+        "libs/mission-user-log/src"
       ],
-      "@app/campaign-user-log/*": [
-        "libs/campaign-user-log/src/*"
+      "@lib/mission-user-log/*": [
+        "libs/mission-user-log/src/*"
       ],
-      "@app/mysql": [
+      "@lib/mysql": [
         "libs/mysql/src"
       ],
-      "@app/mysql/*": [
+      "@lib/mysql/*": [
         "libs/mysql/src/*"
       ],
-      "@app/user": [
+      "@lib/user": [
         "libs/user/src"
       ],
-      "@app/user/*": [
+      "@lib/user/*": [
         "libs/user/src/*"
       ],
-      "@app/external-user": [
+      "@lib/external-user": [
         "libs/external-user/src"
       ],
-      "@app/external-user/*": [
+      "@lib/external-user/*": [
         "libs/external-user/src/*"
+      ],
+      "@lib/campaign": [
+        "libs/campaign/src"
+      ],
+      "@lib/campaign/*": [
+        "libs/campaign/src/*"
+      ],
+      "@lib/affiliate-internal": [
+        "libs/affiliate-internal/src"
+      ],
+      "@lib/affiliate-internal/*": [
+        "libs/affiliate-internal/src/*"
+      ],
+      "@lib/reward-rule": [
+        "libs/reward-rule/src"
+      ],
+      "@lib/reward-rule/*": [
+        "libs/reward-rule/src/*"
+      ],
+      "@lib/admin-action-log": [
+        "libs/admin-action-log/src"
+      ],
+      "@lib/admin-action-log/*": [
+        "libs/admin-action-log/src/*"
+      ],
+      "@lib/external-balance": [
+        "libs/external-balance/src"
+      ],
+      "@lib/external-balance/*": [
+        "libs/external-balance/src/*"
+      ],
+      "@lib/mission-event": [
+        "libs/mission-event/src"
+      ],
+      "@lib/mission-event/*": [
+        "libs/mission-event/src/*"
+      ],
+      "@lib/user-reward-history": [
+        "libs/user-reward-history/src"
+      ],
+      "@lib/user-reward-history/*": [
+        "libs/user-reward-history/src/*"
+      ],
+      "@lib/external-bo": [
+        "libs/external-bo/src"
+      ],
+      "@lib/external-bo/*": [
+        "libs/external-bo/src/*"
       ]
     }
   }

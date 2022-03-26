@@ -6,7 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
@@ -21,24 +20,34 @@
     "test:e2e": "jest --config ./apps/reward/test/jest-e2e.json"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.5.1",
+    "@grpc/proto-loader": "^0.6.9",
+    "@nestjs/axios": "0.0.5",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
     "@nestjs/core": "^8.0.0",
+    "@nestjs/event-emitter": "^1.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/microservices": "^8.2.4",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/swagger": "^5.1.5",
     "@nestjs/typeorm": "^8.0.2",
+    "@sentry/node": "^6.16.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "ethers": "^5.6.1",
     "kafkajs": "^1.15.0",
+    "moment-timezone": "^0.5.34",
     "mysql2": "^2.3.3",
+    "nestjs-typeorm-paginate": "^3.1.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "swagger-ui-express": "^4.3.0",
     "typeorm": "^0.2.41"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.0.0",
+    "@nestjs/cli": "^8.2.3",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
     "@types/express": "^4.17.13",
@@ -80,14 +89,22 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/kafka(|/.*)$": "<rootDir>/libs/kafka/src/$1",
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/campaign-user(|/.*)$": "<rootDir>/libs/campaign-user/src/$1",
-      "^@app/campaign(|/.*)$": "<rootDir>/libs/campaign/src/$1",
-      "^@app/campaign-user-log(|/.*)$": "<rootDir>/libs/campaign-user-log/src/$1",
-      "^@app/mysql(|/.*)$": "<rootDir>/libs/mysql/src/$1",
-      "^@app/user(|/.*)$": "<rootDir>/libs/user/src/$1",
-      "^@app/external-user(|/.*)$": "<rootDir>/libs/external-user/src/$1"
+      "^@lib/kafka(|/.*)$": "<rootDir>/libs/kafka/src/$1",
+      "^@lib/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@lib/mission-user(|/.*)$": "<rootDir>/libs/mission-user/src/$1",
+      "^@lib/mission(|/.*)$": "<rootDir>/libs/mission/src/$1",
+      "^@lib/mission-user-log(|/.*)$": "<rootDir>/libs/mission-user-log/src/$1",
+      "^@lib/mysql(|/.*)$": "<rootDir>/libs/mysql/src/$1",
+      "^@lib/user(|/.*)$": "<rootDir>/libs/user/src/$1",
+      "^@lib/external-user(|/.*)$": "<rootDir>/libs/external-user/src/$1",
+      "^@lib/campaign(|/.*)$": "<rootDir>/libs/campaign/src/$1",
+      "^@lib/affiliate-internal(|/.*)$": "<rootDir>/libs/affiliate-internal/src/$1",
+      "^@lib/reward-rule(|/.*)$": "<rootDir>/libs/reward-rule/src/$1",
+      "^@lib/admin-action-log(|/.*)$": "<rootDir>/libs/admin-action-log/src/$1",
+      "^@lib/external-balance(|/.*)$": "<rootDir>/libs/external-balance/src/$1",
+      "^@lib/mission-event(|/.*)$": "<rootDir>/libs/mission-event/src/$1",
+      "^@lib/user-reward-history(|/.*)$": "<rootDir>/libs/user-reward-history/src/$1",
+      "^@lib/external-bo(|/.*)$": "<rootDir>/libs/external-bo/src/$1"
     }
   }
 }

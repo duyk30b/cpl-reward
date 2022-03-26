@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc ListUser(UserFilter) returns (UserList);
+  rpc FindOne (UserById) returns (User);
+  rpc BanUser (BanUser) returns (ResponseString);
+  rpc DeleteUser (UserById) returns (ResponseString);
+};
+
+message ResponseString {
+  string response = 1;
+}
+
+message UserFilter {
+  int32 page = 1;
+  int32 perPage = 2;
+  string email = 3;
+  string name = 4;
+};
+
+message UserById {
+  string id = 1;
+};
+
+message BanUser {
+  string id = 1;
+  string note = 2;
+  int32 hour = 3;
+};
+
+message User {
+  string id = 1;
+  string uuid = 2;
+  string name = 3;
+  //string phone = 4;
+  //string phone_country = 5;
+  string email = 6;
+  string type = 7;
+  //string password = 8;
+  //string password_encryptor = 9;
+  //string salt = 10;
+  string status = 11;
+  //string otp_secret = 12;
+  string referrer_code = 13;
+  string referred_by_id = 14;
+  string fb_id = 15;
+  string gg_id = 16;
+  string checkpoint = 17;
+  string last_login = 18;
+  string phone_verify_at = 19;
+  string email_verify_at = 20;
+  string authenticator_verify_at = 21;
+  string created_at = 22;
+  string updated_at = 23;
+  string bce_updated_at = 24;
+  string email_verify_status = 25;
+  string authenticator_verify_status = 26;
+  string kyc_verify_status = 27;
+  string user_info_status = 28;
+  string last_password_change = 29;
+  string account_lv = 30;
+}
+
+message UserList {
+  repeated User users = 1;
+}

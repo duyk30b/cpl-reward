@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package admin_common;
+
+service GrpcAdminCommonService {
+  rpc CreateActionLog(CreateActionLog) returns (Result);
+  rpc ListEvents(Empty) returns (ListEventsResult);
+  rpc ListGrantTarget(Empty) returns (GrantTargetResult);
+  rpc ListUserConditions(Empty) returns (ResultUserConditions);
+}
+
+message GrantTargetResult {
+  repeated EventResult users = 1;
+  repeated EventResult wallets = 2;
+}
+
+message InputPropertiesByEvent {
+  string eventKey = 1;
+}
+
+message ResultPropertiesByEvent {
+  string list = 1;
+}
+
+message ResultUserConditions {
+  string list = 1;
+}
+
+message Empty {}
+
+message EventResult {
+  string key = 1;
+  string value = 2;
+}
+
+message CreateActionLog {
+  int32 adminId = 1;
+  string actionName = 2;
+  string contentData = 3;
+}
+
+message Result {
+  int32 adminId = 1;
+  string actionName = 2;
+  string contentData = 3;
+  int32 createdAt = 4;
+  int32 updatedAt = 5;
+  int32 id = 6;
+}
+
+message ListEventsResult {
+  repeated EventDetail events = 1;
+}
+
+message EventDetail {
+  string eventName = 1;
+  repeated EventDetailProperty properties = 2;
+}
+
+message EventDetailProperty {
+  string key = 1;
+  string type = 2;
+  string description = 3;
+}

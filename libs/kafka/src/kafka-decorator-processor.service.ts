@@ -1,7 +1,7 @@
 import { MessagePattern } from '@nestjs/microservices'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { KAFKA_TOPIC_METADATA } from '@app/kafka'
+import { KAFKA_TOPIC_METADATA } from '@lib/kafka'
 
 @Injectable()
 export class KafkaDecoratorProcessorService {

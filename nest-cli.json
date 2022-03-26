@@ -17,15 +17,6 @@
         "tsConfigPath": "apps/reward/tsconfig.app.json"
       }
     },
-    "c01": {
-      "type": "application",
-      "root": "apps/c01",
-      "entryFile": "main",
-      "sourceRoot": "apps/c01/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/c01/tsconfig.app.json"
-      }
-    },
     "kafka": {
       "type": "library",
       "root": "libs/kafka",
@@ -44,31 +35,31 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "campaign-user": {
+    "mission-user": {
       "type": "library",
-      "root": "libs/campaign-user",
+      "root": "libs/mission-user",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign-user/src",
+      "sourceRoot": "libs/mission-user/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign-user/tsconfig.lib.json"
+        "tsConfigPath": "libs/mission-user/tsconfig.lib.json"
       }
     },
-    "campaign": {
+    "mission": {
       "type": "library",
-      "root": "libs/campaign",
+      "root": "libs/mission",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign/src",
+      "sourceRoot": "libs/mission/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign/tsconfig.lib.json"
+        "tsConfigPath": "libs/mission/tsconfig.lib.json"
       }
     },
-    "campaign-user-log": {
+    "mission-user-log": {
       "type": "library",
-      "root": "libs/campaign-user-log",
+      "root": "libs/mission-user-log",
       "entryFile": "index",
-      "sourceRoot": "libs/campaign-user-log/src",
+      "sourceRoot": "libs/mission-user-log/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/campaign-user-log/tsconfig.lib.json"
+        "tsConfigPath": "libs/mission-user-log/tsconfig.lib.json"
       }
     },
     "mysql": {
@@ -95,7 +86,112 @@
       "entryFile": "index",
       "sourceRoot": "libs/external-user/src",
       "compilerOptions": {
+        "assets": [
+          "**/*.proto",
+          "*.proto"
+        ],
+        "watchAssets": true,
         "tsConfigPath": "libs/external-user/tsconfig.lib.json"
+      }
+    },
+    "missions": {
+      "type": "application",
+      "root": "apps/missions",
+      "entryFile": "main",
+      "sourceRoot": "apps/missions/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/missions/tsconfig.app.json"
+      }
+    },
+    "campaign": {
+      "type": "library",
+      "root": "libs/campaign",
+      "entryFile": "index",
+      "sourceRoot": "libs/campaign/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/campaign/tsconfig.lib.json"
+      }
+    },
+    "affiliate-internal": {
+      "type": "library",
+      "root": "libs/affiliate-internal",
+      "entryFile": "index",
+      "sourceRoot": "libs/affiliate-internal/src",
+      "compilerOptions": {
+        "assets": [
+          "**/*.proto",
+          "*.proto"
+        ],
+        "watchAssets": true,
+        "tsConfigPath": "libs/affiliate-internal/tsconfig.lib.json"
+      }
+    },
+    "reward-rule": {
+      "type": "library",
+      "root": "libs/reward-rule",
+      "entryFile": "index",
+      "sourceRoot": "libs/reward-rule/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/reward-rule/tsconfig.lib.json"
+      }
+    },
+    "admin": {
+      "type": "application",
+      "root": "apps/admin",
+      "entryFile": "main",
+      "sourceRoot": "apps/admin/src",
+      "compilerOptions": {
+        "assets": [
+          "**/*.proto",
+          "*.proto"
+        ],
+        "watchAssets": true,
+        "tsConfigPath": "apps/admin/tsconfig.app.json"
+      }
+    },
+    "admin-action-log": {
+      "type": "library",
+      "root": "libs/admin-action-log",
+      "entryFile": "index",
+      "sourceRoot": "libs/admin-action-log/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/admin-action-log/tsconfig.lib.json"
+      }
+    },
+    "external-balance": {
+      "type": "library",
+      "root": "libs/external-balance",
+      "entryFile": "index",
+      "sourceRoot": "libs/external-balance/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/external-balance/tsconfig.lib.json"
+      }
+    },
+    "mission-event": {
+      "type": "library",
+      "root": "libs/mission-event",
+      "entryFile": "index",
+      "sourceRoot": "libs/mission-event/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mission-event/tsconfig.lib.json"
+      }
+    },
+    "user-reward-history": {
+      "type": "library",
+      "root": "libs/user-reward-history",
+      "entryFile": "index",
+      "sourceRoot": "libs/user-reward-history/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/user-reward-history/tsconfig.lib.json"
+      }
+    },
+    "external-bo": {
+      "type": "library",
+      "root": "libs/external-bo",
+      "entryFile": "index",
+      "sourceRoot": "libs/external-bo/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/external-bo/tsconfig.lib.json"
       }
     }
   }

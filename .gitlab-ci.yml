@@ -60,3 +60,28 @@ deploy_dev_exchange:
     IMAGE_TAG_KEY: tag
   only:
     - dev
+
+
+
+
+build_staging-v2:
+  extends: .build_template
+  environment:
+    name: staging-v2
+  variables:
+    IMAGE_NAME: stg-v2-customer-reward
+    DOCKERFILE_PATH: ./Dockerfile
+  only:
+    - staging
+
+
+deploy_staging-v2:
+  extends: .deploy_template
+  environment:
+    name: staging-v2
+  variables:
+    VALUES_PATH: /_helm_templates/cpl-customer-reward/values-staging-v2.yaml
+    IMAGE_TAG_KEY: tag
+  only:
+    - staging
+

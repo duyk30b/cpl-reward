@@ -8,7 +8,7 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { STATUS } from '../enum'
+import { IS_ACTIVE_CAMPAIGN, STATUS_CAMPAIGN } from '../enum'
 
 @Entity({
   name: 'campaigns',
@@ -55,8 +55,16 @@ export class Campaign extends MyBaseEntity {
   isSystem: boolean
 
   @Column({
+    name: 'is_active',
     type: 'smallint',
-    default: STATUS.ACTIVE,
+    default: IS_ACTIVE_CAMPAIGN.ACTIVE,
+  })
+  @Expose({ name: 'is_active' })
+  isActive: number
+
+  @Column({
+    type: 'smallint',
+    default: STATUS_CAMPAIGN.RUNNING,
   })
   @Expose()
   status: number

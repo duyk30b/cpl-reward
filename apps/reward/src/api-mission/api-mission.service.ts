@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import {
+  GRANT_TARGET_USER,
+  IS_ACTIVE_MISSION,
   MISSION_SEARCH_FIELD_MAP,
   MISSION_SORT_FIELD_MAP,
   MissionService,
@@ -13,7 +15,8 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain } from 'class-transformer'
-import { STATUS as MISSION_STATUS } from '@lib/mission'
+import { Target } from './api-mission.interface'
+import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class ApiMissionService {
@@ -60,20 +63,21 @@ export class ApiMissionService {
         missionIds,
         userId,
       )
+
     return {
       pagination: result.meta,
       data: result.items.map((item) => {
+        const money = ApiMissionService.getMoneyOfUser(
+          item.grantTarget,
+          item.id,
+          histories,
+        )
+        delete item.grantTarget
         return {
           ...instanceToPlain(item, { exposeUnsetFields: false }),
-          currency:
-            histories === null || !histories[item.id]
-              ? ''
-              : histories[item.id][0].currency,
-          status: STATUS.MANUAL_NOT_RECEIVE,
-          total_amount:
-            histories === null || !histories[item.id]
-              ? '0'
-              : histories[item.id][0].totalAmount,
+          currency: money.currency,
+          reward_amount: money.rewardAmount,
+          received_amount: money.receivedAmount,
         }
       }),
       links: CommonService.customLinks(result.links),
@@ -93,9 +97,10 @@ export class ApiMissionService {
       'mission.closingDate',
       'mission.guideLink',
       'mission.limitReceivedReward',
+      'mission.grantTarget',
     ])
-    queryBuilder.where('mission.status = :status ', {
-      status: MISSION_STATUS.ACTIVE,
+    queryBuilder.where('mission.isActive = :is_active ', {
+      is_active: IS_ACTIVE_MISSION.ACTIVE,
     })
     if (missionFilter.campaignId !== undefined)
       queryBuilder.andWhere('mission.campaignId = :campaign_id ', {
@@ -161,6 +166,30 @@ export class ApiMissionService {
     return {
       amount: result[0].total_amount,
       currency: result[0].history_currency,
+    }
+  }
+
+  private static getMoneyOfUser(
+    grantTarget: string,
+    missionId: number,
+    histories: any,
+  ) {
+    const grantTargetObj = grantTarget as unknown as Target[]
+    let currentTarget = null
+    grantTargetObj.map((target) => {
+      if (target.user === GRANT_TARGET_USER.USER) currentTarget = target
+      return target
+    })
+    let receivedAmount = '0'
+    if (histories !== null) {
+      receivedAmount = FixedNumber.fromString(
+        histories[`${missionId}_${currentTarget.currency}`],
+      ).toString()
+    }
+    return {
+      currency: currentTarget.currency,
+      rewardAmount: FixedNumber.fromString(currentTarget.amount).toString(),
+      receivedAmount,
     }
   }
 }

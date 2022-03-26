@@ -11,7 +11,7 @@ export default registerAs('kafka', () => ({
   auth_user_authenticator_status_updated:
     process.env.ENV + '_auth_user_authenticator_status_updated',
 
-  bce_trading_matched: process.env.ENV + '_bce_trading_matched',
+  // bce_trading_matched: process.env.ENV + '_bce_trading_matched',
   bce_deposit: process.env.ENV + '_bce_deposit',
   bce_withdraw: process.env.ENV + '_bce_withdraw',
 

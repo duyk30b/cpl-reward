@@ -4,7 +4,7 @@ import {
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
   IS_SYSTEM,
-  STATUS,
+  IS_ACTIVE_CAMPAIGN,
 } from '@lib/campaign'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -67,8 +67,8 @@ export class ApiCampaignService {
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: IS_SYSTEM.FALSE,
     })
-    queryBuilder.andWhere('campaign.status = :status ', {
-      status: STATUS.ACTIVE,
+    queryBuilder.andWhere('campaign.isActive = :is_active ', {
+      is_active: IS_ACTIVE_CAMPAIGN.ACTIVE,
     })
     if (searchText) {
       queryBuilder.andWhere(
@@ -105,18 +105,11 @@ export class ApiCampaignService {
     return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
   }
 
-  // async findOne(id: number) {
-  //   const campaign = await this.campaignService.getById(id, {
-  //     relations: ['rewardRules'],
-  //   })
-  //   if (!campaign) {
-  //     return null
-  //   }
-  //   if (campaign.rewardRules.length > 0) {
-  //     campaign.rewardRules = campaign.rewardRules.filter(
-  //       (item) => item.typeRule == 'campaign',
-  //     )
-  //   }
-  //   return campaign
-  // }
+  async findOne(id: number) {
+    return this.campaignService.findOne({
+      id,
+      isActive: IS_ACTIVE_CAMPAIGN.ACTIVE,
+      isSystem: IS_SYSTEM.FALSE,
+    })
+  }
 }

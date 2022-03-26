@@ -19,9 +19,6 @@ import { MissionsListener } from './listeners/missions.listener'
 import { MissionEventModule } from '@lib/mission-event'
 import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
-import { AuthMissionsModule } from './auth-missions/auth-missions.module'
-import { BceMissionsModule } from './bce-missions/bce-missions.module'
-import { BoMissionsModule } from './bo-missions/bo-missions.module'
 
 @Module({
   controllers: [MissionsController],
@@ -44,15 +41,12 @@ import { BoMissionsModule } from './bo-missions/bo-missions.module'
     MissionEventModule,
     CampaignModule,
     MissionModule,
-    AuthMissionsModule,
-    BceMissionsModule,
-    BoMissionsModule,
   ],
   providers: [
     CommonListener,
     ExternalListener,
-    MissionsService,
     MissionsListener,
+    MissionsService,
   ],
 })
 export class MissionsModule {}

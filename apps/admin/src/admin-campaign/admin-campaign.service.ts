@@ -3,6 +3,8 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
+  IS_ACTIVE_CAMPAIGN,
+  STATUS_CAMPAIGN,
 } from '@lib/campaign'
 // import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -49,9 +51,7 @@ export class AdminCampaignService {
   // }
 
   async findOne(id: number) {
-    const campaign = await this.campaignService.getById(id)
-    if (campaign === undefined) return null
-    return campaign
+    return this.campaignService.getById(id)
   }
 
   /**
@@ -79,6 +79,10 @@ export class AdminCampaignService {
   // }
 
   async create(createCampaignInput: CreateCampaignInput) {
+    // if (createCampaignInput.isActive === IS_ACTIVE_CAMPAIGN.ACTIVE)
+    //   createCampaignInput.status = STATUS_CAMPAIGN.RUNNING
+    // if (createCampaignInput.isActive === IS_ACTIVE_CAMPAIGN.INACTIVE)
+    //   createCampaignInput.status = STATUS_CAMPAIGN.ENDED
     return await this.campaignService.create(createCampaignInput)
   }
 

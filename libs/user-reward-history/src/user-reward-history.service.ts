@@ -47,8 +47,8 @@ export class UserRewardHistoryService {
     queryBuilder.andWhere('history.userId = :user_id', {
       user_id: userId,
     })
-    queryBuilder.andWhere("history.status = ':status_type'", {
-      status_type: STATUS.MANUAL_NOT_RECEIVE,
+    queryBuilder.where('history.status IN (:...status_list)', {
+      status_list: [STATUS.AUTO_RECEIVED, STATUS.MANUAL_RECEIVED],
     })
     queryBuilder.groupBy('history.currency')
     queryBuilder.addGroupBy('history.missionId')
@@ -60,13 +60,9 @@ export class UserRewardHistoryService {
 
     const result = {}
     for (const idx in histories) {
-      if (result[histories[idx].history_mission_id] === undefined) {
-        result[histories[idx].history_mission_id] = []
-      }
-      result[histories[idx].history_mission_id].push({
-        currency: histories[idx].history_currency,
-        totalAmount: histories[idx].total_amount,
-      })
+      result[
+        `${histories[idx].history_mission_id}_${histories[idx].history_currency}`
+      ] = histories[idx].total_amount
     }
     return result
   }

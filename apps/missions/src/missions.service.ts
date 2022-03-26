@@ -1,9 +1,21 @@
 import { IUser } from './interfaces/missions.interface'
-import { EVENTS, GRANT_TARGET_WALLET, MissionService } from '@lib/mission'
+import {
+  EVENTS,
+  GRANT_TARGET_USER,
+  GRANT_TARGET_WALLET,
+  IS_ACTIVE_MISSION,
+  MissionService,
+  STATUS_MISSION,
+} from '@lib/mission'
 import { CommonService } from '@lib/common'
 import { Injectable, Logger } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
-import { CampaignService } from '@lib/campaign'
+import {
+  CampaignService,
+  IS_ACTIVE_CAMPAIGN,
+  IS_SYSTEM,
+  STATUS_CAMPAIGN,
+} from '@lib/campaign'
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
@@ -168,13 +180,22 @@ export class MissionsService {
   }
 
   async getCampaignById(campaignId: number): Promise<Campaign> {
-    const campaign = await this.campaignService.getById(campaignId)
+    const campaign = await this.campaignService.findOne({
+      id: campaignId,
+      isActive: IS_ACTIVE_CAMPAIGN.ACTIVE,
+      isSystem: IS_SYSTEM.FALSE,
+      status: STATUS_MISSION.RUNNING,
+    })
     if (!campaign) return null
     return campaign
   }
 
   async getMissionById(missionId: number) {
-    const mission = await this.missionService.getById(missionId)
+    const mission = await this.missionService.findOne({
+      id: missionId,
+      isActive: IS_ACTIVE_MISSION.ACTIVE,
+      status: STATUS_CAMPAIGN.RUNNING,
+    })
     if (!mission) return null
     return mission
   }
@@ -198,16 +219,27 @@ export class MissionsService {
       const checkExistMessageValue = messageValue[currentCondition.property]
       if (checkExistMessageValue === undefined) continue
 
-      const checkJudgmentCondition = eval(`${CommonService.inspectStringNumber(
+      const property = CommonService.inspectStringNumber(
         messageValue[currentCondition.property],
         currentCondition.type,
-      )}
-            ${currentCondition.operator}
-            ${CommonService.inspectStringNumber(
-              currentCondition.value,
-              currentCondition.type,
-            )}`)
-      if (!checkJudgmentCondition) break
+      )
+      const operator = currentCondition.operator
+      const value = CommonService.inspectStringNumber(
+        currentCondition.value,
+        currentCondition.type,
+      )
+
+      const checkJudgmentCondition = eval(`${property}
+      ${operator}
+      ${value}`)
+      if (!checkJudgmentCondition) {
+        this.logger.error(
+          `[EVENT ${EVENTS[eventName]}]. Judgement Condition data: ` +
+            `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
+            `operator => ${operator}, conditionValue => ${value}`,
+        )
+        break
+      }
       result = true
     }
     return result
@@ -216,8 +248,13 @@ export class MissionsService {
   /**
    * @param userConditions
    * @param user
+   * @param eventName
    */
-  checkUserConditions(userConditions: UserCondition[], user: IUser) {
+  checkUserConditions(
+    userConditions: UserCondition[],
+    user: IUser,
+    eventName: string,
+  ) {
     if (userConditions.length === 0) return true
     let result = false
     for (const idx in userConditions) {
@@ -229,24 +266,76 @@ export class MissionsService {
       const checkExistUserProperty = user[currentCondition.property]
       if (checkExistUserProperty === undefined) continue
 
-      const checkUserCondition = eval(`${CommonService.inspectStringNumber(
+      const property = CommonService.inspectStringNumber(
         user[currentCondition.property],
         currentCondition.type,
-      )}
-            ${currentCondition.operator}
-            ${CommonService.inspectStringNumber(
-              currentCondition.value,
-              currentCondition.type,
-            )}`)
-      if (!checkUserCondition) break
+      )
+      const operator = currentCondition.operator
+      const value = CommonService.inspectStringNumber(
+        currentCondition.value,
+        currentCondition.type,
+      )
+
+      const checkUserCondition = eval(`${property}
+      ${operator}
+      ${value}`)
+      if (!checkUserCondition) {
+        this.logger.error(
+          `[EVENT ${EVENTS[eventName]}]. User Condition data: ` +
+            `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
+            `operator => ${operator}, conditionValue => ${value}`,
+        )
+        break
+      }
       result = true
     }
     return result
   }
 
-  checkMoneyReward(limitValue: string, amount: string) {
-    const fixedLimitValue = FixedNumber.fromString(limitValue)
-    const fixedAmount = FixedNumber.fromString(amount)
-    return fixedLimitValue.subUnsafe(fixedAmount).toUnsafeFloat() > 0
+  checkMoneyReward(rewardRule: RewardRule, mainUser: any, referredUser: any) {
+    const fixedLimitValue = FixedNumber.fromString(
+      String(rewardRule.limitValue),
+    )
+    const fixedMainUserAmount = FixedNumber.fromString(
+      mainUser === null ? '0' : mainUser.amount,
+    )
+    const fixedReferredUserAmount = FixedNumber.fromString(
+      referredUser === null ? '0' : referredUser.amount,
+    )
+
+    if (
+      rewardRule.currency === mainUser.currency &&
+      fixedLimitValue
+        .subUnsafe(fixedMainUserAmount)
+        .subUnsafe(fixedReferredUserAmount)
+        .toUnsafeFloat() <= 0
+    )
+      return false
+
+    return !(
+      rewardRule.currency === referredUser.currency &&
+      fixedLimitValue
+        .subUnsafe(fixedMainUserAmount)
+        .subUnsafe(fixedReferredUserAmount)
+        .toUnsafeFloat() <= 0
+    )
+  }
+
+  getDetailUserFromGrantTarget(grantTarget: string, eventName: string) {
+    let mainUser = null,
+      referredUser = null
+    const grantTargets = grantTarget as unknown as Target[]
+    if (grantTargets.length === 0) {
+      this.logger.error(
+        `[EVENT ${EVENTS[eventName]}]. Reason: Grant Target was not found!`,
+      )
+      return { mainUser, referredUser }
+    }
+    grantTargets.map((target) => {
+      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
+      if (target.user === GRANT_TARGET_USER.USER) mainUser = target
+      return target
+    })
+    return { mainUser, referredUser }
   }
 }

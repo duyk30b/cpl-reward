@@ -39,4 +39,10 @@ export class CreateMissionDto {
 
   @Expose({ name: 'limit_received_reward' })
   limitReceivedReward?: number
+
+  @Expose()
+  status?: number
+
+  @Expose({ name: 'is_active' })
+  isActive?: number
 }

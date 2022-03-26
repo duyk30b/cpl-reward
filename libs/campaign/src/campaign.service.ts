@@ -25,6 +25,10 @@ export class CampaignService {
     return await this.campaignRepository.findOne(campaignId, options)
   }
 
+  async findOne(options) {
+    return await this.campaignRepository.findOne(options)
+  }
+
   async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {
     const updateCampaign = plainToInstance(
       UpdateCampaignDto,

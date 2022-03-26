@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common'
 import {
   EVENTS,
   GRANT_TARGET_WALLET,
+  IS_ACTIVE_MISSION,
   MissionService,
-  STATUS,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
@@ -195,7 +195,7 @@ export class AdminMissionService {
   async getMissionsByCampaign(input: MissionFilterInput) {
     const missions = await this.missionService.find({
       campaignId: input.campaignId,
-      status: STATUS.ACTIVE,
+      isActive: IS_ACTIVE_MISSION.ACTIVE,
     })
 
     return { missions: missions }

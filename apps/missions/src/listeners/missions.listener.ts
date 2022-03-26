@@ -4,14 +4,14 @@ import {
   IGiveRewardToUser,
   JudgmentCondition,
   UserCondition,
-  Target,
   IGetEventsByName,
 } from '../interfaces/missions.interface'
 import { ExternalUserService } from '@lib/external-user'
-import { EVENTS, GRANT_TARGET_USER } from '@lib/mission'
+import { EVENTS, MissionService, STATUS_MISSION } from '@lib/mission'
 import * as moment from 'moment-timezone'
 import { MissionsService } from '../missions.service'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { CampaignService, STATUS_CAMPAIGN } from '@lib/campaign'
 
 @Injectable()
 export class MissionsListener {
@@ -22,6 +22,8 @@ export class MissionsListener {
     private externalUserService: ExternalUserService,
     private missionsService: MissionsService,
     private rewardRuleService: RewardRuleService,
+    private missionService: MissionService,
+    private campaignService: CampaignService,
   ) {}
 
   @OnEvent('get_events_by_name')
@@ -58,15 +60,14 @@ export class MissionsListener {
       )
       return
     }
-
-    const now = moment().unix()
     const userId = Number(user.id)
     const referredUserId =
       user.referredById === undefined ? 0 : Number(user.referredById)
-    const mission = await this.missionsService.getMissionById(data.missionId)
-    const campaign = await this.missionsService.getCampaignById(data.campaignId)
+
+    const now = moment().unix()
 
     // Kiểm tra thời gian khả dụng của campaign
+    const campaign = await this.missionsService.getCampaignById(data.campaignId)
     if (!campaign) {
       this.logger.error(
         `[EVENT ${
@@ -78,6 +79,11 @@ export class MissionsListener {
       return
     }
     if (now < campaign.startDate || now > campaign.endDate) {
+      await this.campaignService.update({
+        id: campaign.id,
+        status: STATUS_CAMPAIGN.ENDED,
+      })
+      // TODO: update all mission in this campaign to ENDED
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
@@ -89,6 +95,7 @@ export class MissionsListener {
     }
 
     // Kiểm tra thời gian khả dụng của mission
+    const mission = await this.missionsService.getMissionById(data.missionId)
     if (!mission) {
       this.logger.error(
         `[EVENT ${
@@ -100,6 +107,10 @@ export class MissionsListener {
       return
     }
     if (now < mission.openingDate || now > mission.closingDate) {
+      await this.missionService.update({
+        id: mission.id,
+        status: STATUS_MISSION.ENDED,
+      })
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
@@ -119,10 +130,7 @@ export class MissionsListener {
       )
     if (!checkJudgmentConditions) {
       this.logger.error(
-        `[EVENT ${
-          EVENTS[data.eventName]
-        }]. Reason: users are not eligible to participate ` +
-          `in the reward - Judgment Condition`,
+        `[EVENT ${EVENTS[data.eventName]}]. Judgment Condition check fail!`,
       )
       return
     }
@@ -131,13 +139,11 @@ export class MissionsListener {
     const checkUserConditions = this.missionsService.checkUserConditions(
       mission.userConditions as unknown as UserCondition[],
       user,
+      data.eventName,
     )
     if (!checkUserConditions) {
       this.logger.error(
-        `[EVENT ${
-          EVENTS[data.eventName]
-        }]. Reason: users are not eligible to participate ` +
-          `in the reward - User Condition`,
+        `[EVENT ${EVENTS[data.eventName]}]. User Condition check fail!`,
       )
       return
     }
@@ -148,31 +154,19 @@ export class MissionsListener {
       missionId: data.missionId,
       typeRule: TYPE_RULE.MISSION,
     })
-
-    // Lấy thông tin tiền thưởng cho từng đối tượng
-    const grantTargets = mission.grantTarget as unknown as Target[]
-    if (grantTargets.length === 0) {
-      this.logger.error(
-        `[EVENT ${
-          EVENTS[data.eventName]
-        }]. Reason: Grant Target was not found!`,
-      )
-      return
-    }
-    let mainUser = null,
-      referredUser = null
-    grantTargets.map((target) => {
-      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
-      if (target.user === GRANT_TARGET_USER.USER) mainUser = target
-      return target
-    })
-
     if (rewardRules.length === 0) {
       this.logger.error(
         `[EVENT ${EVENTS[data.eventName]}] Mission reward rules was not exist!`,
       )
       return
     }
+
+    // Lấy thông tin tiền thưởng cho từng đối tượng
+    const { mainUser, referredUser } =
+      this.missionsService.getDetailUserFromGrantTarget(
+        mission.grantTarget,
+        data.eventName,
+      )
 
     const checkLimitReceivedReward =
       await this.missionsService.checkLimitReceivedReward(
@@ -182,6 +176,27 @@ export class MissionsListener {
       )
 
     for (const idx in rewardRules) {
+      const checkMoneyReward = this.missionsService.checkMoneyReward(
+        rewardRules[idx],
+        mainUser,
+        referredUser,
+      )
+
+      if (!checkMoneyReward) {
+        // TODO: confirm requirement
+        await this.missionService.update({
+          id: mission.id,
+          status: STATUS_MISSION.OUT_OF_BUDGET,
+        })
+        this.logger.error(
+          `[EVENT ${
+            EVENTS[data.eventName]
+          }]. Reason: Mission not enough money to send ` +
+            `main user: ${userId} and referred user: ${referredUserId}`,
+        )
+        continue
+      }
+
       if (
         mainUser !== null &&
         rewardRules[idx].currency === mainUser.currency &&
@@ -189,41 +204,28 @@ export class MissionsListener {
         checkLimitReceivedReward
       ) {
         // user
-
-        const checkMoneyReward = this.missionsService.checkMoneyReward(
-          String(rewardRules[idx].limitValue),
-          mainUser.amount,
+        await this.missionsService.commonFlowReward(
+          rewardRules[idx],
+          data.campaignId,
+          mainUser,
+          userId,
+          data.missionId,
         )
-        if (!checkMoneyReward) {
-          this.logger.error(
-            `[EVENT ${
-              EVENTS[data.eventName]
-            }]. Reason: Mission is not enough money to send main user: ${userId}!`,
-          )
-        } else {
-          await this.missionsService.commonFlowReward(
-            rewardRules[idx],
-            data.campaignId,
-            mainUser,
-            userId,
-            data.missionId,
-          )
 
-          const referredUserInfo =
-            referredUserId === 0
-              ? null
-              : {
-                  ...referredUser,
-                  referredUserId,
-                }
-          this.eventEmitter.emit('update_mission_user', {
-            userId: userId,
-            missionId: data.missionId,
-            referredUserInfo,
-            eventName: data.eventName,
-            moneyEarned: mainUser.amount,
-          })
-        }
+        const referredUserInfo =
+          referredUserId === 0
+            ? null
+            : {
+                ...referredUser,
+                referredUserId,
+              }
+        this.eventEmitter.emit('update_mission_user', {
+          userId: userId,
+          missionId: data.missionId,
+          referredUserInfo,
+          eventName: data.eventName,
+          moneyEarned: mainUser.amount,
+        })
       }
 
       if (
@@ -234,26 +236,13 @@ export class MissionsListener {
         checkLimitReceivedReward
       ) {
         // referred user
-
-        const checkMoneyReward = this.missionsService.checkMoneyReward(
-          String(rewardRules[idx].limitValue),
-          referredUser.amount,
+        await this.missionsService.commonFlowReward(
+          rewardRules[idx],
+          data.campaignId,
+          referredUser,
+          referredUserId,
+          data.missionId,
         )
-        if (!checkMoneyReward) {
-          this.logger.error(
-            `[EVENT ${
-              EVENTS[data.eventName]
-            }]. Reason: Mission is not enough money to send referred user: ${userId}!`,
-          )
-        } else {
-          await this.missionsService.commonFlowReward(
-            rewardRules[idx],
-            data.campaignId,
-            referredUser,
-            referredUserId,
-            data.missionId,
-          )
-        }
       }
     }
   }

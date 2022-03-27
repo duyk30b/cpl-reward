@@ -179,13 +179,12 @@ export class AdminCampaignService {
       )
     }
 
-    if (!sort || sort !== 'priority')
-      queryBuilder.addOrderBy('campaign.priority', 'DESC')
-
-    if (!sort || sort !== 'id') queryBuilder.addOrderBy('campaign.id', 'DESC')
-
-    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort])
+    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
       queryBuilder.addOrderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
+    } else {
+      queryBuilder.addOrderBy('campaign.priority', 'DESC')
+      queryBuilder.addOrderBy('campaign.id', 'DESC')
+    }
 
     return queryBuilder
   }

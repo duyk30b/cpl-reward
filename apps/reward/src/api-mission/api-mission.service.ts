@@ -58,11 +58,11 @@ export class ApiMissionService {
     for (const idx in result.items) {
       missionIds.push(result.items[idx].id)
     }
-    const histories =
-      await this.userRewardHistoryService.getAmountReceivedByUser(
-        missionIds,
-        userId,
-      )
+    const histories = await this.userRewardHistoryService.getAmountByUser(
+      missionIds,
+      userId,
+      [STATUS.AUTO_RECEIVED, STATUS.MANUAL_RECEIVED],
+    )
 
     return {
       pagination: result.meta,
@@ -77,7 +77,8 @@ export class ApiMissionService {
           ...instanceToPlain(item, { exposeUnsetFields: false }),
           currency: money.currency,
           reward_amount: money.rewardAmount,
-          received_amount: money.receivedAmount,
+          total_amount: money.receivedAmount, // TODO: change to received_amount after test
+          status: STATUS.AUTO_RECEIVED, // TODO: remove after test
         }
       }),
       links: CommonService.customLinks(result.links),

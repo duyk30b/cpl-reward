@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
+import { ChangeUserCashback } from './external-cashback.interface'
 import { firstValueFrom, map } from 'rxjs'
-import { ChangeUserCashback } from './external-bo.interface'
 
 @Injectable()
-export class ExternalBoService {
-  private readonly logger = new Logger(ExternalBoService.name)
+export class ExternalCashbackService {
+  private readonly logger = new Logger(ExternalCashbackService.name)
 
   constructor(
     private httpService: HttpService,
@@ -28,8 +28,8 @@ export class ExternalBoService {
    * auto_confirm: 1
    */
   async changeUserCashback(input: ChangeUserCashback): Promise<any> {
-    // const boToken = this.configService.get('bo.token')
-    const postBoUrl = this.configService.get('bo.url') + '/transaction/create'
+    const postBoUrl =
+      this.configService.get('cashback.url') + '/transaction/create'
 
     const postData = {
       ...input,

@@ -6,7 +6,7 @@ import {
 } from '../interfaces/external.interface'
 import { ExternalBalanceService } from '@lib/external-balance'
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
-import { ExternalBoService } from '@lib/external-bo'
+import { ExternalCashbackService } from '@lib/external-cashback'
 
 @Injectable()
 export class ExternalListener {
@@ -15,13 +15,13 @@ export class ExternalListener {
   constructor(
     private readonly externalBalanceService: ExternalBalanceService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
-    private readonly externalBoService: ExternalBoService,
+    private readonly externalCashbackService: ExternalCashbackService,
   ) {}
 
   @OnEvent('send_reward_to_cashback')
   async handleSendRewardToCashbackEvent(data: ISendRewardToCashback) {
     const sendRewardToCashback =
-      await this.externalBoService.changeUserCashback({
+      await this.externalCashbackService.changeUserCashback({
         user_id: data.userId,
         currency: data.currency,
         amount: data.amount,

@@ -14,11 +14,11 @@ import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { ExternalListener } from './listeners/external.listener'
 import { MissionsService } from './missions.service'
 import { MissionUserModule } from '@lib/mission-user'
-import { ExternalBoModule } from '@lib/external-bo'
 import { MissionsListener } from './listeners/missions.listener'
 import { MissionEventModule } from '@lib/mission-event'
 import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
+import { ExternalCashbackModule } from '@lib/external-cashback'
 
 @Module({
   controllers: [MissionsController],
@@ -37,7 +37,7 @@ import { MissionModule } from '@lib/mission'
     RewardRuleModule,
     UserRewardHistoryModule,
     MissionUserModule,
-    ExternalBoModule,
+    ExternalCashbackModule,
     MissionEventModule,
     CampaignModule,
     MissionModule,

@@ -14,9 +14,9 @@ import { ValidateAuthMiddleware } from './middlewares/validate-auth.middleware'
 import { ApiCampaignController } from './api-campaign/api-campaign.controller'
 import { ExternalUserModule } from '@lib/external-user'
 import { ApiMissionController } from './api-mission/api-mission.controller'
-import { ExternalBoModule } from '@lib/external-bo'
 import { ConfigModule } from '@nestjs/config'
 import configuration from '@lib/common/configuration'
+import { ExternalCashbackModule } from '@lib/external-cashback'
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import configuration from '@lib/common/configuration'
     ApiMissionModule,
     ApiCampaignModule,
     ExternalUserModule,
-    ExternalBoModule,
+    ExternalCashbackModule,
     ConfigModule.forRoot({
       load: [configuration],
     }),

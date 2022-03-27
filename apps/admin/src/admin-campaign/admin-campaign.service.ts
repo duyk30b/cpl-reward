@@ -10,9 +10,9 @@ import {
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
-  CreateCampaignInput,
   ICampaignFilter,
-  UpdateCampaignInput,
+  ICreateCampaign,
+  IUpdateCampaign,
 } from './admin-campaign.interface'
 import { Brackets } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
@@ -57,7 +57,7 @@ export class AdminCampaignService {
   /**
    * Do not use below function to create campaign yet
    */
-  // async createOld(createCampaignInput: CreateCampaignInput) {
+  // async createOld(createCampaignInput: ICreateCampaign) {
   //   let campaign = await this.campaignService.create(createCampaignInput)
   //   await Promise.all(
   //     createCampaignInput.rewardRules.map(async (item) => {
@@ -78,18 +78,22 @@ export class AdminCampaignService {
   //   return campaign
   // }
 
-  async create(createCampaignInput: CreateCampaignInput) {
-    // if (createCampaignInput.isActive === IS_ACTIVE_CAMPAIGN.ACTIVE)
-    //   createCampaignInput.status = STATUS_CAMPAIGN.RUNNING
-    // if (createCampaignInput.isActive === IS_ACTIVE_CAMPAIGN.INACTIVE)
-    //   createCampaignInput.status = STATUS_CAMPAIGN.ENDED
-    return await this.campaignService.create(createCampaignInput)
+  async create(iCreateCampaign: ICreateCampaign) {
+    iCreateCampaign.status = AdminCampaignService.updateStatusByActive(
+      iCreateCampaign.isActive,
+    )
+    return await this.campaignService.create(iCreateCampaign)
+  }
+
+  private static updateStatusByActive(isActive: number) {
+    if (isActive === IS_ACTIVE_CAMPAIGN.ACTIVE) return STATUS_CAMPAIGN.RUNNING
+    if (isActive === IS_ACTIVE_CAMPAIGN.INACTIVE) return STATUS_CAMPAIGN.ENDED
   }
 
   /**
    * Do not use below function to update campaign yet
    */
-  // async updateOld(updateCampaignInput: UpdateCampaignInput) {
+  // async updateOld(updateCampaignInput: IUpdateCampaign) {
   //   let campaign = await this.campaignService.update(updateCampaignInput)
   //   await Promise.all(
   //     updateCampaignInput.rewardRules.map(async (item) => {
@@ -110,8 +114,11 @@ export class AdminCampaignService {
   //   return campaign
   // }
 
-  async update(updateCampaignInput: UpdateCampaignInput) {
-    return await this.campaignService.update(updateCampaignInput)
+  async update(iUpdateCampaign: IUpdateCampaign) {
+    iUpdateCampaign.status = AdminCampaignService.updateStatusByActive(
+      iUpdateCampaign.isActive,
+    )
+    return await this.campaignService.update(iUpdateCampaign)
   }
 
   async findAll(campaignFilter: ICampaignFilter) {

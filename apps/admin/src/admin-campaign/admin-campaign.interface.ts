@@ -20,7 +20,7 @@ export interface ICampaignFilter {
   sortType?: 'ASC' | 'DESC'
 }
 
-export class CampaignInput {
+export class ICampaign {
   @Expose()
   title: string
   @Expose()
@@ -45,13 +45,13 @@ export class CampaignInput {
   isActive?: number
 }
 
-export class CreateCampaignInput extends CampaignInput {
+export class ICreateCampaign extends ICampaign {
   // @Type(() => CreateRewardRuleDto)
   // @Expose({ name: 'reward_rules' })
   // rewardRules: CreateRewardRuleDto[]
 }
 
-export class UpdateCampaignInput extends CampaignInput {
+export class IUpdateCampaign extends ICampaign {
   @Expose()
   id: number
   // @Expose({ name: 'reward_rules' })

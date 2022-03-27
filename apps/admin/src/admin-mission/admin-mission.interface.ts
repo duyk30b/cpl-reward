@@ -5,7 +5,7 @@ import { TargetDto } from '@lib/mission/dto/target.dto'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 
-class MissionInput {
+class IMission {
   @Expose({ name: 'campaign_id' })
   campaignId: number
   @Expose()
@@ -37,13 +37,13 @@ class MissionInput {
   isActive?: number
 }
 
-export class CreateMissionInput extends MissionInput {
+export class ICreateMission extends IMission {
   @Type(() => CreateRewardRuleDto)
   @Expose({ name: 'reward_rules' })
   rewardRules: CreateRewardRuleDto[]
 }
 
-export class UpdateMissionInput extends MissionInput {
+export class IUpdateMission extends IMission {
   @Expose()
   id: number
 

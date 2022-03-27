@@ -92,11 +92,14 @@ export class ApiMissionService {
     const queryBuilder = this.missionService.initQueryBuilder()
     queryBuilder.select([
       'mission.title',
+      'mission.titleJp',
       'mission.id',
       'mission.detailExplain',
+      'mission.detailExplainJp',
       'mission.openingDate',
       'mission.closingDate',
       'mission.guideLink',
+      'mission.guideLinkJp',
       'mission.limitReceivedReward',
       'mission.grantTarget',
     ])

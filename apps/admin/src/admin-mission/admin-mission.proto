@@ -14,21 +14,21 @@ message Empty {}
 message CreateInput {
   int32 campaignId = 1;
   string title = 2;
-  string detailExplain = 3;
-  string titleJp = 4;
-  string descriptionJp = 5;
-  string guideLinkJp = 6;
-  int32 openingDate = 7; // example: 1642668896
-  int32 closingDate = 8;
-  repeated CreateRewardRule rewardRules = 9;
-  repeated JudgmentConditions judgmentConditions = 10;
-  repeated UserConditions userConditions = 11;
-  repeated GrantTarget grantTarget = 12;
-  int32 priority = 13;
-  string guideLink = 14;
-  int32 limitReceivedReward = 15;
-  int32 isActive = 16; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 17; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  string titleJp = 3;
+  string detailExplain = 4;
+  string detailExplainJp = 5;
+  string guideLink = 6;
+  string guideLinkJp = 7;
+  int32 openingDate = 8; // example: 1642668896
+  int32 closingDate = 9;
+  int32 priority = 10;
+  int32 limitReceivedReward = 11;
+  int32 isActive = 12; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 13; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  repeated CreateRewardRule rewardRules = 14;
+  repeated JudgmentConditions judgmentConditions = 15;
+  repeated UserConditions userConditions = 16;
+  repeated GrantTarget grantTarget = 17;
 }
 
 message CreateRewardRule {
@@ -56,20 +56,20 @@ message UpdateInput {
   int32 campaignId = 2;
   string title = 3;
   string titleJp = 4;
-  string descriptionJp = 5;
-  string guideLinkJp = 6;
-  string detailExplain = 7;
-  int32 openingDate = 8;
-  int32 closingDate = 9;
-  repeated UpdateRewardRule rewardRules = 10;
-  repeated JudgmentConditions judgmentConditions = 11;
-  repeated UserConditions userConditions = 12;
-  repeated GrantTarget grantTarget = 13;
-  int32 priority = 14; // default: 0
-  string guideLink = 15;
-  int32 limitReceivedReward = 16;
-  int32 isActive = 17; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 18; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  string detailExplain = 5;
+  string detailExplainJp = 6;
+  string guideLink = 7;
+  string guideLinkJp = 8;
+  int32 openingDate = 9; // example: 1642668896
+  int32 closingDate = 10;
+  int32 priority = 11;
+  int32 limitReceivedReward = 12;
+  int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  repeated CreateRewardRule rewardRules = 15;
+  repeated JudgmentConditions judgmentConditions = 16;
+  repeated UserConditions userConditions = 17;
+  repeated GrantTarget grantTarget = 18;
 }
 message UpdateRewardRule {
   int32 id = 1;
@@ -109,26 +109,26 @@ message MissionsResult {
 }
 
 message Result {
-  int32 campaignId = 1;
-  string title = 2;
-  string detailExplain = 3;
+  int32 id = 1;
+  int32 campaignId = 2;
+  string title = 3;
   string titleJp = 4;
-  string descriptionJp = 5;
-  string guideLinkJp = 6;
-  int32 openingDate = 7;
-  int32 closingDate = 8;
-  repeated RewardRuleResult rewardRules = 9;
-  repeated JudgmentConditions judgmentConditions = 10;
-  repeated UserConditions userConditions = 11;
-  repeated GrantTarget grantTarget = 12;
-  int32 id = 13;
-  int32 createdAt = 14;
-  int32 updatedAt = 15;
-  int32 priority = 16; // default: 0
-  string guideLink = 17;
-  int32 limitReceivedReward = 18; // default: 1
-  int32 status = 19; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
-  int32 isActive = 20; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  string detailExplain = 5;
+  string detailExplainJp = 6;
+  string guideLink = 7;
+  string guideLinkJp = 8;
+  int32 openingDate = 9; // example: 1642668896
+  int32 closingDate = 10;
+  int32 priority = 11;
+  int32 limitReceivedReward = 12;
+  int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  repeated CreateRewardRule rewardRules = 15;
+  repeated JudgmentConditions judgmentConditions = 16;
+  repeated UserConditions userConditions = 17;
+  repeated GrantTarget grantTarget = 18;
+  int32 createdAt = 19;
+  int32 updatedAt = 20;
 }
 
 message RewardRuleResult {

@@ -304,20 +304,22 @@ export class MissionsService {
     )
 
     if (
+      mainUser !== null &&
       rewardRule.currency === mainUser.currency &&
       fixedLimitValue
         .subUnsafe(fixedMainUserAmount)
         .subUnsafe(fixedReferredUserAmount)
-        .toUnsafeFloat() <= 0
+        .toUnsafeFloat() > 0
     )
-      return false
+      return true
 
-    return !(
+    return (
+      referredUser !== null &&
       rewardRule.currency === referredUser.currency &&
       fixedLimitValue
         .subUnsafe(fixedMainUserAmount)
         .subUnsafe(fixedReferredUserAmount)
-        .toUnsafeFloat() <= 0
+        .toUnsafeFloat() > 0
     )
   }
 

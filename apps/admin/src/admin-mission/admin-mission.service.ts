@@ -4,15 +4,16 @@ import {
   GRANT_TARGET_WALLET,
   IS_ACTIVE_MISSION,
   MissionService,
+  STATUS_MISSION,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
-  CreateMissionInput,
+  ICreateMission,
   MissionFilterInput,
-  UpdateMissionInput,
+  IUpdateMission,
 } from './admin-mission.interface'
 import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
@@ -76,47 +77,58 @@ export class AdminMissionService {
     })
   }
 
-  async create(createMissionInput: CreateMissionInput) {
-    createMissionInput.grantTarget = this.updateTypeInTarget(
-      createMissionInput.grantTarget,
+  private static updateStatusByActive(isActive: number) {
+    if (isActive === IS_ACTIVE_MISSION.ACTIVE) return STATUS_MISSION.RUNNING
+    if (isActive === IS_ACTIVE_MISSION.INACTIVE) return STATUS_MISSION.ENDED
+  }
+
+  async create(iCreateMission: ICreateMission) {
+    iCreateMission.grantTarget = this.updateTypeInTarget(
+      iCreateMission.grantTarget,
     )
-    createMissionInput.judgmentConditions = this.updateTypeInJudgment(
-      createMissionInput.judgmentConditions,
+    iCreateMission.judgmentConditions = this.updateTypeInJudgment(
+      iCreateMission.judgmentConditions,
     )
-    createMissionInput.userConditions = this.updateTypeInUser(
-      createMissionInput.userConditions,
+    iCreateMission.userConditions = this.updateTypeInUser(
+      iCreateMission.userConditions,
     )
-    const mission = await this.missionService.create(createMissionInput)
+    iCreateMission.status = AdminMissionService.updateStatusByActive(
+      iCreateMission.isActive,
+    )
+    const mission = await this.missionService.create(iCreateMission)
     await Promise.all(
-      createMissionInput.rewardRules.map(async (item) => {
+      iCreateMission.rewardRules.map(async (item) => {
         await this.rewardRuleService.create(item, {
-          campaignId: createMissionInput.campaignId,
+          campaignId: iCreateMission.campaignId,
           missionId: mission.id,
           typeRule: TYPE_RULE.MISSION,
         })
       }),
     )
     await this.mappingMissionEvent(
-      createMissionInput.judgmentConditions,
-      createMissionInput.campaignId,
+      iCreateMission.judgmentConditions,
+      iCreateMission.campaignId,
       mission.id,
     )
     return await this.findOne(mission.id)
   }
 
-  async update(updateMissionInput: UpdateMissionInput) {
-    updateMissionInput.grantTarget = this.updateTypeInTarget(
-      updateMissionInput.grantTarget,
+  async update(iUpdateMission: IUpdateMission) {
+    iUpdateMission.grantTarget = this.updateTypeInTarget(
+      iUpdateMission.grantTarget,
     )
-    updateMissionInput.judgmentConditions = this.updateTypeInJudgment(
-      updateMissionInput.judgmentConditions,
+    iUpdateMission.judgmentConditions = this.updateTypeInJudgment(
+      iUpdateMission.judgmentConditions,
     )
-    updateMissionInput.userConditions = this.updateTypeInUser(
-      updateMissionInput.userConditions,
+    iUpdateMission.userConditions = this.updateTypeInUser(
+      iUpdateMission.userConditions,
     )
-    const mission = await this.missionService.update(updateMissionInput)
+    iUpdateMission.status = AdminMissionService.updateStatusByActive(
+      iUpdateMission.isActive,
+    )
+    const mission = await this.missionService.update(iUpdateMission)
     await Promise.all(
-      updateMissionInput.rewardRules.map(async (item) => {
+      iUpdateMission.rewardRules.map(async (item) => {
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,
@@ -126,8 +138,8 @@ export class AdminMissionService {
       }),
     )
     await this.mappingMissionEvent(
-      updateMissionInput.judgmentConditions,
-      updateMissionInput.campaignId,
+      iUpdateMission.judgmentConditions,
+      iUpdateMission.campaignId,
       mission.id,
     )
     return await this.findOne(mission.id)

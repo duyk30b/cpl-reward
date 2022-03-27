@@ -83,7 +83,6 @@ export class MissionsListener {
         id: campaign.id,
         status: STATUS_CAMPAIGN.ENDED,
       })
-      // TODO: update all mission in this campaign to ENDED
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
@@ -184,10 +183,10 @@ export class MissionsListener {
 
       if (!checkMoneyReward) {
         // TODO: confirm requirement
-        await this.missionService.update({
-          id: mission.id,
-          status: STATUS_MISSION.OUT_OF_BUDGET,
-        })
+        // await this.missionService.update({
+        //   id: mission.id,
+        //   status: STATUS_MISSION.OUT_OF_BUDGET,
+        // })
         this.logger.error(
           `[EVENT ${
             EVENTS[data.eventName]

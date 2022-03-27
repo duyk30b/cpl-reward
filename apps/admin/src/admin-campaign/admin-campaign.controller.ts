@@ -3,10 +3,10 @@ import { AdminCampaignService } from './admin-campaign.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import {
   CancelInput,
-  CreateCampaignInput,
   FindOneInput,
   ICampaignFilter,
-  UpdateCampaignInput,
+  ICreateCampaign,
+  IUpdateCampaign,
 } from './admin-campaign.interface'
 
 @Controller('campaign')
@@ -14,7 +14,7 @@ export class AdminCampaignController {
   constructor(private readonly adminCampaignService: AdminCampaignService) {}
 
   @GrpcMethod('GrpcAdminCampaignService', 'Create')
-  async create(data: CreateCampaignInput) {
+  async create(data: ICreateCampaign) {
     return await this.adminCampaignService.create(data)
   }
 
@@ -31,7 +31,7 @@ export class AdminCampaignController {
   }
 
   @GrpcMethod('GrpcAdminCampaignService', 'Update')
-  async update(data: UpdateCampaignInput) {
+  async update(data: IUpdateCampaign) {
     return await this.adminCampaignService.update(data)
   }
 

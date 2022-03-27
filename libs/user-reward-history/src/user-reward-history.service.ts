@@ -38,7 +38,11 @@ export class UserRewardHistoryService {
     return await this.userRewardHistoryRepository.update({ id }, conditions)
   }
 
-  async getAmountReceivedByUser(missionIds: number[], userId: number) {
+  async getAmountByUser(
+    missionIds: number[],
+    userId: number,
+    statusList: number[],
+  ) {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
     queryBuilder.where('history.missionId IN (:...mission_ids)', {
@@ -48,7 +52,7 @@ export class UserRewardHistoryService {
       user_id: userId,
     })
     queryBuilder.where('history.status IN (:...status_list)', {
-      status_list: [STATUS.AUTO_RECEIVED, STATUS.MANUAL_RECEIVED],
+      status_list: statusList,
     })
     queryBuilder.groupBy('history.currency')
     queryBuilder.addGroupBy('history.missionId')

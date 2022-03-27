@@ -86,12 +86,7 @@ export class Mission extends MyBaseEntity {
   @Expose()
   priority: number
 
-  @Column({
-    name: 'guide_link',
-    default: null,
-    transformer: JsonColumnTransformer,
-    type: 'text',
-  })
+  @Column({ name: 'guide_link', default: null, type: 'text' })
   @Expose({ name: 'guide_link' })
   guideLink: string
 

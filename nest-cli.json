@@ -185,13 +185,13 @@
         "tsConfigPath": "libs/user-reward-history/tsconfig.lib.json"
       }
     },
-    "external-bo": {
+    "external-cashback": {
       "type": "library",
-      "root": "libs/external-bo",
+      "root": "libs/external-cashback",
       "entryFile": "index",
-      "sourceRoot": "libs/external-bo/src",
+      "sourceRoot": "libs/external-cashback/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/external-bo/tsconfig.lib.json"
+        "tsConfigPath": "libs/external-cashback/tsconfig.lib.json"
       }
     }
   }

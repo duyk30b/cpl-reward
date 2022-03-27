@@ -103,11 +103,11 @@
       "@lib/user-reward-history/*": [
         "libs/user-reward-history/src/*"
       ],
-      "@lib/external-bo": [
-        "libs/external-bo/src"
+      "@lib/external-cashback": [
+        "libs/external-cashback/src"
       ],
-      "@lib/external-bo/*": [
-        "libs/external-bo/src/*"
+      "@lib/external-cashback/*": [
+        "libs/external-cashback/src/*"
       ]
     }
   }

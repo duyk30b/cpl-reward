@@ -33,7 +33,7 @@ export class MissionsListener {
     )
     if (events.length === 0) {
       this.logger.error(
-        `[EVENT ${EVENTS[data.eventName]}] no mission/campaign in event`,
+        `[EVENT ${EVENTS[data.eventName]}] no mission/campaign in event.`,
       )
       return
     }
@@ -86,9 +86,9 @@ export class MissionsListener {
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
-        }]. Reason: Campaign was over time!. now: ${now}, campaign: ${JSON.stringify(
-          campaign,
-        )}`,
+        }]. Reason: Campaign was over time!. now: ${now}, campaignId: ${
+          campaign.id
+        }, startDate: ${campaign.startDate}, endDate: ${campaign.endDate}`,
       )
       return
     }
@@ -99,9 +99,7 @@ export class MissionsListener {
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
-        }]. Reason: Mission was not found!. MissionId: ${
-          data.missionId
-        }, mission: ${JSON.stringify(mission)}`,
+        }]. Reason: Mission was not found!. MissionId: ${data.missionId}`,
       )
       return
     }
@@ -113,9 +111,9 @@ export class MissionsListener {
       this.logger.error(
         `[EVENT ${
           EVENTS[data.eventName]
-        }]. Reason: Mission was over time!. now: ${now}, mission: ${JSON.stringify(
-          mission,
-        )}`,
+        }]. Reason: Mission was over time!. now: ${now}, missionId: ${
+          mission.id
+        }, openDate: ${mission.openingDate}, closeDate: ${mission.closingDate}`,
       )
       return
     }
@@ -126,10 +124,13 @@ export class MissionsListener {
         mission.judgmentConditions as unknown as JudgmentCondition[],
         data.messageValueData,
         data.eventName,
+        mission.id,
       )
     if (!checkJudgmentConditions) {
       this.logger.error(
-        `[EVENT ${EVENTS[data.eventName]}]. Judgment Condition check fail!`,
+        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+          mission.id
+        }. Judgment Condition check fail!`,
       )
       return
     }
@@ -139,10 +140,13 @@ export class MissionsListener {
       mission.userConditions as unknown as UserCondition[],
       user,
       data.eventName,
+      mission.id,
     )
     if (!checkUserConditions) {
       this.logger.error(
-        `[EVENT ${EVENTS[data.eventName]}]. User Condition check fail!`,
+        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+          mission.id
+        }. User Condition check fail!`,
       )
       return
     }
@@ -155,7 +159,9 @@ export class MissionsListener {
     })
     if (rewardRules.length === 0) {
       this.logger.error(
-        `[EVENT ${EVENTS[data.eventName]}] Mission reward rules was not exist!`,
+        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+          mission.id
+        }. Mission reward rules was not exist!`,
       )
       return
     }
@@ -167,12 +173,21 @@ export class MissionsListener {
         data.eventName,
       )
 
+    // check số lần tối đa user nhận thưởng từ mission
     const checkLimitReceivedReward =
       await this.missionsService.checkLimitReceivedReward(
         data.missionId,
         userId,
         mission.limitReceivedReward,
       )
+    if (!checkLimitReceivedReward) {
+      this.logger.error(
+        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+          mission.id
+        }. Limit reward max`,
+      )
+      return
+    }
 
     for (const idx in rewardRules) {
       const checkMoneyReward = this.missionsService.checkMoneyReward(
@@ -188,9 +203,9 @@ export class MissionsListener {
         //   status: STATUS_MISSION.OUT_OF_BUDGET,
         // })
         this.logger.error(
-          `[EVENT ${
-            EVENTS[data.eventName]
-          }]. Reason: Mission not enough money to send ` +
+          `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+            mission.id
+          }. Reason: Mission not enough money to send ` +
             `main user: ${userId} and referred user: ${referredUserId}`,
         )
         continue
@@ -199,8 +214,7 @@ export class MissionsListener {
       if (
         mainUser !== null &&
         rewardRules[idx].currency === mainUser.currency &&
-        rewardRules[idx].key === mainUser.type &&
-        checkLimitReceivedReward
+        rewardRules[idx].key === mainUser.type
       ) {
         // user
         await this.missionsService.commonFlowReward(
@@ -231,8 +245,7 @@ export class MissionsListener {
         referredUserId !== 0 &&
         referredUser !== null &&
         rewardRules[idx].currency === referredUser.currency &&
-        rewardRules[idx].key === referredUser.type &&
-        checkLimitReceivedReward
+        rewardRules[idx].key === referredUser.type
       ) {
         // referred user
         await this.missionsService.commonFlowReward(

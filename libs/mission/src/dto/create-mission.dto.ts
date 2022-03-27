@@ -10,14 +10,17 @@ export class CreateMissionDto {
   @Expose()
   title: string
 
-  @Expose({ name: 'detail_explain' })
-  detailExplain: string
-
   @Expose({ name: 'title_jp' })
   titleJp: string
 
-  @Expose({ name: 'description_jp' })
-  descriptionJp: string
+  @Expose({ name: 'detail_explain' })
+  detailExplain: string
+
+  @Expose({ name: 'detail_explain_jp' })
+  detailExplainJp: string
+
+  @Expose({ name: 'guide_link' })
+  guideLink: string
 
   @Expose({ name: 'guide_link_jp' })
   guideLinkJp: string
@@ -27,6 +30,18 @@ export class CreateMissionDto {
 
   @Expose({ name: 'closing_date' })
   closingDate: number
+
+  @Expose()
+  priority?: number
+
+  @Expose({ name: 'limit_received_reward' })
+  limitReceivedReward?: number
+
+  @Expose()
+  status?: number
+
+  @Expose({ name: 'is_active' })
+  isActive?: number
 
   @Expose({ name: 'judgment_conditions' })
   @Type(() => JudgmentConditionDto)
@@ -39,19 +54,4 @@ export class CreateMissionDto {
   @Expose({ name: 'grant_target' })
   @Type(() => TargetDto)
   grantTarget: TargetDto[]
-
-  @Expose()
-  priority?: number
-
-  @Expose({ name: 'guide_link' })
-  guideLink: string
-
-  @Expose({ name: 'limit_received_reward' })
-  limitReceivedReward?: number
-
-  @Expose()
-  status?: number
-
-  @Expose({ name: 'is_active' })
-  isActive?: number
 }

@@ -35,17 +35,21 @@ export class Mission extends MyBaseEntity {
   @Expose({ name: 'title_jp' })
   titleJp: string
 
-  @Column({ name: 'description_jp', type: 'text', default: '' })
-  @Expose({ name: 'description_jp' })
-  descriptionJp: string
+  @Column({ name: 'detail_explain', type: 'text', default: '' })
+  @Expose({ name: 'detail_explain' })
+  detailExplain: string
+
+  @Column({ name: 'detail_explain_jp', type: 'text', default: '' })
+  @Expose({ name: 'detail_explain_jp' })
+  detailExplainJp: string
+
+  @Column({ name: 'guide_link', default: null, type: 'text' })
+  @Expose({ name: 'guide_link' })
+  guideLink: string
 
   @Column({ name: 'guide_link_jp', type: 'text', default: '' })
   @Expose({ name: 'guide_link_jp' })
   guideLinkJp: string
-
-  @Column({ name: 'detail_explain', type: 'text', default: '' })
-  @Expose({ name: 'detail_explain' })
-  detailExplain: string
 
   @Column({ name: 'opening_date' })
   @Expose({ name: 'opening_date' })
@@ -54,6 +58,29 @@ export class Mission extends MyBaseEntity {
   @Column({ name: 'closing_date' })
   @Expose({ name: 'closing_date' })
   closingDate: number
+
+  @Column({ default: 0 })
+  @Expose()
+  priority: number
+
+  @Column({ name: 'limit_received_reward', default: 1 })
+  @Expose({ name: 'limit_received_reward' })
+  limitReceivedReward: number
+
+  @Column({
+    name: 'is_active',
+    type: 'smallint',
+    default: IS_ACTIVE_MISSION.ACTIVE,
+  })
+  @Expose({ name: 'is_active' })
+  isActive: number
+
+  @Column({
+    type: 'smallint',
+    default: STATUS_MISSION.RUNNING,
+  })
+  @Expose()
+  status: number
 
   @Column({
     name: 'judgment_conditions',
@@ -82,18 +109,6 @@ export class Mission extends MyBaseEntity {
   @Expose({ name: 'grant_target' })
   grantTarget: string
 
-  @Column({ default: 0 })
-  @Expose()
-  priority: number
-
-  @Column({ name: 'guide_link', default: null, type: 'text' })
-  @Expose({ name: 'guide_link' })
-  guideLink: string
-
-  @Column({ name: 'limit_received_reward', default: 1 })
-  @Expose({ name: 'limit_received_reward' })
-  limitReceivedReward: number
-
   @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission, {
     eager: true,
   })
@@ -119,21 +134,6 @@ export class Mission extends MyBaseEntity {
     name: 'user_reward_histories',
   })
   userRewardHistories: UserRewardHistory[]
-
-  @Column({
-    name: 'is_active',
-    type: 'smallint',
-    default: IS_ACTIVE_MISSION.ACTIVE,
-  })
-  @Expose({ name: 'is_active' })
-  isActive: number
-
-  @Column({
-    type: 'smallint',
-    default: STATUS_MISSION.RUNNING,
-  })
-  @Expose()
-  status: number
 
   @AfterLoad()
   transformStringToJson() {

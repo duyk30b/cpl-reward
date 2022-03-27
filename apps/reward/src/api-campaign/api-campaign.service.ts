@@ -55,18 +55,17 @@ export class ApiCampaignService {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
     queryBuilder.select([
-      'campaign.title',
       'campaign.id',
       'campaign.description',
-      'campaign.title_jp',
-      'campaign.description_jp',
-      'campaign.notification_link_jp',
-      'campaign.image_link_jp',
-      'campaign.detailExplain',
-      'campaign.notificationLink',
-      'campaign.campaignImage',
+      'campaign.descriptionJp',
+      'campaign.title',
+      'campaign.titleJp',
       'campaign.startDate',
       'campaign.endDate',
+      'campaign.notificationLink',
+      'campaign.notificationLinkJp',
+      'campaign.campaignImage',
+      'campaign.campaignImageJp',
     ])
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: IS_SYSTEM.FALSE,
@@ -94,6 +93,7 @@ export class ApiCampaignService {
     if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
       queryBuilder.orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
     } else {
+      queryBuilder.orderBy('campaign.priority', 'DESC')
       queryBuilder.orderBy('campaign.id', 'DESC')
     }
 

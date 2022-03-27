@@ -30,6 +30,10 @@ export class ApiMissionListener {
         endDate: 1647855381,
         notificationLink: `notificationLink Campaign ${i}`,
         campaignImage: `campaignImage Campaign ${i}`,
+        titleJp: '',
+        descriptionJp: '',
+        notificationLinkJp: '',
+        imageLinkJp: '',
       })
       if (campaignId === null) campaignId = campaign.id
     }
@@ -65,6 +69,9 @@ export class ApiMissionListener {
           },
         ],
         guideLink: `guideLink Mission ${j}`,
+        titleJp: '',
+        descriptionJp: '',
+        guideLinkJp: '',
       })
 
       for (let k = 1; k <= 10; k++) {

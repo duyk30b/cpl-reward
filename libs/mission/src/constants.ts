@@ -2,10 +2,17 @@ import { EVENTS } from './enum'
 
 export const MISSION_SEARCH_FIELD_MAP = {
   title: 'mission.title',
+  title_jp: 'mission.title_jp',
+  description_jp: 'mission.description_jp',
+  guide_link_jp: 'mission.guide_link_jp',
+  detail_explain: 'mission.detail_explain',
 }
 
 export const MISSION_SORT_FIELD_MAP = {
   title: 'mission.title',
+  title_jp: 'mission.title_jp',
+  description_jp: 'mission.description_jp',
+  guide_link_jp: 'mission.guide_link_jp',
   detail_explain: 'campaign.detailExplain',
   opening_date: 'campaign.openingDate',
   closing_date: 'campaign.closingDate',

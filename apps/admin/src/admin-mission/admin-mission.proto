@@ -15,17 +15,20 @@ message CreateInput {
   int32 campaignId = 1;
   string title = 2;
   string detailExplain = 3;
-  int32 openingDate = 4; // example: 1642668896
-  int32 closingDate = 5;
-  repeated CreateRewardRule rewardRules = 6;
-  repeated JudgmentConditions judgmentConditions = 7;
-  repeated UserConditions userConditions = 8;
-  repeated GrantTarget grantTarget = 9;
-  int32 priority = 10;
-  string guideLink = 11;
-  int32 limitReceivedReward = 12;
-  int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  string titleJp = 4;
+  string descriptionJp = 5;
+  string guideLinkJp = 6;
+  int32 openingDate = 7; // example: 1642668896
+  int32 closingDate = 8;
+  repeated CreateRewardRule rewardRules = 9;
+  repeated JudgmentConditions judgmentConditions = 10;
+  repeated UserConditions userConditions = 11;
+  repeated GrantTarget grantTarget = 12;
+  int32 priority = 13;
+  string guideLink = 14;
+  int32 limitReceivedReward = 15;
+  int32 isActive = 16; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 17; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
 }
 
 message CreateRewardRule {
@@ -52,18 +55,21 @@ message UpdateInput {
   int32 id = 1;
   int32 campaignId = 2;
   string title = 3;
-  string detailExplain = 4;
-  int32 openingDate = 5;
-  int32 closingDate = 6;
-  repeated UpdateRewardRule rewardRules = 7;
-  repeated JudgmentConditions judgmentConditions = 8;
-  repeated UserConditions userConditions = 9;
-  repeated GrantTarget grantTarget = 10;
-  int32 priority = 11; // default: 0
-  string guideLink = 12;
-  int32 limitReceivedReward = 13;
-  int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 15; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  string titleJp = 4;
+  string descriptionJp = 5;
+  string guideLinkJp = 6;
+  string detailExplain = 7;
+  int32 openingDate = 8;
+  int32 closingDate = 9;
+  repeated UpdateRewardRule rewardRules = 10;
+  repeated JudgmentConditions judgmentConditions = 11;
+  repeated UserConditions userConditions = 12;
+  repeated GrantTarget grantTarget = 13;
+  int32 priority = 14; // default: 0
+  string guideLink = 15;
+  int32 limitReceivedReward = 16;
+  int32 isActive = 17; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 18; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
 }
 message UpdateRewardRule {
   int32 id = 1;
@@ -106,20 +112,23 @@ message Result {
   int32 campaignId = 1;
   string title = 2;
   string detailExplain = 3;
-  int32 openingDate = 4;
-  int32 closingDate = 5;
-  repeated RewardRuleResult rewardRules = 6;
-  repeated JudgmentConditions judgmentConditions = 7;
-  repeated UserConditions userConditions = 8;
-  repeated GrantTarget grantTarget = 9;
-  int32 id = 10;
-  int32 createdAt = 11;
-  int32 updatedAt = 12;
-  int32 priority = 13; // default: 0
-  string guideLink = 14;
-  int32 limitReceivedReward = 15; // default: 1
-  int32 status = 16; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
-  int32 isActive = 17; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  string titleJp = 4;
+  string descriptionJp = 5;
+  string guideLinkJp = 6;
+  int32 openingDate = 7;
+  int32 closingDate = 8;
+  repeated RewardRuleResult rewardRules = 9;
+  repeated JudgmentConditions judgmentConditions = 10;
+  repeated UserConditions userConditions = 11;
+  repeated GrantTarget grantTarget = 12;
+  int32 id = 13;
+  int32 createdAt = 14;
+  int32 updatedAt = 15;
+  int32 priority = 16; // default: 0
+  string guideLink = 17;
+  int32 limitReceivedReward = 18; // default: 1
+  int32 status = 19; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 isActive = 20; // default: 1 (ACTIVE) / 0 (INACTIVE)
 }
 
 message RewardRuleResult {

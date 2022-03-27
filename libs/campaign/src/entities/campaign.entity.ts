@@ -46,6 +46,22 @@ export class Campaign extends MyBaseEntity {
   @Expose({ name: 'campaign_image' })
   campaignImage: string
 
+  @Column({ name: 'title_jp' })
+  @Expose({ name: 'title_jp' })
+  titleJp: string
+
+  @Column({ name: 'description_jp', type: 'text', default: '' })
+  @Expose({ name: 'description_jp' })
+  descriptionJp: string
+
+  @Column({ name: 'notification_link_jp', type: 'text', default: '' })
+  @Expose({ name: 'notification_link_jp' })
+  notificationLinkJp: string
+
+  @Column({ name: 'image_link_jp', type: 'text', default: '' })
+  @Expose({ name: 'image_link_jp' })
+  imageLinkJp: string
+
   @Column({ default: 0 })
   @Expose()
   priority: number

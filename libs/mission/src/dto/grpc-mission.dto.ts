@@ -12,6 +12,15 @@ export class GrpcMissionDto {
   @Expose({ name: 'detail_explain' })
   detailExplain: string
 
+  @Expose({ name: 'title_jp' })
+  titleJp: string
+
+  @Expose({ name: 'description_jp' })
+  descriptionJp: string
+
+  @Expose({ name: 'guide_link_jp' })
+  guideLinkJp: string
+
   @Expose({ name: 'opening_date' })
   openingDate: number
 

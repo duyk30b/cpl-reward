@@ -31,6 +31,18 @@ export class Mission extends MyBaseEntity {
   @Expose()
   title: string
 
+  @Column({ name: 'title_jp' })
+  @Expose({ name: 'title_jp' })
+  titleJp: string
+
+  @Column({ name: 'description_jp', type: 'text', default: '' })
+  @Expose({ name: 'description_jp' })
+  descriptionJp: string
+
+  @Column({ name: 'guide_link_jp', type: 'text', default: '' })
+  @Expose({ name: 'guide_link_jp' })
+  guideLinkJp: string
+
   @Column({ name: 'detail_explain', type: 'text', default: '' })
   @Expose({ name: 'detail_explain' })
   detailExplain: string

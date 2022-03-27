@@ -19,6 +19,18 @@ export class PaginatedCampaignDto {
   @ApiProperty({ name: 'campaign_image' })
   campaignImage: string
 
+  @ApiProperty({ name: 'title_jp' })
+  titleJp: string
+
+  @ApiProperty({ name: 'description_jp' })
+  descriptionJp: string
+
+  @ApiProperty({ name: 'notification_link_jp' })
+  notificationLinkJp: string
+
+  @ApiProperty({ name: 'image_link_jp' })
+  imageLinkJp: string
+
   @ApiProperty({ name: 'start_date' })
   startDate: string
 

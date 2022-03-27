@@ -31,10 +31,25 @@ export class ICampaign {
   startDate: number
   @Expose({ name: 'end_date' })
   endDate: number
+
   @Expose({ name: 'notification_link' })
   notificationLink: string
+
   @Expose({ name: 'campaign_image' })
   campaignImage: string
+
+  @Expose({ name: 'title_jp' })
+  titleJp: string
+
+  @Expose({ name: 'description_jp' })
+  descriptionJp: string
+
+  @Expose({ name: 'notification_link_jp' })
+  notificationLinkJp: string
+
+  @Expose({ name: 'image_link_jp' })
+  imageLinkJp: string
+
   @Expose()
   priority?: number
   @Expose({ name: 'is_system' })

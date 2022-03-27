@@ -58,6 +58,10 @@ export class ApiCampaignService {
       'campaign.title',
       'campaign.id',
       'campaign.description',
+      'campaign.title_jp',
+      'campaign.description_jp',
+      'campaign.notification_link_jp',
+      'campaign.image_link_jp',
       'campaign.detailExplain',
       'campaign.notificationLink',
       'campaign.campaignImage',
@@ -88,14 +92,9 @@ export class ApiCampaignService {
     }
 
     if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
-      queryBuilder
-        .orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
-        .addOrderBy('campaign.priority', 'DESC')
-        .addOrderBy('campaign.id', 'DESC')
+      queryBuilder.orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
     } else {
-      queryBuilder
-        .orderBy('campaign.priority', 'DESC')
-        .addOrderBy('campaign.id', 'DESC')
+      queryBuilder.orderBy('campaign.id', 'DESC')
     }
 
     return queryBuilder

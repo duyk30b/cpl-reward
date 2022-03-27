@@ -172,7 +172,7 @@ export class MissionsService {
       userId,
     })
     if (missionUser === undefined) return true
-    return missionUser.successCount < limitReceivedReward
+    return missionUser.successCount <= limitReceivedReward
   }
 
   async getEventsByName(eventName: string) {
@@ -204,11 +204,13 @@ export class MissionsService {
    * @param judgmentConditions
    * @param messageValue
    * @param eventName
+   * @param missionId
    */
   checkJudgmentConditions(
     judgmentConditions: JudgmentCondition[],
     messageValue: any,
     eventName: string,
+    missionId: number,
   ) {
     if (judgmentConditions.length === 0) return true
     let result = false
@@ -230,11 +232,11 @@ export class MissionsService {
       )
 
       const checkJudgmentCondition = eval(`${property}
-      ${operator}
-      ${value}`)
+            ${operator}
+            ${value}`)
       if (!checkJudgmentCondition) {
         this.logger.error(
-          `[EVENT ${EVENTS[eventName]}]. Judgement Condition data: ` +
+          `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. Judgement Condition data: ` +
             `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
             `operator => ${operator}, conditionValue => ${value}`,
         )
@@ -249,11 +251,13 @@ export class MissionsService {
    * @param userConditions
    * @param user
    * @param eventName
+   * @param missionId
    */
   checkUserConditions(
     userConditions: UserCondition[],
     user: IUser,
     eventName: string,
+    missionId: number,
   ) {
     if (userConditions.length === 0) return true
     let result = false
@@ -277,11 +281,11 @@ export class MissionsService {
       )
 
       const checkUserCondition = eval(`${property}
-      ${operator}
-      ${value}`)
+            ${operator}
+            ${value}`)
       if (!checkUserCondition) {
         this.logger.error(
-          `[EVENT ${EVENTS[eventName]}]. User Condition data: ` +
+          `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. User Condition data: ` +
             `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
             `operator => ${operator}, conditionValue => ${value}`,
         )
@@ -297,25 +301,17 @@ export class MissionsService {
       String(rewardRule.limitValue),
     )
     const fixedMainUserAmount = FixedNumber.fromString(
-      mainUser === null ? '0' : mainUser.amount,
+      mainUser === null || rewardRule.currency !== mainUser.currency
+        ? '0'
+        : mainUser.amount,
     )
     const fixedReferredUserAmount = FixedNumber.fromString(
-      referredUser === null ? '0' : referredUser.amount,
+      referredUser === null || rewardRule.currency !== referredUser.currency
+        ? '0'
+        : referredUser.amount,
     )
-
-    if (
-      mainUser !== null &&
-      rewardRule.currency === mainUser.currency &&
-      fixedLimitValue
-        .subUnsafe(fixedMainUserAmount)
-        .subUnsafe(fixedReferredUserAmount)
-        .toUnsafeFloat() > 0
-    )
-      return true
 
     return (
-      referredUser !== null &&
-      rewardRule.currency === referredUser.currency &&
       fixedLimitValue
         .subUnsafe(fixedMainUserAmount)
         .subUnsafe(fixedReferredUserAmount)

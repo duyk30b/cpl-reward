@@ -24,12 +24,15 @@ export class ApiMissionListener {
     for (let i = 1; i <= 10; i++) {
       const campaign = await this.campaignService.create({
         title: `Title Campaign ${i}`,
+        titleJp: `Title Campaign ${i}`,
         description: `Description Campaign ${i}`,
-        detailExplain: `detailExplain Campaign ${i}`,
+        descriptionJp: `Description Campaign ${i}`,
         startDate: 1647855382,
         endDate: 1647855381,
         notificationLink: `notificationLink Campaign ${i}`,
+        notificationLinkJp: `notificationLink Campaign ${i}`,
         campaignImage: `campaignImage Campaign ${i}`,
+        campaignImageJp: `campaignImage Campaign ${i}`,
       })
       if (campaignId === null) campaignId = campaign.id
     }
@@ -37,9 +40,13 @@ export class ApiMissionListener {
       const mission = await this.missionService.create({
         campaignId,
         title: `Title Mission ${j}`,
+        titleJp: `Title Mission ${j}`,
         detailExplain: `detailExplain Mission ${j}`,
+        detailExplainJp: `detailExplain Mission ${j}`,
         openingDate: 1647855382,
         closingDate: 1647855381,
+        guideLink: `guideLink Mission ${j}`,
+        guideLinkJp: `guideLink Mission ${j}`,
         judgmentConditions: [
           {
             eventName: EVENTS.AUTH_USER_LOGIN,
@@ -64,7 +71,6 @@ export class ApiMissionListener {
             type: 'balance',
           },
         ],
-        guideLink: `guideLink Mission ${j}`,
       })
 
       for (let k = 1; k <= 10; k++) {

@@ -1,5 +1,10 @@
+export interface IGetEventsByName {
+  eventName: string
+  messageValueData: any
+}
+
 export interface IGiveRewardToUser {
-  messageValue: any
+  messageValueData: any
   missionId: number
   campaignId: number
   eventName: string

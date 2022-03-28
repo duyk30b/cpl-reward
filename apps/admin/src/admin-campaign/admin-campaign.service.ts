@@ -3,14 +3,16 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
+  IS_ACTIVE_CAMPAIGN,
+  STATUS_CAMPAIGN,
 } from '@lib/campaign'
 // import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
-  CreateCampaignInput,
   ICampaignFilter,
-  UpdateCampaignInput,
+  ICreateCampaign,
+  IUpdateCampaign,
 } from './admin-campaign.interface'
 import { Brackets } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
@@ -22,6 +24,10 @@ export class AdminCampaignService {
   constructor(
     private readonly campaignService: CampaignService, // private readonly rewardRuleService: RewardRuleService,
   ) {}
+
+  async updateEndedStatus(now: number) {
+    await this.campaignService.updateEndedStatus(now)
+  }
 
   async cancel(id: number): Promise<{ affected: number }> {
     const deleteResult = await this.campaignService.delete(id)
@@ -49,15 +55,13 @@ export class AdminCampaignService {
   // }
 
   async findOne(id: number) {
-    const campaign = await this.campaignService.getById(id)
-    if (campaign === undefined) return null
-    return campaign
+    return this.campaignService.getById(id)
   }
 
   /**
    * Do not use below function to create campaign yet
    */
-  // async createOld(createCampaignInput: CreateCampaignInput) {
+  // async createOld(createCampaignInput: ICreateCampaign) {
   //   let campaign = await this.campaignService.create(createCampaignInput)
   //   await Promise.all(
   //     createCampaignInput.rewardRules.map(async (item) => {
@@ -78,14 +82,23 @@ export class AdminCampaignService {
   //   return campaign
   // }
 
-  async create(createCampaignInput: CreateCampaignInput) {
-    return await this.campaignService.create(createCampaignInput)
+  async create(iCreateCampaign: ICreateCampaign) {
+    iCreateCampaign.status = AdminCampaignService.updateStatusByActive(
+      iCreateCampaign.isActive,
+    )
+    return await this.campaignService.create(iCreateCampaign)
+  }
+
+  private static updateStatusByActive(isActive: number) {
+    if (isActive === IS_ACTIVE_CAMPAIGN.ACTIVE) return STATUS_CAMPAIGN.RUNNING
+    if (isActive === IS_ACTIVE_CAMPAIGN.INACTIVE)
+      return STATUS_CAMPAIGN.INACTIVE
   }
 
   /**
    * Do not use below function to update campaign yet
    */
-  // async updateOld(updateCampaignInput: UpdateCampaignInput) {
+  // async updateOld(updateCampaignInput: IUpdateCampaign) {
   //   let campaign = await this.campaignService.update(updateCampaignInput)
   //   await Promise.all(
   //     updateCampaignInput.rewardRules.map(async (item) => {
@@ -106,8 +119,11 @@ export class AdminCampaignService {
   //   return campaign
   // }
 
-  async update(updateCampaignInput: UpdateCampaignInput) {
-    return await this.campaignService.update(updateCampaignInput)
+  async update(iUpdateCampaign: IUpdateCampaign) {
+    iUpdateCampaign.status = AdminCampaignService.updateStatusByActive(
+      iUpdateCampaign.isActive,
+    )
+    return await this.campaignService.update(iUpdateCampaign)
   }
 
   async findAll(campaignFilter: ICampaignFilter) {
@@ -168,13 +184,12 @@ export class AdminCampaignService {
       )
     }
 
-    if (!sort || sort !== 'priority')
-      queryBuilder.addOrderBy('campaign.priority', 'DESC')
-
-    if (!sort || sort !== 'id') queryBuilder.addOrderBy('campaign.id', 'DESC')
-
-    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort])
+    if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
       queryBuilder.addOrderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
+    } else {
+      queryBuilder.addOrderBy('campaign.priority', 'DESC')
+      queryBuilder.addOrderBy('campaign.id', 'DESC')
+    }
 
     return queryBuilder
   }

@@ -26,12 +26,19 @@ export class PaginatedMissionDto {
   @ApiProperty({ example: 23, name: 'limit_received_reward' })
   limitReceivedReward: string
 
-  @ApiProperty({ example: 59, name: 'total_amount' })
+  @ApiProperty({ example: '59.0', name: 'reward_amount' })
+  rewardAmount: string
+
+  // TODO: uncomment below property
+  // @ApiProperty({ example: '59.0', name: 'received_amount' })
+  // receivedAmount: string
+  @ApiProperty({ example: '59.0', name: 'total_amount' })
   totalAmount: string
 
   @ApiProperty({ example: 'USDT' })
   currency: string
 
+  // TODO: remove below property
   @ApiProperty({
     example: 2,
     description:

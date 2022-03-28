@@ -9,14 +9,38 @@ export class GrpcMissionDto {
   @Expose()
   title: string
 
+  @Expose({ name: 'title_jp' })
+  titleJp: string
+
   @Expose({ name: 'detail_explain' })
   detailExplain: string
+
+  @Expose({ name: 'detail_explain_jp' })
+  detailExplainJp: string
+
+  @Expose({ name: 'guide_link' })
+  guideLink: string
+
+  @Expose({ name: 'guide_link_jp' })
+  guideLinkJp: string
 
   @Expose({ name: 'opening_date' })
   openingDate: number
 
   @Expose({ name: 'closing_date' })
   closingDate: number
+
+  @Expose()
+  priority?: number
+
+  @Expose({ name: 'limit_received_reward' })
+  limitReceivedReward?: number
+
+  @Expose()
+  status?: number
+
+  @Expose({ name: 'is_active' })
+  isActive?: number
 
   @Expose({ name: 'judgment_conditions' })
   @Type(() => JudgmentConditionDto)
@@ -29,15 +53,6 @@ export class GrpcMissionDto {
   @Expose({ name: 'grant_target' })
   @Type(() => GrpcTarget)
   grantTarget: GrpcTarget[]
-
-  @Expose()
-  priority?: number
-
-  @Expose({ name: 'guide_link' })
-  guideLink: string
-
-  @Expose({ name: 'limit_received_reward' })
-  limitReceivedReward?: number
 
   @Expose({ name: 'grant_target' })
   @Type(() => GrpcRewardRule)

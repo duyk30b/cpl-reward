@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
+  GRANT_TARGET_USER,
+  IS_ACTIVE_MISSION,
   MISSION_SEARCH_FIELD_MAP,
   MISSION_SORT_FIELD_MAP,
   MissionService,
@@ -13,10 +15,13 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain } from 'class-transformer'
-import { STATUS as MISSION_STATUS } from '@lib/mission'
+import { Target } from './api-mission.interface'
+import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class ApiMissionService {
+  private readonly logger = new Logger(ApiMissionService.name)
+
   constructor(
     private readonly missionService: MissionService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
@@ -55,25 +60,23 @@ export class ApiMissionService {
     for (const idx in result.items) {
       missionIds.push(result.items[idx].id)
     }
-    const histories =
-      await this.userRewardHistoryService.getAmountReceivedByUser(
-        missionIds,
-        userId,
-      )
+    const histories = await this.userRewardHistoryService.getAmountByUser(
+      missionIds,
+      userId,
+      [STATUS.AUTO_RECEIVED, STATUS.MANUAL_RECEIVED],
+    )
+
     return {
       pagination: result.meta,
       data: result.items.map((item) => {
+        const money = this.getMoneyOfUser(item.grantTarget, item.id, histories)
+        delete item.grantTarget
         return {
           ...instanceToPlain(item, { exposeUnsetFields: false }),
-          currency:
-            histories === null || !histories[item.id]
-              ? ''
-              : histories[item.id][0].currency,
-          status: STATUS.MANUAL_NOT_RECEIVE,
-          total_amount:
-            histories === null || !histories[item.id]
-              ? '0'
-              : histories[item.id][0].totalAmount,
+          currency: money.currency,
+          reward_amount: money.rewardAmount,
+          total_amount: money.receivedAmount, // TODO: change to received_amount after test
+          status: STATUS.AUTO_RECEIVED, // TODO: remove after test
         }
       }),
       links: CommonService.customLinks(result.links),
@@ -87,15 +90,19 @@ export class ApiMissionService {
     const queryBuilder = this.missionService.initQueryBuilder()
     queryBuilder.select([
       'mission.title',
+      'mission.titleJp',
       'mission.id',
       'mission.detailExplain',
+      'mission.detailExplainJp',
       'mission.openingDate',
       'mission.closingDate',
       'mission.guideLink',
+      'mission.guideLinkJp',
       'mission.limitReceivedReward',
+      'mission.grantTarget',
     ])
-    queryBuilder.where('mission.status = :status ', {
-      status: MISSION_STATUS.ACTIVE,
+    queryBuilder.where('mission.isActive = :is_active ', {
+      is_active: IS_ACTIVE_MISSION.ACTIVE,
     })
     if (missionFilter.campaignId !== undefined)
       queryBuilder.andWhere('mission.campaignId = :campaign_id ', {
@@ -161,6 +168,38 @@ export class ApiMissionService {
     return {
       amount: result[0].total_amount,
       currency: result[0].history_currency,
+    }
+  }
+
+  private getMoneyOfUser(
+    grantTarget: string,
+    missionId: number,
+    histories: any,
+  ) {
+    this.logger.log(
+      `grantTarget: ${JSON.stringify(grantTarget)}, ` +
+        `histories: ${JSON.stringify(histories)}, missionId: ${missionId}`,
+    )
+    const grantTargetObj = grantTarget as unknown as Target[]
+    let currentTarget = null
+    grantTargetObj.map((target) => {
+      if (target.user === GRANT_TARGET_USER.USER) currentTarget = target
+      return target
+    })
+    this.logger.log(`currentTarget: ${JSON.stringify(currentTarget)}`)
+    let receivedAmount = '0'
+    if (
+      histories !== null &&
+      histories[`${missionId}_${currentTarget.currency}`] !== undefined
+    ) {
+      receivedAmount = FixedNumber.fromString(
+        histories[`${missionId}_${currentTarget.currency}`],
+      ).toString()
+    }
+    return {
+      currency: currentTarget.currency,
+      rewardAmount: FixedNumber.fromString(currentTarget.amount).toString(),
+      receivedAmount,
     }
   }
 }

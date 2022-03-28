@@ -59,42 +59,54 @@ message FindOneInput {
 message UpdateInput {
   int32 id = 1;
   string title = 2;
-  string description = 3;
-  string detailExplain = 4;
-  int32 startDate = 5; // example: 1642668896
-  int32 endDate = 6;
-  string notificationLink = 7;
-  string campaignImage = 8;
-  int32 priority = 9; // default: 0
-  bool isSystem = 10; // default: false
-  int32 status = 11; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  string titleJp = 3;
+  string description = 4;
+  string descriptionJp = 5;
+  int32 startDate = 6; // example: 1642668896
+  int32 endDate = 7;
+  string notificationLink = 8;
+  string notificationLinkJp = 9;
+  string campaignImage = 10;
+  string campaignImageJp = 11;
+  int32 priority = 12; // default: 0
+  bool isSystem = 13; // default: false
+  int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 15; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
 }
 
 message Result {
   int32 id = 1;
   string title = 2;
-  string description = 3;
-  string detailExplain = 4;
-  int32 startDate = 5;
-  int32 endDate = 6;
-  string notificationLink = 7;
-  string campaignImage = 8;
-  int32 priority = 9;
-  bool isSystem = 10;
-  int32 status = 11; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 createdAt = 12;
-  int32 updatedAt = 13;
+  string titleJp = 3;
+  string description = 4;
+  string descriptionJp = 5;
+  int32 startDate = 6; // example: 1642668896
+  int32 endDate = 7;
+  string notificationLink = 8;
+  string notificationLinkJp = 9;
+  string campaignImage = 10;
+  string campaignImageJp = 11;
+  int32 priority = 12; // default: 0
+  bool isSystem = 13; // default: false
+  int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 15; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 createdAt = 16;
+  int32 updatedAt = 17;
 }
 
 message CreateInput {
   string title = 1;
-  string description = 2;
-  string detailExplain = 3;
-  int32 startDate = 4; // example: 1642668896
-  int32 endDate = 5;
-  string notificationLink = 6;
-  string campaignImage = 7;
-  int32 priority = 8; // default: 0
-  bool isSystem = 9; // default: false
-  int32 status = 10; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  string titleJp = 2;
+  string description = 3;
+  string descriptionJp = 4;
+  int32 startDate = 5; // example: 1642668896
+  int32 endDate = 6;
+  string notificationLink = 7;
+  string notificationLinkJp = 8;
+  string campaignImage = 9;
+  string campaignImageJp = 10;
+  int32 priority = 11; // default: 0
+  bool isSystem = 12; // default: false
+  int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
+  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
 }

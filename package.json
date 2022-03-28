@@ -104,7 +104,7 @@
       "^@lib/external-balance(|/.*)$": "<rootDir>/libs/external-balance/src/$1",
       "^@lib/mission-event(|/.*)$": "<rootDir>/libs/mission-event/src/$1",
       "^@lib/user-reward-history(|/.*)$": "<rootDir>/libs/user-reward-history/src/$1",
-      "^@lib/external-bo(|/.*)$": "<rootDir>/libs/external-bo/src/$1"
+      "^@lib/external-cashback(|/.*)$": "<rootDir>/libs/external-cashback/src/$1"
     }
   }
 }

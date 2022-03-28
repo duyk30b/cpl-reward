@@ -37,7 +37,7 @@ build_dev:
     name: dev
   variables:
     IMAGE_NAME: dev-customer-reward
-    DOCKERFILE_PATH: ./Dockerfile
+    DOCKERFILE_PATH: ./Dockerfile.dev
   only:
     - dev
 

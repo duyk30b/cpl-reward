@@ -87,7 +87,8 @@ export class AdminCampaignService {
 
   private static updateStatusByActive(isActive: number) {
     if (isActive === IS_ACTIVE_CAMPAIGN.ACTIVE) return STATUS_CAMPAIGN.RUNNING
-    if (isActive === IS_ACTIVE_CAMPAIGN.INACTIVE) return STATUS_CAMPAIGN.ENDED
+    if (isActive === IS_ACTIVE_CAMPAIGN.INACTIVE)
+      return STATUS_CAMPAIGN.INACTIVE
   }
 
   /**

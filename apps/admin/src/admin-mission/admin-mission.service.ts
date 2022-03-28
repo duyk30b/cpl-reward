@@ -79,7 +79,7 @@ export class AdminMissionService {
 
   private static updateStatusByActive(isActive: number) {
     if (isActive === IS_ACTIVE_MISSION.ACTIVE) return STATUS_MISSION.RUNNING
-    if (isActive === IS_ACTIVE_MISSION.INACTIVE) return STATUS_MISSION.ENDED
+    if (isActive === IS_ACTIVE_MISSION.INACTIVE) return STATUS_MISSION.INACTIVE
   }
 
   async create(iCreateMission: ICreateMission) {

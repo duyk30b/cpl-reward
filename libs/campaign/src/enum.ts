@@ -12,4 +12,5 @@ export enum STATUS_CAMPAIGN {
   RUNNING = 0,
   EMPTY_MONEY = 1,
   ENDED = 2,
+  INACTIVE = 3,
 }

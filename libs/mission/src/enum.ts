@@ -41,4 +41,5 @@ export enum STATUS_MISSION {
   RUNNING = 0,
   OUT_OF_BUDGET = 1,
   ENDED = 2,
+  INACTIVE = 3,
 }

@@ -45,6 +45,12 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Run migration:
+
+```sh
+docker exec customer_dev npm run migrate:run
+```
+
 ## Test
 
 ```bash
@@ -57,6 +63,7 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
 
 ## Support
 

@@ -26,6 +26,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -45,6 +50,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -64,6 +74,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -83,6 +98,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -102,6 +122,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -121,6 +146,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -143,6 +173,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -162,6 +197,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -184,6 +224,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -203,6 +248,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -222,6 +272,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,
@@ -241,6 +296,11 @@ export class MissionsController {
       return
     }
 
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+    )
     this.eventEmitter.emit('get_events_by_name', {
       messageValueData: message.value.data,
       eventName,

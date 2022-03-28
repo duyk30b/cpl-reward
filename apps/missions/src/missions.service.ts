@@ -160,19 +160,14 @@ export class MissionsService {
    *
    * @param missionId
    * @param userId
-   * @param limitReceivedReward
    */
-  async checkLimitReceivedReward(
-    missionId: number,
-    userId: number,
-    limitReceivedReward: number,
-  ) {
+  async getSuccessCount(missionId: number, userId: number) {
     const missionUser = await this.missionUserService.getOneMissionUser({
       missionId,
       userId,
     })
-    if (missionUser === undefined) return true
-    return missionUser.successCount <= limitReceivedReward
+    if (missionUser === undefined) return 0
+    return missionUser.successCount
   }
 
   async getEventsByName(eventName: string) {

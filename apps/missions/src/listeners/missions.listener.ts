@@ -174,17 +174,17 @@ export class MissionsListener {
       )
 
     // check số lần tối đa user nhận thưởng từ mission
-    const checkLimitReceivedReward =
-      await this.missionsService.checkLimitReceivedReward(
-        data.missionId,
-        userId,
-        mission.limitReceivedReward,
-      )
-    if (!checkLimitReceivedReward) {
+    const successCount = await this.missionsService.getSuccessCount(
+      data.missionId,
+      userId,
+    )
+    if (successCount > mission.limitReceivedReward) {
       this.logger.error(
         `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
           mission.id
-        }. Limit reward max`,
+        }. successCount: ${successCount}, limitReceivedReward: ${
+          mission.limitReceivedReward
+        }`,
       )
       return
     }

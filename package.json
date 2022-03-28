@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/reward/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/reward/test/jest-e2e.json",
+    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f ./config/ormconfig.ts",
+    "migrate:create": "npm run typeorm:cli -- migration:create -n",
+    "migrate:run": "npm run typeorm:cli -- migration:run",
+    "migrate:rollback": "npm run typeorm:cli -- migration:revert"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.5.1",

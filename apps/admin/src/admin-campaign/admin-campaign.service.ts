@@ -25,6 +25,10 @@ export class AdminCampaignService {
     private readonly campaignService: CampaignService, // private readonly rewardRuleService: RewardRuleService,
   ) {}
 
+  async updateEndedStatus(now: number) {
+    await this.campaignService.updateEndedStatus(now)
+  }
+
   async cancel(id: number): Promise<{ affected: number }> {
     const deleteResult = await this.campaignService.delete(id)
     return {

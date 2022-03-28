@@ -21,5 +21,5 @@ export const CAMPAIGN_SORT_FIELD_MAP = {
   is_system: 'campaign.isSystem',
   status: 'campaign.status',
   priority: 'campaign.priority',
-  created_at: 'campaign.created_at',
+  created_at: 'campaign.createdAt',
 }

@@ -7,6 +7,7 @@ import { map } from 'rxjs'
 @Injectable()
 export class ExternalBalanceService {
   private readonly logger = new Logger(ExternalBalanceService.name)
+
   constructor(
     private httpService: HttpService,
     private configService: ConfigService,
@@ -49,7 +50,7 @@ export class ExternalBalanceService {
       }
       return result
     } catch (e) {
-      this.logger.error(e)
+      this.logger.log(e)
     }
   }
 }

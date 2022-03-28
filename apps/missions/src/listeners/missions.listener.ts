@@ -32,7 +32,7 @@ export class MissionsListener {
       EVENTS[data.eventName],
     )
     if (events.length === 0) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}] no mission/campaign in event.`,
       )
       return
@@ -53,7 +53,7 @@ export class MissionsListener {
       data.messageValueData.user_id,
     )
     if (user === null) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}]. Wrong user info: ${JSON.stringify(
           user,
         )}`,
@@ -69,7 +69,7 @@ export class MissionsListener {
     // Kiểm tra thời gian khả dụng của campaign
     const campaign = await this.missionsService.getCampaignById(data.campaignId)
     if (!campaign) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${
           EVENTS[data.eventName]
         }]. Reason: Campaign was not found!. CampaignId: ${
@@ -83,7 +83,7 @@ export class MissionsListener {
         id: campaign.id,
         status: STATUS_CAMPAIGN.ENDED,
       })
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${
           EVENTS[data.eventName]
         }]. Reason: Campaign was over time!. now: ${now}, campaignId: ${
@@ -96,7 +96,7 @@ export class MissionsListener {
     // Kiểm tra thời gian khả dụng của mission
     const mission = await this.missionsService.getMissionById(data.missionId)
     if (!mission) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${
           EVENTS[data.eventName]
         }]. Reason: Mission was not found!. MissionId: ${data.missionId}`,
@@ -108,7 +108,7 @@ export class MissionsListener {
         id: mission.id,
         status: STATUS_MISSION.ENDED,
       })
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${
           EVENTS[data.eventName]
         }]. Reason: Mission was over time!. now: ${now}, missionId: ${
@@ -127,7 +127,7 @@ export class MissionsListener {
         mission.id,
       )
     if (!checkJudgmentConditions) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
           mission.id
         }. Judgment Condition check fail!`,
@@ -143,7 +143,7 @@ export class MissionsListener {
       mission.id,
     )
     if (!checkUserConditions) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
           mission.id
         }. User Condition check fail!`,
@@ -158,7 +158,7 @@ export class MissionsListener {
       typeRule: TYPE_RULE.MISSION,
     })
     if (rewardRules.length === 0) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
           mission.id
         }. Mission reward rules was not exist!`,
@@ -179,7 +179,7 @@ export class MissionsListener {
       userId,
     )
     if (successCount > mission.limitReceivedReward) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
           mission.id
         }. successCount: ${successCount}, limitReceivedReward: ${
@@ -202,7 +202,7 @@ export class MissionsListener {
         //   id: mission.id,
         //   status: STATUS_MISSION.OUT_OF_BUDGET,
         // })
-        this.logger.error(
+        this.logger.log(
           `[EVENT ${EVENTS[data.eventName]}]. ` +
             `MissionId: ${mission.id}. Not enough money. ` +
             `limitValue: ${rewardRules[idx].limitValue}. ` +

@@ -17,8 +17,8 @@ export class MissionsController {
   async authUserLogin(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_LOGIN'
     const value = message.value
-    if (value.data.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value.data).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -29,10 +29,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value.data,
       eventName,
     })
   }
@@ -41,8 +41,8 @@ export class MissionsController {
   async authUserChangeEmail(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_CHANGE_EMAIL'
     const value = message.value
-    if (value.data.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value.data).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -53,10 +53,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value.data,
       eventName,
     })
   }
@@ -65,8 +65,8 @@ export class MissionsController {
   async authUserCreated(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_CREATED'
     const value = message.value
-    if (value.data.uuid === undefined) {
-      this.logger.error(
+    if (Object.keys(value.data).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -77,10 +77,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value.data,
       eventName,
     })
   }
@@ -89,8 +89,8 @@ export class MissionsController {
   async authUserLogout(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_LOGOUT'
     const value = message.value
-    if (value.data.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value.data).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -101,10 +101,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value.data,
       eventName,
     })
   }
@@ -113,8 +113,8 @@ export class MissionsController {
   async authUserChangePassword(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_CHANGE_PASSWORD'
     const value = message.value
-    if (value.data.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value.data).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -125,10 +125,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value.data,
       eventName,
     })
   }
@@ -137,8 +137,8 @@ export class MissionsController {
   async authUserAuthenticatorStatusUpdated(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_AUTHENTICATOR_STATUS_UPDATED'
     const value = message.value
-    if (value.data.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value.data).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -149,10 +149,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value.data,
       eventName,
     })
   }
@@ -164,8 +164,8 @@ export class MissionsController {
   async bceDeposit(@Payload() message: KafkaMessage) {
     const eventName = 'BCE_DEPOSIT'
     const value = message.value
-    if (value.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -176,10 +176,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value,
       eventName,
     })
   }
@@ -188,8 +188,8 @@ export class MissionsController {
   async bceWithdraw(@Payload() message: KafkaMessage) {
     const eventName = 'BCE_WITHDRAW'
     const value = message.value
-    if (value.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -200,10 +200,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value,
       eventName,
     })
   }
@@ -215,8 +215,8 @@ export class MissionsController {
   async highLowCreate(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_CREATE'
     const value = message.value
-    if (value.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -227,10 +227,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value,
       eventName,
     })
   }
@@ -239,8 +239,8 @@ export class MissionsController {
   async highLowWin(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_WIN'
     const value = message.value
-    if (value.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -251,10 +251,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value,
       eventName,
     })
   }
@@ -263,8 +263,8 @@ export class MissionsController {
   async highLowLost(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_LOST'
     const value = message.value
-    if (value.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -275,10 +275,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value,
       eventName,
     })
   }
@@ -287,8 +287,8 @@ export class MissionsController {
   async highLowCancel(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_CANCEL'
     const value = message.value
-    if (value.user_id === undefined) {
-      this.logger.error(
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
         )}`,
@@ -299,10 +299,10 @@ export class MissionsController {
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(message.value)}`,
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
     )
     this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: message.value.data,
+      messageValueData: value,
       eventName,
     })
   }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { LessThanOrEqual, Repository } from 'typeorm'
 import {
   paginate,
   paginateRawAndEntities,
@@ -14,6 +14,7 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { INFO_EVENTS } from '@lib/mission/constants'
+import { STATUS_MISSION } from '@lib/mission/enum'
 
 @Injectable()
 export class MissionService {
@@ -21,6 +22,13 @@ export class MissionService {
     @InjectRepository(Mission)
     private missionRepository: Repository<Mission>,
   ) {}
+
+  async updateEndedStatus(now: number) {
+    await this.missionRepository.update(
+      { closingDate: LessThanOrEqual(now) },
+      { status: STATUS_MISSION.ENDED },
+    )
+  }
 
   async getById(id: number, options = undefined): Promise<Mission> {
     return await this.missionRepository.findOne(id, options)

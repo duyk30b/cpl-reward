@@ -29,7 +29,9 @@ export class ExternalCashbackService {
    */
   async changeUserCashback(input: ChangeUserCashback): Promise<any> {
     const postBoUrl =
-      this.configService.get('cashback.url').replace('service-api', 'service-internal') + '/transaction/create'
+      this.configService
+        .get('cashback.url')
+        .replace('service-api', 'service-internal') + '/transaction/create'
 
     const postData = {
       ...input,

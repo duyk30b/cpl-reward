@@ -25,6 +25,7 @@ export const USER_CONDITION_TYPES = {
   user_info_status: 'string',
   authenticator_verify_status: 'string',
   email_verify_status: 'string',
+  referrer_code: 'string',
 }
 
 export const INFO_EVENTS = [
@@ -218,7 +219,7 @@ export const INFO_EVENTS = [
   {
     eventName: EVENTS.BCE_DEPOSIT,
     properties: [
-      //id,transaction_id, user_id, type, currency, amount, fee, is_first
+      //id,transaction_id, user_id, type, currency, amount, fee, is_first_time
       {
         key: 'id',
         type: 'number',
@@ -237,76 +238,81 @@ export const INFO_EVENTS = [
       {
         key: 'type',
         type: 'string',
-        description: 'Type',
+        description: 'Type of transaction (values: deposit, ...?)',
       },
       {
         key: 'currency',
         type: 'string',
-        description: 'Currency',
+        description: 'Currency (lowercase)',
       },
       {
         key: 'amount',
-        type: 'string',
+        type: 'string', // Type khi gửi về từ kafka là string, nhưng bản chất là giá trị là number
+        display: 'number',
         description: 'Amount',
       },
       {
         key: 'fee',
-        type: 'string',
+        type: 'string', // Type khi gửi về từ kafka là string, nhưng bản chất là giá trị là number
+        display: 'number',
         description: 'Fee',
       },
       {
-        key: 'is_first',
+        key: 'is_first_time',
         type: 'boolean',
-        description: 'Is First',
+        description: 'Is first time the use do this action',
       },
     ],
   },
-  {
-    eventName: EVENTS.BCE_WITHDRAW,
-    properties: [
-      //id,transaction_id, user_id, type, currency, amount, fee, is_first
-      {
-        key: 'id',
-        type: 'number',
-        description: 'ID',
-      },
-      {
-        key: 'transaction_id',
-        type: 'string',
-        description: 'Transaction ID',
-      },
-      {
-        key: 'user_id',
-        type: 'number',
-        description: 'User ID',
-      },
-      {
-        key: 'type',
-        type: 'string',
-        description: 'Type',
-      },
-      {
-        key: 'currency',
-        type: 'string',
-        description: 'Currency',
-      },
-      {
-        key: 'amount',
-        type: 'string',
-        description: 'Amount',
-      },
-      {
-        key: 'fee',
-        type: 'string',
-        description: 'Fee',
-      },
-      {
-        key: 'is_first',
-        type: 'boolean',
-        description: 'Is First',
-      },
-    ],
-  },
+  // Kafka chưa có event này (update 27/03/2022)
+  // {
+  //   eventName: EVENTS.BCE_WITHDRAW,
+  //   properties: [
+  //     //id,transaction_id, user_id, type, currency, amount, fee, is_first_time
+  //     {
+  //       key: 'id',
+  //       type: 'number',
+  //       description: 'ID',
+  //     },
+  //     {
+  //       key: 'transaction_id',
+  //       type: 'string',
+  //       description: 'Transaction ID',
+  //     },
+  //     {
+  //       key: 'user_id',
+  //       type: 'number',
+  //       description: 'User ID',
+  //     },
+  //     {
+  //       key: 'type',
+  //       type: 'string',
+  //       description: 'Type',
+  //     },
+  //     {
+  //       key: 'currency',
+  //       type: 'string',
+  //       description: 'Currency (lowercase)',
+  //     },
+  //     {
+  //       key: 'amount',
+  //       type: 'string',
+  //       display: 'number',
+  //       description: 'Amount',
+  //     },
+  //     {
+  //       key: 'fee',
+  //       type: 'string',
+  //       display: 'number',
+  //       description: 'Fee',
+  //     },
+  //     {
+  //       key: 'is_first_time',
+  //       type: 'boolean',
+  //       description: 'Is first time the user do this action',
+  //     },
+  //   ],
+  // },
   {
     eventName: EVENTS.HIGH_LOW_CREATE,
     properties: [

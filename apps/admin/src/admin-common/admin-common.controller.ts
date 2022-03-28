@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common'
 import { AdminCommonService } from './admin-common.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import { CreateActionLogInput } from './admin-common.interface'
+import { USER_CONDITION_TYPES } from '@lib/mission'
 
 @Controller('common')
 export class AdminCommonController {
@@ -28,7 +29,7 @@ export class AdminCommonController {
   @GrpcMethod('GrpcAdminCommonService', 'ListUserConditions')
   listUserConditions() {
     return {
-      list: 'kyc_verify_status,user_info_status,authenticator_verify_status,email_verify_status',
+      list: Object.keys(USER_CONDITION_TYPES),
     }
   }
 }

@@ -160,7 +160,7 @@ export class AdminMissionService {
           String(item.limitValue),
         ).toString()
         item.releaseValue = FixedNumber.fromString(
-          String(item.releaseValue),
+          String(item.releaseValue || 0),
         ).toString()
         return item
       })

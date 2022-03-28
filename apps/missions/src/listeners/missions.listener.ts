@@ -203,10 +203,13 @@ export class MissionsListener {
         //   status: STATUS_MISSION.OUT_OF_BUDGET,
         // })
         this.logger.error(
-          `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
-            mission.id
-          }. Reason: Mission not enough money to send ` +
-            `main user: ${userId} and referred user: ${referredUserId}`,
+          `[EVENT ${EVENTS[data.eventName]}]. ` +
+            `MissionId: ${mission.id}. Not enough money. ` +
+            `limitValue: ${rewardRules[idx].limitValue}. ` +
+            `Main user: ${userId}, amount: ${mainUser.amount}. ` +
+            `Referred user: ${referredUserId}, amount: ${
+              referredUser === null ? '' : referredUser.amount
+            }`,
         )
         continue
       }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   GRANT_TARGET_USER,
   IS_ACTIVE_MISSION,
@@ -20,6 +20,8 @@ import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class ApiMissionService {
+  private readonly logger = new Logger(ApiMissionService.name)
+
   constructor(
     private readonly missionService: MissionService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
@@ -67,11 +69,7 @@ export class ApiMissionService {
     return {
       pagination: result.meta,
       data: result.items.map((item) => {
-        const money = ApiMissionService.getMoneyOfUser(
-          item.grantTarget,
-          item.id,
-          histories,
-        )
+        const money = this.getMoneyOfUser(item.grantTarget, item.id, histories)
         delete item.grantTarget
         return {
           ...instanceToPlain(item, { exposeUnsetFields: false }),
@@ -173,17 +171,22 @@ export class ApiMissionService {
     }
   }
 
-  private static getMoneyOfUser(
+  private getMoneyOfUser(
     grantTarget: string,
     missionId: number,
     histories: any,
   ) {
+    this.logger.log(
+      `grantTarget: ${JSON.stringify(grantTarget)}, ` +
+        `histories: ${JSON.stringify(histories)}, missionId: ${missionId}`,
+    )
     const grantTargetObj = grantTarget as unknown as Target[]
     let currentTarget = null
     grantTargetObj.map((target) => {
       if (target.user === GRANT_TARGET_USER.USER) currentTarget = target
       return target
     })
+    this.logger.log(`currentTarget: ${JSON.stringify(currentTarget)}`)
     let receivedAmount = '0'
     if (histories !== null) {
       receivedAmount = FixedNumber.fromString(

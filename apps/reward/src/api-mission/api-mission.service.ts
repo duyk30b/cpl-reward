@@ -188,7 +188,10 @@ export class ApiMissionService {
     })
     this.logger.log(`currentTarget: ${JSON.stringify(currentTarget)}`)
     let receivedAmount = '0'
-    if (histories !== null) {
+    if (
+      histories !== null &&
+      histories[`${missionId}_${currentTarget.currency}`] !== undefined
+    ) {
       receivedAmount = FixedNumber.fromString(
         histories[`${missionId}_${currentTarget.currency}`],
       ).toString()

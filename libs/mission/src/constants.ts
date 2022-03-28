@@ -35,7 +35,8 @@ export const INFO_EVENTS = [
       //user_id,lang,ip,is_register,time,channel_id
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'ID of user who just logged in',
       },
       {

@@ -9,6 +9,7 @@ import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { IS_ACTIVE_CAMPAIGN, STATUS_CAMPAIGN } from '../enum'
+import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 
 @Entity({
   name: 'campaigns',
@@ -95,4 +96,13 @@ export class Campaign extends MyBaseEntity {
     name: 'missions',
   })
   missions: Mission[]
+
+  @OneToMany(() => RewardRule, (rewardRule) => rewardRule.campaign, {
+    eager: true,
+  })
+  @JoinColumn()
+  @Expose({
+    name: 'reward_rules',
+  })
+  rewardRules: RewardRule[]
 }

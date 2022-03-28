@@ -14,10 +14,13 @@ import * as moment from 'moment-timezone'
 export class AdminCampaignController implements OnModuleInit {
   constructor(private readonly adminCampaignService: AdminCampaignService) {}
 
+  /**
+   * TODO: replace by queue in next sprint
+   */
   async onModuleInit() {
-    // setInterval(async () => {
-    //   await this.adminCampaignService.updateEndedStatus(moment().unix())
-    // }, 1000)
+    setInterval(async () => {
+      await this.adminCampaignService.updateEndedStatus(moment().unix())
+    }, 60000)
   }
 
   @GrpcMethod('GrpcAdminCampaignService', 'Create')

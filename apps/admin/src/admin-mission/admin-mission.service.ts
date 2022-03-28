@@ -28,6 +28,10 @@ export class AdminMissionService {
     private readonly missionEventService: MissionEventService,
   ) {}
 
+  async updateEndedStatus(now: number) {
+    return this.missionService.updateEndedStatus(now)
+  }
+
   private updateTypeInTarget(grantTarget: TargetDto[]) {
     return grantTarget.map((target) => {
       if (

@@ -32,12 +32,12 @@ export class ExternalListener {
         status: STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
-        this.logger.error(
+        this.logger.log(
           `Update reward history fail. ` +
             `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
         )
       }
-      this.logger.error(
+      this.logger.log(
         'Send reward to cashback fail, detail: ' +
           JSON.stringify(sendRewardToCashback),
       )
@@ -48,7 +48,7 @@ export class ExternalListener {
       status: STATUS.AUTO_RECEIVED,
     })
     if (result.affected === 0) {
-      this.logger.error(
+      this.logger.log(
         `Update reward history fail. ` +
           `Input: id => ${data.id}, status => ${STATUS.AUTO_RECEIVED}`,
       )
@@ -69,12 +69,12 @@ export class ExternalListener {
         status: STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
-        this.logger.error(
+        this.logger.log(
           `Update reward history fail. ` +
             `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
         )
       }
-      this.logger.error(
+      this.logger.log(
         'Send reward to balance fail, detail: ' +
           JSON.stringify(sendRewardToBalance),
       )
@@ -85,7 +85,7 @@ export class ExternalListener {
       status: STATUS.AUTO_RECEIVED,
     })
     if (result.affected === 0) {
-      this.logger.error(
+      this.logger.log(
         `Update reward history fail. ` +
           `Input: id => ${data.id}, status => ${STATUS.AUTO_RECEIVED}`,
       )

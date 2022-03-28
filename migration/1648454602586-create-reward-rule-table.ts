@@ -44,14 +44,14 @@ export class createRewardRuleTable1648454602586 implements MigrationInterface {
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'release_value',
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'created_at',

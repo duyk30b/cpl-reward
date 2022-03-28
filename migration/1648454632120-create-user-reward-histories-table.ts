@@ -41,7 +41,7 @@ export class createUserRewardHistoriesTable1648454632120
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'currency',

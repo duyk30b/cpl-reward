@@ -33,14 +33,14 @@ export class createMissionUserLogTable1648454684733
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'total_money_earned',
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'referred_user_info',

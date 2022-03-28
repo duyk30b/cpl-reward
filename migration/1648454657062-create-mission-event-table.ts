@@ -6,7 +6,7 @@ export class createMissionEventTable1648454657062
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'mission_events',
+        name: 'mission_event',
         columns: [
           {
             name: 'id',

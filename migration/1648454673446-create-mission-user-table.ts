@@ -4,7 +4,7 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'mission_users',
+        name: 'mission_user',
         columns: [
           {
             name: 'id',
@@ -31,14 +31,14 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'total_money_earned',
             type: 'decimal',
             precision: 49,
             scale: 18,
-            isNullable: true,
+            default: 0,
           },
           {
             name: 'referred_user_info',

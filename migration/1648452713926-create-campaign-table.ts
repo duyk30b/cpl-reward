@@ -32,10 +32,12 @@ export class createCampaignTable1648452713926 implements MigrationInterface {
           {
             name: 'notification_link',
             type: 'text',
+            isNullable: true,
           },
           {
             name: 'campaign_image',
             type: 'varchar',
+            isNullable: true,
           },
           {
             name: 'priority',
@@ -68,10 +70,12 @@ export class createCampaignTable1648452713926 implements MigrationInterface {
           {
             name: 'notification_link_jp',
             type: 'text',
+            isNullable: true,
           },
           {
             name: 'campaign_image_jp',
             type: 'text',
+            isNullable: true,
           },
           {
             name: 'created_at',

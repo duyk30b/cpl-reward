@@ -10,6 +10,7 @@ import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { KEY_REWARD_RULE, TYPE_RULE } from '../enum'
 import { FixedNumber } from 'ethers'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Entity({
   name: 'reward_rules',
@@ -96,9 +97,11 @@ export class RewardRule extends MyBaseEntity {
   })
   releaseValue: number
 
-  @ManyToOne(() => Mission, (mission) => mission.rewardRules, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Mission, (mission) => mission.rewardRules)
   @JoinColumn({ name: 'mission_id' })
   mission: Mission
+
+  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules)
+  @JoinColumn({ name: 'campaign_id' })
+  campaign: Campaign
 }

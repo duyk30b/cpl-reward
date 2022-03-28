@@ -6,7 +6,6 @@ import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto
 import { plainToInstance } from 'class-transformer'
 import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 import { OptionalRewardRule } from '@lib/reward-rule/reward-rule.interface'
-import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class RewardRuleService {
@@ -52,17 +51,24 @@ export class RewardRuleService {
     return await this.rewardRuleRepository.findOne(conditions)
   }
 
-  async updateValue(rewardRule: RewardRule, amount: string) {
-    const fixedAmount = FixedNumber.fromString(amount).toString()
+  async updateValue(
+    rewardRuleId: number,
+    releaseValue: number,
+    limitValue = 0,
+  ) {
+    // TODO: using queue to update value in next sprint
     return await this.rewardRuleRepository
       .createQueryBuilder('reward_rule')
       .update(RewardRule)
-      .where({ id: rewardRule.id })
+      .where({ id: rewardRuleId })
       .set({
-        releaseValue: () => 'release_value + :amount',
-        limitValue: () => 'limit_value - :amount',
+        releaseValue,
+        limitValue,
       })
-      .setParameter('amount', fixedAmount)
       .execute()
+  }
+
+  async onlyUpdate(updateRewardRule: RewardRule): Promise<RewardRule> {
+    return await this.rewardRuleRepository.save(updateRewardRule)
   }
 }

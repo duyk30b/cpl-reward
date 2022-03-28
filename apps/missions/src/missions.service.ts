@@ -20,7 +20,7 @@ import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
-import { RewardRuleService } from '@lib/reward-rule'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
   JudgmentCondition,
@@ -56,35 +56,42 @@ export class MissionsService {
     campaignId: number,
     amount: string,
   ) {
+    /**
+     * Update value of mission
+     * TODO: using queue to update value in next sprint
+     */
+    const fixedAmount = FixedNumber.fromString(amount)
+    const limitValue = FixedNumber.from(missionRewardRule.limitValue)
+      .subUnsafe(fixedAmount)
+      .toUnsafeFloat()
+    const releaseValue = FixedNumber.from(missionRewardRule.releaseValue)
+      .addUnsafe(fixedAmount)
+      .toUnsafeFloat()
     const updateMissionRewardRule = await this.rewardRuleService.updateValue(
-      missionRewardRule,
-      amount,
+      missionRewardRule.id,
+      releaseValue,
+      limitValue,
     )
     if (updateMissionRewardRule.affected === 0) {
-      this.logger.error(
-        `Update Value of Reward Rule fail, ` +
+      this.logger.log(
+        `Update Value of Mission Reward Rule fail, ` +
           `input: rewardRule => ${JSON.stringify(missionRewardRule)}` +
           `, amount => ${amount}`,
       )
     }
-    // const campaignRewardRules = await this.rewardRuleService.find({
-    //   campaignId: campaignId,
-    //   typeRule: TYPE_RULE.CAMPAIGN,
-    // })
-    // if (campaignRewardRules.length > 0) {
-    //   for (const idx in campaignRewardRules) {
-    //     if (
-    //       campaignRewardRules[idx].currency !== currency ||
-    //       campaignRewardRules[idx].key !== type
-    //     )
-    //       continue
-    //
-    //     await this.rewardRuleService.updateValue(
-    //       campaignRewardRules[idx],
-    //       amount,
-    //     )
-    //   }
-    // }
+
+    const campaignRewardRule = await this.rewardRuleService.findOne({
+      campaignId: campaignId,
+      typeRule: TYPE_RULE.CAMPAIGN,
+    })
+    if (campaignRewardRule !== undefined) {
+      campaignRewardRule.releaseValue = FixedNumber.from(
+        campaignRewardRule.releaseValue,
+      )
+        .addUnsafe(fixedAmount)
+        .toUnsafeFloat()
+      await this.rewardRuleService.onlyUpdate(campaignRewardRule)
+    }
   }
 
   async commonFlowReward(
@@ -230,7 +237,7 @@ export class MissionsService {
             ${operator}
             ${value}`)
       if (!checkJudgmentCondition) {
-        this.logger.error(
+        this.logger.log(
           `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. Judgement Condition data: ` +
             `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
             `operator => ${operator}, conditionValue => ${value}`,
@@ -279,7 +286,7 @@ export class MissionsService {
             ${operator}
             ${value}`)
       if (!checkUserCondition) {
-        this.logger.error(
+        this.logger.log(
           `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. User Condition data: ` +
             `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
             `operator => ${operator}, conditionValue => ${value}`,
@@ -319,7 +326,7 @@ export class MissionsService {
       referredUser = null
     const grantTargets = grantTarget as unknown as Target[]
     if (grantTargets.length === 0) {
-      this.logger.error(
+      this.logger.log(
         `[EVENT ${EVENTS[eventName]}]. Reason: Grant Target was not found!`,
       )
       return { mainUser, referredUser }

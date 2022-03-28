@@ -6,7 +6,7 @@ import {
   IS_ACTIVE_CAMPAIGN,
   STATUS_CAMPAIGN,
 } from '@lib/campaign'
-// import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -18,22 +18,24 @@ import { Brackets } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
+import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 
 @Injectable()
 export class AdminCampaignService {
   constructor(
-    private readonly campaignService: CampaignService, // private readonly rewardRuleService: RewardRuleService,
+    private readonly campaignService: CampaignService,
+    private readonly rewardRuleService: RewardRuleService,
   ) {}
-
-  async updateEndedStatus(now: number) {
-    await this.campaignService.updateEndedStatus(now)
-  }
 
   async cancel(id: number): Promise<{ affected: number }> {
     const deleteResult = await this.campaignService.delete(id)
     return {
       affected: deleteResult.affected,
     }
+  }
+
+  async updateEndedStatus(now: number) {
+    return this.campaignService.updateEndedStatus(now)
   }
 
   /**
@@ -86,7 +88,21 @@ export class AdminCampaignService {
     iCreateCampaign.status = AdminCampaignService.updateStatusByActive(
       iCreateCampaign.isActive,
     )
-    return await this.campaignService.create(iCreateCampaign)
+    const campaign = await this.campaignService.create(iCreateCampaign)
+
+    await this.rewardRuleService.create(
+      {
+        currency: 'USDT',
+        limitValue: '0',
+        releaseValue: '0',
+      } as CreateRewardRuleDto,
+      {
+        campaignId: campaign.id,
+        missionId: null,
+        typeRule: TYPE_RULE.CAMPAIGN,
+      },
+    )
+    return campaign
   }
 
   private static updateStatusByActive(isActive: number) {

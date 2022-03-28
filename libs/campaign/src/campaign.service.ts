@@ -9,6 +9,7 @@ import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
+import { STATUS_CAMPAIGN } from '@lib/campaign/enum'
 
 @Injectable()
 export class CampaignService {
@@ -57,6 +58,14 @@ export class CampaignService {
       ignoreDecorators: true,
     })
     return await this.campaignRepository.save(campaignEntity)
+  }
+
+  async updateEndedStatus(now: number) {
+    await this.initQueryBuilder()
+      .update()
+      .set({ status: STATUS_CAMPAIGN.ENDED })
+      .where('campaign.endDate < :now', { now })
+      .execute()
   }
 
   initQueryBuilder(): SelectQueryBuilder<Campaign> {

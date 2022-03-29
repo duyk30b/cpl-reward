@@ -60,23 +60,36 @@ export class ApiMissionService {
     for (const idx in result.items) {
       missionIds.push(result.items[idx].id)
     }
-    const histories = await this.userRewardHistoryService.getAmountByUser(
-      missionIds,
-      userId,
-      [STATUS.AUTO_RECEIVED, STATUS.MANUAL_RECEIVED],
-    )
+    const receivedHistories =
+      await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
+        STATUS.AUTO_RECEIVED,
+        STATUS.MANUAL_RECEIVED,
+      ])
+    const notReceivedHistories =
+      await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
+        STATUS.MANUAL_NOT_RECEIVE,
+      ])
 
     return {
       pagination: result.meta,
       data: result.items.map((item) => {
-        const money = this.getMoneyOfUser(item.grantTarget, item.id, histories)
+        const money = this.getMoneyOfUser(
+          item.grantTarget,
+          item.id,
+          receivedHistories,
+          notReceivedHistories,
+        )
         delete item.grantTarget
+        let status = 0
+        if (FixedNumber.fromString(money.notReceivedAmount).toUnsafeFloat() > 0)
+          status = 1
         return {
           ...instanceToPlain(item, { exposeUnsetFields: false }),
           currency: money.currency,
           reward_amount: money.rewardAmount,
           total_amount: money.receivedAmount, // TODO: change to received_amount after test
-          status: STATUS.AUTO_RECEIVED, // TODO: remove after test
+          not_received_amount: money.notReceivedAmount, // TODO: change to received_amount after test
+          status, // TODO: remove after test
         }
       }),
       links: CommonService.customLinks(result.links),
@@ -174,11 +187,14 @@ export class ApiMissionService {
   private getMoneyOfUser(
     grantTarget: string,
     missionId: number,
-    histories: any,
+    receivedHistories: any,
+    notReceivedHistories: any,
   ) {
     this.logger.log(
       `grantTarget: ${JSON.stringify(grantTarget)}, ` +
-        `histories: ${JSON.stringify(histories)}, missionId: ${missionId}`,
+        `receivedHistories: ${JSON.stringify(
+          receivedHistories,
+        )}, missionId: ${missionId}`,
     )
     const grantTargetObj = grantTarget as unknown as Target[]
     let currentTarget = null
@@ -189,17 +205,29 @@ export class ApiMissionService {
     this.logger.log(`currentTarget: ${JSON.stringify(currentTarget)}`)
     let receivedAmount = '0'
     if (
-      histories !== null &&
-      histories[`${missionId}_${currentTarget.currency}`] !== undefined
+      receivedHistories !== null &&
+      receivedHistories[`${missionId}_${currentTarget.currency}`] !== undefined
     ) {
       receivedAmount = FixedNumber.fromString(
-        histories[`${missionId}_${currentTarget.currency}`],
+        receivedHistories[`${missionId}_${currentTarget.currency}`],
+      ).toString()
+    }
+
+    let notReceivedAmount = '0'
+    if (
+      notReceivedHistories !== null &&
+      notReceivedHistories[`${missionId}_${currentTarget.currency}`] !==
+        undefined
+    ) {
+      notReceivedAmount = FixedNumber.fromString(
+        notReceivedHistories[`${missionId}_${currentTarget.currency}`],
       ).toString()
     }
     return {
       currency: currentTarget.currency,
       rewardAmount: FixedNumber.fromString(currentTarget.amount).toString(),
       receivedAmount,
+      notReceivedAmount,
     }
   }
 }

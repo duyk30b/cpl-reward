@@ -13,15 +13,9 @@ export default registerAs('kafka', () => ({
     process.env.ENV + '_auth_user_authenticator_status_updated',
 
   // BCE sử dụng
-  bce_trading_matched:
-    (process.env.ENV === 'dev' ? 'development' : process.env.ENV) +
-    '_bce_trading_matched',
-  bce_deposit:
-    (process.env.ENV === 'dev' ? 'development' : process.env.ENV) +
-    '_bce_deposit',
-  bce_withdraw:
-    (process.env.ENV === 'dev' ? 'development' : process.env.ENV) +
-    '_bce_withdraw',
+  bce_trading_matched: process.env.ENV + '_bce_trading_matched',
+  bce_deposit: process.env.ENV + '_bce_deposit',
+  bce_withdraw: process.env.ENV + '_bce_withdraw',
 
   high_low_create: process.env.ENV + '_high_low_create',
   high_low_win: process.env.ENV + '_high_low_win',

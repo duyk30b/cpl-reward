@@ -43,6 +43,9 @@ export class CreateMissionDto {
   @Expose({ name: 'is_active' })
   isActive?: number
 
+  @Expose({ name: 'target_type' })
+  targetType?: number
+
   @Expose({ name: 'judgment_conditions' })
   @Type(() => JudgmentConditionDto)
   judgmentConditions: JudgmentConditionDto[]

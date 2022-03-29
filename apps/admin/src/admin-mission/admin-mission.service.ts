@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import {
   EVENTS,
+  GRANT_TARGET_USER,
   GRANT_TARGET_WALLET,
   IS_ACTIVE_MISSION,
   MissionService,
   STATUS_MISSION,
+  TARGET_TYPE,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
@@ -30,6 +32,18 @@ export class AdminMissionService {
 
   async updateEndedStatus(now: number) {
     return this.missionService.updateEndedStatus(now)
+  }
+
+  private getTargetType(grantTarget: TargetDto[]) {
+    let isUser = false
+    let isReferralUser = false
+    grantTarget.map((target) => {
+      if (target.user === GRANT_TARGET_USER.USER) isUser = true
+      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) isReferralUser = true
+    })
+    if (isUser && isReferralUser) return TARGET_TYPE.HYBRID
+    if (isUser) return TARGET_TYPE.ONLY_MAIN
+    return TARGET_TYPE.ONLY_REFERRED
   }
 
   private updateTypeInTarget(grantTarget: TargetDto[]) {
@@ -86,53 +100,43 @@ export class AdminMissionService {
     if (isActive === IS_ACTIVE_MISSION.INACTIVE) return STATUS_MISSION.INACTIVE
   }
 
-  async create(iCreateMission: ICreateMission) {
-    iCreateMission.grantTarget = this.updateTypeInTarget(
-      iCreateMission.grantTarget,
+  async create(create: ICreateMission) {
+    create.grantTarget = this.updateTypeInTarget(create.grantTarget)
+    create.targetType = this.getTargetType(create.grantTarget)
+    create.judgmentConditions = this.updateTypeInJudgment(
+      create.judgmentConditions,
     )
-    iCreateMission.judgmentConditions = this.updateTypeInJudgment(
-      iCreateMission.judgmentConditions,
-    )
-    iCreateMission.userConditions = this.updateTypeInUser(
-      iCreateMission.userConditions,
-    )
-    iCreateMission.status = AdminMissionService.updateStatusByActive(
-      iCreateMission.isActive,
-    )
-    const mission = await this.missionService.create(iCreateMission)
+    create.userConditions = this.updateTypeInUser(create.userConditions)
+    create.status = AdminMissionService.updateStatusByActive(create.isActive)
+    const mission = await this.missionService.create(create)
     await Promise.all(
-      iCreateMission.rewardRules.map(async (item) => {
+      create.rewardRules.map(async (item) => {
         await this.rewardRuleService.create(item, {
-          campaignId: iCreateMission.campaignId,
+          campaignId: create.campaignId,
           missionId: mission.id,
           typeRule: TYPE_RULE.MISSION,
         })
       }),
     )
     await this.mappingMissionEvent(
-      iCreateMission.judgmentConditions,
-      iCreateMission.campaignId,
+      create.judgmentConditions,
+      create.campaignId,
       mission.id,
     )
     return await this.findOne(mission.id)
   }
 
-  async update(iUpdateMission: IUpdateMission) {
-    iUpdateMission.grantTarget = this.updateTypeInTarget(
-      iUpdateMission.grantTarget,
+  async update(update: IUpdateMission) {
+    update.grantTarget = this.updateTypeInTarget(update.grantTarget)
+    update.targetType = this.getTargetType(update.grantTarget)
+    update.judgmentConditions = this.updateTypeInJudgment(
+      update.judgmentConditions,
     )
-    iUpdateMission.judgmentConditions = this.updateTypeInJudgment(
-      iUpdateMission.judgmentConditions,
-    )
-    iUpdateMission.userConditions = this.updateTypeInUser(
-      iUpdateMission.userConditions,
-    )
-    iUpdateMission.status = AdminMissionService.updateStatusByActive(
-      iUpdateMission.isActive,
-    )
-    const mission = await this.missionService.update(iUpdateMission)
+    update.userConditions = this.updateTypeInUser(update.userConditions)
+    update.status = AdminMissionService.updateStatusByActive(update.isActive)
+    const mission = await this.missionService.update(update)
     await Promise.all(
-      iUpdateMission.rewardRules.map(async (item) => {
+      update.rewardRules.map(async (item) => {
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,
@@ -142,8 +146,8 @@ export class AdminMissionService {
       }),
     )
     await this.mappingMissionEvent(
-      iUpdateMission.judgmentConditions,
-      iUpdateMission.campaignId,
+      update.judgmentConditions,
+      update.campaignId,
       mission.id,
     )
     return await this.findOne(mission.id)
@@ -211,7 +215,6 @@ export class AdminMissionService {
   async getMissionsByCampaign(input: MissionFilterInput) {
     const missions = await this.missionService.find({
       campaignId: input.campaignId,
-      isActive: IS_ACTIVE_MISSION.ACTIVE,
     })
 
     return { missions: missions }

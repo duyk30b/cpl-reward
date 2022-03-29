@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { STATUS } from '@lib/user-reward-history'
 
 export class PaginatedMissionDto {
   @ApiProperty({ example: 2 })
@@ -32,8 +31,18 @@ export class PaginatedMissionDto {
   // TODO: uncomment below property
   // @ApiProperty({ example: '59.0', name: 'received_amount' })
   // receivedAmount: string
-  @ApiProperty({ example: '59.0', name: 'total_amount' })
+  @ApiProperty({
+    example: '59.0',
+    name: 'total_amount',
+    description: 'change to received_amount in next sprint',
+  })
   totalAmount: string
+
+  @ApiProperty({
+    example: '59.0',
+    name: 'not_received_amount',
+  })
+  notReceivedAmount: string
 
   @ApiProperty({ example: 'USDT' })
   currency: string
@@ -41,13 +50,7 @@ export class PaginatedMissionDto {
   // TODO: remove below property
   @ApiProperty({
     example: 2,
-    description:
-      `${STATUS.AUTO_NOT_RECEIVE}: AUTO_NOT_RECEIVE, ` +
-      `${STATUS.MANUAL_NOT_RECEIVE}: MANUAL_NOT_RECEIVE, ` +
-      `${STATUS.AUTO_RECEIVED}: AUTO_RECEIVED, ` +
-      `${STATUS.MANUAL_RECEIVED}: MANUAL_RECEIVED, ` +
-      `${STATUS.AUTO_FAIL}: AUTO_FAIL` +
-      `${STATUS.MANUAL_FAIL}: MANUAL_FAIL`,
+    description: `0: NOT_RECEIVE, ` + `1: RECEIVED, `,
   })
   status: number
 }

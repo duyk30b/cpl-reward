@@ -43,6 +43,9 @@ class IMission {
   @Expose({ name: 'is_active' })
   isActive?: number
 
+  @Expose({ name: 'target_type' })
+  targetType?: number
+
   @Type(() => JudgmentConditionDto)
   @Expose({ name: 'judgment_conditions' })
   judgmentConditions: JudgmentConditionDto[]

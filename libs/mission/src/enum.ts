@@ -43,3 +43,9 @@ export enum STATUS_MISSION {
   ENDED = 2,
   INACTIVE = 3,
 }
+
+export enum TARGET_TYPE {
+  HYBRID = 0,
+  ONLY_MAIN = 1,
+  ONLY_REFERRED = 2,
+}

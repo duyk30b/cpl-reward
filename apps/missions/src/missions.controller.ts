@@ -17,7 +17,7 @@ export class MissionsController {
   async authUserLogin(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_LOGIN'
     const value = message.value
-    if (Object.keys(value.data).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -41,7 +41,7 @@ export class MissionsController {
   async authUserChangeEmail(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_CHANGE_EMAIL'
     const value = message.value
-    if (Object.keys(value.data).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -65,7 +65,7 @@ export class MissionsController {
   async authUserCreated(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_CREATED'
     const value = message.value
-    if (Object.keys(value.data).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -89,7 +89,7 @@ export class MissionsController {
   async authUserLogout(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_LOGOUT'
     const value = message.value
-    if (Object.keys(value.data).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -113,7 +113,7 @@ export class MissionsController {
   async authUserChangePassword(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_CHANGE_PASSWORD'
     const value = message.value
-    if (Object.keys(value.data).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -137,7 +137,7 @@ export class MissionsController {
   async authUserAuthenticatorStatusUpdated(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_AUTHENTICATOR_STATUS_UPDATED'
     const value = message.value
-    if (Object.keys(value.data).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,

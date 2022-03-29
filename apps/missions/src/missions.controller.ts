@@ -232,6 +232,30 @@ export class MissionsController {
     })
   }
 
+  @KafkaTopic('kafka.bce_trading_matched')
+  async bceTradingMatched(@Payload() message: KafkaMessage) {
+    const eventName = 'BCE_TRADING_MATCHED'
+    const value = message.value
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
+        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
+          value,
+        )}`,
+      )
+      return
+    }
+
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
+    )
+    this.eventEmitter.emit('get_events_by_name', {
+      messageValueData: value,
+      eventName,
+    })
+  }
+
   /**
    * KAFKA BO EVENT AREA
    */

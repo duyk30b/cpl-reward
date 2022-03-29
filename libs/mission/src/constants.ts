@@ -26,6 +26,8 @@ export const USER_CONDITION_TYPES = {
   authenticator_verify_status: 'string',
   email_verify_status: 'string',
   referrer_code: 'string',
+  account_lv: 'string',
+  channel_id: 'string',
 }
 
 export const INFO_EVENTS = [
@@ -214,6 +216,42 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Status',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.BCE_TRADING_MATCHED,
+    properties: [
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'currency',
+        type: 'string',
+        description: 'Currency',
+      },
+      {
+        key: 'coin',
+        type: 'string',
+        description: 'Coin',
+      },
+      {
+        key: 'quantity',
+        type: 'string',
+        display: 'number',
+        description: 'Quantity',
+      },
+      {
+        key: 'is_first_time',
+        type: 'boolean',
+        description: 'Is First Time',
       },
     ],
   },

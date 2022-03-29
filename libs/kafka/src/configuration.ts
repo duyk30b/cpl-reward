@@ -9,6 +9,7 @@ export default registerAs('kafka', () => ({
   auth_user_created: process.env.ENV + '_auth_user_created',
   auth_user_logout: process.env.ENV + '_auth_user_logout',
   auth_user_change_password: process.env.ENV + '_auth_user_change_password',
+  auth_user_change_info: process.env.ENV + '_auth_user_change_info',
   auth_user_authenticator_status_updated:
     process.env.ENV + '_auth_user_authenticator_status_updated',
 

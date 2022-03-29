@@ -35,10 +35,13 @@ export class ExternalBalanceService {
             JSON.stringify({
               amount: amount,
               type: type,
+              api_token: balanceToken,
             }),
             {
               headers: {
-                Authorization: 'Bearer ' + balanceToken,
+                // Authorization: 'Bearer ' + balanceToken,
+                // Use api_token on body instead of Authorization on header.
+                // Because Authorization blocked by KONG gateway to validate Customer/Auth 's access token
                 'Content-Type': 'application/json',
               },
             },

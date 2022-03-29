@@ -26,6 +26,8 @@ export const USER_CONDITION_TYPES = {
   authenticator_verify_status: 'string',
   email_verify_status: 'string',
   referrer_code: 'string',
+  account_lv: 'string',
+  channel_id: 'string',
 }
 
 export const INFO_EVENTS = [

@@ -78,18 +78,16 @@ export class ApiMissionService {
           item.id,
           receivedHistories,
           notReceivedHistories,
+          item.limitReceivedReward,
         )
         delete item.grantTarget
-        let status = 0
-        if (FixedNumber.fromString(money.notReceivedAmount).toUnsafeFloat() > 0)
-          status = 1
         return {
           ...instanceToPlain(item, { exposeUnsetFields: false }),
           currency: money.currency,
-          reward_amount: money.rewardAmount,
-          total_amount: money.receivedAmount, // TODO: change to received_amount after test
-          not_received_amount: money.notReceivedAmount, // TODO: change to received_amount after test
-          status, // TODO: remove after test
+          total_reward_amount: money.totalRewardAmount,
+          received_amount: money.receivedAmount,
+          not_received_amount: money.notReceivedAmount,
+          status: money.status,
         }
       }),
       links: CommonService.customLinks(result.links),
@@ -189,6 +187,7 @@ export class ApiMissionService {
     missionId: number,
     receivedHistories: any,
     notReceivedHistories: any,
+    limitReceivedReward: number,
   ) {
     this.logger.log(
       `grantTarget: ${JSON.stringify(grantTarget)}, ` +
@@ -203,17 +202,17 @@ export class ApiMissionService {
       return target
     })
     this.logger.log(`currentTarget: ${JSON.stringify(currentTarget)}`)
-    let receivedAmount = '0'
+    let receivedAmount = FixedNumber.fromString('0')
     if (
       receivedHistories !== null &&
       receivedHistories[`${missionId}_${currentTarget.currency}`] !== undefined
     ) {
       receivedAmount = FixedNumber.fromString(
         receivedHistories[`${missionId}_${currentTarget.currency}`],
-      ).toString()
+      )
     }
 
-    let notReceivedAmount = '0'
+    let notReceivedAmount = FixedNumber.fromString('0')
     if (
       notReceivedHistories !== null &&
       notReceivedHistories[`${missionId}_${currentTarget.currency}`] !==
@@ -221,13 +220,19 @@ export class ApiMissionService {
     ) {
       notReceivedAmount = FixedNumber.fromString(
         notReceivedHistories[`${missionId}_${currentTarget.currency}`],
-      ).toString()
+      )
     }
+
+    const fixedAmount = FixedNumber.fromString(currentTarget.amount)
+    const totalRewardAmount =
+      FixedNumber.from(limitReceivedReward).mulUnsafe(fixedAmount)
+
     return {
       currency: currentTarget.currency,
-      rewardAmount: FixedNumber.fromString(currentTarget.amount).toString(),
-      receivedAmount,
-      notReceivedAmount,
+      totalRewardAmount: totalRewardAmount.toString(),
+      receivedAmount: receivedAmount.toString(),
+      notReceivedAmount: notReceivedAmount.toString(),
+      status: totalRewardAmount.subUnsafe(receivedAmount).isZero() ? 1 : 0,
     }
   }
 }

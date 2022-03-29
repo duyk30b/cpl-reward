@@ -521,6 +521,11 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'ID',
       },
+      {
+        key: 'is_first_time',
+        type: 'boolean',
+        description: 'Is First Time',
+      },
     ],
   },
   {
@@ -680,6 +685,11 @@ export const INFO_EVENTS = [
         key: 'id',
         type: 'number',
         description: 'ID',
+      },
+      {
+        key: 'is_first_time',
+        type: 'boolean',
+        description: 'Is First Time',
       },
     ],
   },
@@ -841,6 +851,11 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'ID',
       },
+      {
+        key: 'is_first_time',
+        type: 'boolean',
+        description: 'Is First Time',
+      },
     ],
   },
   {
@@ -1000,6 +1015,11 @@ export const INFO_EVENTS = [
         key: 'id',
         type: 'number',
         description: 'ID',
+      },
+      {
+        key: 'is_first_time',
+        type: 'boolean',
+        description: 'Is First Time',
       },
     ],
   },

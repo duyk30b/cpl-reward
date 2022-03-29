@@ -22,24 +22,17 @@ export class PaginatedMissionDto {
   @ApiProperty({ example: 'This is mission guide link', name: 'guide_link' })
   guideLink: string
 
-  @ApiProperty({ example: 23, name: 'limit_received_reward' })
+  @ApiProperty({ example: 2, name: 'limit_received_reward' })
   limitReceivedReward: string
 
-  @ApiProperty({ example: '59.0', name: 'reward_amount' })
-  rewardAmount: string
+  @ApiProperty({ example: '20.0', name: 'total_reward_amount' })
+  totalRewardAmount: string
 
-  // TODO: uncomment below property
-  // @ApiProperty({ example: '59.0', name: 'received_amount' })
-  // receivedAmount: string
-  @ApiProperty({
-    example: '59.0',
-    name: 'total_amount',
-    description: 'change to received_amount in next sprint',
-  })
-  totalAmount: string
+  @ApiProperty({ example: '10.0', name: 'received_amount' })
+  receivedAmount: string
 
   @ApiProperty({
-    example: '59.0',
+    example: '0.0',
     name: 'not_received_amount',
   })
   notReceivedAmount: string
@@ -49,7 +42,7 @@ export class PaginatedMissionDto {
 
   // TODO: remove below property
   @ApiProperty({
-    example: 2,
+    example: 1,
     description: `0: NOT_RECEIVE, ` + `1: RECEIVED, `,
   })
   status: number

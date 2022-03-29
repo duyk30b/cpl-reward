@@ -133,6 +133,30 @@ export class MissionsController {
     })
   }
 
+  @KafkaTopic('kafka.auth_user_change_info')
+  async authUserChangeInfo(@Payload() message: KafkaMessage) {
+    const eventName = 'AUTH_USER_CHANGE_INFO'
+    const value = message.value
+    if (Object.keys(value.data).length == 0) {
+      this.logger.log(
+        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
+          value,
+        )}`,
+      )
+      return
+    }
+
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
+    )
+    this.eventEmitter.emit('get_events_by_name', {
+      messageValueData: value.data,
+      eventName,
+    })
+  }
+
   @KafkaTopic('kafka.auth_user_authenticator_status_updated')
   async authUserAuthenticatorStatusUpdated(@Payload() message: KafkaMessage) {
     const eventName = 'AUTH_USER_AUTHENTICATOR_STATUS_UPDATED'
@@ -187,6 +211,30 @@ export class MissionsController {
   @KafkaTopic('kafka.bce_withdraw')
   async bceWithdraw(@Payload() message: KafkaMessage) {
     const eventName = 'BCE_WITHDRAW'
+    const value = message.value
+    if (Object.keys(value).length > 0) {
+      this.logger.log(
+        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
+          value,
+        )}`,
+      )
+      return
+    }
+
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Receive event. Message value: ${JSON.stringify(value)}`,
+    )
+    this.eventEmitter.emit('get_events_by_name', {
+      messageValueData: value,
+      eventName,
+    })
+  }
+
+  @KafkaTopic('kafka.bce_trading_matched')
+  async bceTradingMatched(@Payload() message: KafkaMessage) {
+    const eventName = 'BCE_TRADING_MATCHED'
     const value = message.value
     if (Object.keys(value).length > 0) {
       this.logger.log(

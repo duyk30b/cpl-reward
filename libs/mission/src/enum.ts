@@ -18,6 +18,7 @@ export enum EVENTS {
   AUTH_USER_CREATED = 'auth_user_created',
   AUTH_USER_LOGOUT = 'auth_user_logout',
   AUTH_USER_CHANGE_PASSWORD = 'auth_user_change_password',
+  AUTH_USER_CHANGE_INFO = 'auth_user_change_info',
   AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',
 
   // BCE

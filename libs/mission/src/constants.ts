@@ -195,7 +195,18 @@ export const INFO_EVENTS = [
   {
     eventName: EVENTS.AUTH_USER_CHANGE_PASSWORD,
     properties: [
-      //user_id,device_id,time
+      //user_id
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_CHANGE_INFO,
+    properties: [
+      //user_id
       {
         key: 'user_id',
         type: 'number',

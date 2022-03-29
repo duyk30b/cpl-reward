@@ -218,6 +218,42 @@ export const INFO_EVENTS = [
     ],
   },
   {
+    eventName: EVENTS.BCE_TRADING_MATCHED,
+    properties: [
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'currency',
+        type: 'string',
+        description: 'Currency',
+      },
+      {
+        key: 'coin',
+        type: 'string',
+        description: 'Coin',
+      },
+      {
+        key: 'quantity',
+        type: 'string',
+        display: 'number',
+        description: 'Quantity',
+      },
+      {
+        key: 'is_first_time',
+        type: 'boolean',
+        description: 'Is First Time',
+      },
+    ],
+  },
+  {
     eventName: EVENTS.BCE_DEPOSIT,
     properties: [
       //id,transaction_id, user_id, type, currency, amount, fee, is_first_time

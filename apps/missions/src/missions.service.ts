@@ -317,7 +317,7 @@ export class MissionsService {
       fixedLimitValue
         .subUnsafe(fixedMainUserAmount)
         .subUnsafe(fixedReferredUserAmount)
-        .toUnsafeFloat() > 0
+        .toUnsafeFloat() >= 0
     )
   }
 

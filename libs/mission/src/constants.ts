@@ -209,7 +209,8 @@ export const INFO_EVENTS = [
       //user_id
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'User ID',
       },
     ],
@@ -230,6 +231,110 @@ export const INFO_EVENTS = [
       },
     ],
   },
+  {
+    eventName: EVENTS.AUTH_USER_KYC_REGISTERED,
+    properties: [
+      {
+        key: 'id',
+        type: 'string',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'user_id',
+        type: 'string',
+        display: 'number',
+        description: 'ID',
+      },
+      {
+        key: 'type',
+        type: 'number',
+        description: 'Type',
+      },
+      {
+        key: 'provider',
+        type: 'number',
+        description: 'KYC Provider ID',
+      },
+      {
+        key: 'id_document_type',
+        type: 'number',
+        description: 'Document type ID',
+      },
+      {
+        key: 'country_id',
+        type: 'number',
+        description: 'Country ID',
+      },
+      {
+        key: 'user_kyc_history_id',
+        type: 'string',
+        display: 'number',
+        description: 'KYC history id',
+      },
+      {
+        key: 'status',
+        type: 'number',
+        description: 'Status',
+      },
+      {
+        key: 'cynopsis_processing',
+        type: 'boolean',
+        description: 'Is Cynopsis processing',
+      },
+      {
+        key: 'created_at',
+        type: 'string',
+        display: 'number',
+        description: 'Created at (unix time)',
+      },
+      {
+        key: 'updated_at',
+        type: 'string',
+        display: 'number',
+        description: 'Updated at (unix time)',
+      },
+    ],
+  },
+
+  {
+    eventName: EVENTS.AUTH_USER_KYC_AUTO_KYC_FINISHED,
+    properties: [
+      {
+        key: 'id',
+        type: 'string',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'pass',
+        type: 'boolean',
+        description: 'Is passed Auto KYC',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_CHANGE_LV,
+    properties: [
+      {
+        key: 'user_id',
+        type: 'string',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'old_level',
+        type: 'number',
+        description: 'Account level before change',
+      },
+      {
+        key: 'new_level',
+        type: 'number',
+        description: 'Account level after change',
+      },
+    ],
+  },
+
   {
     eventName: EVENTS.BCE_TRADING_MATCHED,
     properties: [
@@ -363,6 +468,54 @@ export const INFO_EVENTS = [
   //     },
   //   ],
   // },
+  {
+    eventName: EVENTS.HIGH_LOW_TRANSFER_BALANCE,
+    properties: [
+      {
+        key: 'id',
+        type: 'string',
+        display: 'number',
+        description: 'Transfer ID',
+      },
+      {
+        key: 'user_id',
+        type: 'string',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'bcast_balance',
+        type: 'string',
+        display: 'number',
+        description: 'BCAST balance',
+      },
+      {
+        key: 'bcast_available_balance',
+        type: 'string',
+        display: 'number',
+        description: 'BCAST available balance',
+      },
+      {
+        key: 'usdt_balance',
+        type: 'string',
+        display: 'number',
+        description: 'USDT balance',
+      },
+      {
+        key: 'usdt_available_balance',
+        type: 'string',
+        display: 'number',
+        description: 'USDT available balance',
+      },
+      {
+        key: 'account_type',
+        type: 'number',
+        description: '1 is user, others is BOT',
+      },
+      // session_id: No idea with this field
+      // created_at, updated_at. Example: 2021-07-23 07:54:12. No idea with this type
+    ],
+  },
   {
     eventName: EVENTS.HIGH_LOW_CREATE,
     properties: [

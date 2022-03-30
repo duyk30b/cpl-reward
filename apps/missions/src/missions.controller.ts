@@ -236,7 +236,7 @@ export class MissionsController {
   async bceTradingMatched(@Payload() message: KafkaMessage) {
     const eventName = 'BCE_TRADING_MATCHED'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,

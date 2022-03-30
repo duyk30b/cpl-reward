@@ -10,175 +10,66 @@ export class MissionsController {
 
   constructor(private eventEmitter: EventEmitter2) {}
 
+  emitEvent(eventName: string, eventData: any) {
+    if (Object.keys(eventData).length == 0) {
+      this.logger.log(
+        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
+          eventData,
+        )}`,
+      )
+      return
+    }
+
+    this.logger.log(
+      `[EVENT ${
+        EVENTS[eventName]
+      }] Received event. Message value: ${JSON.stringify(eventData)}`,
+    )
+
+    this.eventEmitter.emit('get_events_by_name', {
+      messageValueData: eventData,
+      eventName,
+    })
+  }
   /**
    * KAFKA AUTH EVENT AREA
    */
   @KafkaTopic('kafka.auth_user_login')
   async authUserLogin(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_LOGIN'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
+    this.emitEvent('AUTH_USER_LOGIN', message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_change_email')
   async authUserChangeEmail(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_CHANGE_EMAIL'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
+    this.emitEvent('AUTH_USER_CHANGE_EMAIL', message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_created')
   async authUserCreated(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_CREATED'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
+    this.emitEvent('AUTH_USER_CREATED', message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_logout')
   async authUserLogout(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_LOGOUT'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
+    this.emitEvent('AUTH_USER_LOGOUT', message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_change_password')
   async authUserChangePassword(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_CHANGE_PASSWORD'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
+    this.emitEvent('AUTH_USER_CHANGE_PASSWORD', message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_change_info')
   async authUserChangeInfo(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_CHANGE_INFO'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
+    this.emitEvent('AUTH_USER_CHANGE_INFO', message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_authenticator_status_updated')
   async authUserAuthenticatorStatusUpdated(@Payload() message: KafkaMessage) {
-    const eventName = 'AUTH_USER_AUTHENTICATOR_STATUS_UPDATED'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
+    this.emitEvent(
+      'AUTH_USER_AUTHENTICATOR_STATUS_UPDATED',
+      message.value.data ?? {},
     )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value.data,
-      eventName,
-    })
   }
 
   /**
@@ -186,172 +77,43 @@ export class MissionsController {
    */
   @KafkaTopic('kafka.bce_deposit')
   async bceDeposit(@Payload() message: KafkaMessage) {
-    const eventName = 'BCE_DEPOSIT'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('BCE_DEPOSIT', message.value)
   }
 
   @KafkaTopic('kafka.bce_withdraw')
   async bceWithdraw(@Payload() message: KafkaMessage) {
-    const eventName = 'BCE_WITHDRAW'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('BCE_WITHDRAW', message.value)
   }
 
   @KafkaTopic('kafka.bce_trading_matched')
   async bceTradingMatched(@Payload() message: KafkaMessage) {
-    const eventName = 'BCE_TRADING_MATCHED'
-    const value = message.value
-    if (Object.keys(value).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('BCE_TRADING_MATCHED', message.value)
   }
 
   /**
    * KAFKA BO EVENT AREA
    */
+  @KafkaTopic('kafka.high_low_transfer_balance')
+  async highLowTransferBalance(@Payload() message: KafkaMessage) {
+    this.emitEvent('HIGH_LOW_TRANSFER_BALANCE', message.value)
+  }
   @KafkaTopic('kafka.high_low_create')
   async highLowCreate(@Payload() message: KafkaMessage) {
-    const eventName = 'HIGH_LOW_CREATE'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('HIGH_LOW_CREATE', message.value)
   }
 
   @KafkaTopic('kafka.high_low_win')
   async highLowWin(@Payload() message: KafkaMessage) {
-    const eventName = 'HIGH_LOW_WIN'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('HIGH_LOW_WIN', message.value)
   }
 
   @KafkaTopic('kafka.high_low_lost')
   async highLowLost(@Payload() message: KafkaMessage) {
-    const eventName = 'HIGH_LOW_LOST'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('HIGH_LOW_LOST', message.value)
   }
 
   @KafkaTopic('kafka.high_low_cancel')
   async highLowCancel(@Payload() message: KafkaMessage) {
-    const eventName = 'HIGH_LOW_CANCEL'
-    const value = message.value
-    if (Object.keys(value.data).length == 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
-          value,
-        )}`,
-      )
-      return
-    }
-
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[eventName]
-      }] Receive event. Message value: ${JSON.stringify(value)}`,
-    )
-    this.eventEmitter.emit('get_events_by_name', {
-      messageValueData: value,
-      eventName,
-    })
+    this.emitEvent('HIGH_LOW_CANCEL', message.value)
   }
 }

@@ -23,6 +23,7 @@ export enum EVENTS {
   AUTH_USER_KYC_REGISTERED = 'auth_user_kyc_registered',
   AUTH_USER_KYC_AUTO_KYC_FINISHED = 'auth_user_kyc_auto_kyc_finished',
   AUTH_USER_CHANGE_LV = 'auth_user_change_lv',
+  AUTH_USER_KYC_STATUS_UPDATED = 'auth_user_kyc_status_updated',
 
   // BCE
   BCE_TRADING_MATCHED = 'bce_trading_matched',

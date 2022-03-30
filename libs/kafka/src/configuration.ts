@@ -12,12 +12,19 @@ export default registerAs('kafka', () => ({
   auth_user_change_info: process.env.ENV + '_auth_user_change_info',
   auth_user_authenticator_status_updated:
     process.env.ENV + '_auth_user_authenticator_status_updated',
+  auth_user_kyc_status_updated:
+    process.env.ENV + '_auth_user_kyc_status_updated',
+  auth_user_kyc_registered: process.env.ENV + '_auth_user_kyc_registered',
+  auth_user_kyc_auto_kyc_finished:
+    process.env.ENV + '_auth_user_kyc_auto_kyc_finished',
+  auth_user_change_lv: process.env.ENV + '_auth_user_change_lv',
 
   // BCE sử dụng
   bce_trading_matched: process.env.ENV + '_bce_trading_matched',
   bce_deposit: process.env.ENV + '_bce_deposit',
   bce_withdraw: process.env.ENV + '_bce_withdraw',
 
+  high_low_transfer_balance: process.env.ENV + '_high_low_transfer_balance',
   high_low_create: process.env.ENV + '_high_low_create',
   high_low_win: process.env.ENV + '_high_low_win',
   high_low_lost: process.env.ENV + '_high_low_lost',

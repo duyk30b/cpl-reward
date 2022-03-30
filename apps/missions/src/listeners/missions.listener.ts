@@ -178,7 +178,7 @@ export class MissionsListener {
       data.missionId,
       userId,
     )
-    if (successCount > mission.limitReceivedReward) {
+    if (successCount >= mission.limitReceivedReward) {
       this.logger.log(
         `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
           mission.id

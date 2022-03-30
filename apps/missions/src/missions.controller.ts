@@ -72,6 +72,26 @@ export class MissionsController {
     )
   }
 
+  @KafkaTopic('kafka.auth_user_kyc_status_updated')
+  async authUserKycStatusStatusUpdated(@Payload() message: KafkaMessage) {
+    this.emitEvent('AUTH_USER_KYC_STATUS_UPDATED', message.value.data ?? {})
+  }
+
+  @KafkaTopic('kafka.auth_user_kyc_registered')
+  async authUserKycRegistered(@Payload() message: KafkaMessage) {
+    this.emitEvent('AUTH_USER_KYC_REGISTERED', message.value.data ?? {})
+  }
+
+  @KafkaTopic('kafka.auth_user_kyc_auto_kyc_finished')
+  async authUserKycAutoKycFinished(@Payload() message: KafkaMessage) {
+    this.emitEvent('AUTH_USER_KYC_AUTO_KYC_FINISHED', message.value.data ?? {})
+  }
+
+  @KafkaTopic('kafka.auth_user_change_lv')
+  async authUserChangeLv(@Payload() message: KafkaMessage) {
+    this.emitEvent('AUTH_USER_CHANGE_LV', message.value.data ?? {})
+  }
+
   /**
    * KAFKA BCE EVENT AREA
    */

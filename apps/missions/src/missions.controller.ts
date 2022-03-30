@@ -188,7 +188,7 @@ export class MissionsController {
   async bceDeposit(@Payload() message: KafkaMessage) {
     const eventName = 'BCE_DEPOSIT'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -212,7 +212,7 @@ export class MissionsController {
   async bceWithdraw(@Payload() message: KafkaMessage) {
     const eventName = 'BCE_WITHDRAW'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -263,7 +263,7 @@ export class MissionsController {
   async highLowCreate(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_CREATE'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -287,7 +287,7 @@ export class MissionsController {
   async highLowWin(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_WIN'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -311,7 +311,7 @@ export class MissionsController {
   async highLowLost(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_LOST'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,
@@ -335,7 +335,7 @@ export class MissionsController {
   async highLowCancel(@Payload() message: KafkaMessage) {
     const eventName = 'HIGH_LOW_CANCEL'
     const value = message.value
-    if (Object.keys(value).length > 0) {
+    if (Object.keys(value.data).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           value,

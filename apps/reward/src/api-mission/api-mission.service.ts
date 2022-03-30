@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import {
   GRANT_TARGET_USER,
   IS_ACTIVE_MISSION,
   MISSION_SEARCH_FIELD_MAP,
   MISSION_SORT_FIELD_MAP,
   MissionService,
+  TARGET_TYPE,
 } from '@lib/mission'
 import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -20,8 +21,6 @@ import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class ApiMissionService {
-  private readonly logger = new Logger(ApiMissionService.name)
-
   constructor(
     private readonly missionService: MissionService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
@@ -115,6 +114,9 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: IS_ACTIVE_MISSION.ACTIVE,
     })
+    queryBuilder.where('mission.targetType = :target_type ', {
+      target_type: TARGET_TYPE.ONLY_MAIN,
+    })
     if (missionFilter.campaignId !== undefined)
       queryBuilder.andWhere('mission.campaignId = :campaign_id ', {
         campaign_id: Number(missionFilter.campaignId),
@@ -189,19 +191,21 @@ export class ApiMissionService {
     notReceivedHistories: any,
     limitReceivedReward: number,
   ) {
-    this.logger.log(
-      `grantTarget: ${JSON.stringify(grantTarget)}, ` +
-        `receivedHistories: ${JSON.stringify(
-          receivedHistories,
-        )}, missionId: ${missionId}`,
-    )
     const grantTargetObj = grantTarget as unknown as Target[]
     let currentTarget = null
     grantTargetObj.map((target) => {
       if (target.user === GRANT_TARGET_USER.USER) currentTarget = target
       return target
     })
-    this.logger.log(`currentTarget: ${JSON.stringify(currentTarget)}`)
+    if (currentTarget === null) {
+      return {
+        currency: '',
+        totalRewardAmount: '0',
+        receivedAmount: '0',
+        notReceivedAmount: '0',
+        status: 1,
+      }
+    }
     let receivedAmount = FixedNumber.fromString('0')
     if (
       receivedHistories !== null &&

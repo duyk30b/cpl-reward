@@ -6,7 +6,7 @@ import {
   IS_ACTIVE_CAMPAIGN,
   STATUS_CAMPAIGN,
 } from '@lib/campaign'
-import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { KEY_REWARD_RULE, RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -84,23 +84,26 @@ export class AdminCampaignService {
   //   return campaign
   // }
 
-  async create(iCreateCampaign: ICreateCampaign) {
-    iCreateCampaign.status = AdminCampaignService.updateStatusByActive(
-      iCreateCampaign.isActive,
-    )
-    const campaign = await this.campaignService.create(iCreateCampaign)
+  async create(create: ICreateCampaign) {
+    create.status = AdminCampaignService.updateStatusByActive(create.isActive)
+    const campaign = await this.campaignService.create(create)
 
-    await this.rewardRuleService.create(
-      {
-        currency: 'USDT',
-        limitValue: '0',
-        releaseValue: '0',
-      } as CreateRewardRuleDto,
-      {
-        campaignId: campaign.id,
-        missionId: null,
-        typeRule: TYPE_RULE.CAMPAIGN,
-      },
+    await Promise.all(
+      Object.keys(KEY_REWARD_RULE).map(async (key) => {
+        await this.rewardRuleService.create(
+          {
+            key: KEY_REWARD_RULE[key],
+            currency: 'USDT',
+            limitValue: '0',
+            releaseValue: '0',
+          } as CreateRewardRuleDto,
+          {
+            campaignId: campaign.id,
+            missionId: null,
+            typeRule: TYPE_RULE.CAMPAIGN,
+          },
+        )
+      }),
     )
     return campaign
   }

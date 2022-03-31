@@ -1,4 +1,4 @@
-export interface IGetEventsByName {
+export interface IEventByName {
   eventName: string
   messageValueData: any
 }

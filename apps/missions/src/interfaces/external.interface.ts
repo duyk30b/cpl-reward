@@ -4,6 +4,7 @@ export interface ISendRewardToBalance {
   currency: string
   amount: number
   type: string
+  eventName: string
 }
 
 export interface ISendRewardToCashback {
@@ -12,4 +13,5 @@ export interface ISendRewardToCashback {
   currency: string
   amount: string
   historyId: number
+  eventName: string
 }

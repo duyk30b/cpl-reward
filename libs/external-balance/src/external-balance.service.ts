@@ -18,6 +18,7 @@ export class ExternalBalanceService {
     amount: number,
     currency: string,
     type: string,
+    eventName: string,
   ): Promise<any> {
     const balanceToken = this.configService.get('balance.token')
     const postBalanceUrl =
@@ -48,12 +49,17 @@ export class ExternalBalanceService {
           )
           .pipe(map((response) => response.data)),
       )
+      this.logger.log(
+        `[EVENT ${eventName}]. Result send cashback. ` +
+          `result => ${JSON.stringify(result)}`,
+      )
       if (!result) {
         return null
       }
       return result
     } catch (e) {
       this.logger.log(e)
+      return null
     }
   }
 }

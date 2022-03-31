@@ -185,6 +185,11 @@ export class AdminCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.leftJoinAndSelect(
+      'campaign.rewardRules',
+      'rewardRules',
+      "rewardRules.type_rule = 'campaign'",
+    )
     queryBuilder.addSelect('campaign.*')
     if (searchText) {
       queryBuilder.andWhere(

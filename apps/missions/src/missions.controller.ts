@@ -11,22 +11,32 @@ export class MissionsController {
   constructor(private eventEmitter: EventEmitter2) {}
 
   emitEvent(eventName: string, eventData: any) {
+    // Data length
     if (Object.keys(eventData).length == 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}] Wrong message struct: ${JSON.stringify(
           eventData,
-        )}`,
+        )}. Stop!`,
       )
       return
     }
 
+    // user_id field
+    if (!eventData.user_id) {
+      this.logger.error(
+        `[EVENT ${EVENTS[eventName]}] Missing user_id fields. Stop!`,
+      )
+      return
+    }
+
+    // Push kafka event to internal event
     this.logger.log(
       `[EVENT ${
         EVENTS[eventName]
       }] Received event. Message value: ${JSON.stringify(eventData)}`,
     )
 
-    this.eventEmitter.emit('get_events_by_name', {
+    this.eventEmitter.emit('received_kafka_event', {
       messageValueData: eventData,
       eventName,
     })

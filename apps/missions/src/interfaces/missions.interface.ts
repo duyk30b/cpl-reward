@@ -1,13 +1,15 @@
 export interface IEventByName {
-  eventName: string
-  messageValueData: any
+  msgId: string
+  msgName: string
+  msgData: any
 }
 
-export interface IGiveRewardToUser {
-  messageValueData: any
+export interface IEvent {
+  msgData: any
   missionId: number
   campaignId: number
-  eventName: string
+  msgName: string
+  msgId: string
 }
 
 export interface IUser {
@@ -26,9 +28,10 @@ export interface IUser {
   kycVerifyStatus: string
   userInfoStatus: string
   accountLv: string
+  channelId: number
 }
 
-export interface JudgmentCondition {
+export interface IJudgmentCondition {
   eventName: string
   property: string
   operator: string
@@ -36,14 +39,14 @@ export interface JudgmentCondition {
   type?: string
 }
 
-export interface UserCondition {
+export interface IUserCondition {
   property: string
   operator: string
   value: string
   type?: string
 }
 
-export interface Target {
+export interface IGrantTarget {
   user: string
   amount: string
   currency: string

@@ -1,4 +1,4 @@
-import { IGiveRewardToUser, IUser } from './interfaces/missions.interface'
+import { IEvent, IUser } from './interfaces/missions.interface'
 import {
   EVENTS,
   GRANT_TARGET_USER,
@@ -23,9 +23,9 @@ import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
-  JudgmentCondition,
-  UserCondition,
-  Target,
+  IJudgmentCondition,
+  IUserCondition,
+  IGrantTarget,
 } from './interfaces/missions.interface'
 import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
@@ -46,18 +46,19 @@ export class MissionsService {
     private readonly externalUserService: ExternalUserService,
   ) {}
 
-  async mainFunction(data: IGiveRewardToUser) {
+  async mainFunction(data: IEvent) {
     const user = await this.externalUserService.getUserInfo(
-      data.messageValueData.user_id,
+      data.msgData.user_id,
     )
     if (user === null) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.eventName]}]. Wrong user info: ${JSON.stringify(
-          user,
-        )}`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'error',
+        traceCode: 'm01',
+        data: data,
+      })
       return
     }
+
     const userId = Number(user.id)
     const referredUserId =
       user.referredById === undefined ? 0 : Number(user.referredById)
@@ -69,7 +70,7 @@ export class MissionsService {
     if (!campaign) {
       this.logger.log(
         `[EVENT ${
-          EVENTS[data.eventName]
+          EVENTS[data.msgName]
         }]. Reason: Campaign was not found!. CampaignId: ${
           data.campaignId
         }, campaign: ${JSON.stringify(campaign)}`,
@@ -83,7 +84,7 @@ export class MissionsService {
       })
       this.logger.log(
         `[EVENT ${
-          EVENTS[data.eventName]
+          EVENTS[data.msgName]
         }]. Reason: Campaign was over time!. now: ${now}, campaignId: ${
           campaign.id
         }, startDate: ${campaign.startDate}, endDate: ${campaign.endDate}`,
@@ -96,7 +97,7 @@ export class MissionsService {
     if (!mission) {
       this.logger.log(
         `[EVENT ${
-          EVENTS[data.eventName]
+          EVENTS[data.msgName]
         }]. Reason: Mission was not found!. MissionId: ${data.missionId}`,
       )
       return
@@ -108,7 +109,7 @@ export class MissionsService {
       })
       this.logger.log(
         `[EVENT ${
-          EVENTS[data.eventName]
+          EVENTS[data.msgName]
         }]. Reason: Mission was over time!. now: ${now}, missionId: ${
           mission.id
         }, openDate: ${mission.openingDate}, closeDate: ${mission.closingDate}`,
@@ -118,14 +119,14 @@ export class MissionsService {
 
     // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
     const checkJudgmentConditions = this.checkJudgmentConditions(
-      mission.judgmentConditions as unknown as JudgmentCondition[],
-      data.messageValueData,
-      data.eventName,
+      mission.judgmentConditions as unknown as IJudgmentCondition[],
+      data.msgData,
+      data.msgName,
       mission.id,
     )
     if (!checkJudgmentConditions) {
       this.logger.log(
-        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
           mission.id
         }. Judgment Condition check fail!`,
       )
@@ -134,14 +135,14 @@ export class MissionsService {
 
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.checkUserConditions(
-      mission.userConditions as unknown as UserCondition[],
+      mission.userConditions as unknown as IUserCondition[],
       user,
-      data.eventName,
+      data.msgName,
       mission.id,
     )
     if (!checkUserConditions) {
       this.logger.log(
-        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
           mission.id
         }. User Condition check fail!`,
       )
@@ -156,7 +157,7 @@ export class MissionsService {
     })
     if (rewardRules.length === 0) {
       this.logger.log(
-        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
           mission.id
         }. Mission reward rules was not exist!`,
       )
@@ -166,14 +167,14 @@ export class MissionsService {
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
-      data.eventName,
+      data.msgName,
     )
 
     // check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
     if (successCount >= mission.limitReceivedReward) {
       this.logger.log(
-        `[EVENT ${EVENTS[data.eventName]}]. MissionId: ${
+        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
           mission.id
         }. successCount: ${successCount}, limitReceivedReward: ${
           mission.limitReceivedReward
@@ -196,7 +197,7 @@ export class MissionsService {
         //   status: STATUS_MISSION.OUT_OF_BUDGET,
         // })
         this.logger.log(
-          `[EVENT ${EVENTS[data.eventName]}]. ` +
+          `[EVENT ${EVENTS[data.msgName]}]. ` +
             `MissionId: ${mission.id}. Not enough money. ` +
             `limitValue: ${rewardRules[idx].limitValue}. ` +
             `Main user: ${userId}, amount: ${mainUser.amount}. ` +
@@ -219,7 +220,7 @@ export class MissionsService {
           mainUser,
           userId,
           data.missionId,
-          data.eventName,
+          data.msgName,
         )
 
         const referredUserInfo =
@@ -233,7 +234,7 @@ export class MissionsService {
           userId: userId,
           missionId: data.missionId,
           referredUserInfo,
-          eventName: data.eventName,
+          eventName: data.msgName,
           moneyEarned: mainUser.amount,
         })
       }
@@ -251,7 +252,7 @@ export class MissionsService {
           referredUser,
           referredUserId,
           data.missionId,
-          data.eventName,
+          data.msgName,
         )
       }
     }
@@ -311,7 +312,7 @@ export class MissionsService {
   async commonFlowReward(
     missionRewardRule: RewardRule,
     campaignId: number,
-    userTarget: Target,
+    userTarget: IGrantTarget,
     userId: number,
     missionId: number,
     eventName: string,
@@ -426,7 +427,7 @@ export class MissionsService {
    * @param missionId
    */
   checkJudgmentConditions(
-    judgmentConditions: JudgmentCondition[],
+    judgmentConditions: IJudgmentCondition[],
     messageValue: any,
     eventName: string,
     missionId: number,
@@ -473,7 +474,7 @@ export class MissionsService {
    * @param missionId
    */
   checkUserConditions(
-    userConditions: UserCondition[],
+    userConditions: IUserCondition[],
     user: IUser,
     eventName: string,
     missionId: number,
@@ -541,7 +542,7 @@ export class MissionsService {
   getDetailUserFromGrantTarget(grantTarget: string, eventName: string) {
     let mainUser = null,
       referredUser = null
-    const grantTargets = grantTarget as unknown as Target[]
+    const grantTargets = grantTarget as unknown as IGrantTarget[]
     if (grantTargets.length === 0) {
       this.logger.log(
         `[EVENT ${EVENTS[eventName]}]. Reason: Grant Target was not found!`,

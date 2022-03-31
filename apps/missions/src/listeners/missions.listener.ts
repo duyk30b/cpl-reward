@@ -226,6 +226,7 @@ export class MissionsListener {
           mainUser,
           userId,
           data.missionId,
+          data.eventName,
         )
 
         const referredUserInfo =
@@ -257,6 +258,7 @@ export class MissionsListener {
           referredUser,
           referredUserId,
           data.missionId,
+          data.eventName,
         )
       }
     }

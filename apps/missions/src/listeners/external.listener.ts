@@ -26,19 +26,20 @@ export class ExternalListener {
         currency: data.currency,
         amount: data.amount,
         historyId: data.historyId,
+        eventName: data.eventName,
       })
-    if (!sendRewardToCashback) {
+    if (sendRewardToCashback === null) {
       const result = await this.userRewardHistoryService.updateById(data.id, {
         status: STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
         this.logger.log(
-          `Update reward history fail. ` +
+          `[EVENT ${data.eventName}]. Update reward history fail. ` +
             `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
         )
       }
       this.logger.log(
-        'Send reward to cashback fail, detail: ' +
+        `[EVENT ${data.eventName}]. Send reward to cashback fail, detail: ` +
           JSON.stringify(sendRewardToCashback),
       )
       return
@@ -63,19 +64,20 @@ export class ExternalListener {
         data.amount,
         data.currency.toLowerCase(),
         data.type,
+        data.eventName,
       )
-    if (!sendRewardToBalance) {
+    if (sendRewardToBalance === null) {
       const result = await this.userRewardHistoryService.updateById(data.id, {
         status: STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
         this.logger.log(
-          `Update reward history fail. ` +
+          `[EVENT ${data.eventName}]. Update reward history fail. ` +
             `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
         )
       }
       this.logger.log(
-        'Send reward to balance fail, detail: ' +
+        `[EVENT ${data.eventName}]. Send reward to balance fail, detail: ` +
           JSON.stringify(sendRewardToBalance),
       )
       return
@@ -86,7 +88,7 @@ export class ExternalListener {
     })
     if (result.affected === 0) {
       this.logger.log(
-        `Update reward history fail. ` +
+        `[EVENT ${data.eventName}]. Update reward history fail. ` +
           `Input: id => ${data.id}, status => ${STATUS.AUTO_RECEIVED}`,
       )
     }

@@ -100,6 +100,7 @@ export class MissionsService {
     userTarget: Target,
     userId: number,
     missionId: number,
+    eventName: string,
   ) {
     // update release_value, limit_value of campaign/mission
     /**
@@ -132,6 +133,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         type: 'reward',
+        eventName: EVENTS[eventName],
       })
     }
     if (
@@ -145,6 +147,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
+        eventName: EVENTS[eventName],
       })
     }
 

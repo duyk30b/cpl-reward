@@ -219,6 +219,7 @@ export class MissionsService {
           mainUser,
           userId,
           data.missionId,
+          data.eventName,
         )
 
         const referredUserInfo =
@@ -250,6 +251,7 @@ export class MissionsService {
           referredUser,
           referredUserId,
           data.missionId,
+          data.eventName,
         )
       }
     }

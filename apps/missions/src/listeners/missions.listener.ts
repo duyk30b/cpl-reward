@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import {
-  IGiveRewardToUser,
-  JudgmentCondition,
-  UserCondition,
+  IEvent,
+  IJudgmentCondition,
+  IUserCondition,
   IEventByName,
 } from '../interfaces/missions.interface'
 import { ExternalUserService } from '@lib/external-user'
@@ -25,13 +25,20 @@ export class MissionsListener {
 
   @OnEvent('received_kafka_event')
   async handleNewEvent(eventByName: IEventByName) {
-    if (!EVENTS[eventByName.eventName]) {
+    if (!EVENTS[eventByName.msgName]) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'error',
+        traceCode: 'm01',
+        data: {},
+      })
+      return
+
       this.logger.error(
-        `[EVENT ${eventByName.eventName}] not registered. Developer please add this event to enum EVENTS`,
+        `[EVENT ${eventByName.msgName}] not registered. Developer please add this event to enum EVENTS`,
       )
       return
     }
-    const eventName = EVENTS[eventByName.eventName]
+    const eventName = EVENTS[eventByName.msgName]
     const missionsByEvent = await this.missionsService.getMissionsByEvent(
       eventName,
     )
@@ -41,10 +48,11 @@ export class MissionsListener {
     }
     missionsByEvent.map((missionEvent) => {
       this.missionsService.mainFunction({
-        messageValueData: eventByName.messageValueData,
+        msgId: eventByName.msgId,
+        msgName: eventByName.msgName,
+        msgData: eventByName.msgData,
         missionId: missionEvent.missionId,
         campaignId: missionEvent.campaignId,
-        eventName: eventByName.eventName,
       })
     })
   }

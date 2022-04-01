@@ -92,6 +92,7 @@ message Result {
   int32 status = 15; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
   int32 createdAt = 16;
   int32 updatedAt = 17;
+  repeated RewardRuleResult rewardRules = 18;
 }
 
 message CreateInput {
@@ -109,4 +110,14 @@ message CreateInput {
   bool isSystem = 12; // default: false
   int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
   int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+}
+
+message RewardRuleResult {
+  int32 createdAt = 1;
+  int32 updatedAt = 2;
+  int32 id = 3;
+  string key = 4;
+  string currency = 5;
+  string limitValue = 6; // example: 12.443
+  string releaseValue = 7; // example: 12.443
 }

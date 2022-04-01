@@ -55,6 +55,12 @@ export class ExternalCashbackService {
           })
           .pipe(map((response) => response.data)),
       )
+      this.logger.log(
+        `[EVENT ${input.eventName}]. Result send cashback. ` +
+          `Input: ${JSON.stringify(input)}, result => ${JSON.stringify(
+            result,
+          )}`,
+      )
       if (!result) {
         return null
       }

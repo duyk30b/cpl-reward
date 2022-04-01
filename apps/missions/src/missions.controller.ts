@@ -67,7 +67,13 @@ export class MissionsController {
 
   @KafkaTopic('kafka.auth_user_created')
   async authUserCreated(@Payload() message: KafkaMessage) {
-    this.emitEvent('AUTH_USER_CREATED', message.key, message.value.data ?? {})
+    // Transform data
+    let data = {} as any
+    if (message.value.data) {
+      data = message.value.data
+      data.user_id = data.id
+    }
+    this.emitEvent('AUTH_USER_CREATED', message.key, data)
   }
 
   @KafkaTopic('kafka.auth_user_logout')

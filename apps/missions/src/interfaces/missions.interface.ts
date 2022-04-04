@@ -6,8 +6,8 @@ export interface IEventByName {
 
 export interface IEvent {
   msgData: any
-  missionId: number
-  campaignId: number
+  missionId?: number
+  campaignId?: number
   msgName: string
   msgId: string
 }

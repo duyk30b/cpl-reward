@@ -238,13 +238,13 @@ export const INFO_EVENTS = [
         key: 'id',
         type: 'string',
         display: 'number',
-        description: 'User ID',
+        description: 'ID',
       },
       {
         key: 'user_id',
         type: 'string',
         display: 'number',
-        description: 'ID',
+        description: 'User ID',
       },
       {
         key: 'type',

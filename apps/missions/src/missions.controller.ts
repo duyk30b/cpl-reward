@@ -1,53 +1,59 @@
-import { Controller, Logger } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { KafkaMessage, KafkaTopic } from '@lib/kafka'
 import { Payload } from '@nestjs/microservices'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { EVENTS } from '@lib/mission'
 
 @Controller()
 export class MissionsController {
-  private readonly logger = new Logger(MissionsController.name)
-
   constructor(private eventEmitter: EventEmitter2) {}
 
-  emitEvent(msgId: string, msgName: string, eventData: any) {
+  emitEvent(msgName: string, msgId: string, msgData: any) {
     // Data length
-    if (Object.keys(eventData).length == 0) {
+    if (Object.keys(msgData).length == 0) {
       this.eventEmitter.emit('write_log', {
-        logLevel: 'error',
-        traceCode: 'm03',
+        logLevel: 'log',
+        traceCode: 'm003',
         data: {
-          msgData: eventData,
-          missionId: null,
-          campaignId: null,
-          msgName: msgName,
-          msgId: msgId,
+          msgData,
+          msgName,
+          msgId,
         },
       })
       return
     }
 
     // user_id field
-    if (!eventData.user_id) {
-      this.logger.error(
-        `[EVENT ${EVENTS[msgName]}] Missing user_id fields. Stop!`,
-      )
+    if (!msgData.user_id) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'log',
+        traceCode: 'Missing user_id fields. Stop!',
+        data: {
+          msgData,
+          msgName,
+          msgId,
+        },
+      })
       return
     }
 
     // Push kafka event to internal event
-    this.logger.log(
-      `[EVENT ${
-        EVENTS[msgName]
-      }] Received event. Message value: ${JSON.stringify(eventData)}`,
-    )
+    this.eventEmitter.emit('write_log', {
+      logLevel: 'log',
+      traceCode: 'Received event',
+      data: {
+        msgData,
+        msgName,
+        msgId,
+      },
+    })
 
     this.eventEmitter.emit('received_kafka_event', {
-      msgId: '123',
-      msgName: msgName,
-      msgData: eventData,
+      msgId,
+      msgName,
+      msgData,
     })
   }
+
   /**
    * KAFKA AUTH EVENT AREA
    */
@@ -165,6 +171,7 @@ export class MissionsController {
   async highLowTransferBalance(@Payload() message: KafkaMessage) {
     this.emitEvent('HIGH_LOW_TRANSFER_BALANCE', message.key, message.value)
   }
+
   @KafkaTopic('kafka.high_low_create')
   async highLowCreate(@Payload() message: KafkaMessage) {
     this.emitEvent('HIGH_LOW_CREATE', message.key, message.value)

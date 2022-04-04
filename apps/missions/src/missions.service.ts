@@ -53,7 +53,7 @@ export class MissionsService {
     if (user === null) {
       this.eventEmitter.emit('write_log', {
         logLevel: 'error',
-        traceCode: 'm01',
+        traceCode: 'm001',
         data: data,
       })
       return
@@ -452,8 +452,8 @@ export class MissionsService {
       )
 
       const checkJudgmentCondition = eval(`${property}
-            ${operator}
-            ${value}`)
+      ${operator}
+      ${value}`)
       if (!checkJudgmentCondition) {
         this.logger.log(
           `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. Judgement Condition data: ` +
@@ -501,8 +501,8 @@ export class MissionsService {
       )
 
       const checkUserCondition = eval(`${property}
-            ${operator}
-            ${value}`)
+      ${operator}
+      ${value}`)
       if (!checkUserCondition) {
         this.logger.log(
           `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. User Condition data: ` +

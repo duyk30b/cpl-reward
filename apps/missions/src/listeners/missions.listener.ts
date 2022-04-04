@@ -28,15 +28,15 @@ export class MissionsListener {
     if (!EVENTS[eventByName.msgName]) {
       this.eventEmitter.emit('write_log', {
         logLevel: 'error',
-        traceCode: 'm01',
+        traceCode: 'm001',
         data: {},
       })
       return
 
-      this.logger.error(
-        `[EVENT ${eventByName.msgName}] not registered. Developer please add this event to enum EVENTS`,
-      )
-      return
+      // this.logger.error(
+      //   `[EVENT ${eventByName.msgName}] not registered. Developer please add this event to enum EVENTS`,
+      // )
+      // return
     }
     const eventName = EVENTS[eventByName.msgName]
     const missionsByEvent = await this.missionsService.getMissionsByEvent(

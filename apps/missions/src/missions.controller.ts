@@ -6,15 +6,19 @@ import { ConfigService } from '@nestjs/config'
 
 @Controller()
 export class MissionsController {
+  eventEmit = 'write_log'
   constructor(
     private eventEmitter: EventEmitter2,
     private configService: ConfigService,
   ) {}
 
   emitEvent(msgName: string, msgId: string | null, msgData: any) {
+    if (this.configService.get<boolean>('debug.enable_save_log')) {
+      this.eventEmit = 'write_save_log'
+    }
     // Data length
     if (Object.keys(msgData).length == 0) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
         traceCode: 'm002',
         data: {
@@ -28,7 +32,7 @@ export class MissionsController {
 
     // user_id field
     if (!msgData.user_id) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
         traceCode: 'Missing user_id fields. Stop!',
         data: {
@@ -41,7 +45,7 @@ export class MissionsController {
     }
 
     // Push kafka event to internal event
-    this.eventEmitter.emit('write_log', {
+    this.eventEmitter.emit(this.eventEmit, {
       logLevel: 'log',
       traceCode: 'Received event',
       data: {

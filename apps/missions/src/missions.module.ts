@@ -14,7 +14,6 @@ import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { ExternalListener } from './listeners/external.listener'
 import { MissionsService } from './missions.service'
 import { MissionUserModule } from '@lib/mission-user'
-import { MissionsListener } from './listeners/missions.listener'
 import { MissionEventModule } from '@lib/mission-event'
 import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
@@ -25,18 +24,28 @@ import { MongooseModule } from '@nestjs/mongoose'
 import { EventAuthSchema } from './schemas/event-auth.schema'
 import { EventHighLowSchema } from './schemas/event-high-low.schema'
 import { EventBceSchema } from './schemas/event-bce.schema'
+import { TraceSaveListener } from './listeners/trace-save.listener'
+import { MissionsListener } from './listeners/missions.listener'
 
-@Module({
-  controllers: [MissionsController],
-  imports: [
-    MysqlModule,
-    MongoModule,
+const importDebugs = []
+const providerDebug = []
+if (JSON.parse(process.env.ENABLE_SAVE_LOG)) {
+  importDebugs.push(MongoModule)
+  importDebugs.push(
     MongooseModule.forFeature([
       { name: 'EventAuth', schema: EventAuthSchema },
       { name: 'EventHighLow', schema: EventHighLowSchema },
       { name: 'EventBce', schema: EventBceSchema },
     ]),
+  )
+  providerDebug.push(TraceSaveListener)
+}
+@Module({
+  controllers: [MissionsController],
+  imports: [
+    MysqlModule,
     CommonModule,
+    ...importDebugs,
     KafkaModule,
     EventEmitterModule.forRoot({
       wildcard: true,
@@ -57,10 +66,10 @@ import { EventBceSchema } from './schemas/event-bce.schema'
   providers: [
     CommonListener,
     ExternalListener,
+    MissionsService,
     MissionsListener,
     TraceListener,
-    MissionsService,
-    TraceListener,
+    ...providerDebug,
   ],
 })
 export class MissionsModule {}

@@ -62,8 +62,6 @@ deploy_dev_exchange:
     - dev
 
 
-
-
 build_staging-v2:
   extends: .build_template
   environment:
@@ -84,4 +82,15 @@ deploy_staging-v2:
     IMAGE_TAG_KEY: tag
   only:
     - staging
+
+
+build_release:
+  extends: .build_template
+  environment:
+    name: release
+  variables:
+    IMAGE_NAME: prod-v2-customer-reward
+    DOCKERFILE_PATH: ./Dockerfile
+  only:
+    - release
 

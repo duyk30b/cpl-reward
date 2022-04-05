@@ -54,13 +54,14 @@ export class RewardRuleService {
   async updateValue(
     rewardRuleId: number,
     releaseValue: number,
-    limitValue = 0,
+    limitValue: number,
+    amount: number,
   ) {
-    // TODO: using queue to update value in next sprint
     return await this.rewardRuleRepository
       .createQueryBuilder('reward_rule')
       .update(RewardRule)
-      .where({ id: rewardRuleId })
+      .where('id = :id', { id: rewardRuleId })
+      .andWhere('limitValue >= :limit_amount', { limit_amount: amount })
       .set({
         releaseValue,
         limitValue,

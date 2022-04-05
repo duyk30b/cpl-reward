@@ -4,6 +4,14 @@ export interface IEventByName {
   msgData: any
 }
 
+export interface IWriteLog {
+  logLevel: string
+  traceCode: string
+  data: IEvent
+  extraData: any
+  params: any
+}
+
 export interface IEvent {
   msgData: any
   missionId?: number

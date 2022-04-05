@@ -30,6 +30,7 @@ import {
 import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
+import * as Handlebars from 'handlebars'
 
 @Injectable()
 export class MissionsService {
@@ -52,9 +53,11 @@ export class MissionsService {
     )
     if (user === null) {
       this.eventEmitter.emit('write_log', {
-        logLevel: 'error',
+        logLevel: 'warn',
         traceCode: 'm001',
-        data: data,
+        data,
+        extraData: null,
+        params: { name: 'User' },
       })
       return
     }
@@ -68,13 +71,13 @@ export class MissionsService {
     // Kiểm tra thời gian khả dụng của campaign
     const campaign = await this.getCampaignById(data.campaignId)
     if (!campaign) {
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Campaign was not found!. CampaignId: ${
-          data.campaignId
-        }, campaign: ${JSON.stringify(campaign)}`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Campaign' },
+      })
       return
     }
     if (now < campaign.startDate || now > campaign.endDate) {
@@ -82,24 +85,30 @@ export class MissionsService {
         id: campaign.id,
         status: STATUS_CAMPAIGN.ENDED,
       })
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Campaign was over time!. now: ${now}, campaignId: ${
-          campaign.id
-        }, startDate: ${campaign.startDate}, endDate: ${campaign.endDate}`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm005',
+        data,
+        extraData: {
+          now,
+          startDate: campaign.startDate,
+          endDate: campaign.endDate,
+        },
+        params: { name: 'Campaign' },
+      })
       return
     }
 
     // Kiểm tra thời gian khả dụng của mission
     const mission = await this.getMissionById(data.missionId)
     if (!mission) {
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Mission was not found!. MissionId: ${data.missionId}`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Mission' },
+      })
       return
     }
     if (now < mission.openingDate || now > mission.closingDate) {
@@ -107,16 +116,22 @@ export class MissionsService {
         id: mission.id,
         status: STATUS_MISSION.ENDED,
       })
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Mission was over time!. now: ${now}, missionId: ${
-          mission.id
-        }, openDate: ${mission.openingDate}, closeDate: ${mission.closingDate}`,
-      )
+
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm005',
+        data,
+        extraData: {
+          now,
+          openingDate: mission.openingDate,
+          closingDate: mission.closingDate,
+        },
+        params: { name: 'Mission' },
+      })
       return
     }
 
+    // TODO: cần phân tích lại việc config các type của từng điều kiện
     // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
     const checkJudgmentConditions = this.checkJudgmentConditions(
       mission.judgmentConditions as unknown as IJudgmentCondition[],
@@ -125,14 +140,17 @@ export class MissionsService {
       mission.id,
     )
     if (!checkJudgmentConditions) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. Judgment Condition check fail!`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm006',
+        data,
+        extraData: null,
+        params: { condition_name: 'Judgment' },
+      })
       return
     }
 
+    // TODO: cần phân tích lại việc config các type của từng điều kiện
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.checkUserConditions(
       mission.userConditions as unknown as IUserCondition[],
@@ -141,11 +159,13 @@ export class MissionsService {
       mission.id,
     )
     if (!checkUserConditions) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. User Condition check fail!`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm006',
+        data,
+        extraData: null,
+        params: { condition_name: 'User' },
+      })
       return
     }
 
@@ -156,30 +176,58 @@ export class MissionsService {
       typeRule: TYPE_RULE.MISSION,
     })
     if (rewardRules.length === 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. Mission reward rules was not exist!`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm007',
+        data,
+      })
       return
     }
 
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
-      data.msgName,
     )
+    if (mainUser === null && referredUser === null) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm001',
+        data,
+        extraData: null,
+        params: { name: 'Grant Target' },
+      })
+      return
+    }
 
     // check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
-    if (successCount >= mission.limitReceivedReward) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. successCount: ${successCount}, limitReceivedReward: ${
-          mission.limitReceivedReward
-        }`,
-      )
+    if (successCount > mission.limitReceivedReward) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm008',
+        data,
+        extraData: {
+          successCount,
+          limitReceivedReward: mission.limitReceivedReward,
+        },
+      })
+      return
+    }
+
+    const checkOutOfBudget = this.checkOutOfBudget(
+      mission.grantTarget,
+      rewardRules,
+    )
+    if (!checkOutOfBudget) {
+      await this.missionService.update({
+        id: mission.id,
+        status: STATUS_MISSION.OUT_OF_BUDGET,
+      })
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm009',
+        data,
+      })
       return
     }
 
@@ -191,20 +239,19 @@ export class MissionsService {
       )
 
       if (!checkMoneyReward) {
-        // TODO: confirm requirement
-        // await this.missionService.update({
-        //   id: mission.id,
-        //   status: STATUS_MISSION.OUT_OF_BUDGET,
-        // })
-        this.logger.log(
-          `[EVENT ${EVENTS[data.msgName]}]. ` +
-            `MissionId: ${mission.id}. Not enough money. ` +
-            `limitValue: ${rewardRules[idx].limitValue}. ` +
-            `Main user: ${userId}, amount: ${mainUser.amount}. ` +
-            `Referred user: ${referredUserId}, amount: ${
-              referredUser === null ? '' : referredUser.amount
-            }`,
-        )
+        this.eventEmitter.emit('write_log', {
+          logLevel: 'warn',
+          traceCode: 'm010',
+          data,
+          extraData: {
+            limitValue: rewardRules[idx].limitValue,
+            userId,
+            mainUserAmount: mainUser === null ? 'N/A' : mainUser.amount,
+            referredUserId,
+            referredUserAmount:
+              referredUser === null ? 'N/A' : referredUser.amount,
+          },
+        })
         continue
       }
 
@@ -214,14 +261,7 @@ export class MissionsService {
         rewardRules[idx].key === mainUser.type
       ) {
         // user
-        await this.commonFlowReward(
-          rewardRules[idx],
-          data.campaignId,
-          mainUser,
-          userId,
-          data.missionId,
-          data.msgName,
-        )
+        await this.commonFlowReward(rewardRules[idx], mainUser, userId, data)
 
         const referredUserInfo =
           referredUserId === 0
@@ -236,6 +276,7 @@ export class MissionsService {
           referredUserInfo,
           eventName: data.msgName,
           moneyEarned: mainUser.amount,
+          limitReceivedReward: mission.limitReceivedReward,
         })
       }
 
@@ -248,11 +289,9 @@ export class MissionsService {
         // referred user
         await this.commonFlowReward(
           rewardRules[idx],
-          data.campaignId,
           referredUser,
           referredUserId,
-          data.missionId,
-          data.msgName,
+          data,
         )
       }
     }
@@ -265,15 +304,17 @@ export class MissionsService {
    * @param amount
    * remove type
    * remove currency
+   * @param data
    */
   async updateReleaseLimitValue(
     missionRewardRule: RewardRule,
     campaignId: number,
     amount: string,
+    data: IEvent,
   ) {
     /**
      * Update value of mission
-     * TODO: using queue to update value in next sprint
+     * TODO: using transaction to update value in next sprint
      */
     const fixedAmount = FixedNumber.fromString(amount)
     const limitValue = FixedNumber.from(missionRewardRule.limitValue)
@@ -286,13 +327,18 @@ export class MissionsService {
       missionRewardRule.id,
       releaseValue,
       limitValue,
+      fixedAmount.toUnsafeFloat(),
     )
     if (updateMissionRewardRule.affected === 0) {
-      this.logger.log(
-        `Update Value of Mission Reward Rule fail, ` +
-          `input: rewardRule => ${JSON.stringify(missionRewardRule)}` +
-          `, amount => ${amount}`,
-      )
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm011',
+        data,
+        extraData: {
+          amount,
+          missionRewardRule,
+        },
+      })
     }
 
     const campaignRewardRule = await this.rewardRuleService.findOne({
@@ -307,15 +353,14 @@ export class MissionsService {
         .toUnsafeFloat()
       await this.rewardRuleService.onlyUpdate(campaignRewardRule)
     }
+    return true
   }
 
   async commonFlowReward(
     missionRewardRule: RewardRule,
-    campaignId: number,
     userTarget: IGrantTarget,
     userId: number,
-    missionId: number,
-    eventName: string,
+    data: IEvent,
   ) {
     // update release_value, limit_value of campaign/mission
     /**
@@ -323,14 +368,16 @@ export class MissionsService {
      *   userTarget.type,
      *   userTarget.currency,
      */
-    await this.updateReleaseLimitValue(
+    const updated = await this.updateReleaseLimitValue(
       missionRewardRule,
-      campaignId,
+      data.campaignId,
       userTarget.amount,
+      data,
     )
+    if (!updated) return
     const userRewardHistory = await this.userRewardHistoryService.save({
-      campaignId: campaignId,
-      missionId: missionId,
+      campaignId: data.campaignId,
+      missionId: data.missionId,
       userId,
       userType: userTarget.user,
       amount: userTarget.amount,
@@ -348,7 +395,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         type: 'reward',
-        eventName: EVENTS[eventName],
+        eventName: EVENTS[data.msgName],
       })
     }
     if (
@@ -362,7 +409,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
-        eventName: EVENTS[eventName],
+        eventName: EVENTS[data.msgName],
       })
     }
 
@@ -387,7 +434,7 @@ export class MissionsService {
    * @param userId
    */
   async getSuccessCount(missionId: number, userId: number) {
-    const missionUser = await this.missionUserService.getOneMissionUser({
+    const missionUser = await this.missionUserService.findOne({
       missionId,
       userId,
     })
@@ -452,8 +499,8 @@ export class MissionsService {
       )
 
       const checkJudgmentCondition = eval(`${property}
-      ${operator}
-      ${value}`)
+            ${operator}
+            ${value}`)
       if (!checkJudgmentCondition) {
         this.logger.log(
           `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. Judgement Condition data: ` +
@@ -501,8 +548,8 @@ export class MissionsService {
       )
 
       const checkUserCondition = eval(`${property}
-      ${operator}
-      ${value}`)
+            ${operator}
+            ${value}`)
       if (!checkUserCondition) {
         this.logger.log(
           `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. User Condition data: ` +
@@ -539,21 +586,51 @@ export class MissionsService {
     )
   }
 
-  getDetailUserFromGrantTarget(grantTarget: string, eventName: string) {
+  getDetailUserFromGrantTarget(grantTarget: string) {
     let mainUser = null,
       referredUser = null
     const grantTargets = grantTarget as unknown as IGrantTarget[]
-    if (grantTargets.length === 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}]. Reason: Grant Target was not found!`,
-      )
-      return { mainUser, referredUser }
-    }
+    if (grantTargets.length === 0) return { mainUser, referredUser }
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
       return target
     })
     return { mainUser, referredUser }
+  }
+
+  getLogMessageFromTemplate(templateTxt: string, params: any) {
+    const template = Handlebars.compile(templateTxt)
+    return template(params)
+  }
+
+  checkOutOfBudget(grantTarget: string, rewardRules: RewardRule[]) {
+    const grantTargets = grantTarget as unknown as IGrantTarget[]
+    const amountsByCurrency = {}
+    for (const target of grantTargets) {
+      if (
+        amountsByCurrency[`${target.type}_${target.currency}`] === undefined
+      ) {
+        amountsByCurrency[`${target.type}_${target.currency}`] = '0'
+      }
+      const fixedAmount = FixedNumber.fromString(target.amount)
+      amountsByCurrency[`${target.type}_${target.currency}`] =
+        FixedNumber.fromString(
+          amountsByCurrency[`${target.type}_${target.currency}`],
+        )
+          .addUnsafe(fixedAmount)
+          .toString()
+    }
+    for (const reward of rewardRules) {
+      const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
+      const amountByCurrency = FixedNumber.fromString(
+        amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
+          ? '0'
+          : amountsByCurrency[`${reward.key}_${reward.currency}`],
+      )
+      if (fixedLimit.subUnsafe(amountByCurrency).toUnsafeFloat() < 0)
+        return false
+    }
+    return true
   }
 }

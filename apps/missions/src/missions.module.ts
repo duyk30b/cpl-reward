@@ -29,7 +29,7 @@ import { MissionsListener } from './listeners/missions.listener'
 
 const importDebugs = []
 const providerDebug = []
-if (JSON.parse(process.env.ENABLE_SAVE_LOG)) {
+if (process.env.ENABLE_SAVE_LOG && JSON.parse(process.env.ENABLE_SAVE_LOG)) {
   importDebugs.push(MongoModule)
   importDebugs.push(
     MongooseModule.forFeature([

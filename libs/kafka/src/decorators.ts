@@ -13,3 +13,13 @@ export function KafkaTopic(config: string | keyof ConfigService): any {
     return descriptor
   }
 }
+
+import { createParamDecorator, ExecutionContext } from '@nestjs/common'
+
+export const MessageId = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest()
+    const eventId = `topic_${request.topic}_parition_${request.partition}_offset_${request.offset}`
+    return eventId
+  },
+)

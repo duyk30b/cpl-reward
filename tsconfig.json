@@ -108,6 +108,12 @@
       ],
       "@lib/external-cashback/*": [
         "libs/external-cashback/src/*"
+      ],
+      "@lib/mongo": [
+        "libs/mongo/src"
+      ],
+      "@lib/mongo/*": [
+        "libs/mongo/src/*"
       ]
     }
   }

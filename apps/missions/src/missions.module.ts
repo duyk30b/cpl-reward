@@ -20,11 +20,22 @@ import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
 import { ExternalCashbackModule } from '@lib/external-cashback'
 import { TraceListener } from './listeners/trace.listener'
+import { MongoModule } from '@lib/mongo'
+import { MongooseModule } from '@nestjs/mongoose'
+import { EventAuthSchema } from './schemas/event-auth.schema'
+import { EventHighLowSchema } from './schemas/event-high-low.schema'
+import { EventBceSchema } from './schemas/event-bce.schema'
 
 @Module({
   controllers: [MissionsController],
   imports: [
     MysqlModule,
+    MongoModule,
+    MongooseModule.forFeature([
+      { name: 'EventAuth', schema: EventAuthSchema },
+      { name: 'EventHighLow', schema: EventHighLowSchema },
+      { name: 'EventBce', schema: EventBceSchema },
+    ]),
     CommonModule,
     KafkaModule,
     EventEmitterModule.forRoot({
@@ -49,6 +60,7 @@ import { TraceListener } from './listeners/trace.listener'
     MissionsListener,
     TraceListener,
     MissionsService,
+    TraceListener,
   ],
 })
 export class MissionsModule {}

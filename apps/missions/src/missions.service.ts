@@ -31,10 +31,12 @@ import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
 import * as Handlebars from 'handlebars'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class MissionsService {
   private readonly logger = new Logger(MissionsService.name)
+  eventEmit = 'write_log'
 
   constructor(
     private eventEmitter: EventEmitter2,
@@ -45,14 +47,19 @@ export class MissionsService {
     private readonly rewardRuleService: RewardRuleService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalUserService: ExternalUserService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    if (this.configService.get<boolean>('debug.enable_save_log')) {
+      this.eventEmit = 'write_save_log'
+    }
+  }
 
   async mainFunction(data: IEvent) {
     const user = await this.externalUserService.getUserInfo(
       data.msgData.user_id,
     )
     if (user === null) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm001',
         data,
@@ -71,7 +78,7 @@ export class MissionsService {
     // Kiểm tra thời gian khả dụng của campaign
     const campaign = await this.getCampaignById(data.campaignId)
     if (!campaign) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm004',
         data,
@@ -85,7 +92,7 @@ export class MissionsService {
         id: campaign.id,
         status: STATUS_CAMPAIGN.ENDED,
       })
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm005',
         data,
@@ -102,7 +109,7 @@ export class MissionsService {
     // Kiểm tra thời gian khả dụng của mission
     const mission = await this.getMissionById(data.missionId)
     if (!mission) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm004',
         data,
@@ -117,7 +124,7 @@ export class MissionsService {
         status: STATUS_MISSION.ENDED,
       })
 
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm005',
         data,
@@ -140,7 +147,7 @@ export class MissionsService {
       mission.id,
     )
     if (!checkJudgmentConditions) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm006',
         data,
@@ -159,7 +166,7 @@ export class MissionsService {
       mission.id,
     )
     if (!checkUserConditions) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm006',
         data,
@@ -176,7 +183,7 @@ export class MissionsService {
       typeRule: TYPE_RULE.MISSION,
     })
     if (rewardRules.length === 0) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm007',
         data,
@@ -189,7 +196,7 @@ export class MissionsService {
       mission.grantTarget,
     )
     if (mainUser === null && referredUser === null) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm001',
         data,
@@ -202,7 +209,7 @@ export class MissionsService {
     // check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
     if (successCount > mission.limitReceivedReward) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm008',
         data,
@@ -223,7 +230,7 @@ export class MissionsService {
         id: mission.id,
         status: STATUS_MISSION.OUT_OF_BUDGET,
       })
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm009',
         data,
@@ -239,7 +246,7 @@ export class MissionsService {
       )
 
       if (!checkMoneyReward) {
-        this.eventEmitter.emit('write_log', {
+        this.eventEmitter.emit(this.eventEmit, {
           logLevel: 'warn',
           traceCode: 'm010',
           data,
@@ -330,7 +337,7 @@ export class MissionsService {
       fixedAmount.toUnsafeFloat(),
     )
     if (updateMissionRewardRule.affected === 0) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm011',
         data,

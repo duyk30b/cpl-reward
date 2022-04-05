@@ -3,12 +3,15 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { RewardRuleService } from '@lib/reward-rule'
 import { MissionUserLogService } from '@lib/mission-user-log'
 import { MissionUserService } from '@lib/mission-user'
-import { UpdateMissionUser } from '../interfaces/common.interface'
+import {
+  ICreateMissionUserLog,
+  IUpdateMissionUser,
+} from '../interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
-import { MissionUserLog } from '@lib/mission-user-log/entities/mission-user-log.entity'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
 import { UpdateMissionUserDto } from '@lib/mission-user/dto/update-mission-user.dto'
 import { FixedNumber } from 'ethers'
+import { CreateMissionUserLogDto } from '@lib/mission-user-log/dto/create-mission-user-log.dto'
 
 @Injectable()
 export class CommonListener {
@@ -19,71 +22,90 @@ export class CommonListener {
     private readonly missionUserService: MissionUserService,
   ) {}
 
-  @OnEvent('update_mission_user')
-  async handleMissionUser(data: UpdateMissionUser) {
-    const missionUser = await this.missionUserService.getOneMissionUser({
-      missionId: data.missionId,
-      userId: data.userId,
-    })
+  @OnEvent('create_mission_user_log')
+  async handleMissionUserLog(data: ICreateMissionUserLog) {
+    const createMissionUserLog = plainToInstance(
+      CreateMissionUserLogDto,
+      data,
+      {
+        ignoreDecorators: true,
+        excludeExtraneousValues: true,
+      },
+    )
+    await this.missionUserLogService.save(createMissionUserLog)
+  }
 
+  @OnEvent('update_mission_user')
+  async handleMissionUser(data: IUpdateMissionUser) {
     const fixedMoneyEarned = FixedNumber.fromString(data.moneyEarned)
     const fixedAmount = FixedNumber.fromString(
       data.referredUserInfo === null ? '0' : data.referredUserInfo.amount,
     )
     const fixedTotalMoneyEarned = fixedMoneyEarned.addUnsafe(fixedAmount)
 
-    const missionUserLogData = plainToInstance(
-      MissionUserLog,
-      {
-        missionId: data.missionId,
-        userId: data.userId,
-        successCount: 1,
-        moneyEarned: fixedMoneyEarned.toString(),
-        totalMoneyEarned: fixedTotalMoneyEarned.toString(),
-        referredUserInfo:
-          data.referredUserInfo === null ? {} : data.referredUserInfo,
-        note: `event: ${data.eventName} save this log`,
-      },
-      {
-        ignoreDecorators: true,
-      },
-    )
-    const missionUserLog = await this.missionUserLogService.save(
-      missionUserLogData,
-    )
-
-    if (!missionUser) {
+    const missionUser = await this.missionUserService.findOne({
+      missionId: data.missionId,
+      userId: data.userId,
+    })
+    const createMissionUserLogData = {
+      missionId: data.missionId,
+      userId: data.userId,
+      successCount: 1,
+      moneyEarned: fixedMoneyEarned.toString(),
+      totalMoneyEarned: fixedTotalMoneyEarned.toString(),
+      referredUserInfo:
+        data.referredUserInfo === null ? {} : data.referredUserInfo,
+      note: `event: ${data.eventName} save this log`,
+    }
+    if (missionUser === undefined) {
       // create
-      const createMissionUser = plainToInstance(
+      const createMissionUserData = plainToInstance(
         CreateMissionUserDto,
-        missionUserLog,
+        createMissionUserLogData,
         {
           ignoreDecorators: true,
           excludeExtraneousValues: true,
         },
       )
-      await this.missionUserService.save(createMissionUser)
+      await this.missionUserService.save(createMissionUserData)
+      this.eventEmitter.emit(
+        'create_mission_user_log',
+        createMissionUserLogData,
+      )
     } else {
       // update
       const fMuMoneyEarned = FixedNumber.from(missionUser.moneyEarned)
       const fMuTotalMoneyEarned = FixedNumber.from(missionUser.totalMoneyEarned)
 
-      const updateMissionUser = plainToInstance(
+      const updateMissionUserData = plainToInstance(
         UpdateMissionUserDto,
-        missionUserLog,
+        {
+          successCount: missionUser.successCount + 1,
+          moneyEarned: fixedMoneyEarned
+            .addUnsafe(fMuMoneyEarned)
+            .toUnsafeFloat(),
+          totalMoneyEarned: fixedTotalMoneyEarned
+            .addUnsafe(fMuTotalMoneyEarned)
+            .toUnsafeFloat(),
+          referredUserInfo:
+            data.referredUserInfo === null ? {} : data.referredUserInfo,
+        },
         {
           ignoreDecorators: true,
           excludeExtraneousValues: true,
         },
       )
-      updateMissionUser.successCount = missionUser.successCount + 1
-      updateMissionUser.moneyEarned = fixedMoneyEarned
-        .addUnsafe(fMuMoneyEarned)
-        .toUnsafeFloat()
-      updateMissionUser.totalMoneyEarned = fixedTotalMoneyEarned
-        .addUnsafe(fMuTotalMoneyEarned)
-        .toUnsafeFloat()
-      await this.missionUserService.update(missionUser.id, updateMissionUser)
+      const updated = await this.missionUserService.update(
+        missionUser.id,
+        updateMissionUserData,
+        data.limitReceivedReward,
+      )
+      if (updated.affected > 0) {
+        this.eventEmitter.emit(
+          'create_mission_user_log',
+          createMissionUserLogData,
+        )
+      }
     }
   }
 }

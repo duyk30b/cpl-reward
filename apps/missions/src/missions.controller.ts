@@ -7,12 +7,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 export class MissionsController {
   constructor(private eventEmitter: EventEmitter2) {}
 
-  emitEvent(msgName: string, msgId: string, msgData: any) {
+  emitEvent(msgName: string, msgId: string | null, msgData: any) {
     // Data length
     if (Object.keys(msgData).length == 0) {
       this.eventEmitter.emit('write_log', {
-        logLevel: 'log',
-        traceCode: 'm003',
+        logLevel: 'error',
+        traceCode: 'm002',
         data: {
           msgData,
           msgName,
@@ -25,7 +25,7 @@ export class MissionsController {
     // user_id field
     if (!msgData.user_id) {
       this.eventEmitter.emit('write_log', {
-        logLevel: 'log',
+        logLevel: 'error',
         traceCode: 'Missing user_id fields. Stop!',
         data: {
           msgData,

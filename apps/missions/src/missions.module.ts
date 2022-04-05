@@ -19,6 +19,7 @@ import { MissionEventModule } from '@lib/mission-event'
 import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
 import { ExternalCashbackModule } from '@lib/external-cashback'
+import { TraceListener } from './listeners/trace.listener'
 
 @Module({
   controllers: [MissionsController],
@@ -46,6 +47,7 @@ import { ExternalCashbackModule } from '@lib/external-cashback'
     CommonListener,
     ExternalListener,
     MissionsListener,
+    TraceListener,
     MissionsService,
   ],
 })

@@ -18,6 +18,7 @@ export const MISSION_SORT_FIELD_MAP = {
   detail_explain_jp: 'campaign.detailExplainJp',
   opening_date: 'campaign.openingDate',
   closing_date: 'campaign.closingDate',
+  completed: 'completed',
 }
 
 export const USER_CONDITION_TYPES = {

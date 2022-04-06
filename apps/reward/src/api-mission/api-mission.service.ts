@@ -100,7 +100,6 @@ export class ApiMissionService {
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,
           not_received_amount: money.notReceivedAmount,
-          status: money.status,
         }
       }),
       links: CommonService.customLinks(missions.links),
@@ -126,7 +125,7 @@ export class ApiMissionService {
         userId,
     )
     queryBuilder.select([
-      'IF (mission_user.success_count >= mission.limit_received_reward, true, false) AS completed', // Check xem user đã hoàn thành mission này chưa
+      'mission_user.success_count AS success_count',
       'mission.title AS title',
       'mission.titleJp AS titleJp',
       'mission.id AS id',
@@ -139,6 +138,8 @@ export class ApiMissionService {
       'mission.limitReceivedReward AS limitReceivedReward',
       'mission.grantTarget AS grantTarget',
       'mission.campaignId AS campaignId',
+      'mission.status AS status',
+      'IF (success_count >= mission.limitReceivedReward, true, false) AS completed', // Check if user completed this campaign
     ])
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
@@ -265,7 +266,6 @@ export class ApiMissionService {
       totalRewardAmount: totalRewardAmount.toString(),
       receivedAmount: receivedAmount.toString(),
       notReceivedAmount: notReceivedAmount.toString(),
-      status: totalRewardAmount.subUnsafe(receivedAmount).isZero() ? 1 : 0,
     }
   }
 }

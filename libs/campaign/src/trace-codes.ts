@@ -10,4 +10,5 @@ export const TRACE_CODES = {
   m009: 'Mission had out of budget',
   m010: 'Mission reward was not enough money',
   m011: 'Update limit value fail',
+  m012: 'Compare {{name}} condition fail',
 }

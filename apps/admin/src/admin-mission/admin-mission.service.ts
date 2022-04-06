@@ -3,7 +3,7 @@ import {
   EVENTS,
   GRANT_TARGET_USER,
   GRANT_TARGET_WALLET,
-  IS_ACTIVE_MISSION,
+  MISSION_IS_ACTIVE,
   MissionService,
   MISSION_STATUS,
   TARGET_TYPE,
@@ -96,8 +96,8 @@ export class AdminMissionService {
   }
 
   private static updateStatusByActive(isActive: number) {
-    if (isActive === IS_ACTIVE_MISSION.ACTIVE) return MISSION_STATUS.RUNNING
-    if (isActive === IS_ACTIVE_MISSION.INACTIVE) return MISSION_STATUS.INACTIVE
+    if (isActive === MISSION_IS_ACTIVE.ACTIVE) return MISSION_STATUS.RUNNING
+    if (isActive === MISSION_IS_ACTIVE.INACTIVE) return MISSION_STATUS.INACTIVE
   }
 
   async create(create: ICreateMission) {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import {
   GRANT_TARGET_USER,
-  IS_ACTIVE_MISSION,
+  MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
   MISSION_SORT_FIELD_MAP,
   MissionService,
@@ -141,7 +141,7 @@ export class ApiMissionService {
       'mission.campaignId AS campaignId',
     ])
     queryBuilder.where('mission.isActive = :is_active ', {
-      is_active: IS_ACTIVE_MISSION.ACTIVE,
+      is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
     queryBuilder.where('mission.targetType = :target_type ', {
       target_type: TARGET_TYPE.ONLY_MAIN,

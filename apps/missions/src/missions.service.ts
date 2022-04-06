@@ -3,7 +3,7 @@ import {
   EVENTS,
   GRANT_TARGET_USER,
   GRANT_TARGET_WALLET,
-  IS_ACTIVE_MISSION,
+  MISSION_IS_ACTIVE,
   MissionService,
   MISSION_STATUS,
 } from '@lib/mission'
@@ -470,7 +470,7 @@ export class MissionsService {
   async getMissionById(missionId: number) {
     const mission = await this.missionService.findOne({
       id: missionId,
-      isActive: IS_ACTIVE_MISSION.ACTIVE,
+      isActive: MISSION_IS_ACTIVE.ACTIVE,
       status: CAMPAIGN_STATUS.RUNNING,
     })
     if (!mission) return null

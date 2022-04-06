@@ -38,7 +38,7 @@ export enum EVENTS {
   HIGH_LOW_CANCEL = 'high_low_cancel',
 }
 
-export enum IS_ACTIVE_MISSION {
+export enum MISSION_IS_ACTIVE {
   INACTIVE = 0,
   ACTIVE = 1,
 }

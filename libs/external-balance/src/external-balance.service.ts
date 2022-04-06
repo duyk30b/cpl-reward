@@ -14,7 +14,7 @@ export class ExternalBalanceService {
   ) {}
 
   async changeUserBalance(
-    userId: number,
+    userId: string,
     amount: number,
     currency: string,
     type: string,

@@ -13,7 +13,7 @@ import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
-import { IS_ACTIVE_MISSION, STATUS_MISSION, TARGET_TYPE } from '../enum'
+import { IS_ACTIVE_MISSION, MISSION_STATUS, TARGET_TYPE } from '../enum'
 
 @Entity({
   name: 'missions',
@@ -77,7 +77,7 @@ export class Mission extends MyBaseEntity {
 
   @Column({
     type: 'smallint',
-    default: STATUS_MISSION.RUNNING,
+    default: MISSION_STATUS.RUNNING,
   })
   @Expose()
   status: number

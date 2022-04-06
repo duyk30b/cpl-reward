@@ -17,7 +17,7 @@ export class MissionUserEntityOld extends MyBaseEntity {
 
   @Column({ name: 'user_id' })
   @Expose({ name: 'user_id' })
-  userId: number
+  userId: string
 
   @Column({ name: 'success_count', default: 0 })
   @Expose({ name: 'success_count' })

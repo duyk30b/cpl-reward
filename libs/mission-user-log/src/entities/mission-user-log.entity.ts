@@ -18,7 +18,7 @@ export class MissionUserLog extends MyBaseEntity {
 
   @Column({ name: 'user_id' })
   @Expose({ name: 'user_id' })
-  userId: number
+  userId: string
 
   @Column({ name: 'success_count' })
   @Expose({ name: 'success_count' })

@@ -3,8 +3,8 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  IS_ACTIVE_CAMPAIGN,
-  STATUS_CAMPAIGN,
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { KEY_REWARD_RULE, RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -109,9 +109,9 @@ export class AdminCampaignService {
   }
 
   private static updateStatusByActive(isActive: number) {
-    if (isActive === IS_ACTIVE_CAMPAIGN.ACTIVE) return STATUS_CAMPAIGN.RUNNING
-    if (isActive === IS_ACTIVE_CAMPAIGN.INACTIVE)
-      return STATUS_CAMPAIGN.INACTIVE
+    if (isActive === CAMPAIGN_IS_ACTIVE.ACTIVE) return CAMPAIGN_STATUS.RUNNING
+    if (isActive === CAMPAIGN_IS_ACTIVE.INACTIVE)
+      return CAMPAIGN_STATUS.INACTIVE
   }
 
   /**

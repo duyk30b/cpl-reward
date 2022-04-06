@@ -43,7 +43,7 @@ export enum IS_ACTIVE_MISSION {
   ACTIVE = 1,
 }
 
-export enum STATUS_MISSION {
+export enum MISSION_STATUS {
   RUNNING = 1,
   OUT_OF_BUDGET = 2,
   ENDED = 3,

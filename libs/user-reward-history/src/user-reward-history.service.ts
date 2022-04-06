@@ -4,7 +4,7 @@ import { plainToInstance } from 'class-transformer'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { STATUS } from './enum'
+import { USER_REWARD_STATUS } from './enum'
 import { GRANT_TARGET_USER } from '@lib/mission'
 
 @Injectable()
@@ -40,7 +40,7 @@ export class UserRewardHistoryService {
 
   async getAmountByUser(
     missionIds: number[],
-    userId: number,
+    userId: string,
     statusList: number[],
   ) {
     const queryBuilder =
@@ -71,7 +71,7 @@ export class UserRewardHistoryService {
     return result
   }
 
-  async getAmountEarned(userId: number) {
+  async getAmountEarned(userId: string) {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
     queryBuilder.where('history.userId = :user_id', {
@@ -80,8 +80,8 @@ export class UserRewardHistoryService {
     queryBuilder.andWhere(
       "(history.status = ':status_type_auto' OR history.status = ':status_type_manual')",
       {
-        status_type_auto: STATUS.AUTO_RECEIVED,
-        status_type_manual: STATUS.MANUAL_RECEIVED,
+        status_type_auto: USER_REWARD_STATUS.AUTO_RECEIVED,
+        status_type_manual: USER_REWARD_STATUS.MANUAL_RECEIVED,
       },
     )
     queryBuilder.andWhere('history.userType = :user_type', {

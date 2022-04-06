@@ -3,8 +3,8 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  IS_SYSTEM,
-  IS_ACTIVE_CAMPAIGN,
+  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_IS_ACTIVE,
 } from '@lib/campaign'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -68,10 +68,10 @@ export class ApiCampaignService {
       'campaign.campaignImageJp',
     ])
     queryBuilder.where('campaign.isSystem = :is_system ', {
-      is_system: IS_SYSTEM.FALSE,
+      is_system: CAMPAIGN_IS_SYSTEM.FALSE,
     })
     queryBuilder.andWhere('campaign.isActive = :is_active ', {
-      is_active: IS_ACTIVE_CAMPAIGN.ACTIVE,
+      is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
     })
     if (searchText) {
       queryBuilder.andWhere(
@@ -107,8 +107,8 @@ export class ApiCampaignService {
   async findOne(id: number) {
     return this.campaignService.findOne({
       id,
-      isActive: IS_ACTIVE_CAMPAIGN.ACTIVE,
-      isSystem: IS_SYSTEM.FALSE,
+      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
     })
   }
 }

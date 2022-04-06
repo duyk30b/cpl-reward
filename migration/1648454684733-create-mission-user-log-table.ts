@@ -21,7 +21,7 @@ export class createMissionUserLogTable1648454684733
           },
           {
             name: 'user_id',
-            type: 'string',
+            type: 'bigInt',
           },
           {
             name: 'success_count',

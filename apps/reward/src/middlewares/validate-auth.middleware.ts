@@ -23,7 +23,7 @@ export class ValidateAuthMiddleware implements NestMiddleware {
 
     const ENV = this.configService.get<string>('common.env')
     if (ENV === Environment.Local) {
-      req.userId = Number(xBceUid)
+      req.userId = String(xBceUid)
       next()
       return
     }
@@ -33,7 +33,7 @@ export class ValidateAuthMiddleware implements NestMiddleware {
     if (xBceRole === null || xBceRole === 'guest' || user === null) {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
     }
-    req.userId = Number(xBceUid)
+    req.userId = String(xBceUid)
     next()
   }
 }

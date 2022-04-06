@@ -9,8 +9,8 @@ export enum IS_SYSTEM {
 }
 
 export enum STATUS_CAMPAIGN {
-  RUNNING = 0,
-  EMPTY_MONEY = 1,
-  ENDED = 2,
-  INACTIVE = 3,
+  RUNNING = 1,
+  OUT_OF_BUDGET = 2,
+  ENDED = 3,
+  INACTIVE = 4,
 }

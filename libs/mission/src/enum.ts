@@ -44,10 +44,10 @@ export enum IS_ACTIVE_MISSION {
 }
 
 export enum STATUS_MISSION {
-  RUNNING = 0,
-  OUT_OF_BUDGET = 1,
-  ENDED = 2,
-  INACTIVE = 3,
+  RUNNING = 1,
+  OUT_OF_BUDGET = 2,
+  ENDED = 3,
+  INACTIVE = 4,
 }
 
 export enum TARGET_TYPE {

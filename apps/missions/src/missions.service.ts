@@ -3,23 +3,26 @@ import {
   EVENTS,
   GRANT_TARGET_USER,
   GRANT_TARGET_WALLET,
-  IS_ACTIVE_MISSION,
+  MISSION_IS_ACTIVE,
   MissionService,
-  STATUS_MISSION,
+  MISSION_STATUS,
 } from '@lib/mission'
 import { CommonService } from '@lib/common'
 import { Injectable } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
   CampaignService,
-  IS_ACTIVE_CAMPAIGN,
-  IS_SYSTEM,
-  STATUS_CAMPAIGN,
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
-import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
+import {
+  USER_REWARD_STATUS,
+  UserRewardHistoryService,
+} from '@lib/user-reward-history'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
@@ -89,7 +92,7 @@ export class MissionsService {
     if (now < campaign.startDate || now > campaign.endDate) {
       await this.campaignService.update({
         id: campaign.id,
-        status: STATUS_CAMPAIGN.ENDED,
+        status: CAMPAIGN_STATUS.ENDED,
       })
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -120,7 +123,7 @@ export class MissionsService {
     if (now < mission.openingDate || now > mission.closingDate) {
       await this.missionService.update({
         id: mission.id,
-        status: STATUS_MISSION.ENDED,
+        status: MISSION_STATUS.ENDED,
       })
 
       this.eventEmitter.emit(this.eventEmit, {
@@ -220,7 +223,7 @@ export class MissionsService {
     if (!checkOutOfBudget) {
       await this.missionService.update({
         id: mission.id,
-        status: STATUS_MISSION.OUT_OF_BUDGET,
+        status: MISSION_STATUS.OUT_OF_BUDGET,
       })
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -358,7 +361,7 @@ export class MissionsService {
   async commonFlowReward(
     missionRewardRule: RewardRule,
     userTarget: IGrantTarget,
-    userId: number,
+    userId: string,
     data: IEvent,
   ) {
     // update release_value, limit_value of campaign/mission
@@ -421,7 +424,7 @@ export class MissionsService {
       userRewardHistory
     ) {
       await this.userRewardHistoryService.updateById(userRewardHistory.id, {
-        status: STATUS.MANUAL_NOT_RECEIVE,
+        status: USER_REWARD_STATUS.MANUAL_NOT_RECEIVE,
       })
     }
   }
@@ -432,7 +435,7 @@ export class MissionsService {
    * @param missionId
    * @param userId
    */
-  async getSuccessCount(missionId: number, userId: number) {
+  async getSuccessCount(missionId: number, userId: string) {
     const missionUser = await this.missionUserService.findOne({
       missionId,
       userId,
@@ -448,9 +451,9 @@ export class MissionsService {
   async getCampaignById(campaignId: number): Promise<Campaign> {
     const campaign = await this.campaignService.findOne({
       id: campaignId,
-      isActive: IS_ACTIVE_CAMPAIGN.ACTIVE,
-      isSystem: IS_SYSTEM.FALSE,
-      status: STATUS_MISSION.RUNNING,
+      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+      status: MISSION_STATUS.RUNNING,
     })
     if (!campaign) return null
     return campaign
@@ -459,8 +462,8 @@ export class MissionsService {
   async getMissionById(missionId: number) {
     const mission = await this.missionService.findOne({
       id: missionId,
-      isActive: IS_ACTIVE_MISSION.ACTIVE,
-      status: STATUS_CAMPAIGN.RUNNING,
+      isActive: MISSION_IS_ACTIVE.ACTIVE,
+      status: CAMPAIGN_STATUS.RUNNING,
     })
     if (!mission) return null
     return mission

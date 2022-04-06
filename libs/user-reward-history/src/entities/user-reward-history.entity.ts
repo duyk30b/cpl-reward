@@ -7,7 +7,7 @@ import {
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
-import { STATUS } from '@lib/user-reward-history/enum'
+import { USER_REWARD_STATUS } from '@lib/user-reward-history/enum'
 
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission/enum'
@@ -31,7 +31,7 @@ export class UserRewardHistory extends MyBaseEntity {
 
   @Column({ name: 'user_id' })
   @Expose({ name: 'user_id' })
-  userId: number
+  userId: string
 
   @Column({
     name: 'user_type',
@@ -75,7 +75,7 @@ export class UserRewardHistory extends MyBaseEntity {
 
   @Column({
     type: 'smallint',
-    default: STATUS.AUTO_NOT_RECEIVE,
+    default: USER_REWARD_STATUS.AUTO_NOT_RECEIVE,
   })
   @Expose()
   status: number

@@ -5,7 +5,10 @@ import {
   ISendRewardToCashback,
 } from '../interfaces/external.interface'
 import { ExternalBalanceService } from '@lib/external-balance'
-import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
+import {
+  USER_REWARD_STATUS,
+  UserRewardHistoryService,
+} from '@lib/user-reward-history'
 import { ExternalCashbackService } from '@lib/external-cashback'
 
 @Injectable()
@@ -30,12 +33,12 @@ export class ExternalListener {
       })
     if (sendRewardToCashback === null) {
       const result = await this.userRewardHistoryService.updateById(data.id, {
-        status: STATUS.AUTO_FAIL,
+        status: USER_REWARD_STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
         this.logger.log(
           `[EVENT ${data.eventName}]. Update reward history fail. ` +
-            `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
+            `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_FAIL}`,
         )
       }
       this.logger.log(
@@ -46,12 +49,12 @@ export class ExternalListener {
     }
 
     const result = await this.userRewardHistoryService.updateById(data.id, {
-      status: STATUS.AUTO_RECEIVED,
+      status: USER_REWARD_STATUS.AUTO_RECEIVED,
     })
     if (result.affected === 0) {
       this.logger.log(
         `Update reward history fail. ` +
-          `Input: id => ${data.id}, status => ${STATUS.AUTO_RECEIVED}`,
+          `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_RECEIVED}`,
       )
     }
   }
@@ -68,12 +71,12 @@ export class ExternalListener {
       )
     if (sendRewardToBalance === null) {
       const result = await this.userRewardHistoryService.updateById(data.id, {
-        status: STATUS.AUTO_FAIL,
+        status: USER_REWARD_STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
         this.logger.log(
           `[EVENT ${data.eventName}]. Update reward history fail. ` +
-            `Input: id => ${data.id}, status => ${STATUS.AUTO_FAIL}`,
+            `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_FAIL}`,
         )
       }
       this.logger.log(
@@ -84,12 +87,12 @@ export class ExternalListener {
     }
 
     const result = await this.userRewardHistoryService.updateById(data.id, {
-      status: STATUS.AUTO_RECEIVED,
+      status: USER_REWARD_STATUS.AUTO_RECEIVED,
     })
     if (result.affected === 0) {
       this.logger.log(
         `[EVENT ${data.eventName}]. Update reward history fail. ` +
-          `Input: id => ${data.id}, status => ${STATUS.AUTO_RECEIVED}`,
+          `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_RECEIVED}`,
       )
     }
   }

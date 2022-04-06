@@ -8,7 +8,7 @@ import {
   STATUS_MISSION,
 } from '@lib/mission'
 import { CommonService } from '@lib/common'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
   CampaignService,
@@ -35,7 +35,6 @@ import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class MissionsService {
-  private readonly logger = new Logger(MissionsService.name)
   eventEmit = 'write_log'
 
   constructor(
@@ -138,39 +137,32 @@ export class MissionsService {
       return
     }
 
-    // TODO: cần phân tích lại việc config các type của từng điều kiện
     // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
     const checkJudgmentConditions = this.checkJudgmentConditions(
       mission.judgmentConditions as unknown as IJudgmentCondition[],
       data.msgData,
       data.msgName,
-      mission.id,
     )
     if (!checkJudgmentConditions) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm006',
         data,
-        extraData: null,
         params: { condition_name: 'Judgment' },
       })
       return
     }
 
-    // TODO: cần phân tích lại việc config các type của từng điều kiện
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.checkUserConditions(
       mission.userConditions as unknown as IUserCondition[],
       user,
-      data.msgName,
-      mission.id,
     )
     if (!checkUserConditions) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm006',
         data,
-        extraData: null,
         params: { condition_name: 'User' },
       })
       return
@@ -478,16 +470,14 @@ export class MissionsService {
    * @param judgmentConditions
    * @param messageValue
    * @param eventName
-   * @param missionId
    */
   checkJudgmentConditions(
     judgmentConditions: IJudgmentCondition[],
     messageValue: any,
     eventName: string,
-    missionId: number,
   ) {
     if (judgmentConditions.length === 0) return true
-    let result = false
+    let result = true
     for (const idx in judgmentConditions) {
       const currentCondition = judgmentConditions[idx]
       if (currentCondition.eventName !== EVENTS[eventName]) continue
@@ -495,28 +485,52 @@ export class MissionsService {
       const checkExistMessageValue = messageValue[currentCondition.property]
       if (checkExistMessageValue === undefined) continue
 
-      const property = CommonService.inspectStringNumber(
-        messageValue[currentCondition.property],
-        currentCondition.type,
-      )
-      const operator = currentCondition.operator
-      const value = CommonService.inspectStringNumber(
-        currentCondition.value,
-        currentCondition.type,
-      )
-
-      const checkJudgmentCondition = eval(`${property}
-            ${operator}
-            ${value}`)
-      if (!checkJudgmentCondition) {
-        this.logger.log(
-          `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. Judgement Condition data: ` +
-            `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
-            `operator => ${operator}, conditionValue => ${value}`,
+      if (
+        currentCondition.type === 'number' &&
+        !CommonService.compareNumberCondition(
+          currentCondition.value,
+          messageValue[currentCondition.property],
+          currentCondition.operator,
         )
+      ) {
+        // compare number fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'string' &&
+        !eval(`'${messageValue[currentCondition.property]}'
+                ${currentCondition.operator}
+                '${currentCondition.value}'`)
+      ) {
+        // compare string fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'boolean' &&
+        !eval(`${messageValue[currentCondition.property]}
+                ${currentCondition.operator}
+                ${currentCondition.value}`)
+      ) {
+        // compare boolean and other fail
+        result = false
+      }
+
+      if (!result) {
+        this.eventEmitter.emit('write_log', {
+          logLevel: 'warn',
+          traceCode: 'm012',
+          extraData: {
+            eventProperty: currentCondition.property,
+            eventValue: messageValue[currentCondition.property],
+            operator: currentCondition.operator,
+            conditionValue: currentCondition.value,
+          },
+          params: { name: 'Judgment' },
+        })
         break
       }
-      result = true
     }
     return result
   }
@@ -524,17 +538,10 @@ export class MissionsService {
   /**
    * @param userConditions
    * @param user
-   * @param eventName
-   * @param missionId
    */
-  checkUserConditions(
-    userConditions: IUserCondition[],
-    user: IUser,
-    eventName: string,
-    missionId: number,
-  ) {
+  checkUserConditions(userConditions: IUserCondition[], user: IUser) {
     if (userConditions.length === 0) return true
-    let result = false
+    let result = true
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -544,28 +551,52 @@ export class MissionsService {
       const checkExistUserProperty = user[currentCondition.property]
       if (checkExistUserProperty === undefined) continue
 
-      const property = CommonService.inspectStringNumber(
-        user[currentCondition.property],
-        currentCondition.type,
-      )
-      const operator = currentCondition.operator
-      const value = CommonService.inspectStringNumber(
-        currentCondition.value,
-        currentCondition.type,
-      )
-
-      const checkUserCondition = eval(`${property}
-            ${operator}
-            ${value}`)
-      if (!checkUserCondition) {
-        this.logger.log(
-          `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. User Condition data: ` +
-            `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
-            `operator => ${operator}, conditionValue => ${value}`,
+      if (
+        currentCondition.type === 'number' &&
+        !CommonService.compareNumberCondition(
+          currentCondition.value,
+          user[currentCondition.property],
+          currentCondition.operator,
         )
+      ) {
+        // compare number fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'string' &&
+        !eval(`'${user[currentCondition.property]}'
+                ${currentCondition.operator}
+                '${currentCondition.value}'`)
+      ) {
+        // compare string fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'boolean' &&
+        !eval(`${user[currentCondition.property]}
+                ${currentCondition.operator}
+                ${currentCondition.value}`)
+      ) {
+        // compare boolean and other fail
+        result = false
+      }
+
+      if (!result) {
+        this.eventEmitter.emit('write_log', {
+          logLevel: 'warn',
+          traceCode: 'm012',
+          extraData: {
+            eventProperty: currentCondition.property,
+            eventValue: user[currentCondition.property],
+            operator: currentCondition.operator,
+            conditionValue: currentCondition.value,
+          },
+          params: { name: 'User' },
+        })
         break
       }
-      result = true
     }
     return result
   }

@@ -99,7 +99,7 @@ export class MissionService {
     INFO_EVENTS.forEach((item) => {
       if (result[item.eventName] === undefined) result[item.eventName] = {}
       item.properties.forEach((property) => {
-        result[item.eventName][property.key] = property.type
+        result[item.eventName][property.key] = property.display || property.type
       })
     })
     return result

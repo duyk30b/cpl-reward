@@ -71,9 +71,9 @@ export class MissionsService {
       return
     }
 
-    const userId = Number(user.id)
+    const userId = user.id
     const referredUserId =
-      user.referredById === undefined ? 0 : Number(user.referredById)
+      user.referredById === undefined ? 0 : user.referredById
 
     const now = moment().unix()
 

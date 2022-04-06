@@ -1,7 +1,7 @@
 import { ReferredUserInfoDto } from '@lib/mission-user/dto/referred-user-info.dto'
 
 export interface IUpdateMissionUser {
-  userId: number
+  userId: string
   missionId: number
   referredUserInfo: ReferredUserInfoDto
   eventName: string
@@ -10,7 +10,7 @@ export interface IUpdateMissionUser {
 }
 
 export interface ICreateMissionUserLog {
-  userId: number
+  userId: string
   missionId: number
   successCount: number
   moneyEarned: string

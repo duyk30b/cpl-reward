@@ -8,7 +8,7 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { IS_ACTIVE_CAMPAIGN, STATUS_CAMPAIGN } from '../enum'
+import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '../enum'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 
 @Entity({
@@ -78,14 +78,14 @@ export class Campaign extends MyBaseEntity {
   @Column({
     name: 'is_active',
     type: 'smallint',
-    default: IS_ACTIVE_CAMPAIGN.ACTIVE,
+    default: CAMPAIGN_IS_ACTIVE.ACTIVE,
   })
   @Expose({ name: 'is_active' })
   isActive: number
 
   @Column({
     type: 'smallint',
-    default: STATUS_CAMPAIGN.RUNNING,
+    default: CAMPAIGN_STATUS.RUNNING,
   })
   @Expose()
   status: number

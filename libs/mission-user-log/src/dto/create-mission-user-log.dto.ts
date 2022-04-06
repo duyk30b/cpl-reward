@@ -6,7 +6,7 @@ export class CreateMissionUserLogDto {
   missionId: number
 
   @Expose({ name: 'user_id' })
-  userId: number
+  userId: string
 
   @Expose({ name: 'success_count' })
   successCount: number

@@ -1,4 +1,4 @@
-export enum STATUS {
+export enum USER_REWARD_STATUS {
   AUTO_NOT_RECEIVE = 0,
   MANUAL_NOT_RECEIVE = 1,
   AUTO_RECEIVED = 2,

@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { LessThanOrEqual, Repository } from 'typeorm'
 import {
   paginate,
+  paginateRaw,
   paginateRawAndEntities,
   Pagination,
 } from 'nestjs-typeorm-paginate'
@@ -14,7 +15,7 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { INFO_EVENTS } from '@lib/mission/constants'
-import { STATUS_MISSION } from '@lib/mission/enum'
+import { MISSION_STATUS } from '@lib/mission/enum'
 
 @Injectable()
 export class MissionService {
@@ -26,7 +27,7 @@ export class MissionService {
   async updateEndedStatus(now: number) {
     await this.missionRepository.update(
       { closingDate: LessThanOrEqual(now) },
-      { status: STATUS_MISSION.ENDED },
+      { status: MISSION_STATUS.ENDED },
     )
   }
 
@@ -75,14 +76,14 @@ export class MissionService {
     return queryBuilder
   }
 
-  async paginate(
+  async missionPaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Mission> = null,
     isRaw = false,
   ): Promise<Pagination<Mission, CustomPaginationMetaTransformer> | any> {
     if (queryBuilder === null) queryBuilder = this.queryBuilder()
     if (isRaw) {
-      return paginateRawAndEntities(queryBuilder, options)
+      return paginateRaw(queryBuilder, options)
     }
     return paginate<Mission, CustomPaginationMetaTransformer>(
       queryBuilder,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import {
   GRANT_TARGET_USER,
-  IS_ACTIVE_MISSION,
+  MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
   MISSION_SORT_FIELD_MAP,
   MissionService,
@@ -13,11 +13,15 @@ import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
-import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
+import {
+  USER_REWARD_STATUS,
+  UserRewardHistoryService,
+} from '@lib/user-reward-history'
 import { CommonService } from '@lib/common/common.service'
-import { instanceToPlain } from 'class-transformer'
+import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
+import { CAMPAIGN_IS_ACTIVE } from '@lib/campaign'
 
 @Injectable()
 export class ApiMissionService {
@@ -26,7 +30,7 @@ export class ApiMissionService {
     private readonly userRewardHistoryService: UserRewardHistoryService,
   ) {}
 
-  async findAll(apiMissionFilterDto: ApiMissionFilterDto, userId: number) {
+  async findAll(apiMissionFilterDto: ApiMissionFilterDto, userId: string) {
     const limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
     const page = apiMissionFilterDto.page || 1
@@ -44,44 +48,54 @@ export class ApiMissionService {
       route: '/missions',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
-    const queryBuilder = this.queryBuilder(apiMissionFilterDto)
-    const result = await this.missionService.paginate(options, queryBuilder)
+    const queryBuilder = this.missionQueryBuilder(apiMissionFilterDto, userId)
+    const missions = await this.missionService.missionPaginate(
+      options,
+      queryBuilder,
+      true,
+    )
 
-    if (result.items.length === 0) {
+    // Empty missions
+    if (missions.items.length === 0) {
       return {
-        pagination: result.meta,
-        data: result.items,
-        links: CommonService.customLinks(result.links),
+        pagination: missions.meta,
+        data: missions.items,
+        links: CommonService.customLinks(missions.links),
       }
     }
 
-    const missionIds = []
-    for (const idx in result.items) {
-      missionIds.push(result.items[idx].id)
-    }
+    // Else missions not empty
+    const missionIds = missions.items.map((m) => {
+      return m.id
+    })
+
     const receivedHistories =
       await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
-        STATUS.AUTO_RECEIVED,
-        STATUS.MANUAL_RECEIVED,
+        USER_REWARD_STATUS.AUTO_RECEIVED,
+        USER_REWARD_STATUS.MANUAL_RECEIVED,
       ])
     const notReceivedHistories =
       await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
-        STATUS.MANUAL_NOT_RECEIVE,
+        USER_REWARD_STATUS.MANUAL_NOT_RECEIVE,
       ])
 
     return {
-      pagination: result.meta,
-      data: result.items.map((item) => {
+      pagination: missions.meta,
+      data: missions.items.map((rawMission) => {
+        const mission = plainToInstance(Mission, rawMission, {
+          ignoreDecorators: true,
+          //excludeExtraneousValues: false,
+        })
         const money = this.getMoneyOfUser(
-          item.grantTarget,
-          item.id,
+          JSON.parse(mission.grantTarget),
+          mission.id,
           receivedHistories,
           notReceivedHistories,
-          item.limitReceivedReward,
+          mission.limitReceivedReward,
         )
-        delete item.grantTarget
+        delete mission.grantTarget
         return {
-          ...instanceToPlain(item, { exposeUnsetFields: false }),
+          ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,
@@ -89,30 +103,45 @@ export class ApiMissionService {
           status: money.status,
         }
       }),
-      links: CommonService.customLinks(result.links),
+      links: CommonService.customLinks(missions.links),
     }
   }
 
-  private queryBuilder(
+  private missionQueryBuilder(
     missionFilter: ApiMissionFilterDto,
+    userId: string,
   ): SelectQueryBuilder<Mission> {
     const { searchField, searchText, sort, sortType } = missionFilter
     const queryBuilder = this.missionService.initQueryBuilder()
+    queryBuilder.innerJoin(
+      'campaigns',
+      'campaigns',
+      'campaigns.id = mission.campaign_id AND campaigns.is_active = ' +
+        CAMPAIGN_IS_ACTIVE.ACTIVE,
+    )
+    queryBuilder.leftJoin(
+      'mission_user',
+      'mission_user',
+      'mission_user.mission_id = mission.id AND mission_user.user_id = ' +
+        userId,
+    )
     queryBuilder.select([
-      'mission.title',
-      'mission.titleJp',
-      'mission.id',
-      'mission.detailExplain',
-      'mission.detailExplainJp',
-      'mission.openingDate',
-      'mission.closingDate',
-      'mission.guideLink',
-      'mission.guideLinkJp',
-      'mission.limitReceivedReward',
-      'mission.grantTarget',
+      'IF (mission_user.success_count >= mission.limit_received_reward, true, false) AS completed', // Check xem user đã hoàn thành mission này chưa
+      'mission.title AS title',
+      'mission.titleJp AS titleJp',
+      'mission.id AS id',
+      'mission.detailExplain AS detailExplain',
+      'mission.detailExplainJp AS detailExplainJp',
+      'mission.openingDate AS openingDate',
+      'mission.closingDate AS closingDate',
+      'mission.guideLink AS guideLink',
+      'mission.guideLinkJp AS guideLinkJp',
+      'mission.limitReceivedReward AS limitReceivedReward',
+      'mission.grantTarget AS grantTarget',
+      'mission.campaignId AS campaignId',
     ])
     queryBuilder.where('mission.isActive = :is_active ', {
-      is_active: IS_ACTIVE_MISSION.ACTIVE,
+      is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
     queryBuilder.where('mission.targetType = :target_type ', {
       target_type: TARGET_TYPE.ONLY_MAIN,
@@ -171,7 +200,7 @@ export class ApiMissionService {
     return mission
   }
 
-  async getAmountEarned(userId: number) {
+  async getAmountEarned(userId: string) {
     const result = await this.userRewardHistoryService.getAmountEarned(userId)
     if (result.length === 0)
       return {

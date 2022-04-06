@@ -1,6 +1,6 @@
 export interface ISendRewardToBalance {
   id: number
-  userId: number
+  userId: string
   currency: string
   amount: number
   type: string
@@ -9,7 +9,7 @@ export interface ISendRewardToBalance {
 
 export interface ISendRewardToCashback {
   id: number
-  userId: number
+  userId: string
   currency: string
   amount: string
   historyId: number

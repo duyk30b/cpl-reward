@@ -235,7 +235,6 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
     ],
@@ -247,7 +246,6 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
       {
@@ -269,7 +267,6 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
       {
@@ -345,7 +342,6 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
       {
@@ -413,7 +409,7 @@ export const INFO_EVENTS = [
       },
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -462,7 +458,7 @@ export const INFO_EVENTS = [
   //     },
   //     {
   //       key: 'user_id',
-  //       type: 'number',
+  //       type: 'string',
   //       description: 'User ID',
   //     },
   //     {
@@ -547,7 +543,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -712,7 +708,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -877,7 +873,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -1042,7 +1038,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {

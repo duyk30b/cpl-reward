@@ -14,14 +14,13 @@ export class TraceListener {
   async traceLog(input: IWriteLog) {
     const { logLevel, traceCode, data, extraData, params } = input
     const msgId = data === undefined ? 'N/A' : data.msgId
-    const msgName = data === undefined ? 'N/A' : data.msgName
     const msgDataJsonStr =
       data === undefined ? '{}' : JSON.stringify(data.msgData)
     const msgExtraDataJsonStr =
       extraData === undefined ? '{}' : JSON.stringify(extraData)
 
     const message =
-      `[${msgId}] | [Name: ${msgName}] |` +
+      `[${msgId}] |` +
       ` [Message: ${
         TRACE_CODES[traceCode] === undefined
           ? this.missionsService.getLogMessageFromTemplate(traceCode, params)
@@ -29,7 +28,9 @@ export class TraceListener {
               TRACE_CODES[traceCode],
               params === undefined ? {} : params,
             )
-      }]. Data: ${msgDataJsonStr}. Extra Data: ${msgExtraDataJsonStr}`
+      }] |` +
+      `[Data: ${msgDataJsonStr}] | ` +
+      `[Extra: ${msgExtraDataJsonStr}]`
 
     switch (logLevel) {
       case 'debug':

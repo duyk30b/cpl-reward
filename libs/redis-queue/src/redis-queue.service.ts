@@ -20,6 +20,11 @@ export class RedisQueueService {
   ]
 
   async addRewardMissionsJob(name: string, data: any) {
+    const count = await this.rewardMissionsQueue.count()
+    // count > 1M -> clean 100K lastest jobs
+    if (count > 1000000) {
+      await this.rewardMissionsQueue.clean(100, 'wait', 100000)
+    }
     return await this.rewardMissionsQueue.add(name, data)
   }
 }

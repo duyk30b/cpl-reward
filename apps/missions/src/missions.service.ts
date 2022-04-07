@@ -34,7 +34,6 @@ import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
 import * as Handlebars from 'handlebars'
-import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class MissionsService {
@@ -49,12 +48,7 @@ export class MissionsService {
     private readonly rewardRuleService: RewardRuleService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalUserService: ExternalUserService,
-    private readonly configService: ConfigService,
-  ) {
-    if (this.configService.get<boolean>('debug.enable_save_log')) {
-      this.eventEmit = 'write_save_log'
-    }
-  }
+  ) {}
 
   async mainFunction(data: IEvent) {
     const user = await this.externalUserService.getUserInfo(

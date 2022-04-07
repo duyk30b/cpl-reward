@@ -79,35 +79,42 @@ export const USER_INFO_STATUS = {
 
 export const USER_CONDITION_TYPES = {
   kyc_verify_status: {
-    type: 'number',
+    type: 'string',
+    original: 'number',
     display: 'enum',
     options: USER_KYC_VERIFY_STATUS,
   },
   user_info_status: {
-    type: 'number',
+    type: 'string',
+    original: 'number',
     display: 'enum',
     options: USER_INFO_STATUS,
   },
   authenticator_verify_status: {
-    type: 'number',
+    type: 'string',
+    original: 'number',
     display: 'enum',
     options: USER_AUTHENTICATOR_VERIFY_STATUS,
   },
   email_verify_status: {
-    type: 'number',
+    type: 'string',
+    original: 'number',
     display: 'enum',
     options: USER_EMAIL_VERIFY_STATUS,
   },
   referrer_code: {
     type: 'string',
+    original: 'number',
     display: 'string',
   },
   account_lv: {
-    type: 'number',
+    type: 'string',
+    original: 'number',
     display: 'number',
   },
   channel_id: {
-    type: 'number',
+    type: 'string',
+    original: 'number',
     display: 'number',
   },
 }

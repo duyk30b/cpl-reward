@@ -39,7 +39,7 @@ export class CommonListener {
   async handleMissionUser(data: IUpdateMissionUser) {
     const fixedMoneyEarned = FixedNumber.fromString(data.moneyEarned)
     const fixedAmount = FixedNumber.fromString(
-      data.referredUserInfo === null ? '0' : data.referredUserInfo.amount,
+      data.referredUserInfo === undefined ? '0' : data.referredUserInfo.amount,
     )
     const fixedTotalMoneyEarned = fixedMoneyEarned.addUnsafe(fixedAmount)
 
@@ -54,7 +54,7 @@ export class CommonListener {
       moneyEarned: fixedMoneyEarned.toString(),
       totalMoneyEarned: fixedTotalMoneyEarned.toString(),
       referredUserInfo:
-        data.referredUserInfo === null ? {} : data.referredUserInfo,
+        data.referredUserInfo === undefined ? {} : data.referredUserInfo,
       note: `event: ${data.eventName} save this log`,
     }
     if (missionUser === undefined) {
@@ -88,7 +88,7 @@ export class CommonListener {
             .addUnsafe(fMuTotalMoneyEarned)
             .toUnsafeFloat(),
           referredUserInfo:
-            data.referredUserInfo === null ? {} : data.referredUserInfo,
+            data.referredUserInfo === undefined ? {} : data.referredUserInfo,
         },
         {
           ignoreDecorators: true,

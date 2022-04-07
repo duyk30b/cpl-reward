@@ -10,10 +10,9 @@ export default () => ({
       },
     },
   },
-  debug: {
+  missions: {
     mongo: {
-      dsn: process.env.MONGO_DSN || 'mongodb://localhost:27017/kafka_schooter',
+      dsn: process.env.MONGO_DSN || 'mongodb://localhost:27017/kafka_shooter',
     },
-    enable_save_log: process.env.ENABLE_SAVE_LOG || false,
   },
 })

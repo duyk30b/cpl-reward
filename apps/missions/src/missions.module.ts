@@ -19,39 +19,25 @@ import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
 import { ExternalCashbackModule } from '@lib/external-cashback'
 import { TraceListener } from './listeners/trace.listener'
-import { MongoModule } from '@lib/mongo'
-import { MongooseModule } from '@nestjs/mongoose'
-import { EventAuthSchema } from './schemas/event-auth.schema'
-import { EventHighLowSchema } from './schemas/event-high-low.schema'
-import { EventBceSchema } from './schemas/event-bce.schema'
-import { TraceSaveListener } from './listeners/trace-save.listener'
 import { MissionsListener } from './listeners/missions.listener'
+import { RedisQueueModule } from '@lib/redis-queue'
+import global_config from 'config/global_config'
 
-const importDebugs = []
-const providerDebug = []
-if (process.env.ENABLE_SAVE_LOG && JSON.parse(process.env.ENABLE_SAVE_LOG)) {
-  importDebugs.push(MongoModule)
-  importDebugs.push(
-    MongooseModule.forFeature([
-      { name: 'EventAuth', schema: EventAuthSchema },
-      { name: 'EventHighLow', schema: EventHighLowSchema },
-      { name: 'EventBce', schema: EventBceSchema },
-    ]),
-  )
-  providerDebug.push(TraceSaveListener)
-}
 @Module({
   controllers: [MissionsController],
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [global_config],
+    }),
     MysqlModule,
+    RedisQueueModule,
     CommonModule,
-    ...importDebugs,
     KafkaModule,
     EventEmitterModule.forRoot({
       wildcard: true,
       delimiter: '_',
     }),
-    ConfigModule,
     ExternalUserModule,
     ExternalBalanceModule,
     MissionUserLogModule,
@@ -69,7 +55,6 @@ if (process.env.ENABLE_SAVE_LOG && JSON.parse(process.env.ENABLE_SAVE_LOG)) {
     MissionsService,
     MissionsListener,
     TraceListener,
-    ...providerDebug,
   ],
 })
 export class MissionsModule {}

@@ -61,7 +61,7 @@ export class TraceListener {
         message_id: data.msgId,
         mission_id: data.missionId,
         data: data,
-        status: true,
+        level_log: logLevel,
       }
       await this.redisQueueService.addRewardMissionsJob(
         'reward_missions',

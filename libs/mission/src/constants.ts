@@ -21,33 +21,94 @@ export const MISSION_SORT_FIELD_MAP = {
   completed: 'completed',
 }
 
+export const USER_STATUS = {
+  ACTIVE: 1,
+  INACTIVE: 2,
+}
+
+export const USER_TYPE = {
+  NORMAL: 1,
+  BOT: 2,
+}
+
+export const USER_EMAIL_VERIFY_STATUS = {
+  VERIFIED: 1,
+  UNVERIFIED: 2,
+}
+
+export const USER_AUTHENTICATOR_VERIFY_STATUS = {
+  VERIFIED: 1,
+  UNVERIFIED: 2,
+}
+
+export const USER_KYC_VERIFY_STATUS = {
+  VERIFIED: 1,
+  UNVERIFIED: 2,
+  PENDING: 3,
+  REJECTED: 4,
+}
+
+export const KYC_TYPE = {
+  PERSONAL: 1,
+  ENTERPRISE: 2,
+}
+
+export const KYC_ID_DOCUMENT_TYPE = {
+  PASSPORT: 1,
+  ID_CARD: 2,
+  DRIVING_LICENCE: 3,
+  OTHERS: 4,
+  RESIDENCE_CARD: 5,
+  NUMBER_CARD: 6,
+}
+
+export const KYC_STATUS = {
+  ACCEPT: 1,
+  REJECT: 2,
+  PENDING: 3,
+  APPROVED_PAPER: 4,
+  NEW: 5,
+  AUTO_KYC_PROCESSED: 7,
+  PENDING_PAPER: 8,
+}
+
+export const USER_INFO_STATUS = {
+  UPDATED: 1,
+  NOT_UPDATED: 2,
+}
+
 export const USER_CONDITION_TYPES = {
   kyc_verify_status: {
-    type: 'string',
-    original: 'number',
+    type: 'number',
+    display: 'enum',
+    options: USER_KYC_VERIFY_STATUS,
   },
   user_info_status: {
-    type: 'string',
-    original: 'number',
+    type: 'number',
+    display: 'enum',
+    options: USER_INFO_STATUS,
   },
   authenticator_verify_status: {
-    type: 'string',
-    original: 'number',
+    type: 'number',
+    display: 'enum',
+    options: USER_AUTHENTICATOR_VERIFY_STATUS,
   },
   email_verify_status: {
-    type: 'string',
-    original: 'number',
+    type: 'number',
+    display: 'enum',
+    options: USER_EMAIL_VERIFY_STATUS,
   },
   referrer_code: {
     type: 'string',
+    display: 'string',
   },
   account_lv: {
-    type: 'string',
-    original: 'number',
+    type: 'number',
+    display: 'number',
   },
   channel_id: {
-    type: 'string',
-    original: 'number',
+    type: 'number',
+    display: 'number',
   },
 }
 
@@ -161,26 +222,36 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Account status',
+        display: 'enum',
+        options: USER_STATUS,
       },
       {
         key: 'type',
         type: 'number',
         description: 'Account type',
+        display: 'enum',
+        options: USER_TYPE,
       },
       {
         key: 'email_verify_status',
         type: 'number',
         description: 'Email verify status',
+        display: 'enum',
+        options: USER_EMAIL_VERIFY_STATUS,
       },
       {
         key: 'authenticator_verify_status',
         type: 'number',
         description: 'Authenticator verify status',
+        display: 'enum',
+        options: USER_AUTHENTICATOR_VERIFY_STATUS,
       },
       {
         key: 'kyc_verify_status',
         type: 'number',
         description: 'KYC verify status',
+        display: 'enum',
+        options: USER_KYC_VERIFY_STATUS,
       },
       {
         key: 'referred_by_id',
@@ -253,6 +324,8 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Status',
+        display: 'enum',
+        options: USER_AUTHENTICATOR_VERIFY_STATUS,
       },
     ],
   },
@@ -274,6 +347,8 @@ export const INFO_EVENTS = [
         key: 'type',
         type: 'number',
         description: 'Type',
+        display: 'enum',
+        options: KYC_TYPE,
       },
       {
         key: 'provider',
@@ -284,6 +359,8 @@ export const INFO_EVENTS = [
         key: 'id_document_type',
         type: 'number',
         description: 'Document type ID',
+        display: 'enum',
+        options: KYC_ID_DOCUMENT_TYPE,
       },
       {
         key: 'country_id',
@@ -300,6 +377,8 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Status',
+        display: 'enum',
+        options: KYC_STATUS,
       },
       {
         key: 'cynopsis_processing',

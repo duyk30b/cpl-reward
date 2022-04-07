@@ -23,7 +23,7 @@ message ResultPropertiesByEvent {
 }
 
 message ResultUserConditions {
-  string list = 1;
+  map<string, UserConditionProperty> list = 1;
 }
 
 message Empty {}
@@ -62,4 +62,11 @@ message EventDetailProperty {
   string type = 2;
   string description = 3;
   string display = 4;
+  string options = 5;
+}
+
+message UserConditionProperty {
+  string type = 1;
+  string display = 2;
+  string options = 3;
 }

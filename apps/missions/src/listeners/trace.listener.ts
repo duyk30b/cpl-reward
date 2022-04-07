@@ -3,12 +3,18 @@ import { OnEvent } from '@nestjs/event-emitter'
 import { TRACE_CODES } from '@lib/campaign/trace-codes'
 import { IWriteLog } from '../interfaces/missions.interface'
 import { MissionsService } from '../missions.service'
+import { ConfigService } from '@nestjs/config'
+import { RedisQueueService } from '@lib/redis-queue'
 
 @Injectable()
 export class TraceListener {
   private readonly logger = new Logger(TraceListener.name)
 
-  constructor(private readonly missionsService: MissionsService) {}
+  constructor(
+    private readonly missionsService: MissionsService,
+    private readonly configService: ConfigService,
+    private readonly redisQueueService: RedisQueueService,
+  ) {}
 
   @OnEvent('write_log')
   async traceLog(input: IWriteLog) {
@@ -45,6 +51,22 @@ export class TraceListener {
       default:
         this.logger.log(message)
         break
+    }
+
+    if (data.msgName) {
+      const dataLog = {
+        msgName: data.msgName,
+        type: 'REWARD_' + data.msgName,
+        user_id: data.msgData.user_id,
+        message_id: data.msgId,
+        mission_id: data.missionId,
+        data: data,
+        status: true,
+      }
+      await this.redisQueueService.addRewardMissionsJob(
+        'reward_missions',
+        dataLog,
+      )
     }
   }
 }

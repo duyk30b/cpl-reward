@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { MongooseModule } from '@nestjs/mongoose'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import db from 'config/db'
 import { MongoService } from './mongo.service'
 
@@ -10,12 +10,17 @@ import { MongoService } from './mongo.service'
       isGlobal: true,
       load: [db],
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('debug.mongo.dsn'),
-      }),
+    TypeOrmModule.forRootAsync({
       inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'mongodb',
+        url: configService.get<string>('missions.mongo.dsn'),
+        database: 'kafka_shooter',
+        entities: [],
+        autoLoadEntities: true,
+        synchronize: true,
+        useUnifiedTopology: true,
+      }),
     }),
   ],
   providers: [MongoService],

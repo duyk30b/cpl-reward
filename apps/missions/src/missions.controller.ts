@@ -13,9 +13,6 @@ export class MissionsController {
   ) {}
 
   emitEvent(msgName: string, msgId: string | null, msgData: any) {
-    if (this.configService.get<boolean>('debug.enable_save_log')) {
-      this.eventEmit = 'write_save_log'
-    }
     // Data length
     if (Object.keys(msgData).length == 0) {
       this.eventEmitter.emit(this.eventEmit, {

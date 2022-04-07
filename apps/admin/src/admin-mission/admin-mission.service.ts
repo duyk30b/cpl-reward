@@ -88,8 +88,9 @@ export class AdminMissionService {
 
   private updateTypeInUser(userConditions: UserConditionDto[]) {
     return userConditions.map((condition) => {
-      const propertyType = USER_CONDITION_TYPES[condition.property]?.type
-      condition.type = propertyType === undefined ? '' : propertyType
+      const property = USER_CONDITION_TYPES[condition.property]
+      condition.type =
+        property === undefined ? '' : property.original || property.type
 
       return condition
     })

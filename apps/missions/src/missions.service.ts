@@ -266,7 +266,7 @@ export class MissionsService {
         await this.commonFlowReward(rewardRules[idx], mainUser, userId, data)
 
         const referredUserInfo =
-          referredUserId === 0
+          referredUserId === '0'
             ? null
             : {
                 ...referredUser,
@@ -283,7 +283,7 @@ export class MissionsService {
       }
 
       if (
-        referredUserId !== 0 &&
+        referredUserId !== '0' &&
         referredUser !== null &&
         rewardRules[idx].currency === referredUser.currency &&
         rewardRules[idx].key === referredUser.type

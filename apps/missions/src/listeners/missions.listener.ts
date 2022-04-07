@@ -14,20 +14,20 @@ export class MissionsListener {
   ) {}
 
   @OnEvent('received_kafka_event')
-  async handleNewEvent(eventByName: IEventByName) {
-    if (!EVENTS[eventByName.msgName]) {
+  async handleNewEvent(data: IEventByName) {
+    if (!EVENTS[data.msgName]) {
       this.eventEmitter.emit('write_log', {
         logLevel: 'error',
         traceCode: 'm002',
         data: {
-          msgData: eventByName.msgData,
-          msgName: eventByName.msgName,
-          msgId: eventByName.msgId,
+          msgData: data.msgData,
+          msgName: data.msgName,
+          msgId: data.msgId,
         },
       })
       return
     }
-    const eventName = EVENTS[eventByName.msgName]
+    const eventName = EVENTS[data.msgName]
     const missionsByEvent = await this.missionsService.getMissionsByEvent(
       eventName,
     )
@@ -36,18 +36,18 @@ export class MissionsListener {
         logLevel: 'warn',
         traceCode: 'm003',
         data: {
-          msgData: eventByName.msgData,
-          msgName: eventByName.msgName,
-          msgId: eventByName.msgId,
+          msgData: data.msgData,
+          msgName: data.msgName,
+          msgId: data.msgId,
         },
       })
       return
     }
     missionsByEvent.map((missionEvent) => {
       this.missionsService.mainFunction({
-        msgId: eventByName.msgId,
-        msgName: eventByName.msgName,
-        msgData: eventByName.msgData,
+        msgId: data.msgId,
+        msgName: data.msgName,
+        msgData: data.msgData,
         missionId: missionEvent.missionId,
         campaignId: missionEvent.campaignId,
       })

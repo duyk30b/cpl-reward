@@ -3,7 +3,6 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  CAMPAIGN_IS_ACTIVE,
   CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { KEY_REWARD_RULE, RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
@@ -19,6 +18,7 @@ import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
+import * as moment from 'moment-timezone'
 
 @Injectable()
 export class AdminCampaignService {
@@ -85,7 +85,7 @@ export class AdminCampaignService {
   // }
 
   async create(create: ICreateCampaign) {
-    create.status = AdminCampaignService.updateStatusByActive(create.isActive)
+    create.status = AdminCampaignService.updateStatusByActive(create)
     const campaign = await this.campaignService.create(create)
 
     await Promise.all(
@@ -108,10 +108,14 @@ export class AdminCampaignService {
     return campaign
   }
 
-  private static updateStatusByActive(isActive: number) {
-    if (isActive === CAMPAIGN_IS_ACTIVE.ACTIVE) return CAMPAIGN_STATUS.RUNNING
-    if (isActive === CAMPAIGN_IS_ACTIVE.INACTIVE)
-      return CAMPAIGN_STATUS.INACTIVE
+  private static updateStatusByActive(
+    input: IUpdateCampaign | ICreateCampaign,
+  ) {
+    const now = moment().unix()
+    if (now < input.startDate) return CAMPAIGN_STATUS.COMING_SOON
+    if (input.startDate <= now && input.endDate >= now)
+      return CAMPAIGN_STATUS.RUNNING
+    if (now > input.endDate) return CAMPAIGN_STATUS.ENDED
   }
 
   /**
@@ -139,9 +143,8 @@ export class AdminCampaignService {
   // }
 
   async update(iUpdateCampaign: IUpdateCampaign) {
-    iUpdateCampaign.status = AdminCampaignService.updateStatusByActive(
-      iUpdateCampaign.isActive,
-    )
+    iUpdateCampaign.status =
+      AdminCampaignService.updateStatusByActive(iUpdateCampaign)
     return await this.campaignService.update(iUpdateCampaign)
   }
 

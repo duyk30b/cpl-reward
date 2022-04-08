@@ -3,7 +3,6 @@ import {
   EVENTS,
   GRANT_TARGET_USER,
   GRANT_TARGET_WALLET,
-  MISSION_IS_ACTIVE,
   MissionService,
   MISSION_STATUS,
   TARGET_TYPE,
@@ -21,6 +20,7 @@ import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
 import { FixedNumber } from 'ethers'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
+import * as moment from 'moment-timezone'
 
 @Injectable()
 export class AdminMissionService {
@@ -96,19 +96,22 @@ export class AdminMissionService {
     })
   }
 
-  private static updateStatusByActive(isActive: number) {
-    if (isActive === MISSION_IS_ACTIVE.ACTIVE) return MISSION_STATUS.RUNNING
-    if (isActive === MISSION_IS_ACTIVE.INACTIVE) return MISSION_STATUS.INACTIVE
+  private static updateStatusByActive(input: ICreateMission) {
+    const now = moment().unix()
+    if (now < input.openingDate) return MISSION_STATUS.COMING_SOON
+    if (input.openingDate <= now && input.closingDate >= now)
+      return MISSION_STATUS.RUNNING
+    if (now > input.closingDate) return MISSION_STATUS.ENDED
   }
 
-  async create(create: ICreateMission) {
+  async create(create: ICreateMission | IUpdateMission) {
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
     create.targetType = this.getTargetType(create.grantTarget)
     create.judgmentConditions = this.updateTypeInJudgment(
       create.judgmentConditions,
     )
     create.userConditions = this.updateTypeInUser(create.userConditions)
-    create.status = AdminMissionService.updateStatusByActive(create.isActive)
+    create.status = AdminMissionService.updateStatusByActive(create)
     const mission = await this.missionService.create(create)
     await Promise.all(
       create.rewardRules.map(async (item) => {
@@ -134,7 +137,7 @@ export class AdminMissionService {
       update.judgmentConditions,
     )
     update.userConditions = this.updateTypeInUser(update.userConditions)
-    update.status = AdminMissionService.updateStatusByActive(update.isActive)
+    update.status = AdminMissionService.updateStatusByActive(update)
     const mission = await this.missionService.update(update)
     await Promise.all(
       update.rewardRules.map(async (item) => {

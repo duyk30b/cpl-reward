@@ -1,16 +1,16 @@
-export enum IS_ACTIVE_CAMPAIGN {
+export enum CAMPAIGN_IS_ACTIVE {
   INACTIVE = 0,
   ACTIVE = 1,
 }
 
-export enum IS_SYSTEM {
+export enum CAMPAIGN_IS_SYSTEM {
   FALSE = 0,
   TRUE = 1,
 }
 
-export enum STATUS_CAMPAIGN {
-  RUNNING = 0,
-  EMPTY_MONEY = 1,
-  ENDED = 2,
-  INACTIVE = 3,
+export enum CAMPAIGN_STATUS {
+  RUNNING = 1,
+  OUT_OF_BUDGET = 2,
+  ENDED = 3,
+  INACTIVE = 4,
 }

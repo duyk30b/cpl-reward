@@ -14,23 +14,30 @@ import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { ExternalListener } from './listeners/external.listener'
 import { MissionsService } from './missions.service'
 import { MissionUserModule } from '@lib/mission-user'
-import { MissionsListener } from './listeners/missions.listener'
 import { MissionEventModule } from '@lib/mission-event'
 import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
 import { ExternalCashbackModule } from '@lib/external-cashback'
+import { TraceListener } from './listeners/trace.listener'
+import { MissionsListener } from './listeners/missions.listener'
+import { RedisQueueModule } from '@lib/redis-queue'
+import global_config from 'config/global_config'
 
 @Module({
   controllers: [MissionsController],
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [global_config],
+    }),
     MysqlModule,
+    RedisQueueModule,
     CommonModule,
     KafkaModule,
     EventEmitterModule.forRoot({
       wildcard: true,
       delimiter: '_',
     }),
-    ConfigModule,
     ExternalUserModule,
     ExternalBalanceModule,
     MissionUserLogModule,
@@ -45,8 +52,9 @@ import { ExternalCashbackModule } from '@lib/external-cashback'
   providers: [
     CommonListener,
     ExternalListener,
-    MissionsListener,
     MissionsService,
+    MissionsListener,
+    TraceListener,
   ],
 })
 export class MissionsModule {}

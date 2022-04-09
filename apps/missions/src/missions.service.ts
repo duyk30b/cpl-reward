@@ -3,23 +3,26 @@ import {
   EVENTS,
   GRANT_TARGET_USER,
   GRANT_TARGET_WALLET,
-  IS_ACTIVE_MISSION,
+  MISSION_IS_ACTIVE,
   MissionService,
-  STATUS_MISSION,
+  MISSION_STATUS,
 } from '@lib/mission'
 import { CommonService } from '@lib/common'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
   CampaignService,
-  IS_ACTIVE_CAMPAIGN,
-  IS_SYSTEM,
-  STATUS_CAMPAIGN,
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
-import { STATUS, UserRewardHistoryService } from '@lib/user-reward-history'
+import {
+  USER_REWARD_STATUS,
+  UserRewardHistoryService,
+} from '@lib/user-reward-history'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
@@ -30,10 +33,11 @@ import {
 import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
+import * as Handlebars from 'handlebars'
 
 @Injectable()
 export class MissionsService {
-  private readonly logger = new Logger(MissionsService.name)
+  eventEmit = 'write_log'
 
   constructor(
     private eventEmitter: EventEmitter2,
@@ -51,69 +55,82 @@ export class MissionsService {
       data.msgData.user_id,
     )
     if (user === null) {
-      this.eventEmitter.emit('write_log', {
-        logLevel: 'error',
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
         traceCode: 'm001',
-        data: data,
+        data,
+        extraData: null,
+        params: { name: 'User' },
       })
       return
     }
 
-    const userId = Number(user.id)
+    const userId = user.id
     const referredUserId =
-      user.referredById === undefined ? 0 : Number(user.referredById)
+      user.referredById === undefined ? '0' : user.referredById
 
     const now = moment().unix()
 
     // Kiểm tra thời gian khả dụng của campaign
     const campaign = await this.getCampaignById(data.campaignId)
     if (!campaign) {
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Campaign was not found!. CampaignId: ${
-          data.campaignId
-        }, campaign: ${JSON.stringify(campaign)}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Campaign' },
+      })
       return
     }
     if (now < campaign.startDate || now > campaign.endDate) {
       await this.campaignService.update({
         id: campaign.id,
-        status: STATUS_CAMPAIGN.ENDED,
+        status: CAMPAIGN_STATUS.ENDED,
       })
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Campaign was over time!. now: ${now}, campaignId: ${
-          campaign.id
-        }, startDate: ${campaign.startDate}, endDate: ${campaign.endDate}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm005',
+        data,
+        extraData: {
+          now,
+          startDate: campaign.startDate,
+          endDate: campaign.endDate,
+        },
+        params: { name: 'Campaign' },
+      })
       return
     }
 
     // Kiểm tra thời gian khả dụng của mission
     const mission = await this.getMissionById(data.missionId)
     if (!mission) {
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Mission was not found!. MissionId: ${data.missionId}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Mission' },
+      })
       return
     }
     if (now < mission.openingDate || now > mission.closingDate) {
       await this.missionService.update({
         id: mission.id,
-        status: STATUS_MISSION.ENDED,
+        status: MISSION_STATUS.ENDED,
       })
-      this.logger.log(
-        `[EVENT ${
-          EVENTS[data.msgName]
-        }]. Reason: Mission was over time!. now: ${now}, missionId: ${
-          mission.id
-        }, openDate: ${mission.openingDate}, closeDate: ${mission.closingDate}`,
-      )
+
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm005',
+        data,
+        extraData: {
+          now,
+          openingDate: mission.openingDate,
+          closingDate: mission.closingDate,
+        },
+        params: { name: 'Mission' },
+      })
       return
     }
 
@@ -122,14 +139,14 @@ export class MissionsService {
       mission.judgmentConditions as unknown as IJudgmentCondition[],
       data.msgData,
       data.msgName,
-      mission.id,
     )
     if (!checkJudgmentConditions) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. Judgment Condition check fail!`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm006',
+        data,
+        params: { condition_name: 'Judgment' },
+      })
       return
     }
 
@@ -137,15 +154,14 @@ export class MissionsService {
     const checkUserConditions = this.checkUserConditions(
       mission.userConditions as unknown as IUserCondition[],
       user,
-      data.msgName,
-      mission.id,
     )
     if (!checkUserConditions) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. User Condition check fail!`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm006',
+        data,
+        params: { condition_name: 'User' },
+      })
       return
     }
 
@@ -156,30 +172,58 @@ export class MissionsService {
       typeRule: TYPE_RULE.MISSION,
     })
     if (rewardRules.length === 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. Mission reward rules was not exist!`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm007',
+        data,
+      })
       return
     }
 
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
-      data.msgName,
     )
+    if (mainUser === null && referredUser === null) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm001',
+        data,
+        extraData: null,
+        params: { name: 'Grant Target' },
+      })
+      return
+    }
 
     // check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
-    if (successCount >= mission.limitReceivedReward) {
-      this.logger.log(
-        `[EVENT ${EVENTS[data.msgName]}]. MissionId: ${
-          mission.id
-        }. successCount: ${successCount}, limitReceivedReward: ${
-          mission.limitReceivedReward
-        }`,
-      )
+    if (successCount > mission.limitReceivedReward) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm008',
+        data,
+        extraData: {
+          successCount,
+          limitReceivedReward: mission.limitReceivedReward,
+        },
+      })
+      return
+    }
+
+    const checkOutOfBudget = this.checkOutOfBudget(
+      mission.grantTarget,
+      rewardRules,
+    )
+    if (!checkOutOfBudget) {
+      await this.missionService.update({
+        id: mission.id,
+        status: MISSION_STATUS.OUT_OF_BUDGET,
+      })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm009',
+        data,
+      })
       return
     }
 
@@ -191,20 +235,19 @@ export class MissionsService {
       )
 
       if (!checkMoneyReward) {
-        // TODO: confirm requirement
-        // await this.missionService.update({
-        //   id: mission.id,
-        //   status: STATUS_MISSION.OUT_OF_BUDGET,
-        // })
-        this.logger.log(
-          `[EVENT ${EVENTS[data.msgName]}]. ` +
-            `MissionId: ${mission.id}. Not enough money. ` +
-            `limitValue: ${rewardRules[idx].limitValue}. ` +
-            `Main user: ${userId}, amount: ${mainUser.amount}. ` +
-            `Referred user: ${referredUserId}, amount: ${
-              referredUser === null ? '' : referredUser.amount
-            }`,
-        )
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm010',
+          data,
+          extraData: {
+            limitValue: rewardRules[idx].limitValue,
+            userId,
+            mainUserAmount: mainUser === null ? 'N/A' : mainUser.amount,
+            referredUserId,
+            referredUserAmount:
+              referredUser === null ? 'N/A' : referredUser.amount,
+          },
+        })
         continue
       }
 
@@ -214,17 +257,10 @@ export class MissionsService {
         rewardRules[idx].key === mainUser.type
       ) {
         // user
-        await this.commonFlowReward(
-          rewardRules[idx],
-          data.campaignId,
-          mainUser,
-          userId,
-          data.missionId,
-          data.msgName,
-        )
+        await this.commonFlowReward(rewardRules[idx], mainUser, userId, data)
 
         const referredUserInfo =
-          referredUserId === 0
+          referredUserId === '0'
             ? null
             : {
                 ...referredUser,
@@ -236,11 +272,12 @@ export class MissionsService {
           referredUserInfo,
           eventName: data.msgName,
           moneyEarned: mainUser.amount,
+          limitReceivedReward: mission.limitReceivedReward,
         })
       }
 
       if (
-        referredUserId !== 0 &&
+        referredUserId !== '0' &&
         referredUser !== null &&
         rewardRules[idx].currency === referredUser.currency &&
         rewardRules[idx].key === referredUser.type
@@ -248,11 +285,9 @@ export class MissionsService {
         // referred user
         await this.commonFlowReward(
           rewardRules[idx],
-          data.campaignId,
           referredUser,
           referredUserId,
-          data.missionId,
-          data.msgName,
+          data,
         )
       }
     }
@@ -265,15 +300,17 @@ export class MissionsService {
    * @param amount
    * remove type
    * remove currency
+   * @param data
    */
   async updateReleaseLimitValue(
     missionRewardRule: RewardRule,
     campaignId: number,
     amount: string,
+    data: IEvent,
   ) {
     /**
      * Update value of mission
-     * TODO: using queue to update value in next sprint
+     * TODO: using transaction to update value in next sprint
      */
     const fixedAmount = FixedNumber.fromString(amount)
     const limitValue = FixedNumber.from(missionRewardRule.limitValue)
@@ -286,13 +323,18 @@ export class MissionsService {
       missionRewardRule.id,
       releaseValue,
       limitValue,
+      fixedAmount.toUnsafeFloat(),
     )
     if (updateMissionRewardRule.affected === 0) {
-      this.logger.log(
-        `Update Value of Mission Reward Rule fail, ` +
-          `input: rewardRule => ${JSON.stringify(missionRewardRule)}` +
-          `, amount => ${amount}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm011',
+        data,
+        extraData: {
+          amount,
+          missionRewardRule,
+        },
+      })
     }
 
     const campaignRewardRule = await this.rewardRuleService.findOne({
@@ -307,15 +349,14 @@ export class MissionsService {
         .toUnsafeFloat()
       await this.rewardRuleService.onlyUpdate(campaignRewardRule)
     }
+    return true
   }
 
   async commonFlowReward(
     missionRewardRule: RewardRule,
-    campaignId: number,
     userTarget: IGrantTarget,
-    userId: number,
-    missionId: number,
-    eventName: string,
+    userId: string,
+    data: IEvent,
   ) {
     // update release_value, limit_value of campaign/mission
     /**
@@ -323,14 +364,16 @@ export class MissionsService {
      *   userTarget.type,
      *   userTarget.currency,
      */
-    await this.updateReleaseLimitValue(
+    const updated = await this.updateReleaseLimitValue(
       missionRewardRule,
-      campaignId,
+      data.campaignId,
       userTarget.amount,
+      data,
     )
+    if (!updated) return
     const userRewardHistory = await this.userRewardHistoryService.save({
-      campaignId: campaignId,
-      missionId: missionId,
+      campaignId: data.campaignId,
+      missionId: data.missionId,
       userId,
       userType: userTarget.user,
       amount: userTarget.amount,
@@ -348,7 +391,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         type: 'reward',
-        eventName: EVENTS[eventName],
+        eventName: EVENTS[data.msgName],
       })
     }
     if (
@@ -362,7 +405,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
-        eventName: EVENTS[eventName],
+        eventName: EVENTS[data.msgName],
       })
     }
 
@@ -375,7 +418,7 @@ export class MissionsService {
       userRewardHistory
     ) {
       await this.userRewardHistoryService.updateById(userRewardHistory.id, {
-        status: STATUS.MANUAL_NOT_RECEIVE,
+        status: USER_REWARD_STATUS.MANUAL_NOT_RECEIVE,
       })
     }
   }
@@ -386,8 +429,8 @@ export class MissionsService {
    * @param missionId
    * @param userId
    */
-  async getSuccessCount(missionId: number, userId: number) {
-    const missionUser = await this.missionUserService.getOneMissionUser({
+  async getSuccessCount(missionId: number, userId: string) {
+    const missionUser = await this.missionUserService.findOne({
       missionId,
       userId,
     })
@@ -402,9 +445,9 @@ export class MissionsService {
   async getCampaignById(campaignId: number): Promise<Campaign> {
     const campaign = await this.campaignService.findOne({
       id: campaignId,
-      isActive: IS_ACTIVE_CAMPAIGN.ACTIVE,
-      isSystem: IS_SYSTEM.FALSE,
-      status: STATUS_MISSION.RUNNING,
+      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+      status: MISSION_STATUS.RUNNING,
     })
     if (!campaign) return null
     return campaign
@@ -413,8 +456,8 @@ export class MissionsService {
   async getMissionById(missionId: number) {
     const mission = await this.missionService.findOne({
       id: missionId,
-      isActive: IS_ACTIVE_MISSION.ACTIVE,
-      status: STATUS_CAMPAIGN.RUNNING,
+      isActive: MISSION_IS_ACTIVE.ACTIVE,
+      status: CAMPAIGN_STATUS.RUNNING,
     })
     if (!mission) return null
     return mission
@@ -424,16 +467,14 @@ export class MissionsService {
    * @param judgmentConditions
    * @param messageValue
    * @param eventName
-   * @param missionId
    */
   checkJudgmentConditions(
     judgmentConditions: IJudgmentCondition[],
     messageValue: any,
     eventName: string,
-    missionId: number,
   ) {
     if (judgmentConditions.length === 0) return true
-    let result = false
+    let result = true
     for (const idx in judgmentConditions) {
       const currentCondition = judgmentConditions[idx]
       if (currentCondition.eventName !== EVENTS[eventName]) continue
@@ -441,28 +482,52 @@ export class MissionsService {
       const checkExistMessageValue = messageValue[currentCondition.property]
       if (checkExistMessageValue === undefined) continue
 
-      const property = CommonService.inspectStringNumber(
-        messageValue[currentCondition.property],
-        currentCondition.type,
-      )
-      const operator = currentCondition.operator
-      const value = CommonService.inspectStringNumber(
-        currentCondition.value,
-        currentCondition.type,
-      )
-
-      const checkJudgmentCondition = eval(`${property}
-      ${operator}
-      ${value}`)
-      if (!checkJudgmentCondition) {
-        this.logger.log(
-          `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. Judgement Condition data: ` +
-            `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
-            `operator => ${operator}, conditionValue => ${value}`,
+      if (
+        currentCondition.type === 'number' &&
+        !CommonService.compareNumberCondition(
+          currentCondition.value,
+          messageValue[currentCondition.property],
+          currentCondition.operator,
         )
+      ) {
+        // compare number fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'string' &&
+        !eval(`'${messageValue[currentCondition.property]}'
+                ${currentCondition.operator}
+                '${currentCondition.value}'`)
+      ) {
+        // compare string fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'boolean' &&
+        !eval(`${messageValue[currentCondition.property]}
+                ${currentCondition.operator}
+                ${currentCondition.value}`)
+      ) {
+        // compare boolean and other fail
+        result = false
+      }
+
+      if (!result) {
+        this.eventEmitter.emit('write_log', {
+          logLevel: 'warn',
+          traceCode: 'm012',
+          extraData: {
+            eventProperty: currentCondition.property,
+            eventValue: messageValue[currentCondition.property],
+            operator: currentCondition.operator,
+            conditionValue: currentCondition.value,
+          },
+          params: { name: 'Judgment' },
+        })
         break
       }
-      result = true
     }
     return result
   }
@@ -470,17 +535,10 @@ export class MissionsService {
   /**
    * @param userConditions
    * @param user
-   * @param eventName
-   * @param missionId
    */
-  checkUserConditions(
-    userConditions: IUserCondition[],
-    user: IUser,
-    eventName: string,
-    missionId: number,
-  ) {
+  checkUserConditions(userConditions: IUserCondition[], user: IUser) {
     if (userConditions.length === 0) return true
-    let result = false
+    let result = true
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -490,28 +548,52 @@ export class MissionsService {
       const checkExistUserProperty = user[currentCondition.property]
       if (checkExistUserProperty === undefined) continue
 
-      const property = CommonService.inspectStringNumber(
-        user[currentCondition.property],
-        currentCondition.type,
-      )
-      const operator = currentCondition.operator
-      const value = CommonService.inspectStringNumber(
-        currentCondition.value,
-        currentCondition.type,
-      )
-
-      const checkUserCondition = eval(`${property}
-      ${operator}
-      ${value}`)
-      if (!checkUserCondition) {
-        this.logger.log(
-          `[EVENT ${EVENTS[eventName]}]. MissionId: ${missionId}. User Condition data: ` +
-            `eventProperty => ${currentCondition.property}, eventValue => ${property}` +
-            `operator => ${operator}, conditionValue => ${value}`,
+      if (
+        currentCondition.type === 'number' &&
+        !CommonService.compareNumberCondition(
+          currentCondition.value,
+          user[currentCondition.property],
+          currentCondition.operator,
         )
+      ) {
+        // compare number fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'string' &&
+        !eval(`'${user[currentCondition.property]}'
+                ${currentCondition.operator}
+                '${currentCondition.value}'`)
+      ) {
+        // compare string fail
+        result = false
+      }
+
+      if (
+        currentCondition.type === 'boolean' &&
+        !eval(`${user[currentCondition.property]}
+                ${currentCondition.operator}
+                ${currentCondition.value}`)
+      ) {
+        // compare boolean and other fail
+        result = false
+      }
+
+      if (!result) {
+        this.eventEmitter.emit('write_log', {
+          logLevel: 'warn',
+          traceCode: 'm012',
+          extraData: {
+            eventProperty: currentCondition.property,
+            eventValue: user[currentCondition.property],
+            operator: currentCondition.operator,
+            conditionValue: currentCondition.value,
+          },
+          params: { name: 'User' },
+        })
         break
       }
-      result = true
     }
     return result
   }
@@ -539,21 +621,51 @@ export class MissionsService {
     )
   }
 
-  getDetailUserFromGrantTarget(grantTarget: string, eventName: string) {
+  getDetailUserFromGrantTarget(grantTarget: string) {
     let mainUser = null,
       referredUser = null
     const grantTargets = grantTarget as unknown as IGrantTarget[]
-    if (grantTargets.length === 0) {
-      this.logger.log(
-        `[EVENT ${EVENTS[eventName]}]. Reason: Grant Target was not found!`,
-      )
-      return { mainUser, referredUser }
-    }
+    if (grantTargets.length === 0) return { mainUser, referredUser }
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
       return target
     })
     return { mainUser, referredUser }
+  }
+
+  getLogMessageFromTemplate(templateTxt: string, params: any) {
+    const template = Handlebars.compile(templateTxt)
+    return template(params)
+  }
+
+  checkOutOfBudget(grantTarget: string, rewardRules: RewardRule[]) {
+    const grantTargets = grantTarget as unknown as IGrantTarget[]
+    const amountsByCurrency = {}
+    for (const target of grantTargets) {
+      if (
+        amountsByCurrency[`${target.type}_${target.currency}`] === undefined
+      ) {
+        amountsByCurrency[`${target.type}_${target.currency}`] = '0'
+      }
+      const fixedAmount = FixedNumber.fromString(target.amount)
+      amountsByCurrency[`${target.type}_${target.currency}`] =
+        FixedNumber.fromString(
+          amountsByCurrency[`${target.type}_${target.currency}`],
+        )
+          .addUnsafe(fixedAmount)
+          .toString()
+    }
+    for (const reward of rewardRules) {
+      const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
+      const amountByCurrency = FixedNumber.fromString(
+        amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
+          ? '0'
+          : amountsByCurrency[`${reward.key}_${reward.currency}`],
+      )
+      if (fixedLimit.subUnsafe(amountByCurrency).toUnsafeFloat() < 0)
+        return false
+    }
+    return true
   }
 }

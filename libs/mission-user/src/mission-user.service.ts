@@ -13,7 +13,11 @@ export class MissionUserService {
     private missionUserRepository: Repository<MissionUser>,
   ) {}
 
-  async update(id: number, updateMissionUserDto: UpdateMissionUserDto) {
+  async update(
+    id: number,
+    updateMissionUserDto: UpdateMissionUserDto,
+    limitReceivedReward: number,
+  ) {
     const updateMissionUser = plainToInstance(
       UpdateMissionUserDto,
       updateMissionUserDto,
@@ -24,8 +28,17 @@ export class MissionUserService {
     )
     const missionUserEntity = plainToInstance(MissionUser, updateMissionUser, {
       ignoreDecorators: true,
+      excludePrefixes: ['id'],
     })
-    return this.missionUserRepository.update({ id }, missionUserEntity)
+    return this.missionUserRepository
+      .createQueryBuilder()
+      .update(MissionUser)
+      .set(missionUserEntity)
+      .where('id = :id', { id })
+      .andWhere('successCount < :success_count', {
+        success_count: limitReceivedReward,
+      })
+      .execute()
   }
 
   async save(missionUserDto: CreateMissionUserDto) {
@@ -43,7 +56,7 @@ export class MissionUserService {
     return this.missionUserRepository.save(missionUserEntity)
   }
 
-  async getOneMissionUser(condition) {
+  async findOne(condition) {
     return this.missionUserRepository.findOne(condition)
   }
 }

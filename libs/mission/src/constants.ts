@@ -18,16 +18,105 @@ export const MISSION_SORT_FIELD_MAP = {
   detail_explain_jp: 'campaign.detailExplainJp',
   opening_date: 'campaign.openingDate',
   closing_date: 'campaign.closingDate',
+  completed: 'completed',
+}
+
+export const USER_STATUS = {
+  ACTIVE: 1,
+  INACTIVE: 2,
+}
+
+export const USER_TYPE = {
+  NORMAL: 1,
+  BOT: 2,
+}
+
+export const USER_EMAIL_VERIFY_STATUS = {
+  VERIFIED: 1,
+  UNVERIFIED: 2,
+}
+
+export const USER_AUTHENTICATOR_VERIFY_STATUS = {
+  VERIFIED: 1,
+  UNVERIFIED: 2,
+}
+
+export const USER_KYC_VERIFY_STATUS = {
+  VERIFIED: 1,
+  UNVERIFIED: 2,
+  PENDING: 3,
+  REJECTED: 4,
+}
+
+export const KYC_TYPE = {
+  PERSONAL: 1,
+  ENTERPRISE: 2,
+}
+
+export const KYC_ID_DOCUMENT_TYPE = {
+  PASSPORT: 1,
+  ID_CARD: 2,
+  DRIVING_LICENCE: 3,
+  OTHERS: 4,
+  RESIDENCE_CARD: 5,
+  NUMBER_CARD: 6,
+}
+
+export const KYC_STATUS = {
+  ACCEPT: 1,
+  REJECT: 2,
+  PENDING: 3,
+  APPROVED_PAPER: 4,
+  NEW: 5,
+  AUTO_KYC_PROCESSED: 7,
+  PENDING_PAPER: 8,
+}
+
+export const USER_INFO_STATUS = {
+  UPDATED: 1,
+  NOT_UPDATED: 2,
 }
 
 export const USER_CONDITION_TYPES = {
-  kyc_verify_status: 'string',
-  user_info_status: 'string',
-  authenticator_verify_status: 'string',
-  email_verify_status: 'string',
-  referrer_code: 'string',
-  account_lv: 'string',
-  channel_id: 'string',
+  kyc_verify_status: {
+    type: 'string',
+    original: 'number',
+    display: 'enum',
+    options: USER_KYC_VERIFY_STATUS,
+  },
+  user_info_status: {
+    type: 'string',
+    original: 'number',
+    display: 'enum',
+    options: USER_INFO_STATUS,
+  },
+  authenticator_verify_status: {
+    type: 'string',
+    original: 'number',
+    display: 'enum',
+    options: USER_AUTHENTICATOR_VERIFY_STATUS,
+  },
+  email_verify_status: {
+    type: 'string',
+    original: 'number',
+    display: 'enum',
+    options: USER_EMAIL_VERIFY_STATUS,
+  },
+  referrer_code: {
+    type: 'string',
+    original: 'number',
+    display: 'string',
+  },
+  account_lv: {
+    type: 'string',
+    original: 'number',
+    display: 'number',
+  },
+  channel_id: {
+    type: 'string',
+    original: 'number',
+    display: 'number',
+  },
 }
 
 export const INFO_EVENTS = [
@@ -74,7 +163,8 @@ export const INFO_EVENTS = [
       //user_id,old_email,new_email
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'User ID',
       },
       {
@@ -96,7 +186,7 @@ export const INFO_EVENTS = [
       //     'authenticator_verify_status,kyc_verify_status,referred_by_id, channel_id
       {
         key: 'uuid',
-        type: 'number',
+        type: 'string',
         description: 'User UUID',
       },
       {
@@ -131,33 +221,44 @@ export const INFO_EVENTS = [
       },
       {
         key: 'id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'User ID',
       },
       {
         key: 'status',
         type: 'number',
         description: 'Account status',
+        display: 'enum',
+        options: USER_STATUS,
       },
       {
         key: 'type',
         type: 'number',
         description: 'Account type',
+        display: 'enum',
+        options: USER_TYPE,
       },
       {
         key: 'email_verify_status',
         type: 'number',
         description: 'Email verify status',
+        display: 'enum',
+        options: USER_EMAIL_VERIFY_STATUS,
       },
       {
         key: 'authenticator_verify_status',
         type: 'number',
         description: 'Authenticator verify status',
+        display: 'enum',
+        options: USER_AUTHENTICATOR_VERIFY_STATUS,
       },
       {
         key: 'kyc_verify_status',
         type: 'number',
         description: 'KYC verify status',
+        display: 'enum',
+        options: USER_KYC_VERIFY_STATUS,
       },
       {
         key: 'referred_by_id',
@@ -177,12 +278,14 @@ export const INFO_EVENTS = [
       //user_id,device_id,time
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'User ID',
       },
       {
         key: 'device_id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'Device ID',
       },
       {
@@ -198,7 +301,8 @@ export const INFO_EVENTS = [
       //user_id
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
+        display: 'number',
         description: 'User ID',
       },
     ],
@@ -210,7 +314,6 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
     ],
@@ -221,13 +324,15 @@ export const INFO_EVENTS = [
       //status,user_id,otp_secret
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
         key: 'status',
         type: 'number',
         description: 'Status',
+        display: 'enum',
+        options: USER_AUTHENTICATOR_VERIFY_STATUS,
       },
     ],
   },
@@ -243,13 +348,14 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
       {
         key: 'type',
         type: 'number',
         description: 'Type',
+        display: 'enum',
+        options: KYC_TYPE,
       },
       {
         key: 'provider',
@@ -260,6 +366,8 @@ export const INFO_EVENTS = [
         key: 'id_document_type',
         type: 'number',
         description: 'Document type ID',
+        display: 'enum',
+        options: KYC_ID_DOCUMENT_TYPE,
       },
       {
         key: 'country_id',
@@ -276,6 +384,8 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Status',
+        display: 'enum',
+        options: KYC_STATUS,
       },
       {
         key: 'cynopsis_processing',
@@ -284,13 +394,13 @@ export const INFO_EVENTS = [
       },
       {
         key: 'created_at',
-        type: 'string',
+        type: 'number',
         display: 'number',
         description: 'Created at (unix time)',
       },
       {
         key: 'updated_at',
-        type: 'string',
+        type: 'number',
         display: 'number',
         description: 'Updated at (unix time)',
       },
@@ -319,7 +429,6 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
-        display: 'number',
         description: 'User ID',
       },
       {
@@ -387,7 +496,7 @@ export const INFO_EVENTS = [
       },
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -436,7 +545,7 @@ export const INFO_EVENTS = [
   //     },
   //     {
   //       key: 'user_id',
-  //       type: 'number',
+  //       type: 'string',
   //       description: 'User ID',
   //     },
   //     {
@@ -521,7 +630,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -686,7 +795,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -851,7 +960,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {
@@ -1016,7 +1125,7 @@ export const INFO_EVENTS = [
     properties: [
       {
         key: 'user_id',
-        type: 'number',
+        type: 'string',
         description: 'User ID',
       },
       {

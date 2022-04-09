@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { LessThanOrEqual, Repository } from 'typeorm'
-import {
-  paginate,
-  paginateRawAndEntities,
-  Pagination,
-} from 'nestjs-typeorm-paginate'
+import { paginate, paginateRaw, Pagination } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
 import { UpdateMissionDto } from '@lib/mission/dto/update-mission.dto'
@@ -14,7 +10,7 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { INFO_EVENTS } from '@lib/mission/constants'
-import { STATUS_MISSION } from '@lib/mission/enum'
+import { MISSION_STATUS } from '@lib/mission/enum'
 
 @Injectable()
 export class MissionService {
@@ -26,7 +22,7 @@ export class MissionService {
   async updateEndedStatus(now: number) {
     await this.missionRepository.update(
       { closingDate: LessThanOrEqual(now) },
-      { status: STATUS_MISSION.ENDED },
+      { status: MISSION_STATUS.ENDED },
     )
   }
 
@@ -75,14 +71,14 @@ export class MissionService {
     return queryBuilder
   }
 
-  async paginate(
+  async missionPaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Mission> = null,
     isRaw = false,
   ): Promise<Pagination<Mission, CustomPaginationMetaTransformer> | any> {
     if (queryBuilder === null) queryBuilder = this.queryBuilder()
     if (isRaw) {
-      return paginateRawAndEntities(queryBuilder, options)
+      return paginateRaw(queryBuilder, options)
     }
     return paginate<Mission, CustomPaginationMetaTransformer>(
       queryBuilder,
@@ -99,7 +95,7 @@ export class MissionService {
     INFO_EVENTS.forEach((item) => {
       if (result[item.eventName] === undefined) result[item.eventName] = {}
       item.properties.forEach((property) => {
-        result[item.eventName][property.key] = property.type
+        result[item.eventName][property.key] = property.display || property.type
       })
     })
     return result

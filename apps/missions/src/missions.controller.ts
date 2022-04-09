@@ -1,18 +1,23 @@
 import { Controller } from '@nestjs/common'
-import { KafkaMessage, KafkaTopic } from '@lib/kafka'
+import { MessageId, KafkaMessage, KafkaTopic } from '@lib/kafka'
 import { Payload } from '@nestjs/microservices'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { ConfigService } from '@nestjs/config'
 
 @Controller()
 export class MissionsController {
-  constructor(private eventEmitter: EventEmitter2) {}
+  eventEmit = 'write_log'
+  constructor(
+    private eventEmitter: EventEmitter2,
+    private configService: ConfigService,
+  ) {}
 
-  emitEvent(msgName: string, msgId: string, msgData: any) {
+  emitEvent(msgName: string, msgId: string | null, msgData: any) {
     // Data length
     if (Object.keys(msgData).length == 0) {
-      this.eventEmitter.emit('write_log', {
-        logLevel: 'log',
-        traceCode: 'm003',
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
+        traceCode: 'm002',
         data: {
           msgData,
           msgName,
@@ -24,8 +29,8 @@ export class MissionsController {
 
     // user_id field
     if (!msgData.user_id) {
-      this.eventEmitter.emit('write_log', {
-        logLevel: 'log',
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
         traceCode: 'Missing user_id fields. Stop!',
         data: {
           msgData,
@@ -37,7 +42,7 @@ export class MissionsController {
     }
 
     // Push kafka event to internal event
-    this.eventEmitter.emit('write_log', {
+    this.eventEmitter.emit(this.eventEmit, {
       logLevel: 'log',
       traceCode: 'Received event',
       data: {
@@ -58,137 +63,190 @@ export class MissionsController {
    * KAFKA AUTH EVENT AREA
    */
   @KafkaTopic('kafka.auth_user_login')
-  async authUserLogin(@Payload() message: KafkaMessage) {
-    this.emitEvent('AUTH_USER_LOGIN', message.key, message.value.data ?? {})
+  async authUserLogin(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('AUTH_USER_LOGIN', messageId, message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_change_email')
-  async authUserChangeEmail(@Payload() message: KafkaMessage) {
+  async authUserChangeEmail(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     this.emitEvent(
       'AUTH_USER_CHANGE_EMAIL',
-      message.key,
+      messageId,
       message.value.data ?? {},
     )
   }
 
   @KafkaTopic('kafka.auth_user_created')
-  async authUserCreated(@Payload() message: KafkaMessage) {
+  async authUserCreated(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     // Transform data
     let data = {} as any
     if (message.value.data) {
       data = message.value.data
       data.user_id = data.id
     }
-    this.emitEvent('AUTH_USER_CREATED', message.key, data)
+    this.emitEvent('AUTH_USER_CREATED', messageId, data)
   }
 
   @KafkaTopic('kafka.auth_user_logout')
-  async authUserLogout(@Payload() message: KafkaMessage) {
-    this.emitEvent('AUTH_USER_LOGOUT', message.key, message.value.data ?? {})
+  async authUserLogout(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('AUTH_USER_LOGOUT', messageId, message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_change_password')
-  async authUserChangePassword(@Payload() message: KafkaMessage) {
+  async authUserChangePassword(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     this.emitEvent(
       'AUTH_USER_CHANGE_PASSWORD',
-      message.key,
+      messageId,
       message.value.data ?? {},
     )
   }
 
   @KafkaTopic('kafka.auth_user_change_info')
-  async authUserChangeInfo(@Payload() message: KafkaMessage) {
-    this.emitEvent(
-      'AUTH_USER_CHANGE_INFO',
-      message.key,
-      message.value.data ?? {},
-    )
+  async authUserChangeInfo(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('AUTH_USER_CHANGE_INFO', messageId, message.value.data ?? {})
   }
 
   @KafkaTopic('kafka.auth_user_authenticator_status_updated')
-  async authUserAuthenticatorStatusUpdated(@Payload() message: KafkaMessage) {
+  async authUserAuthenticatorStatusUpdated(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     this.emitEvent(
       'AUTH_USER_AUTHENTICATOR_STATUS_UPDATED',
-      message.key,
+      messageId,
       message.value.data ?? {},
     )
   }
 
   @KafkaTopic('kafka.auth_user_kyc_status_updated')
-  async authUserKycStatusStatusUpdated(@Payload() message: KafkaMessage) {
+  async authUserKycStatusStatusUpdated(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     this.emitEvent(
       'AUTH_USER_KYC_STATUS_UPDATED',
-      message.key,
+      messageId,
       message.value.data ?? {},
     )
   }
 
   @KafkaTopic('kafka.auth_user_kyc_registered')
-  async authUserKycRegistered(@Payload() message: KafkaMessage) {
+  async authUserKycRegistered(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     this.emitEvent(
       'AUTH_USER_KYC_REGISTERED',
-      message.key,
+      messageId,
       message.value.data ?? {},
     )
   }
 
   @KafkaTopic('kafka.auth_user_kyc_auto_kyc_finished')
-  async authUserKycAutoKycFinished(@Payload() message: KafkaMessage) {
+  async authUserKycAutoKycFinished(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
     this.emitEvent(
       'AUTH_USER_KYC_AUTO_KYC_FINISHED',
-      message.key,
+      messageId,
       message.value.data ?? {},
     )
   }
 
   @KafkaTopic('kafka.auth_user_change_lv')
-  async authUserChangeLv(@Payload() message: KafkaMessage) {
-    this.emitEvent('AUTH_USER_CHANGE_LV', message.key, message.value.data ?? {})
+  async authUserChangeLv(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('AUTH_USER_CHANGE_LV', messageId, message.value.data ?? {})
   }
 
   /**
    * KAFKA BCE EVENT AREA
    */
   @KafkaTopic('kafka.bce_deposit')
-  async bceDeposit(@Payload() message: KafkaMessage) {
-    this.emitEvent('BCE_DEPOSIT', message.key, message.value)
+  async bceDeposit(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('BCE_DEPOSIT', messageId, message.value)
   }
 
   @KafkaTopic('kafka.bce_withdraw')
-  async bceWithdraw(@Payload() message: KafkaMessage) {
-    this.emitEvent('BCE_WITHDRAW', message.key, message.value)
+  async bceWithdraw(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('BCE_WITHDRAW', messageId, message.value)
   }
 
   @KafkaTopic('kafka.bce_trading_matched')
-  async bceTradingMatched(@Payload() message: KafkaMessage) {
-    this.emitEvent('BCE_TRADING_MATCHED', message.key, message.value)
+  async bceTradingMatched(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('BCE_TRADING_MATCHED', messageId, message.value)
   }
 
   /**
    * KAFKA BO EVENT AREA
    */
   @KafkaTopic('kafka.high_low_transfer_balance')
-  async highLowTransferBalance(@Payload() message: KafkaMessage) {
-    this.emitEvent('HIGH_LOW_TRANSFER_BALANCE', message.key, message.value)
+  async highLowTransferBalance(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('HIGH_LOW_TRANSFER_BALANCE', messageId, message.value)
   }
 
   @KafkaTopic('kafka.high_low_create')
-  async highLowCreate(@Payload() message: KafkaMessage) {
-    this.emitEvent('HIGH_LOW_CREATE', message.key, message.value)
+  async highLowCreate(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('HIGH_LOW_CREATE', messageId, message.value)
   }
 
   @KafkaTopic('kafka.high_low_win')
-  async highLowWin(@Payload() message: KafkaMessage) {
-    this.emitEvent('HIGH_LOW_WIN', message.key, message.value)
+  async highLowWin(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('HIGH_LOW_WIN', messageId, message.value)
   }
 
   @KafkaTopic('kafka.high_low_lost')
-  async highLowLost(@Payload() message: KafkaMessage) {
-    this.emitEvent('HIGH_LOW_LOST', message.key, message.value)
+  async highLowLost(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('HIGH_LOW_LOST', messageId, message.value)
   }
 
   @KafkaTopic('kafka.high_low_cancel')
-  async highLowCancel(@Payload() message: KafkaMessage) {
-    this.emitEvent('HIGH_LOW_CANCEL', message.key, message.value)
+  async highLowCancel(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('HIGH_LOW_CANCEL', messageId, message.value)
   }
 }

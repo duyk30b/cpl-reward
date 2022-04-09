@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer'
 
 export class ReferredUserInfoDto {
   @Expose({ name: 'referred_user_id' })
-  referredUserId: number
+  referredUserId: string
 
   @Expose()
   user: number

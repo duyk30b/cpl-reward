@@ -108,6 +108,24 @@
       ],
       "@lib/external-cashback/*": [
         "libs/external-cashback/src/*"
+      ],
+      "@lib/mongo": [
+        "libs/mongo/src"
+      ],
+      "@lib/mongo/*": [
+        "libs/mongo/src/*"
+      ],
+      "@lib/redis-queue": [
+        "libs/redis-queue/src"
+      ],
+      "@lib/redis-queue/*": [
+        "libs/redis-queue/src/*"
+      ],
+      "@lib/redis": [
+        "libs/redis/src"
+      ],
+      "@lib/redis/*": [
+        "libs/redis/src/*"
       ]
     }
   }

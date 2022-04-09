@@ -19,7 +19,7 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
           },
           {
             name: 'user_id',
-            type: 'int',
+            type: 'bigInt',
           },
           {
             name: 'success_count',

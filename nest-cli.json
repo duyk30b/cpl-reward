@@ -193,6 +193,33 @@
       "compilerOptions": {
         "tsConfigPath": "libs/external-cashback/tsconfig.lib.json"
       }
+    },
+    "mongo": {
+      "type": "library",
+      "root": "libs/mongo",
+      "entryFile": "index",
+      "sourceRoot": "libs/mongo/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mongo/tsconfig.lib.json"
+      }
+    },
+    "redis-queue": {
+      "type": "library",
+      "root": "libs/redis-queue",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis-queue/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis-queue/tsconfig.lib.json"
+      }
+    },
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
+      }
     }
   }
 }

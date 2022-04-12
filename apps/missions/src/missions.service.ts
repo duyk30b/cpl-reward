@@ -340,6 +340,7 @@ export class MissionsService {
           rewardRule,
         },
       })
+      return false
     }
 
     this.eventEmitter.emit('update_value_reward_campaign', {

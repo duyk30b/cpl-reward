@@ -261,7 +261,7 @@ export class MissionsService {
 
         const referredUserInfo =
           referredUserId === '0'
-            ? null
+            ? undefined
             : {
                 ...referredUser,
                 referredUserId,
@@ -383,7 +383,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         type: 'reward',
-        eventName: EVENTS[data.msgName],
+        data,
       })
     }
     if (
@@ -397,7 +397,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
-        eventName: EVENTS[data.msgName],
+        data,
       })
     }
 

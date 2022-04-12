@@ -3,5 +3,5 @@ export interface ChangeUserCashback {
   currency: string
   amount: string
   historyId: number
-  eventName: string
+  data: any
 }

@@ -144,9 +144,13 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
-    queryBuilder.where('mission.targetType = :target_type ', {
-      target_type: TARGET_TYPE.ONLY_MAIN,
-    })
+    queryBuilder.where(
+      new Brackets((qb) => {
+        qb.where('mission.targetType =' + TARGET_TYPE.ONLY_MAIN).orWhere(
+          'mission.targetType = ' + TARGET_TYPE.HYBRID,
+        )
+      }),
+    )
     if (missionFilter.campaignId !== undefined)
       queryBuilder.andWhere('mission.campaignId = :campaign_id ', {
         campaign_id: Number(missionFilter.campaignId),

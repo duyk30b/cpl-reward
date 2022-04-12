@@ -51,7 +51,7 @@ export enum MISSION_STATUS {
 }
 
 export enum TARGET_TYPE {
-  HYBRID = 0,
-  ONLY_MAIN = 1,
-  ONLY_REFERRED = 2,
+  HYBRID = 1,
+  ONLY_MAIN = 2,
+  ONLY_REFERRED = 3,
 }

@@ -21,6 +21,8 @@ import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
 import { FixedNumber } from 'ethers'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import * as moment from 'moment-timezone'
+import { Interval } from '@nestjs/schedule'
+import { LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
 
 @Injectable()
 export class AdminMissionService {
@@ -30,8 +32,18 @@ export class AdminMissionService {
     private readonly missionEventService: MissionEventService,
   ) {}
 
-  async updateEndedStatus(now: number) {
-    return this.missionService.updateEndedStatus(now)
+  @Interval(60000)
+  async handleIntervalUpdateStatus() {
+    const now = moment().unix()
+
+    await this.missionService.updateStatus(
+      { closingDate: LessThanOrEqual(now) },
+      MISSION_STATUS.ENDED,
+    )
+    await this.missionService.updateStatus(
+      { openingDate: LessThanOrEqual(now), closingDate: MoreThanOrEqual(now) },
+      MISSION_STATUS.RUNNING,
+    )
   }
 
   private getTargetType(grantTarget: TargetDto[]) {

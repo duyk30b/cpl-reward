@@ -1,4 +1,4 @@
-import { Controller, OnModuleInit } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { AdminCampaignService } from './admin-campaign.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import {
@@ -8,20 +8,10 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
-import * as moment from 'moment-timezone'
 
 @Controller('campaign')
-export class AdminCampaignController implements OnModuleInit {
+export class AdminCampaignController {
   constructor(private readonly adminCampaignService: AdminCampaignService) {}
-
-  /**
-   * TODO: replace by queue in next sprint
-   */
-  async onModuleInit() {
-    setInterval(async () => {
-      await this.adminCampaignService.updateEndedStatus(moment().unix())
-    }, 60000)
-  }
 
   @GrpcMethod('GrpcAdminCampaignService', 'Create')
   async create(data: ICreateCampaign) {

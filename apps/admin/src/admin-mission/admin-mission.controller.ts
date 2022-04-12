@@ -1,4 +1,4 @@
-import { Controller, OnModuleInit } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { AdminMissionService } from './admin-mission.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import { FindOneInput } from '../admin-campaign/admin-campaign.interface'
@@ -7,20 +7,10 @@ import {
   IUpdateMission,
   MissionFilterInput,
 } from './admin-mission.interface'
-import * as moment from 'moment-timezone'
 
 @Controller('mission')
-export class AdminMissionController implements OnModuleInit {
+export class AdminMissionController {
   constructor(private readonly adminMissionService: AdminMissionService) {}
-
-  /**
-   * TODO: replace by queue in next sprint
-   */
-  async onModuleInit() {
-    setInterval(async () => {
-      await this.adminMissionService.updateEndedStatus(moment().unix())
-    }, 60000)
-  }
 
   @GrpcMethod('GrpcAdminMissionService', 'Create')
   async create(data: ICreateMission) {

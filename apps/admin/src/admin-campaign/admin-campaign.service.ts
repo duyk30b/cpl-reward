@@ -13,12 +13,13 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
-import { Brackets } from 'typeorm'
+import { Brackets, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import * as moment from 'moment-timezone'
+import { Interval } from '@nestjs/schedule'
 
 @Injectable()
 export class AdminCampaignService {
@@ -27,15 +28,25 @@ export class AdminCampaignService {
     private readonly rewardRuleService: RewardRuleService,
   ) {}
 
+  @Interval(60000)
+  async handleIntervalUpdateStatus() {
+    const now = moment().unix()
+
+    await this.campaignService.updateStatus(
+      { endDate: LessThanOrEqual(now) },
+      CAMPAIGN_STATUS.ENDED,
+    )
+    await this.campaignService.updateStatus(
+      { startDate: LessThanOrEqual(now), endDate: MoreThanOrEqual(now) },
+      CAMPAIGN_STATUS.RUNNING,
+    )
+  }
+
   async cancel(id: number): Promise<{ affected: number }> {
     const deleteResult = await this.campaignService.delete(id)
     return {
       affected: deleteResult.affected,
     }
-  }
-
-  async updateEndedStatus(now: number) {
-    return this.campaignService.updateEndedStatus(now)
   }
 
   /**

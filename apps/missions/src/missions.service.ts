@@ -261,7 +261,7 @@ export class MissionsService {
 
         const referredUserInfo =
           referredUserId === '0'
-            ? null
+            ? undefined
             : {
                 ...referredUser,
                 referredUserId,

@@ -20,19 +20,16 @@ export class ValidateAuthMiddleware implements NestMiddleware {
   async use(req: IRequestWithUserId, res: Response, next: NextFunction) {
     const xBceRole = req.header('X-BCE-ROLE') || null
     const xBceUid = req.header('X-BCE-UID') || null
-
-    const ENV = this.configService.get<string>('common.env')
-    if (ENV === Environment.Local) {
-      req.userId = String(xBceUid)
-      next()
-      return
-    }
-    let user = null
-    if (xBceUid !== null)
-      user = await this.externalUserService.getUserInfo(xBceUid)
-    if (xBceRole === null || xBceRole === 'guest' || user === null) {
+    if (xBceUid === null || xBceRole === null || xBceRole === 'guest') {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
     }
+
+    let user = null
+    user = await this.externalUserService.getUserInfo(xBceUid)
+    if (!user) {
+      throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
+    }
+
     req.userId = String(xBceUid)
     next()
   }

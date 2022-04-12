@@ -51,7 +51,7 @@ export class UserRewardHistoryService {
     queryBuilder.andWhere('history.userId = :user_id', {
       user_id: userId,
     })
-    queryBuilder.where('history.status IN (:...status_list)', {
+    queryBuilder.andWhere('history.status IN (:...status_list)', {
       status_list: statusList,
     })
     queryBuilder.groupBy('history.currency')

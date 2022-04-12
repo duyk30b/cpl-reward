@@ -240,6 +240,7 @@ export class MissionsService {
           traceCode: 'm010',
           data,
           extraData: {
+            currency: rewardRules[idx].currency,
             limitValue: rewardRules[idx].limitValue,
             userId,
             mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,

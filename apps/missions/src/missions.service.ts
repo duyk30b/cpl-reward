@@ -197,7 +197,7 @@ export class MissionsService {
 
     // check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
-    if (successCount > mission.limitReceivedReward) {
+    if (successCount >= mission.limitReceivedReward) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm008',
@@ -258,7 +258,7 @@ export class MissionsService {
         rewardRules[idx].key === mainUser.type
       ) {
         // user
-        await this.commonFlowReward(rewardRules[idx], mainUser, userId, data)
+        await this.commonFlowReward(rewardRules[idx].id, mainUser, userId, data)
 
         const referredUserInfo =
           referredUserId === '0'
@@ -285,7 +285,7 @@ export class MissionsService {
       ) {
         // referred user
         await this.commonFlowReward(
-          rewardRules[idx],
+          rewardRules[idx].id,
           referredUser,
           referredUserId,
           data,
@@ -296,7 +296,7 @@ export class MissionsService {
 
   /**
    *
-   * @param missionRewardRule
+   * @param rewardRuleId
    * @param campaignId
    * @param amount
    * remove type
@@ -304,24 +304,28 @@ export class MissionsService {
    * @param data
    */
   async updateReleaseLimitValue(
-    missionRewardRule: RewardRule,
+    rewardRuleId: number,
     campaignId: number,
     amount: string,
     data: IEvent,
   ) {
+    const rewardRule = await this.rewardRuleService.findOne({
+      id: rewardRuleId,
+    })
+    if (rewardRule === undefined) return false
     /**
      * Update value of mission
      * TODO: using transaction to update value in next sprint
      */
     const fixedAmount = FixedNumber.fromString(amount)
-    const limitValue = FixedNumber.from(missionRewardRule.limitValue)
+    const limitValue = FixedNumber.from(rewardRule.limitValue)
       .subUnsafe(fixedAmount)
       .toUnsafeFloat()
-    const releaseValue = FixedNumber.from(missionRewardRule.releaseValue)
+    const releaseValue = FixedNumber.from(rewardRule.releaseValue)
       .addUnsafe(fixedAmount)
       .toUnsafeFloat()
     const updateMissionRewardRule = await this.rewardRuleService.updateValue(
-      missionRewardRule.id,
+      rewardRule.id,
       releaseValue,
       limitValue,
       fixedAmount.toUnsafeFloat(),
@@ -333,7 +337,7 @@ export class MissionsService {
         data,
         extraData: {
           amount,
-          missionRewardRule,
+          rewardRule,
         },
       })
     }
@@ -346,7 +350,7 @@ export class MissionsService {
   }
 
   async commonFlowReward(
-    missionRewardRule: RewardRule,
+    rewardRuleId: number,
     userTarget: IGrantTarget,
     userId: string,
     data: IEvent,
@@ -358,7 +362,7 @@ export class MissionsService {
      *   userTarget.currency,
      */
     const updated = await this.updateReleaseLimitValue(
-      missionRewardRule,
+      rewardRuleId,
       data.campaignId,
       userTarget.amount,
       data,

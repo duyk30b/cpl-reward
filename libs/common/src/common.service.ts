@@ -19,12 +19,6 @@ export class CommonService {
     return false
   }
 
-  static inspectStringNumber(input: string | number, type: string) {
-    if (type === 'string') return `'${input}'`
-    if (type === 'number') return Number(input)
-    return input
-  }
-
   static convertSnakeToCamelStr(input: string) {
     const STR = input
       .toLowerCase()

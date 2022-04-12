@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
-import { RewardRuleService } from '@lib/reward-rule'
+import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { MissionUserLogService } from '@lib/mission-user-log'
 import { MissionUserService } from '@lib/mission-user'
 import {
   ICreateMissionUserLog,
   IUpdateMissionUser,
+  IUpdateValueRewardCampaign,
 } from '../interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
@@ -21,6 +22,22 @@ export class CommonListener {
     private readonly missionUserLogService: MissionUserLogService,
     private readonly missionUserService: MissionUserService,
   ) {}
+
+  @OnEvent('update_value_reward_campaign')
+  async handleUpdateValRewardCampaign(data: IUpdateValueRewardCampaign) {
+    const rewardRule = await this.rewardRuleService.findOne({
+      campaignId: data.campaignId,
+      typeRule: TYPE_RULE.CAMPAIGN,
+    })
+
+    if (rewardRule !== undefined) {
+      const fixedAmount = FixedNumber.fromString(data.amount)
+      rewardRule.releaseValue = FixedNumber.from(rewardRule.releaseValue)
+        .addUnsafe(fixedAmount)
+        .toUnsafeFloat()
+      await this.rewardRuleService.onlyUpdate(rewardRule)
+    }
+  }
 
   @OnEvent('create_mission_user_log')
   async handleMissionUserLog(data: ICreateMissionUserLog) {

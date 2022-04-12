@@ -18,3 +18,8 @@ export interface ICreateMissionUserLog {
   referredUserInfo: ReferredUserInfoDto
   note: string
 }
+
+export interface IUpdateValueRewardCampaign {
+  campaignId: number
+  amount: string
+}

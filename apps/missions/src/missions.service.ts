@@ -184,7 +184,7 @@ export class MissionsService {
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
     )
-    if (mainUser === null && referredUser === null) {
+    if (mainUser === undefined && referredUser === undefined) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm001',
@@ -240,19 +240,20 @@ export class MissionsService {
           traceCode: 'm010',
           data,
           extraData: {
+            currency: rewardRules[idx].currency,
             limitValue: rewardRules[idx].limitValue,
             userId,
-            mainUserAmount: mainUser === null ? 'N/A' : mainUser.amount,
+            mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,
             referredUserId,
             referredUserAmount:
-              referredUser === null ? 'N/A' : referredUser.amount,
+              referredUser === undefined ? 'N/A' : referredUser.amount,
           },
         })
         continue
       }
 
       if (
-        mainUser !== null &&
+        mainUser !== undefined &&
         rewardRules[idx].currency === mainUser.currency &&
         rewardRules[idx].key === mainUser.type
       ) {
@@ -261,7 +262,7 @@ export class MissionsService {
 
         const referredUserInfo =
           referredUserId === '0'
-            ? null
+            ? undefined
             : {
                 ...referredUser,
                 referredUserId,
@@ -278,7 +279,7 @@ export class MissionsService {
 
       if (
         referredUserId !== '0' &&
-        referredUser !== null &&
+        referredUser !== undefined &&
         rewardRules[idx].currency === referredUser.currency &&
         rewardRules[idx].key === referredUser.type
       ) {
@@ -337,18 +338,10 @@ export class MissionsService {
       })
     }
 
-    const campaignRewardRule = await this.rewardRuleService.findOne({
-      campaignId: campaignId,
-      typeRule: TYPE_RULE.CAMPAIGN,
+    this.eventEmitter.emit('update_value_reward_campaign', {
+      campaignId,
+      amount,
     })
-    if (campaignRewardRule !== undefined) {
-      campaignRewardRule.releaseValue = FixedNumber.from(
-        campaignRewardRule.releaseValue,
-      )
-        .addUnsafe(fixedAmount)
-        .toUnsafeFloat()
-      await this.rewardRuleService.onlyUpdate(campaignRewardRule)
-    }
     return true
   }
 
@@ -391,7 +384,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         type: 'reward',
-        eventName: EVENTS[data.msgName],
+        data,
       })
     }
     if (
@@ -405,7 +398,7 @@ export class MissionsService {
         amount: userTarget.amount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
-        eventName: EVENTS[data.msgName],
+        data,
       })
     }
 
@@ -603,16 +596,16 @@ export class MissionsService {
       String(rewardRule.limitValue),
     )
     const fixedMainUserAmount = FixedNumber.fromString(
-      mainUser === null || rewardRule.currency !== mainUser.currency
+      mainUser === undefined || rewardRule.currency !== mainUser.currency
         ? '0'
         : mainUser.amount,
     )
     const fixedReferredUserAmount = FixedNumber.fromString(
-      referredUser === null || rewardRule.currency !== referredUser.currency
+      referredUser === undefined ||
+        rewardRule.currency !== referredUser.currency
         ? '0'
         : referredUser.amount,
     )
-
     return (
       fixedLimitValue
         .subUnsafe(fixedMainUserAmount)
@@ -622,10 +615,10 @@ export class MissionsService {
   }
 
   getDetailUserFromGrantTarget(grantTarget: string) {
-    let mainUser = null,
-      referredUser = null
+    let mainUser = undefined,
+      referredUser = undefined
     const grantTargets = grantTarget as unknown as IGrantTarget[]
-    if (grantTargets.length === 0) return { mainUser, referredUser }
+    if (grantTargets.length === 0) return undefined
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target

@@ -3,12 +3,15 @@ import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
 import { ChangeUserCashback } from './external-cashback.interface'
 import { firstValueFrom, map } from 'rxjs'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Injectable()
 export class ExternalCashbackService {
+  eventEmit = 'write_log'
   private readonly logger = new Logger(ExternalCashbackService.name)
 
   constructor(
+    private eventEmitter: EventEmitter2,
     private httpService: HttpService,
     private configService: ConfigService,
   ) {}
@@ -55,12 +58,15 @@ export class ExternalCashbackService {
           })
           .pipe(map((response) => response.data)),
       )
-      this.logger.log(
-        `[EVENT ${input.eventName}]. Result send cashback. ` +
-          `Input: ${JSON.stringify(input)}, result => ${JSON.stringify(
-            result,
-          )}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm015',
+        data: input.data,
+        extraData: {
+          result: JSON.stringify(result),
+        },
+        params: { type: 'cashback' },
+      })
       if (!result) {
         return null
       }

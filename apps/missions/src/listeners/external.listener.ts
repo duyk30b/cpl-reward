@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { OnEvent } from '@nestjs/event-emitter'
+import { Injectable } from '@nestjs/common'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import {
   ISendRewardToBalance,
   ISendRewardToCashback,
@@ -13,87 +13,120 @@ import { ExternalCashbackService } from '@lib/external-cashback'
 
 @Injectable()
 export class ExternalListener {
-  private readonly logger = new Logger(ExternalListener.name)
+  eventEmit = 'write_log'
 
   constructor(
+    private eventEmitter: EventEmitter2,
     private readonly externalBalanceService: ExternalBalanceService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalCashbackService: ExternalCashbackService,
   ) {}
 
   @OnEvent('send_reward_to_cashback')
-  async handleSendRewardToCashbackEvent(data: ISendRewardToCashback) {
+  async handleSendRewardToCashbackEvent(input: ISendRewardToCashback) {
     const sendRewardToCashback =
       await this.externalCashbackService.changeUserCashback({
-        user_id: data.userId,
-        currency: data.currency,
-        amount: data.amount,
-        historyId: data.historyId,
-        eventName: data.eventName,
+        user_id: input.userId,
+        currency: input.currency,
+        amount: input.amount,
+        historyId: input.historyId,
+        data: input.data,
       })
     if (sendRewardToCashback === null) {
-      const result = await this.userRewardHistoryService.updateById(data.id, {
+      const result = await this.userRewardHistoryService.updateById(input.id, {
         status: USER_REWARD_STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
-        this.logger.log(
-          `[EVENT ${data.eventName}]. Update reward history fail. ` +
-            `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_FAIL}`,
-        )
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm013',
+          data: input.data,
+          extraData: {
+            id: input.id,
+            status: USER_REWARD_STATUS.AUTO_FAIL,
+          },
+        })
       }
-      this.logger.log(
-        `[EVENT ${data.eventName}]. Send reward to cashback fail, detail: ` +
-          JSON.stringify(sendRewardToCashback),
-      )
+
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm014',
+        data: input.data,
+        extraData: {
+          sendRewardToBalance: JSON.stringify(sendRewardToCashback),
+        },
+        params: { type: 'cashback' },
+      })
       return
     }
 
-    const result = await this.userRewardHistoryService.updateById(data.id, {
+    const result = await this.userRewardHistoryService.updateById(input.id, {
       status: USER_REWARD_STATUS.AUTO_RECEIVED,
     })
     if (result.affected === 0) {
-      this.logger.log(
-        `Update reward history fail. ` +
-          `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_RECEIVED}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm013',
+        data: input.data,
+        extraData: {
+          id: input.id,
+          status: USER_REWARD_STATUS.AUTO_RECEIVED,
+        },
+      })
     }
   }
 
   @OnEvent('send_reward_to_balance')
-  async handleISendRewardToBalanceEvent(data: ISendRewardToBalance) {
+  async handleISendRewardToBalanceEvent(input: ISendRewardToBalance) {
     const sendRewardToBalance =
       await this.externalBalanceService.changeUserBalance(
-        data.userId,
-        data.amount,
-        data.currency.toLowerCase(),
-        data.type,
-        data.eventName,
+        input.userId,
+        input.amount,
+        input.currency.toLowerCase(),
+        input.type,
+        input.data,
       )
     if (sendRewardToBalance === null) {
-      const result = await this.userRewardHistoryService.updateById(data.id, {
+      const result = await this.userRewardHistoryService.updateById(input.id, {
         status: USER_REWARD_STATUS.AUTO_FAIL,
       })
       if (result.affected === 0) {
-        this.logger.log(
-          `[EVENT ${data.eventName}]. Update reward history fail. ` +
-            `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_FAIL}`,
-        )
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm013',
+          data: input.data,
+          extraData: {
+            id: input.id,
+            status: USER_REWARD_STATUS.AUTO_FAIL,
+          },
+        })
       }
-      this.logger.log(
-        `[EVENT ${data.eventName}]. Send reward to balance fail, detail: ` +
-          JSON.stringify(sendRewardToBalance),
-      )
+
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm014',
+        data: input.data,
+        extraData: {
+          sendRewardToBalance: JSON.stringify(sendRewardToBalance),
+        },
+        params: { type: 'balance' },
+      })
       return
     }
 
-    const result = await this.userRewardHistoryService.updateById(data.id, {
+    const result = await this.userRewardHistoryService.updateById(input.id, {
       status: USER_REWARD_STATUS.AUTO_RECEIVED,
     })
     if (result.affected === 0) {
-      this.logger.log(
-        `[EVENT ${data.eventName}]. Update reward history fail. ` +
-          `Input: id => ${data.id}, status => ${USER_REWARD_STATUS.AUTO_RECEIVED}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm013',
+        data: input.data,
+        extraData: {
+          id: input.id,
+          status: USER_REWARD_STATUS.AUTO_RECEIVED,
+        },
+      })
     }
   }
 }

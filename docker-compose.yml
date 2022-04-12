@@ -35,23 +35,23 @@ services:
       - db
     networks:
       - server
-#  missions:
-#    container_name: reward_missions
-#    image: reward-api-dev:1.0.0
-#    build:
-#      context: .
-#      dockerfile: ./Dockerfile
-#      target: builder
-#    command: npm run start:dev missions
-#    ports:
-#      - ${MISSIONS_MAP_PORT}
-#    volumes:
-#      - .:/usr/src/app
-#    restart: unless-stopped
-#    depends_on:
-#      - db
-#    networks:
-#      - server
+  missions:
+    container_name: reward_missions
+    image: reward-api-dev:1.0.0
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: builder
+    command: npm run start:dev missions
+    ports:
+      - ${MISSIONS_MAP_PORT}
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - server
   db:
     container_name: reward_db
     image: mariadb:latest
@@ -65,6 +65,16 @@ services:
       MYSQL_DATABASE: ${REWARD_MYSQL_MASTER_DB}
       MYSQL_USER: ${REWARD_MYSQL_MASTER_USER}
       MYSQL_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
+    networks:
+      - server
+  redis:
+    container_name: reward_redis
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    ports:
+      - ${REDIS_MAP_PORT}
+    restart: unless-stopped
     networks:
       - server
 #  zookeeper:
@@ -98,3 +108,4 @@ networks:
   server:
 volumes:
   db_data:
+  redis_data:

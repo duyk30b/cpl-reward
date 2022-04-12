@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { Pagination, paginate } from 'nestjs-typeorm-paginate'
 import { InjectRepository } from '@nestjs/typeorm'
-import { LessThanOrEqual, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { UpdateCampaignDto } from '@lib/campaign/dto/update-campaign.dto'
 import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
-import { CAMPAIGN_STATUS } from '@lib/campaign/enum'
 
 @Injectable()
 export class CampaignService {
@@ -60,11 +59,10 @@ export class CampaignService {
     return await this.campaignRepository.save(campaignEntity)
   }
 
-  async updateEndedStatus(now: number) {
-    await this.campaignRepository.update(
-      { endDate: LessThanOrEqual(now) },
-      { status: CAMPAIGN_STATUS.ENDED },
-    )
+  async updateStatus(criteria: any, status: number) {
+    await this.campaignRepository.update(criteria, {
+      status,
+    })
   }
 
   initQueryBuilder(): SelectQueryBuilder<Campaign> {

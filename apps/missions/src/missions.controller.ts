@@ -2,17 +2,23 @@ import { Controller } from '@nestjs/common'
 import { MessageId, KafkaMessage, KafkaTopic } from '@lib/kafka'
 import { Payload } from '@nestjs/microservices'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { ConfigService } from '@nestjs/config'
+import { MissionsService } from './missions.service'
 
 @Controller()
 export class MissionsController {
   eventEmit = 'write_log'
+
   constructor(
     private eventEmitter: EventEmitter2,
-    private configService: ConfigService,
+    private missionsService: MissionsService,
   ) {}
 
   emitEvent(msgName: string, msgId: string | null, msgData: any) {
+    // transform first class object and timestamp
+    if (Object.keys(msgData).length > 0) {
+      msgData = this.missionsService.transformEventData(msgData, msgName)
+    }
+
     // Data length
     if (Object.keys(msgData).length == 0) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -52,11 +58,11 @@ export class MissionsController {
       },
     })
 
-    this.eventEmitter.emit('received_kafka_event', {
-      msgId,
-      msgName,
-      msgData,
-    })
+    // this.eventEmitter.emit('received_kafka_event', {
+    //   msgId,
+    //   msgName,
+    //   msgData,
+    // })
   }
 
   /**

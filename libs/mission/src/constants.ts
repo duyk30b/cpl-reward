@@ -206,17 +206,17 @@ export const INFO_EVENTS = [
       },
       {
         key: 'email_verify_at',
-        type: 'number',
+        type: 'unix_timestamp',
         description: 'Email verify status',
       },
       {
         key: 'created_at',
-        type: 'string',
+        type: 'unix_timestamp',
         description: 'Account created at',
       },
       {
         key: 'updated_at',
-        type: 'string',
+        type: 'unix_timestamp',
         description: 'Account updated at',
       },
       {
@@ -394,14 +394,12 @@ export const INFO_EVENTS = [
       },
       {
         key: 'created_at',
-        type: 'number',
-        display: 'number',
+        type: 'unix_timestamp',
         description: 'Created at (unix time)',
       },
       {
         key: 'updated_at',
-        type: 'number',
-        display: 'number',
+        type: 'unix_timestamp',
         description: 'Updated at (unix time)',
       },
     ],
@@ -676,11 +674,13 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Expire Time',
       },
       {
@@ -726,6 +726,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Created At',
       },
       {
@@ -736,6 +737,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Resell Expire',
       },
       {
@@ -776,6 +778,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Updated At',
       },
       {
@@ -841,11 +844,13 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Expire Time',
       },
       {
@@ -891,6 +896,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Created At',
       },
       {
@@ -901,6 +907,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Resell Expire',
       },
       {
@@ -941,6 +948,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Updated At',
       },
       {
@@ -1006,11 +1014,13 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Expire Time',
       },
       {
@@ -1056,6 +1066,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Created At',
       },
       {
@@ -1066,6 +1077,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Resell Expire',
       },
       {
@@ -1106,6 +1118,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Updated At',
       },
       {
@@ -1171,11 +1184,13 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Expire Time',
       },
       {
@@ -1221,6 +1236,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Created At',
       },
       {
@@ -1231,6 +1247,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Resell Expire',
       },
       {
@@ -1271,6 +1288,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        display: 'unix_timestamp',
         description: 'Updated At',
       },
       {

@@ -20,6 +20,8 @@ export class TraceListener {
   async traceLog(input: IWriteLog) {
     const { logLevel, traceCode, data, extraData, params } = input
     const msgId = data === undefined ? 'N/A' : data.msgId
+    const missionId = data === undefined ? '' : data.missionId
+    const campaignId = data === undefined ? '' : data.campaignId
     const msgDataJsonStr =
       data === undefined ? '{}' : JSON.stringify(data.msgData)
     const msgExtraDataJsonStr =
@@ -27,7 +29,7 @@ export class TraceListener {
 
     const message =
       `[${msgId}] |` +
-      `[M: ${data.missionId}] [C: ${data.campaignId}]` +
+      `[M${missionId}] [C${campaignId}]` +
       ` [Message: ${
         TRACE_CODES[traceCode] === undefined
           ? this.missionsService.getLogMessageFromTemplate(traceCode, params)
@@ -54,7 +56,7 @@ export class TraceListener {
         break
     }
 
-    if (data.msgName) {
+    if (data && data.msgName) {
       const dataLog = {
         msgName: data.msgName,
         type: 'REWARD_' + data.msgName,

@@ -80,7 +80,7 @@ export class CampaignService {
       )
   }
 
-  async paginate(
+  async getPaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Campaign> = null,
   ): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {

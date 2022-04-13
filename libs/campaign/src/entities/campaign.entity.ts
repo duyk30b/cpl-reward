@@ -97,10 +97,10 @@ export class Campaign extends MyBaseEntity {
   })
   missions: Mission[]
 
-  @OneToMany(() => RewardRule, (rewardRule) => rewardRule.campaign, {
-    eager: true,
-  })
-  @JoinColumn()
+  // @OneToMany(() => RewardRule, (rewardRule) => rewardRule.campaign, {
+  //   eager: true,
+  // })
+  // @JoinColumn()
   @Expose({
     name: 'reward_rules',
   })

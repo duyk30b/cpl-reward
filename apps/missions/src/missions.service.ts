@@ -687,12 +687,22 @@ export class MissionsService {
     const typeOfProperties = this.missionService.getInfoEventsByKey(
       EVENTS[msgName],
     )
+    if (!typeOfProperties) {
+      return msgData
+    }
+
     for (const property in msgData) {
       if (typeof msgData[property] === 'object') {
         delete msgData[property]
         continue
       }
-      if (typeOfProperties[property] !== 'unix_timestamp') continue
+      if (
+        !typeOfProperties[property] ||
+        typeOfProperties[property] !== 'unix_timestamp'
+      ) {
+        continue
+      }
+
       // transform property has datetime type
       if (
         moment(String(msgData[property]), 'YYYY-MM-DD HH:mm:ss', true).isValid()

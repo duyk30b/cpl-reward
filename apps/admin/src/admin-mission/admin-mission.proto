@@ -24,7 +24,7 @@ message CreateInput {
   int32 priority = 10;
   int32 limitReceivedReward = 11;
   int32 isActive = 12; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 13; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 status = 13; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
   repeated CreateRewardRule rewardRules = 14;
   repeated JudgmentConditions judgmentConditions = 15;
   repeated UserConditions userConditions = 16;
@@ -65,7 +65,7 @@ message UpdateInput {
   int32 priority = 11;
   int32 limitReceivedReward = 12;
   int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 status = 14; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
   repeated UpdateRewardRule rewardRules = 15;
   repeated JudgmentConditions judgmentConditions = 16;
   repeated UserConditions userConditions = 17;
@@ -122,7 +122,7 @@ message Result {
   int32 priority = 11;
   int32 limitReceivedReward = 12;
   int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 status = 14; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
   repeated RewardRuleResult rewardRules = 15;
   repeated JudgmentConditions judgmentConditions = 16;
   repeated UserConditions userConditions = 17;

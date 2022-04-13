@@ -477,6 +477,16 @@ export class MissionsService {
       if (checkExistMessageValue === undefined) continue
 
       if (
+        currentCondition.type === 'unix_timestamp' &&
+        !eval(`${messageValue[currentCondition.property]}
+                ${currentCondition.operator}
+                ${Number(currentCondition.value)}`)
+      ) {
+        // compare timestamp fail
+        result = false
+      }
+
+      if (
         currentCondition.type === 'number' &&
         !CommonService.compareNumberCondition(
           currentCondition.value,

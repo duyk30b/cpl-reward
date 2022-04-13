@@ -58,11 +58,11 @@ export class MissionsController {
       },
     })
 
-    // this.eventEmitter.emit('received_kafka_event', {
-    //   msgId,
-    //   msgName,
-    //   msgData,
-    // })
+    this.eventEmitter.emit('received_kafka_event', {
+      msgId,
+      msgName,
+      msgData,
+    })
   }
 
   /**

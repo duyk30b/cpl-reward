@@ -318,16 +318,12 @@ export class MissionsService {
      * TODO: using transaction to update value in next sprint
      */
     const fixedAmount = FixedNumber.fromString(amount)
-    const limitValue = FixedNumber.from(rewardRule.limitValue)
-      .subUnsafe(fixedAmount)
-      .toUnsafeFloat()
     const releaseValue = FixedNumber.from(rewardRule.releaseValue)
       .addUnsafe(fixedAmount)
       .toUnsafeFloat()
     const updateMissionRewardRule = await this.rewardRuleService.updateValue(
       rewardRule.id,
       releaseValue,
-      limitValue,
       fixedAmount.toUnsafeFloat(),
     )
     if (updateMissionRewardRule.affected === 0) {
@@ -600,6 +596,9 @@ export class MissionsService {
     const fixedLimitValue = FixedNumber.fromString(
       String(rewardRule.limitValue),
     )
+    const fixedReleaseValue = FixedNumber.fromString(
+      String(rewardRule.releaseValue),
+    )
     const fixedMainUserAmount = FixedNumber.fromString(
       mainUser === undefined || rewardRule.currency !== mainUser.currency
         ? '0'
@@ -613,6 +612,7 @@ export class MissionsService {
     )
     return (
       fixedLimitValue
+        .subUnsafe(fixedReleaseValue)
         .subUnsafe(fixedMainUserAmount)
         .subUnsafe(fixedReferredUserAmount)
         .toUnsafeFloat() >= 0
@@ -656,12 +656,18 @@ export class MissionsService {
     }
     for (const reward of rewardRules) {
       const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
+      const fixedRelease = FixedNumber.fromString(String(reward.releaseValue))
       const amountByCurrency = FixedNumber.fromString(
         amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
           ? '0'
           : amountsByCurrency[`${reward.key}_${reward.currency}`],
       )
-      if (fixedLimit.subUnsafe(amountByCurrency).toUnsafeFloat() < 0)
+      if (
+        fixedLimit
+          .subUnsafe(fixedRelease)
+          .subUnsafe(amountByCurrency)
+          .toUnsafeFloat() < 0
+      )
         return false
     }
     return true

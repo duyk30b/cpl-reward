@@ -54,7 +54,6 @@ export class RewardRuleService {
   async updateValue(
     rewardRuleId: number,
     releaseValue: number,
-    limitValue: number,
     amount: number,
   ) {
     return await this.rewardRuleRepository
@@ -64,7 +63,6 @@ export class RewardRuleService {
       .andWhere('limitValue >= :limit_amount', { limit_amount: amount })
       .set({
         releaseValue,
-        limitValue,
       })
       .execute()
   }

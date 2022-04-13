@@ -120,4 +120,5 @@ message RewardRuleResult {
   string currency = 5;
   string limitValue = 6; // example: 12.443
   string releaseValue = 7; // example: 12.443
+  string typeRule = 8; // mission / campaign
 }

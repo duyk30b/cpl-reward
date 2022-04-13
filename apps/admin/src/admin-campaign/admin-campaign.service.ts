@@ -13,7 +13,7 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
-import { Brackets, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
+import { Brackets, In, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
@@ -175,22 +175,36 @@ export class AdminCampaignService {
           pagination.currentPage,
         ),
       route: '/campaigns',
-      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
+      paginationType: PaginationTypeEnum.TAKE_AND_SKIP,
     }
     const queryBuilder = this.queryBuilder(campaignFilter)
+    const campaigns = await this.campaignService.getPaginate(
+      options,
+      queryBuilder,
+    )
 
-    // TODO: Wrong totalItems count, due to this issue: https://github.com/nestjsx/nestjs-typeorm-paginate/issues/627
-    // queryBuilder.leftJoinAndSelect(
-    //   'campaign.rewardRules',
-    //   'rewardRules',
-    //   "rewardRules.type_rule = 'campaign'",
-    // )
+    // Join reward_rules. Get unique campaignIds
+    const campaignIds = Array.from(
+      new Set(
+        campaigns.items.map((x) => {
+          return x.id
+        }),
+      ),
+    )
+    // Map rewardRules with campaign
+    const rewardRules = await this.rewardRuleService.find({
+      where: { campaignId: In(campaignIds) },
+    })
+    for (let i = 0; i < campaigns.items.length; i++) {
+      campaigns.items[i].rewardRules = rewardRules.filter(
+        (c) => c.campaignId === campaigns.items[i].id,
+      )
+    }
 
-    const result = await this.campaignService.paginate(options, queryBuilder)
     return {
-      pagination: result.meta,
-      data: result.items,
-      links: CommonService.customLinks(result.links),
+      pagination: campaigns.meta,
+      data: campaigns.items,
+      links: CommonService.customLinks(campaigns.links),
     }
   }
 
@@ -199,11 +213,6 @@ export class AdminCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
-    queryBuilder.leftJoinAndSelect(
-      'campaign.rewardRules',
-      'rewardRules',
-      "rewardRules.type_rule = 'campaign'",
-    )
     queryBuilder.addSelect('campaign.*')
     if (searchText) {
       queryBuilder.andWhere(
@@ -223,9 +232,9 @@ export class AdminCampaignService {
     }
 
     if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
-      queryBuilder.addOrderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
+      queryBuilder.orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
     } else {
-      queryBuilder.addOrderBy('campaign.priority', 'DESC')
+      queryBuilder.orderBy('campaign.priority', 'DESC')
       queryBuilder.addOrderBy('campaign.id', 'DESC')
     }
 

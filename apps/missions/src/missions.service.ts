@@ -672,4 +672,28 @@ export class MissionsService {
     }
     return true
   }
+
+  transformEventData(msgData: any, msgName: string) {
+    const typeOfProperties = this.missionService.getInfoEventsByKey(
+      EVENTS[msgName],
+    )
+    for (const property in msgData) {
+      if (typeof msgData[property] === 'object') {
+        delete msgData[property]
+        continue
+      }
+      if (typeOfProperties[property] !== 'unix_timestamp') continue
+      // transform property has datetime type
+      if (
+        moment(String(msgData[property]), 'YYYY-MM-DD HH:mm:ss', true).isValid()
+      ) {
+        msgData[property] = moment(String(msgData[property])).valueOf()
+        continue
+      }
+      // transform property has timestamp type
+      if (String(msgData[property]).length < 13)
+        msgData[property] = Number(msgData[property]) * 1000
+    }
+    return msgData
+  }
 }

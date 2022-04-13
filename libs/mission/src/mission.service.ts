@@ -86,7 +86,7 @@ export class MissionService {
     return this.missionRepository.find(conditions)
   }
 
-  getInfoEventsByKey() {
+  getInfoEventsByKey(eventName = undefined) {
     const result = {}
     INFO_EVENTS.forEach((item) => {
       if (result[item.eventName] === undefined) result[item.eventName] = {}
@@ -94,6 +94,7 @@ export class MissionService {
         result[item.eventName][property.key] = property.display || property.type
       })
     })
+    if (eventName !== undefined) return result[eventName]
     return result
   }
 }

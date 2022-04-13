@@ -27,6 +27,7 @@ export class TraceListener {
 
     const message =
       `[${msgId}] |` +
+      `[M: ${data.missionId}] [C: ${data.campaignId}]` +
       ` [Message: ${
         TRACE_CODES[traceCode] === undefined
           ? this.missionsService.getLogMessageFromTemplate(traceCode, params)

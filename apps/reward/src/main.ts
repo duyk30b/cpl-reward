@@ -62,6 +62,7 @@ async function bootstrap() {
   Sentry.init({ dsn: SENTRY_DSN })
   app.useGlobalInterceptors(new SentryInterceptor())
 
-  await app.listen(3003)
+  const port: number = configService.get<number>('common.reward_port')
+  await app.listen(port)
 }
 bootstrap()

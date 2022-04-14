@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
+import { GRANT_TARGET_USER } from '@lib/mission'
 
 export class ApiMissionFilterDto {
   @ApiProperty({ name: 'campaign_id', required: false, example: 1 })
@@ -29,4 +30,12 @@ export class ApiMissionFilterDto {
   @ApiProperty({ name: 'sort_type', required: false, enum: ['ASC', 'DESC'] })
   @Expose({ name: 'sort_type' })
   sortType: 'ASC' | 'DESC'
+
+  @ApiProperty({
+    name: 'grant_target',
+    required: false,
+    enum: GRANT_TARGET_USER,
+  })
+  @Expose({ name: 'grant_target' })
+  grantTarget: string
 }

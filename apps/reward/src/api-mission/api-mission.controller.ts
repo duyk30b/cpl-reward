@@ -32,7 +32,10 @@ export class ApiMissionController {
     @Query() apiMissionFilterDto: ApiMissionFilterDto,
     @Req() request: IRequestWithUserId,
   ) {
-    return this.apiMissionService.findAll(apiMissionFilterDto, request.userId)
+    return this.apiMissionService.findPublicMissions(
+      apiMissionFilterDto,
+      request.userId,
+    )
   }
 
   @Get('money/earned')

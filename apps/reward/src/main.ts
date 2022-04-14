@@ -62,6 +62,6 @@ async function bootstrap() {
   Sentry.init({ dsn: SENTRY_DSN })
   app.useGlobalInterceptors(new SentryInterceptor())
 
-  await app.listen(3000)
+  await app.listen(3003)
 }
 bootstrap()

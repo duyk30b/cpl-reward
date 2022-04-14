@@ -228,6 +228,9 @@ export class MissionsService {
     }
 
     for (const idx in rewardRules) {
+      const checkMoneyDownToZero = this.checkMoneyDownToZero(rewardRules[idx])
+      if (!checkMoneyDownToZero) continue
+
       const checkMoneyReward = this.checkMoneyReward(
         rewardRules[idx],
         mainUser,
@@ -685,8 +688,9 @@ export class MissionsService {
           .subUnsafe(fixedRelease)
           .subUnsafe(FixedNumber.fromString(amountByCurrency))
           .toUnsafeFloat() <= 0
-      )
+      ) {
         return false
+      }
     }
     return true
   }
@@ -723,5 +727,15 @@ export class MissionsService {
         msgData[property] = Number(msgData[property]) * 1000
     }
     return msgData
+  }
+
+  checkMoneyDownToZero(rewardRule: RewardRule) {
+    const fixedLimitValue = FixedNumber.fromString(
+      String(rewardRule.limitValue),
+    )
+    const fixedReleaseValue = FixedNumber.fromString(
+      String(rewardRule.releaseValue),
+    )
+    return fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() > 0
   }
 }

@@ -28,7 +28,7 @@ export class AdminCampaignService {
     private readonly rewardRuleService: RewardRuleService,
   ) {}
 
-  @Interval(60000)
+  @Interval(5000)
   async handleIntervalUpdateStatus() {
     const now = moment().unix()
 

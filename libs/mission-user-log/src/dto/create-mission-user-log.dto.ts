@@ -1,5 +1,4 @@
-import { Expose, Type } from 'class-transformer'
-import { ReferredUserInfoDto } from '@lib/mission-user/dto/referred-user-info.dto'
+import { Expose } from 'class-transformer'
 
 export class CreateMissionUserLogDto {
   @Expose({ name: 'mission_id' })
@@ -14,13 +13,12 @@ export class CreateMissionUserLogDto {
   @Expose({ name: 'money_earned' })
   moneyEarned: number
 
-  @Expose({ name: 'total_money_earned' })
-  totalMoneyEarned: number
-
-  @Expose({ name: 'referred_user_info' })
-  @Type(() => ReferredUserInfoDto)
-  referredUserInfo: ReferredUserInfoDto
-
   @Expose()
   note: string
+
+  @Expose({ name: 'user_type' })
+  userType: string
+
+  @Expose()
+  currency: string
 }

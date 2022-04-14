@@ -21,4 +21,10 @@ export class CreateUserRewardHistoryDto {
 
   @Expose()
   wallet: string
+
+  @Expose()
+  status?: number
+
+  @Expose({ name: 'referrer_user_id' })
+  referrerUserId: string
 }

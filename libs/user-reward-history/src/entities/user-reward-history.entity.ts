@@ -80,6 +80,10 @@ export class UserRewardHistory extends MyBaseEntity {
   @Expose()
   status: number
 
+  @Column({ name: 'referrer_user_id', default: null })
+  @Expose({ name: 'referrer_user_id' })
+  referrerUserId: string
+
   @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
   @JoinColumn({ name: 'mission_id' })
   mission: Mission

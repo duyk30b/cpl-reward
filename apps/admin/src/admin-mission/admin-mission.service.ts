@@ -32,7 +32,7 @@ export class AdminMissionService {
     private readonly missionEventService: MissionEventService,
   ) {}
 
-  @Interval(60000)
+  @Interval(5000)
   async handleIntervalUpdateStatus() {
     const now = moment().unix()
 

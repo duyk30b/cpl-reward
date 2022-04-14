@@ -7,4 +7,7 @@ export class CreateMissionUserDto extends UpdateMissionUserDto {
 
   @Expose({ name: 'user_id' })
   userId: string
+
+  @Expose({ name: 'user_type' })
+  userType: string
 }

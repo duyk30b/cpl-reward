@@ -228,6 +228,9 @@ export class MissionsService {
     }
 
     for (const idx in rewardRules) {
+      const checkMoneyDownToZero = this.checkMoneyDownToZero(rewardRules[idx])
+      if (!checkMoneyDownToZero) continue
+
       const checkMoneyReward = this.checkMoneyReward(
         rewardRules[idx],
         mainUser,
@@ -258,22 +261,20 @@ export class MissionsService {
         rewardRules[idx].key === mainUser.type
       ) {
         // user
-        await this.commonFlowReward(rewardRules[idx].id, mainUser, userId, data)
+        await this.commonFlowReward(
+          rewardRules[idx].id,
+          mainUser,
+          userId,
+          data,
+          referredUserId,
+        )
 
-        const referredUserInfo =
-          referredUserId === '0'
-            ? undefined
-            : {
-                ...referredUser,
-                referredUserId,
-              }
         this.eventEmitter.emit('update_mission_user', {
-          userId: userId,
-          missionId: data.missionId,
-          referredUserInfo,
-          eventName: data.msgName,
-          moneyEarned: mainUser.amount,
+          userId,
           limitReceivedReward: mission.limitReceivedReward,
+          userType: GRANT_TARGET_USER.USER,
+          userTarget: mainUser,
+          data,
         })
       }
 
@@ -290,6 +291,14 @@ export class MissionsService {
           referredUserId,
           data,
         )
+
+        this.eventEmitter.emit('update_mission_user', {
+          userId: referredUserId,
+          limitReceivedReward: mission.limitReceivedReward,
+          userType: GRANT_TARGET_USER.REFERRAL_USER,
+          userTarget: referredUser,
+          data,
+        })
       }
     }
   }
@@ -351,6 +360,7 @@ export class MissionsService {
     userTarget: IGrantTarget,
     userId: string,
     data: IEvent,
+    referrerUserId = null,
   ) {
     // update release_value, limit_value of campaign/mission
     /**
@@ -373,6 +383,7 @@ export class MissionsService {
       amount: userTarget.amount,
       currency: userTarget.currency,
       wallet: GRANT_TARGET_WALLET[userTarget.wallet],
+      referrerUserId,
     })
     if (
       GRANT_TARGET_WALLET[userTarget.wallet] ===
@@ -667,18 +678,19 @@ export class MissionsService {
     for (const reward of rewardRules) {
       const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
       const fixedRelease = FixedNumber.fromString(String(reward.releaseValue))
-      const amountByCurrency = FixedNumber.fromString(
+      const amountByCurrency =
         amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
           ? '0'
-          : amountsByCurrency[`${reward.key}_${reward.currency}`],
-      )
+          : amountsByCurrency[`${reward.key}_${reward.currency}`]
+      if (amountByCurrency === '0') continue
       if (
         fixedLimit
           .subUnsafe(fixedRelease)
-          .subUnsafe(amountByCurrency)
-          .toUnsafeFloat() < 0
-      )
+          .subUnsafe(FixedNumber.fromString(amountByCurrency))
+          .toUnsafeFloat() <= 0
+      ) {
         return false
+      }
     }
     return true
   }
@@ -715,5 +727,15 @@ export class MissionsService {
         msgData[property] = Number(msgData[property]) * 1000
     }
     return msgData
+  }
+
+  checkMoneyDownToZero(rewardRule: RewardRule) {
+    const fixedLimitValue = FixedNumber.fromString(
+      String(rewardRule.limitValue),
+    )
+    const fixedReleaseValue = FixedNumber.fromString(
+      String(rewardRule.releaseValue),
+    )
+    return fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() > 0
   }
 }

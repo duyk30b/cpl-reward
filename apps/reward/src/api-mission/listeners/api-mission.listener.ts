@@ -90,6 +90,7 @@ export class ApiMissionListener {
             GRANT_TARGET_WALLET.REWARD_CASHBACK,
             GRANT_TARGET_WALLET.DIRECT_CASHBACK,
           ]),
+          referrerUserId: CommonService.randomItem([55093, 55094]),
         })
       }
     }

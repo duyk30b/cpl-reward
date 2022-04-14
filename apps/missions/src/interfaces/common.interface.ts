@@ -1,12 +1,11 @@
-import { ReferredUserInfoDto } from '@lib/mission-user/dto/referred-user-info.dto'
+import { IEvent, IGrantTarget } from './missions.interface'
 
 export interface IUpdateMissionUser {
   userId: string
-  missionId: number
-  referredUserInfo: ReferredUserInfoDto
-  eventName: string
-  moneyEarned: string
   limitReceivedReward: number
+  // userType: string
+  userTarget: IGrantTarget
+  data: IEvent
 }
 
 export interface ICreateMissionUserLog {
@@ -14,9 +13,8 @@ export interface ICreateMissionUserLog {
   missionId: number
   successCount: number
   moneyEarned: string
-  totalMoneyEarned: string
-  referredUserInfo: ReferredUserInfoDto
   note: string
+  userType: string
 }
 
 export interface IUpdateValueRewardCampaign {

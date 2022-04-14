@@ -53,26 +53,21 @@ export class CommonListener {
   }
 
   @OnEvent('update_mission_user')
-  async handleMissionUser(data: IUpdateMissionUser) {
-    const fixedMoneyEarned = FixedNumber.fromString(data.moneyEarned)
-    const fixedAmount = FixedNumber.fromString(
-      data.referredUserInfo === undefined ? '0' : data.referredUserInfo.amount,
-    )
-    const fixedTotalMoneyEarned = fixedMoneyEarned.addUnsafe(fixedAmount)
-
+  async handleMissionUser(updateMissionUser: IUpdateMissionUser) {
     const missionUser = await this.missionUserService.findOne({
-      missionId: data.missionId,
-      userId: data.userId,
+      missionId: updateMissionUser.data.missionId,
+      userId: updateMissionUser.userId,
     })
     const createMissionUserLogData = {
-      missionId: data.missionId,
-      userId: data.userId,
+      missionId: updateMissionUser.data.missionId,
+      userId: updateMissionUser.userId,
       successCount: 1,
-      moneyEarned: fixedMoneyEarned.toString(),
-      totalMoneyEarned: fixedTotalMoneyEarned.toString(),
-      referredUserInfo:
-        data.referredUserInfo === undefined ? {} : data.referredUserInfo,
-      note: `event: ${data.eventName} save this log`,
+      moneyEarned: FixedNumber.fromString(
+        updateMissionUser.userTarget.amount,
+      ).toString(),
+      note: `event: ${updateMissionUser.data.msgName} save this log`,
+      userType: updateMissionUser.userTarget.user,
+      currency: updateMissionUser.userTarget.currency,
     }
     if (missionUser === undefined) {
       // create
@@ -91,21 +86,10 @@ export class CommonListener {
       )
     } else {
       // update
-      const fMuMoneyEarned = FixedNumber.from(missionUser.moneyEarned)
-      const fMuTotalMoneyEarned = FixedNumber.from(missionUser.totalMoneyEarned)
-
       const updateMissionUserData = plainToInstance(
         UpdateMissionUserDto,
         {
           successCount: missionUser.successCount + 1,
-          moneyEarned: fixedMoneyEarned
-            .addUnsafe(fMuMoneyEarned)
-            .toUnsafeFloat(),
-          totalMoneyEarned: fixedTotalMoneyEarned
-            .addUnsafe(fMuTotalMoneyEarned)
-            .toUnsafeFloat(),
-          referredUserInfo:
-            data.referredUserInfo === undefined ? {} : data.referredUserInfo,
         },
         {
           ignoreDecorators: true,
@@ -115,7 +99,7 @@ export class CommonListener {
       const updated = await this.missionUserService.update(
         missionUser.id,
         updateMissionUserData,
-        data.limitReceivedReward,
+        updateMissionUser.limitReceivedReward,
       )
       if (updated.affected > 0) {
         this.eventEmitter.emit(

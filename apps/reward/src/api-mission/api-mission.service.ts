@@ -4,6 +4,7 @@ import {
   MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
   MISSION_SORT_FIELD_MAP,
+  MISSION_STATUS,
   MissionService,
   TARGET_TYPE,
 } from '@lib/mission'
@@ -30,7 +31,10 @@ export class ApiMissionService {
     private readonly userRewardHistoryService: UserRewardHistoryService,
   ) {}
 
-  async findAll(apiMissionFilterDto: ApiMissionFilterDto, userId: string) {
+  async findPublicMissions(
+    apiMissionFilterDto: ApiMissionFilterDto,
+    userId: string,
+  ) {
     const limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
     const page = apiMissionFilterDto.page || 1
@@ -48,7 +52,7 @@ export class ApiMissionService {
       route: '/missions',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
-    const queryBuilder = this.missionQueryBuilder(apiMissionFilterDto, userId)
+    const queryBuilder = this.missionsQueryBuilder(apiMissionFilterDto, userId)
     const missions = await this.missionService.missionPaginate(
       options,
       queryBuilder,
@@ -106,11 +110,12 @@ export class ApiMissionService {
     }
   }
 
-  private missionQueryBuilder(
+  private missionsQueryBuilder(
     missionFilter: ApiMissionFilterDto,
     userId: string,
   ): SelectQueryBuilder<Mission> {
-    const { searchField, searchText, sort, sortType } = missionFilter
+    const { searchField, searchText, sort, sortType, grantTarget } =
+      missionFilter
     const queryBuilder = this.missionService.initQueryBuilder()
     queryBuilder.innerJoin(
       'campaigns',
@@ -129,6 +134,7 @@ export class ApiMissionService {
       'mission.title AS title',
       'mission.titleJp AS titleJp',
       'mission.id AS id',
+      'mission.isActive as isActive',
       'mission.detailExplain AS detailExplain',
       'mission.detailExplainJp AS detailExplainJp',
       'mission.openingDate AS openingDate',
@@ -144,13 +150,34 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
-    queryBuilder.where(
+    if (!grantTarget || grantTarget === GRANT_TARGET_USER.USER) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('mission.targetType = ' + TARGET_TYPE.ONLY_MAIN).orWhere(
+            'mission.targetType = ' + TARGET_TYPE.HYBRID,
+          )
+        }),
+      )
+    } else {
+      // grantTarget === GRANT_TARGET_USER.REFERRAL_USER
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('mission.targetType = ' + TARGET_TYPE.ONLY_REFERRED).orWhere(
+            'mission.targetType = ' + TARGET_TYPE.HYBRID,
+          )
+        }),
+      )
+    }
+
+    // Only show running mission or completed by user
+    queryBuilder.andWhere(
       new Brackets((qb) => {
-        qb.where('mission.targetType =' + TARGET_TYPE.ONLY_MAIN).orWhere(
-          'mission.targetType = ' + TARGET_TYPE.HYBRID,
+        qb.where('mission.status = ' + MISSION_STATUS.RUNNING).orWhere(
+          'success_count > 0',
         )
       }),
     )
+
     if (missionFilter.campaignId !== undefined)
       queryBuilder.andWhere('mission.campaignId = :campaign_id ', {
         campaign_id: Number(missionFilter.campaignId),

@@ -675,15 +675,15 @@ export class MissionsService {
     for (const reward of rewardRules) {
       const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
       const fixedRelease = FixedNumber.fromString(String(reward.releaseValue))
-      const amountByCurrency = FixedNumber.fromString(
+      const amountByCurrency =
         amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
           ? '0'
-          : amountsByCurrency[`${reward.key}_${reward.currency}`],
-      )
+          : amountsByCurrency[`${reward.key}_${reward.currency}`]
+      if (amountByCurrency === '0') continue
       if (
         fixedLimit
           .subUnsafe(fixedRelease)
-          .subUnsafe(amountByCurrency)
+          .subUnsafe(FixedNumber.fromString(amountByCurrency))
           .toUnsafeFloat() <= 0
       )
         return false

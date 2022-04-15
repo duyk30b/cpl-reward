@@ -147,7 +147,7 @@ export const INFO_EVENTS = [
       },
       {
         key: 'time',
-        type: 'number',
+        type: 'unix_timestamp',
         description: 'Register time (unix timestamp)',
       },
       {
@@ -191,7 +191,7 @@ export const INFO_EVENTS = [
       },
       {
         key: 'last_login',
-        type: 'number',
+        type: 'unix_timestamp',
         description: 'Last login time',
       },
       {
@@ -290,7 +290,7 @@ export const INFO_EVENTS = [
       },
       {
         key: 'time',
-        type: 'number',
+        type: 'unix_timestamp',
         description: 'Logout time',
       },
     ],

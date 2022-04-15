@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import {
   EVENTS,
   GRANT_TARGET_USER,
-  GRANT_TARGET_WALLET,
+  DELIVERY_METHOD_WALLET,
   MissionService,
   MISSION_STATUS,
   TARGET_TYPE,
@@ -62,25 +62,25 @@ export class AdminMissionService {
     return grantTarget.map((target) => {
       if (
         [
-          GRANT_TARGET_WALLET.REWARD_BALANCE,
-          GRANT_TARGET_WALLET.DIRECT_BALANCE,
-        ].includes(GRANT_TARGET_WALLET[target.wallet])
+          DELIVERY_METHOD_WALLET.REWARD_BALANCE,
+          DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+        ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       )
         target.type = 'balance'
 
       if (
         [
-          GRANT_TARGET_WALLET.REWARD_CASHBACK,
-          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
-        ].includes(GRANT_TARGET_WALLET[target.wallet])
+          DELIVERY_METHOD_WALLET.REWARD_CASHBACK,
+          DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       )
         target.type = 'cashback'
 
       if (
         [
-          GRANT_TARGET_WALLET.REWARD_DIVIDEND,
-          GRANT_TARGET_WALLET.DIRECT_DIVIDEND,
-        ].includes(GRANT_TARGET_WALLET[target.wallet])
+          DELIVERY_METHOD_WALLET.REWARD_DIVIDEND,
+          DELIVERY_METHOD_WALLET.DIRECT_DIVIDEND,
+        ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       )
         target.type = 'dividend'
       return target

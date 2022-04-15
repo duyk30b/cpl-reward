@@ -2,7 +2,7 @@ import { IEvent, IUser } from './interfaces/missions.interface'
 import {
   EVENTS,
   GRANT_TARGET_USER,
-  GRANT_TARGET_WALLET,
+  DELIVERY_METHOD_WALLET,
   MISSION_IS_ACTIVE,
   MissionService,
   MISSION_STATUS,
@@ -19,10 +19,7 @@ import {
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
-import {
-  USER_REWARD_STATUS,
-  UserRewardHistoryService,
-} from '@lib/user-reward-history'
+import { UserRewardHistoryService } from '@lib/user-reward-history'
 import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
@@ -375,6 +372,9 @@ export class MissionsService {
       data,
     )
     if (!updated) return
+    const { wallet, deliveryMethod } = this.missionService.getWalletFromTarget(
+      userTarget.wallet,
+    )
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
       missionId: data.missionId,
@@ -382,12 +382,13 @@ export class MissionsService {
       userType: userTarget.user,
       amount: userTarget.amount,
       currency: userTarget.currency,
-      wallet: GRANT_TARGET_WALLET[userTarget.wallet],
+      wallet,
+      deliveryMethod,
       referrerUserId,
     })
     if (
-      GRANT_TARGET_WALLET[userTarget.wallet] ===
-        GRANT_TARGET_WALLET.DIRECT_BALANCE &&
+      DELIVERY_METHOD_WALLET[userTarget.wallet] ===
+        DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&
       userRewardHistory
     ) {
       this.eventEmitter.emit('send_reward_to_balance', {
@@ -400,8 +401,8 @@ export class MissionsService {
       })
     }
     if (
-      GRANT_TARGET_WALLET[userTarget.wallet] ===
-        GRANT_TARGET_WALLET.DIRECT_CASHBACK &&
+      DELIVERY_METHOD_WALLET[userTarget.wallet] ===
+        DELIVERY_METHOD_WALLET.DIRECT_CASHBACK &&
       userRewardHistory
     ) {
       this.eventEmitter.emit('send_reward_to_cashback', {
@@ -411,19 +412,6 @@ export class MissionsService {
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
         data,
-      })
-    }
-
-    if (
-      [
-        GRANT_TARGET_WALLET.REWARD_BALANCE,
-        GRANT_TARGET_WALLET.REWARD_DIVIDEND,
-        GRANT_TARGET_WALLET.REWARD_CASHBACK,
-      ].includes(GRANT_TARGET_WALLET[userTarget.wallet]) &&
-      userRewardHistory
-    ) {
-      await this.userRewardHistoryService.updateById(userRewardHistory.id, {
-        status: USER_REWARD_STATUS.MANUAL_NOT_RECEIVE,
       })
     }
   }

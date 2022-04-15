@@ -1,10 +1,21 @@
-export enum GRANT_TARGET_WALLET {
+export enum DELIVERY_METHOD_WALLET {
   REWARD_BALANCE = 'reward_balance',
   REWARD_CASHBACK = 'reward_cashback',
   REWARD_DIVIDEND = 'reward_dividend',
   DIRECT_BALANCE = 'direct_balance',
   DIRECT_CASHBACK = 'direct_cashback',
   DIRECT_DIVIDEND = 'direct_dividend',
+}
+
+export enum DELIVERY_METHOD {
+  MANUAL = 1,
+  AUTO = 2,
+}
+
+export enum WALLET {
+  BALANCE = 1,
+  CASHBACK = 2,
+  DIVIDEND = 3,
 }
 
 export enum GRANT_TARGET_USER {

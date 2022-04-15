@@ -41,7 +41,7 @@ export class UserRewardHistoryService {
   async getAmountByUser(
     missionIds: number[],
     userId: string,
-    statusList: number[],
+    statusName: number,
   ) {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
@@ -51,8 +51,8 @@ export class UserRewardHistoryService {
     queryBuilder.andWhere('history.userId = :user_id', {
       user_id: userId,
     })
-    queryBuilder.andWhere('history.status IN (:...status_list)', {
-      status_list: statusList,
+    queryBuilder.andWhere('history.status = :status_name', {
+      status_name: statusName,
     })
     queryBuilder.groupBy('history.currency')
     queryBuilder.addGroupBy('history.missionId')
@@ -78,13 +78,9 @@ export class UserRewardHistoryService {
     queryBuilder.where('history.userId = :user_id', {
       user_id: userId,
     })
-    queryBuilder.andWhere(
-      "(history.status = ':status_type_auto' OR history.status = ':status_type_manual')",
-      {
-        status_type_auto: USER_REWARD_STATUS.AUTO_RECEIVED,
-        status_type_manual: USER_REWARD_STATUS.MANUAL_RECEIVED,
-      },
-    )
+    queryBuilder.andWhere('history.status = :status_type', {
+      status_type: USER_REWARD_STATUS.RECEIVED,
+    })
     queryBuilder.andWhere('history.userType = :user_type', {
       user_type: GRANT_TARGET_USER.REFERRAL_USER,
     })

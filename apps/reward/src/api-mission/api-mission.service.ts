@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import {
+  DELIVERY_METHOD,
+  DELIVERY_METHOD_WALLET,
   GRANT_TARGET_USER,
   MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
@@ -7,6 +9,7 @@ import {
   MISSION_STATUS,
   MissionService,
   TARGET_TYPE,
+  WALLET,
 } from '@lib/mission'
 import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -102,10 +105,21 @@ export class ApiMissionService {
           mission.limitReceivedReward,
         )
         delete mission.grantTarget
+
+        // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
+        if (money.wallet == 'DIRECT_CASHBACK') {
+          money.wallet = WALLET.CASHBACK
+          money.deliveryMethod = DELIVERY_METHOD.AUTO
+        }
+        if (money.wallet == 'DIRECT_BALANCE') {
+          money.wallet = WALLET.BALANCE
+          money.deliveryMethod = DELIVERY_METHOD.AUTO
+        }
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,
           wallet: money.wallet,
+          delivery_method: money.deliveryMethod,
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,
           not_received_amount: money.notReceivedAmount,
@@ -263,6 +277,7 @@ export class ApiMissionService {
       return {
         currency: '',
         wallet: '',
+        deliveryMethod: 112233,
         totalRewardAmount: '0',
         receivedAmount: '0',
         notReceivedAmount: '0',
@@ -297,6 +312,7 @@ export class ApiMissionService {
     return {
       currency: currentTarget.currency,
       wallet: currentTarget.wallet,
+      deliveryMethod: 112233,
       totalRewardAmount: totalRewardAmount.toString(),
       receivedAmount: receivedAmount.toString(),
       notReceivedAmount: notReceivedAmount.toString(),

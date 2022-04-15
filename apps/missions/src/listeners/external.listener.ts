@@ -34,7 +34,7 @@ export class ExternalListener {
       })
     if (sendRewardToCashback === null) {
       const result = await this.userRewardHistoryService.updateById(input.id, {
-        status: USER_REWARD_STATUS.AUTO_FAIL,
+        status: USER_REWARD_STATUS.FAIL,
       })
       if (result.affected === 0) {
         this.eventEmitter.emit(this.eventEmit, {
@@ -43,7 +43,7 @@ export class ExternalListener {
           data: input.data,
           extraData: {
             id: input.id,
-            status: USER_REWARD_STATUS.AUTO_FAIL,
+            status: USER_REWARD_STATUS.FAIL,
           },
         })
       }
@@ -61,7 +61,7 @@ export class ExternalListener {
     }
 
     const result = await this.userRewardHistoryService.updateById(input.id, {
-      status: USER_REWARD_STATUS.AUTO_RECEIVED,
+      status: USER_REWARD_STATUS.RECEIVED,
     })
     if (result.affected === 0) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -70,7 +70,7 @@ export class ExternalListener {
         data: input.data,
         extraData: {
           id: input.id,
-          status: USER_REWARD_STATUS.AUTO_RECEIVED,
+          status: USER_REWARD_STATUS.RECEIVED,
         },
       })
     }
@@ -88,7 +88,7 @@ export class ExternalListener {
       )
     if (sendRewardToBalance === null) {
       const result = await this.userRewardHistoryService.updateById(input.id, {
-        status: USER_REWARD_STATUS.AUTO_FAIL,
+        status: USER_REWARD_STATUS.FAIL,
       })
       if (result.affected === 0) {
         this.eventEmitter.emit(this.eventEmit, {
@@ -97,7 +97,7 @@ export class ExternalListener {
           data: input.data,
           extraData: {
             id: input.id,
-            status: USER_REWARD_STATUS.AUTO_FAIL,
+            status: USER_REWARD_STATUS.FAIL,
           },
         })
       }
@@ -115,7 +115,7 @@ export class ExternalListener {
     }
 
     const result = await this.userRewardHistoryService.updateById(input.id, {
-      status: USER_REWARD_STATUS.AUTO_RECEIVED,
+      status: USER_REWARD_STATUS.RECEIVED,
     })
     if (result.affected === 0) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -124,7 +124,7 @@ export class ExternalListener {
         data: input.data,
         extraData: {
           id: input.id,
-          status: USER_REWARD_STATUS.AUTO_RECEIVED,
+          status: USER_REWARD_STATUS.RECEIVED,
         },
       })
     }

@@ -21,6 +21,12 @@ export class ValidateAuthMiddleware implements NestMiddleware {
     const xBceRole = req.header('X-BCE-ROLE') || null
     const xBceUid = req.header('X-BCE-UID') || null
 
+    if (process.env.ENV == 'local') {
+      req.userId = String(41449)
+      next()
+      return
+    }
+
     if (xBceUid === null || xBceRole === null || xBceRole === 'guest') {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
     }

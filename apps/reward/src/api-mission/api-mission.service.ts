@@ -23,6 +23,7 @@ import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
 import { CAMPAIGN_IS_ACTIVE } from '@lib/campaign'
+import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 
 @Injectable()
 export class ApiMissionService {
@@ -74,14 +75,17 @@ export class ApiMissionService {
     })
 
     const receivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
-        USER_REWARD_STATUS.AUTO_RECEIVED,
-        USER_REWARD_STATUS.MANUAL_RECEIVED,
-      ])
+      await this.userRewardHistoryService.getAmountByUser(
+        missionIds,
+        userId,
+        USER_REWARD_STATUS.RECEIVED,
+      )
     const notReceivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
-        USER_REWARD_STATUS.MANUAL_NOT_RECEIVE,
-      ])
+      await this.userRewardHistoryService.getAmountByUser(
+        missionIds,
+        userId,
+        USER_REWARD_STATUS.NOT_RECEIVE,
+      )
 
     return {
       pagination: missions.meta,
@@ -101,6 +105,7 @@ export class ApiMissionService {
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,
+          wallet: money.wallet,
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,
           not_received_amount: money.notReceivedAmount,
@@ -150,6 +155,11 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
+
+    // Đoạn này cho phép front-end lấy số tiền mỗi user kiếm được, gom nhóm theo mission.
+    // Truyền grantTarget lên để phân biệt tiền tự kiếm được hay từ affiliate
+    // Tuy nhiên màn hình affiliate lại đang design kiểu history từng lần một, ko gom nhóm theo mission
+    // Vì vậy đoạn GRANT_TARGET_USER.REFERRAL_USER này chưa đc gọi, để đây thôi
     if (!grantTarget || grantTarget === GRANT_TARGET_USER.USER) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
@@ -232,17 +242,8 @@ export class ApiMissionService {
     return mission
   }
 
-  async getAmountEarned(userId: string) {
-    const result = await this.userRewardHistoryService.getAmountEarned(userId)
-    if (result.length === 0)
-      return {
-        amount: '0',
-        currency: '',
-      }
-    return {
-      amount: result[0].total_amount,
-      currency: result[0].history_currency,
-    }
+  async getAffiliateEarned(userId: string) {
+    return await this.userRewardHistoryService.getAffiliateEarned(userId)
   }
 
   private getMoneyOfUser(
@@ -261,6 +262,7 @@ export class ApiMissionService {
     if (currentTarget === null) {
       return {
         currency: '',
+        wallet: '',
         totalRewardAmount: '0',
         receivedAmount: '0',
         notReceivedAmount: '0',
@@ -294,9 +296,14 @@ export class ApiMissionService {
 
     return {
       currency: currentTarget.currency,
+      wallet: currentTarget.wallet,
       totalRewardAmount: totalRewardAmount.toString(),
       receivedAmount: receivedAmount.toString(),
       notReceivedAmount: notReceivedAmount.toString(),
     }
+  }
+
+  public getAffiliateDetailHistory(filter: PaginateUserRewardHistory) {
+    return this.userRewardHistoryService.getAffiliateDetailHistory(filter)
   }
 }

@@ -1,16 +1,18 @@
 import { Controller, Get, Query, Req } from '@nestjs/common'
 import { ApiMissionService } from './api-mission.service'
-import {
-  ApiExtraModels,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger'
+import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { PaginatedDto } from '../dto/paginated.dto'
 import { IRequestWithUserId } from '../interfaces/request-with-user-id'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
 import { PaginatedMissionDto } from './dto/paginated-mission.dto'
+import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
+import { ApiPaginateUserRewardHistory } from './dto/api-paginate-user-reward-history.dto'
+import {
+  instanceToInstance,
+  instanceToPlain,
+  plainToInstance,
+} from 'class-transformer'
 
 // import { EventEmitter2 } from '@nestjs/event-emitter'
 
@@ -38,42 +40,28 @@ export class ApiMissionController {
     )
   }
 
-  @Get('money/earned')
+  @Get('affiliate-earned-short')
   @ApiOperation({
-    summary: 'Get money earned',
+    summary: 'Get money earned by affiliate program (return total money)',
   })
-  @ApiOkResponse({
-    schema: {
-      properties: {
-        amount: {
-          type: 'string',
-          example: '12.33333344',
-        },
-        currency: {
-          type: 'string',
-          example: 'USDT',
-        },
-      },
-    },
-  })
-  async getEarned(@Req() request: IRequestWithUserId) {
-    return this.apiMissionService.getAmountEarned(request.userId)
+  async getAffiliateEarned(@Req() request: IRequestWithUserId) {
+    return this.apiMissionService.getAffiliateEarned(request.userId)
   }
 
-  /**
-   * TODO: below api using only for test
-   */
-  // @Get('phake')
-  // async fakeData() {
-  //   this.eventEmitter.emit('phake_data', {})
-  //   return 'DONE'
-  // }
+  @Get('affiliate-earned-detail')
+  @ApiOperation({
+    summary: 'Get money earned by affiliate program (return detail list)',
+  })
+  async getAffiliateDetailHistory(
+    @Query() filterPaginateUserHistory: ApiPaginateUserRewardHistory,
+    @Req() request: IRequestWithUserId,
+  ) {
+    const filter = plainToInstance(
+      PaginateUserRewardHistory,
+      instanceToPlain(filterPaginateUserHistory, { ignoreDecorators: true }),
+    )
+    filter.userId = request.userId
 
-  // @Get(':id')
-  // @ApiOperation({
-  //   summary: 'Get mission by ID',
-  // })
-  // findOne(@Param('id') id: string) {
-  //   return this.apiMissionService.findOne(+id)
-  // }
+    return this.apiMissionService.getAffiliateDetailHistory(filter)
+  }
 }

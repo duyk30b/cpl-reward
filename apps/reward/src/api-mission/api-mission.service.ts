@@ -23,6 +23,7 @@ import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
 import { CAMPAIGN_IS_ACTIVE } from '@lib/campaign'
+import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 
 @Injectable()
 export class ApiMissionService {
@@ -238,18 +239,8 @@ export class ApiMissionService {
     return mission
   }
 
-  async getAmountEarned(userId: string) {
-    const result = await this.userRewardHistoryService.getAmountEarned(userId)
-    if (result.length === 0)
-      return {
-        amount: '0',
-        currency: '',
-      }
-    return {
-      amount: result[0].total_amount,
-      currency: result[0].history_currency,
-      wallet: result[0].history_wallet,
-    }
+  async getAffiliateEarned(userId: string) {
+    return await this.userRewardHistoryService.getAffiliateEarned(userId)
   }
 
   private getMoneyOfUser(
@@ -307,5 +298,9 @@ export class ApiMissionService {
       receivedAmount: receivedAmount.toString(),
       notReceivedAmount: notReceivedAmount.toString(),
     }
+  }
+
+  public getAffiliateDetailHistory(filter: PaginateUserRewardHistory) {
+    return this.userRewardHistoryService.getAffiliateDetailHistory(filter)
   }
 }

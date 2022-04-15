@@ -6,6 +6,16 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { USER_REWARD_STATUS } from './enum'
 import { GRANT_TARGET_USER } from '@lib/mission'
+import {
+  IPaginationMeta,
+  paginate,
+  PaginationTypeEnum,
+} from 'nestjs-typeorm-paginate'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
+import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
+import { Min } from 'class-validator'
 
 @Injectable()
 export class UserRewardHistoryService {
@@ -72,7 +82,7 @@ export class UserRewardHistoryService {
     return result
   }
 
-  async getAmountEarned(userId: string) {
+  async getAffiliateEarned(userId: string) {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
     queryBuilder.where('history.userId = :user_id', {
@@ -93,5 +103,45 @@ export class UserRewardHistoryService {
     queryBuilder.addSelect('history.wallet')
     queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
     return queryBuilder.getRawMany()
+  }
+
+  async getAffiliateDetailHistory(filter: PaginateUserRewardHistory) {
+    const queryBuilder =
+      this.userRewardHistoryRepository.createQueryBuilder('history')
+    if (filter.userId) {
+      queryBuilder.where('history.userId = :user_id', {
+        user_id: filter.userId,
+      })
+    }
+    queryBuilder.andWhere('history.userType = :referral_user', {
+      referral_user: GRANT_TARGET_USER.REFERRAL_USER,
+    })
+
+    if (filter.sort) {
+      const sortType = filter.sortType || 'DESC'
+      queryBuilder.orderBy('history.' + filter.sort, sortType)
+    } else {
+      queryBuilder.orderBy('history.id', 'DESC')
+    }
+
+    const page = Math.max(1, filter.page || 1)
+    const limit = Math.min(50, filter.limit || 20)
+    const options = {
+      page,
+      limit,
+      metaTransformer: (
+        pagination: IPaginationMeta,
+      ): CustomPaginationMetaTransformer =>
+        new CustomPaginationMetaTransformer(
+          pagination.totalItems,
+          pagination.itemsPerPage,
+          pagination.currentPage,
+        ),
+      paginationType: PaginationTypeEnum.TAKE_AND_SKIP,
+    }
+    return paginate<UserRewardHistory, CustomPaginationMetaTransformer>(
+      queryBuilder,
+      options,
+    )
   }
 }

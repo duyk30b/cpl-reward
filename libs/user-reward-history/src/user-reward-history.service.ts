@@ -57,6 +57,7 @@ export class UserRewardHistoryService {
     queryBuilder.groupBy('history.currency')
     queryBuilder.addGroupBy('history.missionId')
     queryBuilder.select('history.currency')
+    queryBuilder.addSelect('history.wallet')
     queryBuilder.addSelect('history.missionId')
     queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
     const histories = await queryBuilder.getRawMany()
@@ -89,6 +90,7 @@ export class UserRewardHistoryService {
     })
     queryBuilder.groupBy('history.currency')
     queryBuilder.select('history.currency')
+    queryBuilder.addSelect('history.wallet')
     queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
     return queryBuilder.getRawMany()
   }

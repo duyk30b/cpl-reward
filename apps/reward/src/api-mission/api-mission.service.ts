@@ -101,6 +101,7 @@ export class ApiMissionService {
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,
+          wallet: money.wallet,
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,
           not_received_amount: money.notReceivedAmount,
@@ -150,6 +151,11 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
+
+    // Đoạn này cho phép front-end lấy số tiền mỗi user kiếm được, gom nhóm theo mission.
+    // Truyền grantTarget lên để phân biệt tiền tự kiếm được hay từ affiliate
+    // Tuy nhiên màn hình affiliate lại đang design kiểu history từng lần một, ko gom nhóm theo mission
+    // Vì vậy đoạn GRANT_TARGET_USER.REFERRAL_USER này chưa đc gọi, để đây thôi
     if (!grantTarget || grantTarget === GRANT_TARGET_USER.USER) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
@@ -242,6 +248,7 @@ export class ApiMissionService {
     return {
       amount: result[0].total_amount,
       currency: result[0].history_currency,
+      wallet: result[0].history_wallet,
     }
   }
 
@@ -261,6 +268,7 @@ export class ApiMissionService {
     if (currentTarget === null) {
       return {
         currency: '',
+        wallet: '',
         totalRewardAmount: '0',
         receivedAmount: '0',
         notReceivedAmount: '0',
@@ -294,6 +302,7 @@ export class ApiMissionService {
 
     return {
       currency: currentTarget.currency,
+      wallet: currentTarget.wallet,
       totalRewardAmount: totalRewardAmount.toString(),
       receivedAmount: receivedAmount.toString(),
       notReceivedAmount: notReceivedAmount.toString(),

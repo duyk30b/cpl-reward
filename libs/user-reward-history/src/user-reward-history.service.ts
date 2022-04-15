@@ -9,6 +9,7 @@ import { GRANT_TARGET_USER } from '@lib/mission'
 import {
   IPaginationMeta,
   paginate,
+  paginateRaw,
   PaginationTypeEnum,
 } from 'nestjs-typeorm-paginate'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
@@ -16,6 +17,7 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 import { Min } from 'class-validator'
+import { formatPaginate } from '@lib/common/utils'
 
 @Injectable()
 export class UserRewardHistoryService {
@@ -109,39 +111,28 @@ export class UserRewardHistoryService {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
     if (filter.userId) {
-      queryBuilder.where('history.userId = :user_id', {
+      queryBuilder.where('user_id = :user_id', {
         user_id: filter.userId,
       })
     }
-    queryBuilder.andWhere('history.userType = :referral_user', {
+    queryBuilder.andWhere('user_type = :referral_user', {
       referral_user: GRANT_TARGET_USER.REFERRAL_USER,
     })
 
     if (filter.sort) {
       const sortType = filter.sortType || 'DESC'
-      queryBuilder.orderBy('history.' + filter.sort, sortType)
+      queryBuilder.orderBy(filter.sort, sortType)
     } else {
-      queryBuilder.orderBy('history.id', 'DESC')
+      queryBuilder.orderBy('id', 'DESC')
     }
 
     const page = Math.max(1, filter.page || 1)
     const limit = Math.min(50, filter.limit || 20)
-    const options = {
-      page,
-      limit,
-      metaTransformer: (
-        pagination: IPaginationMeta,
-      ): CustomPaginationMetaTransformer =>
-        new CustomPaginationMetaTransformer(
-          pagination.totalItems,
-          pagination.itemsPerPage,
-          pagination.currentPage,
-        ),
-      paginationType: PaginationTypeEnum.TAKE_AND_SKIP,
+    const options: IPaginationOptions = {
+      page: page,
+      limit: limit,
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
-    return paginate<UserRewardHistory, CustomPaginationMetaTransformer>(
-      queryBuilder,
-      options,
-    )
+    return formatPaginate(paginate(queryBuilder, options))
   }
 }

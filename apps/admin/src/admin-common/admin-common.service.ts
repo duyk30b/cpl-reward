@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common'
 import { AdminActionLogService } from '@lib/admin-action-log'
 import {
   GRANT_TARGET_USER,
-  GRANT_TARGET_WALLET,
+  DELIVERY_METHOD_WALLET,
   INFO_EVENTS,
 } from '@lib/mission'
 
@@ -29,17 +29,17 @@ export class AdminCommonService {
   }
 
   listGrantTargetWallets() {
-    return Object.keys(GRANT_TARGET_WALLET)
+    return Object.keys(DELIVERY_METHOD_WALLET)
       .filter((key) =>
         [
-          GRANT_TARGET_WALLET.DIRECT_BALANCE,
-          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
-        ].includes(GRANT_TARGET_WALLET[key]),
+          DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+          DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        ].includes(DELIVERY_METHOD_WALLET[key]),
       )
       .map((key) => {
         return {
           key,
-          value: GRANT_TARGET_WALLET[key].replace(/_/g, ' ').toUpperCase(),
+          value: DELIVERY_METHOD_WALLET[key].replace(/_/g, ' ').toUpperCase(),
         }
       })
   }

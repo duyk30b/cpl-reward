@@ -4,8 +4,10 @@ import { CampaignService } from '@lib/campaign'
 import {
   EVENTS,
   GRANT_TARGET_USER,
-  GRANT_TARGET_WALLET,
+  DELIVERY_METHOD_WALLET,
   MissionService,
+  WALLET,
+  DELIVERY_METHOD,
 } from '@lib/mission'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
 import { CommonService } from '@lib/common'
@@ -67,7 +69,7 @@ export class ApiMissionListener {
             user: GRANT_TARGET_USER.USER,
             amount: 1000,
             currency: 'USDT',
-            wallet: GRANT_TARGET_WALLET.REWARD_BALANCE,
+            wallet: DELIVERY_METHOD_WALLET.REWARD_BALANCE,
             type: 'balance',
           },
         ],
@@ -85,10 +87,13 @@ export class ApiMissionListener {
           amount: CommonService.randomItem([10, 15, 20]),
           currency: 'USDT',
           wallet: CommonService.randomItem([
-            GRANT_TARGET_WALLET.REWARD_BALANCE,
-            GRANT_TARGET_WALLET.DIRECT_BALANCE,
-            GRANT_TARGET_WALLET.REWARD_CASHBACK,
-            GRANT_TARGET_WALLET.DIRECT_CASHBACK,
+            WALLET.BALANCE,
+            WALLET.CASHBACK,
+            WALLET.DIVIDEND,
+          ]),
+          deliveryMethod: CommonService.randomItem([
+            DELIVERY_METHOD.AUTO,
+            DELIVERY_METHOD.MANUAL,
           ]),
           referrerUserId: CommonService.randomItem([55093, 55094]),
         })

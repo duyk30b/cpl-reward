@@ -74,14 +74,17 @@ export class ApiMissionService {
     })
 
     const receivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
-        USER_REWARD_STATUS.AUTO_RECEIVED,
-        USER_REWARD_STATUS.MANUAL_RECEIVED,
-      ])
+      await this.userRewardHistoryService.getAmountByUser(
+        missionIds,
+        userId,
+        USER_REWARD_STATUS.RECEIVED,
+      )
     const notReceivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(missionIds, userId, [
-        USER_REWARD_STATUS.MANUAL_NOT_RECEIVE,
-      ])
+      await this.userRewardHistoryService.getAmountByUser(
+        missionIds,
+        userId,
+        USER_REWARD_STATUS.NOT_RECEIVE,
+      )
 
     return {
       pagination: missions.meta,

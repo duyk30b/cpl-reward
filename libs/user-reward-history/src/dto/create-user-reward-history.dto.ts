@@ -20,7 +20,10 @@ export class CreateUserRewardHistoryDto {
   currency: string
 
   @Expose()
-  wallet: string
+  wallet: number
+
+  @Expose({ name: 'delivery_method' })
+  deliveryMethod: number
 
   @Expose()
   status?: number

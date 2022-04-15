@@ -10,7 +10,7 @@ import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { USER_REWARD_STATUS } from '@lib/user-reward-history/enum'
 
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { GRANT_TARGET_USER, GRANT_TARGET_WALLET } from '@lib/mission/enum'
+import { GRANT_TARGET_USER, WALLET, DELIVERY_METHOD } from '@lib/mission/enum'
 import { FixedNumber } from 'ethers'
 
 @Entity({
@@ -66,16 +66,25 @@ export class UserRewardHistory extends MyBaseEntity {
   currency: string
 
   @Column({
-    type: 'enum',
-    enum: GRANT_TARGET_WALLET,
-    default: GRANT_TARGET_WALLET.REWARD_BALANCE,
+    type: 'smallint',
+    enum: WALLET,
+    default: WALLET.BALANCE,
   })
   @Expose()
-  wallet: GRANT_TARGET_WALLET
+  wallet: number
+
+  @Column({
+    name: 'delivery_method',
+    type: 'smallint',
+    enum: DELIVERY_METHOD,
+    default: DELIVERY_METHOD.AUTO,
+  })
+  @Expose({ name: 'delivery_method' })
+  deliveryMethod: number
 
   @Column({
     type: 'smallint',
-    default: USER_REWARD_STATUS.AUTO_NOT_RECEIVE,
+    default: USER_REWARD_STATUS.NOT_RECEIVE,
   })
   @Expose()
   status: number

@@ -10,6 +10,11 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { INFO_EVENTS } from '@lib/mission/constants'
+import {
+  DELIVERY_METHOD,
+  DELIVERY_METHOD_WALLET,
+  WALLET,
+} from '@lib/mission/enum'
 
 @Injectable()
 export class MissionService {
@@ -95,6 +100,40 @@ export class MissionService {
       })
     })
     if (eventName !== undefined) return result[eventName]
+    return result
+  }
+
+  getWalletFromTarget(wallet: string) {
+    const result = {
+      wallet: undefined,
+      deliveryMethod: undefined,
+    }
+    switch (DELIVERY_METHOD_WALLET[wallet]) {
+      case DELIVERY_METHOD_WALLET.REWARD_BALANCE:
+        result.wallet = WALLET.BALANCE
+        result.deliveryMethod = DELIVERY_METHOD.MANUAL
+        break
+      case DELIVERY_METHOD_WALLET.REWARD_CASHBACK:
+        result.wallet = WALLET.CASHBACK
+        result.deliveryMethod = DELIVERY_METHOD.MANUAL
+        break
+      case DELIVERY_METHOD_WALLET.REWARD_DIVIDEND:
+        result.wallet = WALLET.DIVIDEND
+        result.deliveryMethod = DELIVERY_METHOD.MANUAL
+        break
+      case DELIVERY_METHOD_WALLET.DIRECT_BALANCE:
+        result.wallet = WALLET.BALANCE
+        result.deliveryMethod = DELIVERY_METHOD.AUTO
+        break
+      case DELIVERY_METHOD_WALLET.DIRECT_CASHBACK:
+        result.wallet = WALLET.CASHBACK
+        result.deliveryMethod = DELIVERY_METHOD.AUTO
+        break
+      case DELIVERY_METHOD_WALLET.DIRECT_DIVIDEND:
+        result.wallet = WALLET.DIVIDEND
+        result.deliveryMethod = DELIVERY_METHOD.AUTO
+        break
+    }
     return result
   }
 }

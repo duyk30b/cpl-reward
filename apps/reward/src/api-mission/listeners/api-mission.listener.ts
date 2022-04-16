@@ -26,15 +26,15 @@ export class ApiMissionListener {
     for (let i = 1; i <= 10; i++) {
       const campaign = await this.campaignService.create({
         title: `Title Campaign ${i}`,
-        titleJp: `Title Campaign ${i}`,
+        titleJa: `Title Campaign ${i}`,
         description: `Description Campaign ${i}`,
-        descriptionJp: `Description Campaign ${i}`,
+        descriptionJa: `Description Campaign ${i}`,
         startDate: 1647855382,
         endDate: 1647855381,
         notificationLink: `notificationLink Campaign ${i}`,
-        notificationLinkJp: `notificationLink Campaign ${i}`,
+        notificationLinkJa: `notificationLink Campaign ${i}`,
         campaignImage: `campaignImage Campaign ${i}`,
-        campaignImageJp: `campaignImage Campaign ${i}`,
+        campaignImageJa: `campaignImage Campaign ${i}`,
       })
       if (campaignId === null) campaignId = campaign.id
     }
@@ -42,13 +42,13 @@ export class ApiMissionListener {
       const mission = await this.missionService.create({
         campaignId,
         title: `Title Mission ${j}`,
-        titleJp: `Title Mission ${j}`,
+        titleJa: `Title Mission ${j}`,
         detailExplain: `detailExplain Mission ${j}`,
-        detailExplainJp: `detailExplain Mission ${j}`,
+        detailExplainJa: `detailExplain Mission ${j}`,
         openingDate: 1647855382,
         closingDate: 1647855381,
         guideLink: `guideLink Mission ${j}`,
-        guideLinkJp: `guideLink Mission ${j}`,
+        guideLinkJa: `guideLink Mission ${j}`,
         judgmentConditions: [
           {
             eventName: EVENTS.AUTH_USER_LOGIN,

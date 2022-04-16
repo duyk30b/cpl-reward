@@ -57,15 +57,15 @@ export class ApiCampaignService {
     queryBuilder.select([
       'campaign.id',
       'campaign.description',
-      'campaign.descriptionJp',
+      'campaign.descriptionJa',
       'campaign.title',
-      'campaign.titleJp',
+      'campaign.titleJa',
       'campaign.startDate',
       'campaign.endDate',
       'campaign.notificationLink',
-      'campaign.notificationLinkJp',
+      'campaign.notificationLinkJa',
       'campaign.campaignImage',
-      'campaign.campaignImageJp',
+      'campaign.campaignImageJa',
     ])
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: CAMPAIGN_IS_SYSTEM.FALSE,

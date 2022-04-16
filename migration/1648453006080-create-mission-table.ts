@@ -27,7 +27,7 @@ export class createMissionTable1648453006080 implements MigrationInterface {
             type: 'varchar',
           },
           {
-            name: 'title_jp',
+            name: 'title_ja',
             type: 'varchar',
           },
           {
@@ -36,7 +36,7 @@ export class createMissionTable1648453006080 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'detail_explain_jp',
+            name: 'detail_explain_ja',
             type: 'text',
             isNullable: true,
           },
@@ -46,7 +46,7 @@ export class createMissionTable1648453006080 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'guide_link_jp',
+            name: 'guide_link_ja',
             type: 'text',
             isNullable: true,
           },

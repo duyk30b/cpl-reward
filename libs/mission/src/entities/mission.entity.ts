@@ -31,25 +31,25 @@ export class Mission extends MyBaseEntity {
   @Expose()
   title: string
 
-  @Column({ name: 'title_jp' })
-  @Expose({ name: 'title_jp' })
-  titleJp: string
+  @Column({ name: 'title_ja' })
+  @Expose({ name: 'title_ja' })
+  titleJa: string
 
   @Column({ name: 'detail_explain', type: 'text', default: '' })
   @Expose({ name: 'detail_explain' })
   detailExplain: string
 
-  @Column({ name: 'detail_explain_jp', type: 'text', default: '' })
-  @Expose({ name: 'detail_explain_jp' })
-  detailExplainJp: string
+  @Column({ name: 'detail_explain_ja', type: 'text', default: '' })
+  @Expose({ name: 'detail_explain_ja' })
+  detailExplainJa: string
 
   @Column({ name: 'guide_link', default: null, type: 'text' })
   @Expose({ name: 'guide_link' })
   guideLink: string
 
-  @Column({ name: 'guide_link_jp', type: 'text', default: '' })
-  @Expose({ name: 'guide_link_jp' })
-  guideLinkJp: string
+  @Column({ name: 'guide_link_ja', type: 'text', default: '' })
+  @Expose({ name: 'guide_link_ja' })
+  guideLinkJa: string
 
   @Column({ name: 'opening_date' })
   @Expose({ name: 'opening_date' })

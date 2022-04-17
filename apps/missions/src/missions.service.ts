@@ -675,7 +675,7 @@ export class MissionsService {
         fixedLimit
           .subUnsafe(fixedRelease)
           .subUnsafe(FixedNumber.fromString(amountByCurrency))
-          .toUnsafeFloat() <= 0
+          .toUnsafeFloat() < 0
       ) {
         return false
       }

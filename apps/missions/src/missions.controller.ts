@@ -23,7 +23,7 @@ export class MissionsController {
     if (Object.keys(msgData).length == 0) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
-        traceCode: 'm002',
+        traceCode: 'm016',
         data: {
           msgData,
           msgName,

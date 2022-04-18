@@ -1,9 +1,57 @@
 import { Injectable } from '@nestjs/common'
 import { IPaginationLinks } from 'nestjs-typeorm-paginate'
 import { BigNumber, FixedNumber } from 'ethers'
+import { IGrantTarget } from './common.interface'
+import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 
 @Injectable()
 export class CommonService {
+  getFixedReleaseValue(reward: RewardRule) {
+    const releaseValue =
+      reward.releaseValue === undefined ? '0' : reward.releaseValue
+
+    return FixedNumber.fromString(String(releaseValue))
+  }
+
+  checkOutOfBudget(inputGrantTargets: any, inputRewardRules: any) {
+    const grantTargets = inputGrantTargets as unknown as IGrantTarget[]
+    const rewardRules = inputRewardRules as unknown as RewardRule[]
+
+    const amountsByCurrency = {}
+    for (const target of grantTargets) {
+      if (
+        amountsByCurrency[`${target.type}_${target.currency}`] === undefined
+      ) {
+        amountsByCurrency[`${target.type}_${target.currency}`] = '0'
+      }
+      const fixedAmount = FixedNumber.fromString(target.amount)
+      amountsByCurrency[`${target.type}_${target.currency}`] =
+        FixedNumber.fromString(
+          amountsByCurrency[`${target.type}_${target.currency}`],
+        )
+          .addUnsafe(fixedAmount)
+          .toString()
+    }
+    for (const reward of rewardRules) {
+      const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
+      const fixedRelease = this.getFixedReleaseValue(reward)
+      const amountByCurrency =
+        amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
+          ? '0'
+          : amountsByCurrency[`${reward.key}_${reward.currency}`]
+      if (amountByCurrency === '0') continue
+      if (
+        fixedLimit
+          .subUnsafe(fixedRelease)
+          .subUnsafe(FixedNumber.fromString(amountByCurrency))
+          .toUnsafeFloat() < 0
+      ) {
+        return false
+      }
+    }
+    return true
+  }
+
   static compareNumberCondition(
     propertyValue: string,
     value: any,

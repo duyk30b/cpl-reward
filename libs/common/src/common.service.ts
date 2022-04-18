@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common'
 import { IPaginationLinks } from 'nestjs-typeorm-paginate'
-import { BigNumber } from 'ethers'
+import { BigNumber, FixedNumber } from 'ethers'
 
 @Injectable()
 export class CommonService {
   static compareNumberCondition(
     propertyValue: string,
-    value: number,
+    value: any,
     operator: string,
   ) {
-    const bPropertyVal = BigNumber.from(propertyValue)
-    const bVal = BigNumber.from(value)
-    if (operator === '==') return bVal.eq(bPropertyVal)
-    if (operator === '>') return bVal.gt(bPropertyVal)
-    if (operator === '>=') return bVal.gte(bPropertyVal)
-    if (operator === '<') return bVal.lt(bPropertyVal)
-    if (operator === '<=') return bVal.lte(bPropertyVal)
+    const bfPropertyVal = FixedNumber.fromString(propertyValue)
+    const bfVal =
+      typeof value === 'string'
+        ? FixedNumber.from(value)
+        : FixedNumber.fromString(value)
+    const bbPropertyVal = BigNumber.from(bfPropertyVal.toHexString())
+    const bbVal = BigNumber.from(bfVal.toHexString())
+    if (operator === '==') return bbVal.eq(bbPropertyVal)
+    if (operator === '>') return bbVal.gt(bbPropertyVal)
+    if (operator === '>=') return bbVal.gte(bbPropertyVal)
+    if (operator === '<') return bbVal.lt(bbPropertyVal)
+    if (operator === '<=') return bbVal.lte(bbPropertyVal)
     return false
   }
 

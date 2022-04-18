@@ -13,7 +13,7 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
-import { Brackets, In, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
+import { Brackets, In, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
@@ -33,11 +33,17 @@ export class AdminCampaignService {
     const now = moment().unix()
 
     await this.campaignService.updateStatus(
-      { endDate: LessThanOrEqual(now) },
+      {
+        endDate: LessThanOrEqual(now),
+      },
       CAMPAIGN_STATUS.ENDED,
     )
     await this.campaignService.updateStatus(
-      { startDate: LessThanOrEqual(now), endDate: MoreThanOrEqual(now) },
+      {
+        startDate: LessThanOrEqual(now),
+        endDate: MoreThanOrEqual(now),
+        status: Not(CAMPAIGN_STATUS.OUT_OF_BUDGET),
+      },
       CAMPAIGN_STATUS.RUNNING,
     )
   }

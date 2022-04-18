@@ -22,7 +22,7 @@ import { FixedNumber } from 'ethers'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
-import { LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
+import { LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 
 @Injectable()
 export class AdminMissionService {
@@ -37,11 +37,17 @@ export class AdminMissionService {
     const now = moment().unix()
 
     await this.missionService.updateStatus(
-      { closingDate: LessThanOrEqual(now) },
+      {
+        closingDate: LessThanOrEqual(now),
+      },
       MISSION_STATUS.ENDED,
     )
     await this.missionService.updateStatus(
-      { openingDate: LessThanOrEqual(now), closingDate: MoreThanOrEqual(now) },
+      {
+        openingDate: LessThanOrEqual(now),
+        closingDate: MoreThanOrEqual(now),
+        status: Not(MISSION_STATUS.OUT_OF_BUDGET),
+      },
       MISSION_STATUS.RUNNING,
     )
   }

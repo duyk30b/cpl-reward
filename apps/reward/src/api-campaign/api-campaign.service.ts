@@ -94,7 +94,7 @@ export class ApiCampaignService {
       queryBuilder.orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
     } else {
       queryBuilder.orderBy('campaign.priority', 'DESC')
-      queryBuilder.orderBy('campaign.id', 'DESC')
+      queryBuilder.addOrderBy('campaign.id', 'DESC')
     }
 
     return queryBuilder

@@ -4,9 +4,15 @@ import { AdminCampaignService } from './admin-campaign.service'
 import { CampaignModule } from '@lib/campaign'
 import { RewardRuleModule } from '@lib/reward-rule'
 import { CommonModule } from '@lib/common'
+import { InternationalPriceModule } from '@lib/international-price'
 
 @Module({
-  imports: [CampaignModule, RewardRuleModule, CommonModule],
+  imports: [
+    CampaignModule,
+    RewardRuleModule,
+    CommonModule,
+    InternationalPriceModule,
+  ],
   controllers: [AdminCampaignController],
   providers: [AdminCampaignService],
 })

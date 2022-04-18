@@ -20,6 +20,7 @@ import { CommonService } from '@lib/common'
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
+import { MISSION_STATUS } from '@lib/mission'
 
 @Injectable()
 export class AdminCampaignService {
@@ -33,7 +34,10 @@ export class AdminCampaignService {
     const now = moment().unix()
 
     await this.campaignService.updateStatus(
-      { endDate: LessThanOrEqual(now) },
+      {
+        endDate: LessThanOrEqual(now),
+        status: Not(MISSION_STATUS.OUT_OF_BUDGET),
+      },
       CAMPAIGN_STATUS.ENDED,
     )
     await this.campaignService.updateStatus(

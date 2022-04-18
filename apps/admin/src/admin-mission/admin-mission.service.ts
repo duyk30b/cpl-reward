@@ -37,7 +37,10 @@ export class AdminMissionService {
     const now = moment().unix()
 
     await this.missionService.updateStatus(
-      { closingDate: LessThanOrEqual(now) },
+      {
+        closingDate: LessThanOrEqual(now),
+        status: Not(MISSION_STATUS.OUT_OF_BUDGET),
+      },
       MISSION_STATUS.ENDED,
     )
     await this.missionService.updateStatus(

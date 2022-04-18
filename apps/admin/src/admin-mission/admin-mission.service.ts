@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import {
+  DELIVERY_METHOD_WALLET,
   EVENTS,
   GRANT_TARGET_USER,
-  DELIVERY_METHOD_WALLET,
-  MissionService,
   MISSION_STATUS,
+  MissionService,
   TARGET_TYPE,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
@@ -13,8 +13,8 @@ import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
   ICreateMission,
-  MissionFilterInput,
   IUpdateMission,
+  MissionFilterInput,
 } from './admin-mission.interface'
 import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
@@ -25,6 +25,7 @@ import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 import { CampaignService } from '@lib/campaign'
 import { Mission } from '@lib/mission/entities/mission.entity'
+import { CommonService } from '@lib/common'
 
 @Injectable()
 export class AdminMissionService {
@@ -33,6 +34,7 @@ export class AdminMissionService {
     private readonly rewardRuleService: RewardRuleService,
     private readonly missionEventService: MissionEventService,
     private readonly campaignService: CampaignService,
+    private readonly commonService: CommonService,
   ) {}
 
   @Interval(5000)
@@ -117,7 +119,15 @@ export class AdminMissionService {
     })
   }
 
-  private static updateStatusByActive(input: ICreateMission) {
+  private updateStatusMission(input: ICreateMission) {
+    // checking out_of_budget status
+    const checkOutOfBudget = this.commonService.checkOutOfBudget(
+      input.grantTarget,
+      input.rewardRules,
+    )
+    if (!checkOutOfBudget) return MISSION_STATUS.OUT_OF_BUDGET
+
+    // checking time status
     const now = moment().unix()
     if (now < input.openingDate) return MISSION_STATUS.COMING_SOON
     if (input.openingDate <= now && input.closingDate >= now)
@@ -144,7 +154,7 @@ export class AdminMissionService {
       create.judgmentConditions,
     )
     create.userConditions = this.updateTypeInUser(create.userConditions)
-    create.status = AdminMissionService.updateStatusByActive(create)
+    create.status = this.updateStatusMission(create)
     const mission = await this.missionService.create(create)
     await Promise.all(
       create.rewardRules.map(async (item) => {
@@ -172,7 +182,7 @@ export class AdminMissionService {
       update.judgmentConditions,
     )
     update.userConditions = this.updateTypeInUser(update.userConditions)
-    update.status = AdminMissionService.updateStatusByActive(update)
+    update.status = this.updateStatusMission(update)
     const mission = await this.missionService.update(update)
     await Promise.all(
       update.rewardRules.map(async (item) => {

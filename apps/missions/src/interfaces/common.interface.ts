@@ -1,4 +1,5 @@
-import { IEvent, IGrantTarget } from './missions.interface'
+import { IEvent } from './missions.interface'
+import { IGrantTarget } from '@lib/common/common.interface'
 
 export interface IUpdateMissionUser {
   userId: string

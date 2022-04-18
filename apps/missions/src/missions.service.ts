@@ -25,8 +25,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
   IJudgmentCondition,
   IUserCondition,
-  IGrantTarget,
 } from './interfaces/missions.interface'
+import { IGrantTarget } from '@lib/common/common.interface'
 import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
@@ -45,6 +45,7 @@ export class MissionsService {
     private readonly rewardRuleService: RewardRuleService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalUserService: ExternalUserService,
+    private readonly commonService: CommonService,
   ) {}
 
   async mainFunction(data: IEvent) {
@@ -207,7 +208,7 @@ export class MissionsService {
       return
     }
 
-    const checkOutOfBudget = this.checkOutOfBudget(
+    const checkOutOfBudget = this.commonService.checkOutOfBudget(
       mission.grantTarget,
       rewardRules,
     )
@@ -644,43 +645,6 @@ export class MissionsService {
   getLogMessageFromTemplate(templateTxt: string, params: any) {
     const template = Handlebars.compile(templateTxt)
     return template(params)
-  }
-
-  checkOutOfBudget(grantTarget: string, rewardRules: RewardRule[]) {
-    const grantTargets = grantTarget as unknown as IGrantTarget[]
-    const amountsByCurrency = {}
-    for (const target of grantTargets) {
-      if (
-        amountsByCurrency[`${target.type}_${target.currency}`] === undefined
-      ) {
-        amountsByCurrency[`${target.type}_${target.currency}`] = '0'
-      }
-      const fixedAmount = FixedNumber.fromString(target.amount)
-      amountsByCurrency[`${target.type}_${target.currency}`] =
-        FixedNumber.fromString(
-          amountsByCurrency[`${target.type}_${target.currency}`],
-        )
-          .addUnsafe(fixedAmount)
-          .toString()
-    }
-    for (const reward of rewardRules) {
-      const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
-      const fixedRelease = FixedNumber.fromString(String(reward.releaseValue))
-      const amountByCurrency =
-        amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
-          ? '0'
-          : amountsByCurrency[`${reward.key}_${reward.currency}`]
-      if (amountByCurrency === '0') continue
-      if (
-        fixedLimit
-          .subUnsafe(fixedRelease)
-          .subUnsafe(FixedNumber.fromString(amountByCurrency))
-          .toUnsafeFloat() < 0
-      ) {
-        return false
-      }
-    }
-    return true
   }
 
   transformEventData(msgData: any, msgName: string) {

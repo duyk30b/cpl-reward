@@ -104,7 +104,7 @@ export class AdminCampaignService {
   // }
 
   async create(create: ICreateCampaign) {
-    create.status = AdminCampaignService.updateStatusByActive(create)
+    create.status = AdminCampaignService.updateStatusCampaign(create)
     const campaign = await this.campaignService.create(create)
 
     await Promise.all(
@@ -127,7 +127,7 @@ export class AdminCampaignService {
     return campaign
   }
 
-  private static updateStatusByActive(
+  private static updateStatusCampaign(
     input: IUpdateCampaign | ICreateCampaign,
   ) {
     const now = moment().unix()
@@ -163,7 +163,7 @@ export class AdminCampaignService {
 
   async update(iUpdateCampaign: IUpdateCampaign) {
     iUpdateCampaign.status =
-      AdminCampaignService.updateStatusByActive(iUpdateCampaign)
+      AdminCampaignService.updateStatusCampaign(iUpdateCampaign)
     return await this.campaignService.update(iUpdateCampaign)
   }
 

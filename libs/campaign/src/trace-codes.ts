@@ -14,4 +14,5 @@ export const TRACE_CODES = {
   m013: 'Update reward history fail',
   m014: 'Send reward to {{type}} fail',
   m015: 'Result send {{type}}',
+  m016: 'Invalid data struct',
 }

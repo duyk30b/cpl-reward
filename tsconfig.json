@@ -126,6 +126,12 @@
       ],
       "@lib/redis/*": [
         "libs/redis/src/*"
+      ],
+      "@lib/international-price": [
+        "libs/international-price/src"
+      ],
+      "@lib/international-price/*": [
+        "libs/international-price/src/*"
       ]
     }
   }

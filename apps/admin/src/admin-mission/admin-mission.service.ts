@@ -39,7 +39,6 @@ export class AdminMissionService {
     await this.missionService.updateStatus(
       {
         closingDate: LessThanOrEqual(now),
-        status: Not(MISSION_STATUS.OUT_OF_BUDGET),
       },
       MISSION_STATUS.ENDED,
     )

@@ -20,10 +20,12 @@ import { CommonService } from '@lib/common'
 import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
+import { InternationalPriceService } from '@lib/international-price'
 
 @Injectable()
 export class AdminCampaignService {
   constructor(
+    private readonly priceService: InternationalPriceService,
     private readonly campaignService: CampaignService,
     private readonly rewardRuleService: RewardRuleService,
   ) {}
@@ -201,6 +203,10 @@ export class AdminCampaignService {
     const rewardRules = await this.rewardRuleService.find({
       where: { campaignId: In(campaignIds) },
     })
+
+    const currencies = rewardRules.map((rule) => rule.currency)
+    const prices = await this.getCoinPrice(currencies)
+
     for (let i = 0; i < campaigns.items.length; i++) {
       campaigns.items[i].rewardRules = rewardRules.filter(
         (c) => c.campaignId === campaigns.items[i].id,
@@ -211,6 +217,7 @@ export class AdminCampaignService {
       pagination: campaigns.meta,
       data: campaigns.items,
       links: CommonService.customLinks(campaigns.links),
+      prices,
     }
   }
 
@@ -249,5 +256,28 @@ export class AdminCampaignService {
 
   private static escapeLikeChars(str: string) {
     return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
+  }
+
+  private async getCoinPrice(currencies: Array<string>) {
+    const currencyPriceQueries = []
+    const queriedCurrencies = ['USDT']
+
+    currencies.forEach((currency) => {
+      if (queriedCurrencies.includes(currency)) {
+        return
+      }
+
+      queriedCurrencies.push(currency)
+      currencyPriceQueries.push(this.priceService.getPriceInUsdt(currency))
+    })
+
+    const result = await Promise.allSettled(currencyPriceQueries)
+    const fulfilledResult = result.filter(
+      (res) => res.status === 'fulfilled',
+    ) as PromiseFulfilledResult<any>[]
+    return fulfilledResult.map((res) => ({
+      currency: [res?.value?.coin?.toUpperCase()],
+      price: res?.value?.price,
+    }))
   }
 }

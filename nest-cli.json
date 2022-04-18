@@ -220,6 +220,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/redis/tsconfig.lib.json"
       }
+    },
+    "international-price": {
+      "type": "library",
+      "root": "libs/international-price",
+      "entryFile": "index",
+      "sourceRoot": "libs/international-price/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/international-price/tsconfig.lib.json"
+      }
     }
   }
 }

@@ -23,6 +23,8 @@ import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
+import { CampaignService } from '@lib/campaign'
+import { Mission } from '@lib/mission/entities/mission.entity'
 
 @Injectable()
 export class AdminMissionService {
@@ -30,6 +32,7 @@ export class AdminMissionService {
     private readonly missionService: MissionService,
     private readonly rewardRuleService: RewardRuleService,
     private readonly missionEventService: MissionEventService,
+    private readonly campaignService: CampaignService,
   ) {}
 
   @Interval(5000)
@@ -122,7 +125,19 @@ export class AdminMissionService {
     if (now > input.closingDate) return MISSION_STATUS.ENDED
   }
 
+  private async validateRangeTimeCampaign(
+    create: ICreateMission | IUpdateMission,
+  ) {
+    const campaign = await this.campaignService.getById(create.campaignId)
+    return (
+      campaign.startDate <= create.openingDate &&
+      campaign.endDate >= create.closingDate
+    )
+  }
+
   async create(create: ICreateMission | IUpdateMission) {
+    const validateRangeTime = await this.validateRangeTimeCampaign(create)
+    if (!validateRangeTime) return new Mission()
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
     create.targetType = this.getTargetType(create.grantTarget)
     create.judgmentConditions = this.updateTypeInJudgment(
@@ -149,6 +164,8 @@ export class AdminMissionService {
   }
 
   async update(update: IUpdateMission) {
+    const validateRangeTime = await this.validateRangeTimeCampaign(update)
+    if (!validateRangeTime) return new Mission()
     update.grantTarget = this.updateTypeInTarget(update.grantTarget)
     update.targetType = this.getTargetType(update.grantTarget)
     update.judgmentConditions = this.updateTypeInJudgment(

@@ -225,12 +225,14 @@ export class MissionsService {
       return
     }
 
-    for (const idx in rewardRules) {
-      const checkMoneyDownToZero = this.checkMoneyDownToZero(rewardRules[idx])
+    for (const rewardRulesKey in rewardRules) {
+      const checkMoneyDownToZero = this.checkMoneyDownToZero(
+        rewardRules[rewardRulesKey],
+      )
       if (!checkMoneyDownToZero) continue
 
       const checkMoneyReward = this.checkMoneyReward(
-        rewardRules[idx],
+        rewardRules[rewardRulesKey],
         mainUser,
         referredUser,
       )
@@ -241,8 +243,8 @@ export class MissionsService {
           traceCode: 'm010',
           data,
           extraData: {
-            currency: rewardRules[idx].currency,
-            limitValue: rewardRules[idx].limitValue,
+            currency: rewardRules[rewardRulesKey].currency,
+            limitValue: rewardRules[rewardRulesKey].limitValue,
             userId,
             mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,
             referredUserId,
@@ -255,12 +257,12 @@ export class MissionsService {
 
       if (
         mainUser !== undefined &&
-        rewardRules[idx].currency === mainUser.currency &&
-        rewardRules[idx].key === mainUser.type
+        rewardRules[rewardRulesKey].currency === mainUser.currency &&
+        rewardRules[rewardRulesKey].key === mainUser.type
       ) {
         // user
         await this.commonFlowReward(
-          rewardRules[idx].id,
+          rewardRules[rewardRulesKey].id,
           mainUser,
           userId,
           data,
@@ -279,12 +281,12 @@ export class MissionsService {
       if (
         referredUserId !== '0' &&
         referredUser !== undefined &&
-        rewardRules[idx].currency === referredUser.currency &&
-        rewardRules[idx].key === referredUser.type
+        rewardRules[rewardRulesKey].currency === referredUser.currency &&
+        rewardRules[rewardRulesKey].key === referredUser.type
       ) {
         // referred user
         await this.commonFlowReward(
-          rewardRules[idx].id,
+          rewardRules[rewardRulesKey].id,
           referredUser,
           referredUserId,
           data,
@@ -301,58 +303,6 @@ export class MissionsService {
     }
   }
 
-  /**
-   *
-   * @param rewardRuleId
-   * @param campaignId
-   * @param amount
-   * remove type
-   * remove currency
-   * @param data
-   */
-  async updateReleaseLimitValue(
-    rewardRuleId: number,
-    campaignId: number,
-    amount: string,
-    data: IEvent,
-  ) {
-    const rewardRule = await this.rewardRuleService.findOne({
-      id: rewardRuleId,
-    })
-    if (rewardRule === undefined) return false
-    /**
-     * Update value of mission
-     * TODO: using transaction to update value in next sprint
-     */
-    const fixedAmount = FixedNumber.fromString(amount)
-    const releaseValue = FixedNumber.from(rewardRule.releaseValue)
-      .addUnsafe(fixedAmount)
-      .toUnsafeFloat()
-    const updateMissionRewardRule = await this.rewardRuleService.updateValue(
-      rewardRule.id,
-      releaseValue,
-      fixedAmount.toUnsafeFloat(),
-    )
-    if (updateMissionRewardRule.affected === 0) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm011',
-        data,
-        extraData: {
-          amount,
-          rewardRule,
-        },
-      })
-      return false
-    }
-
-    this.eventEmitter.emit('update_value_reward_campaign', {
-      campaignId,
-      amount,
-    })
-    return true
-  }
-
   async commonFlowReward(
     rewardRuleId: number,
     userTarget: IGrantTarget,
@@ -360,19 +310,29 @@ export class MissionsService {
     data: IEvent,
     referrerUserId = null,
   ) {
-    // update release_value, limit_value of campaign/mission
-    /**
-     * remove type and currency yet!
-     *   userTarget.type,
-     *   userTarget.currency,
-     */
-    const updated = await this.updateReleaseLimitValue(
+    // Lưu số tiền phát ra, sử dụng transaction để tránh việc phát ra nhiều hơn con số limit (khi bị flood request)
+    const updated = await this.rewardRuleService.safeIncreaseReleaseValue(
       rewardRuleId,
-      data.campaignId,
       userTarget.amount,
-      data,
     )
-    if (!updated) return
+
+    // Đang thống kê theo cách cộng tổng mission nên chưa cần lưu theo campaign. Nếu cần lưu thì emit event này
+    // this.eventEmitter.emit('update_value_reward_campaign', {.........})
+
+    if (updated.affected === 0) {
+      // TODO: Cần luu log này ra DB để admin và dev xem lại tránh việc miss mất phần thưởng của user
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
+        traceCode: 'm011',
+        data,
+        extraData: {
+          userTarget,
+        },
+      })
+      return false
+    }
+
+    // Lưu thống kê tiền xuất ra xong, bắt đầu đi gửi tiền.
     const { wallet, deliveryMethod } = this.missionService.getWalletFromTarget(
       userTarget.wallet,
     )

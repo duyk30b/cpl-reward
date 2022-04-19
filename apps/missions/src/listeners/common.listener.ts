@@ -13,6 +13,7 @@ import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.
 import { UpdateMissionUserDto } from '@lib/mission-user/dto/update-mission-user.dto'
 import { FixedNumber } from 'ethers'
 import { CreateMissionUserLogDto } from '@lib/mission-user-log/dto/create-mission-user-log.dto'
+import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 
 @Injectable()
 export class CommonListener {
@@ -25,18 +26,41 @@ export class CommonListener {
 
   @OnEvent('update_value_reward_campaign')
   async handleUpdateValRewardCampaign(data: IUpdateValueRewardCampaign) {
-    const rewardRule = await this.rewardRuleService.findOne({
-      campaignId: data.campaignId,
-      typeRule: TYPE_RULE.CAMPAIGN,
-    })
+    // Hiện tại chỉ limit và thống kê tổng theo mission, ko cần cộng tổng mission vào campaign nên đoạn code dưới bỏ
+    return true
 
-    if (rewardRule !== undefined) {
-      const fixedAmount = FixedNumber.fromString(data.amount)
-      rewardRule.releaseValue = FixedNumber.from(rewardRule.releaseValue)
-        .addUnsafe(fixedAmount)
-        .toUnsafeFloat()
-      await this.rewardRuleService.onlyUpdate(rewardRule)
-    }
+    // let rewardRule = await this.rewardRuleService.findOne({
+    //   campaignId: data.campaignId,
+    //   typeRule: TYPE_RULE.CAMPAIGN,
+    //   key: data.key,
+    //   currency: data.currency,
+    // })
+    //
+    // if (!rewardRule) {
+    //   rewardRule = await this.rewardRuleService.create(
+    //     {
+    //       key: data.key,
+    //       currency: data.currency,
+    //       limitValue: '0',
+    //       releaseValue: '0',
+    //     } as CreateRewardRuleDto,
+    //     {
+    //       campaignId: data.campaignId,
+    //       missionId: null,
+    //       typeRule: TYPE_RULE.CAMPAIGN,
+    //     },
+    //   )
+    // }
+    //
+    // const fixedAmount = FixedNumber.fromString(data.amount)
+    // rewardRule.releaseValue = FixedNumber.from(rewardRule.releaseValue)
+    //   .addUnsafe(fixedAmount)
+    //   .toUnsafeFloat()
+    // await this.rewardRuleService.safeUpdateReleaseValue(
+    //   rewardRule.id,
+    //   rewardRule.releaseValue,
+    //   fixedAmount.toUnsafeFloat(),
+    // )
   }
 
   @OnEvent('create_mission_user_log')
@@ -57,10 +81,12 @@ export class CommonListener {
     const missionUser = await this.missionUserService.findOne({
       missionId: updateMissionUser.data.missionId,
       userId: updateMissionUser.userId,
+      campaignId: updateMissionUser.data.campaignId,
     })
     const createMissionUserLogData = {
       missionId: updateMissionUser.data.missionId,
       userId: updateMissionUser.userId,
+      campaignId: updateMissionUser.data.campaignId,
       successCount: 1,
       moneyEarned: FixedNumber.fromString(
         updateMissionUser.userTarget.amount,

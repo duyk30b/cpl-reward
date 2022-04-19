@@ -5,6 +5,7 @@ import {
   CampaignService,
   CAMPAIGN_IS_SYSTEM,
   CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -14,12 +15,16 @@ import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { CommonService } from '@lib/common'
+import { MISSION_STATUS, TARGET_TYPE } from '@lib/mission'
 
 @Injectable()
 export class ApiCampaignService {
   constructor(private readonly campaignService: CampaignService) {}
 
-  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto) {
+  async findPublicCampaigns(
+    apiCampaignFilterDto: ApiCampaignFilterDto,
+    userId: string,
+  ) {
     const limit =
       (Number(apiCampaignFilterDto.limit) > 100
         ? 100
@@ -39,7 +44,7 @@ export class ApiCampaignService {
       route: '/campaigns',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
-    const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
+    const queryBuilder = this.campaignQueryBuilder(apiCampaignFilterDto, userId)
     const result = await this.campaignService.getPaginate(options, queryBuilder)
     CommonService.customLinks(result.links)
     return {
@@ -49,12 +54,20 @@ export class ApiCampaignService {
     }
   }
 
-  private queryBuilder(
+  private campaignQueryBuilder(
     campaignFilter: ApiCampaignFilterDto,
+    userId: string,
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.leftJoin(
+      'mission_user',
+      'mission_user',
+      'mission_user.campaign_id = campaign.id AND mission_user.user_id = ' +
+        userId,
+    )
     queryBuilder.select([
+      'mission_user.success_count AS success_count',
       'campaign.id',
       'campaign.description',
       'campaign.descriptionJa',
@@ -66,6 +79,7 @@ export class ApiCampaignService {
       'campaign.notificationLinkJa',
       'campaign.campaignImage',
       'campaign.campaignImageJa',
+      'campaign.status',
     ])
     queryBuilder.where('campaign.isSystem = :is_system ', {
       is_system: CAMPAIGN_IS_SYSTEM.FALSE,
@@ -73,6 +87,16 @@ export class ApiCampaignService {
     queryBuilder.andWhere('campaign.isActive = :is_active ', {
       is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
     })
+
+    // Only show running mission or completed by user
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where('campaign.status = ' + CAMPAIGN_STATUS.RUNNING).orWhere(
+          'success_count > 0',
+        )
+      }),
+    )
+
     if (searchText) {
       queryBuilder.andWhere(
         new Brackets((qb) => {

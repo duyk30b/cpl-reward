@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
-import { MissionsModule } from '../src/campaigns.module'
+import { MissionsModule } from '../src/missions.module'
 
 describe('CampaignsController (e2e)', () => {
   let app: INestApplication

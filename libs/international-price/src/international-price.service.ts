@@ -18,6 +18,7 @@ export class InternationalPriceService {
         coin: coin.toLocaleLowerCase(),
       })
       .orderBy('id', 'DESC')
+      .limit(1)
       .getOne()
   }
 }

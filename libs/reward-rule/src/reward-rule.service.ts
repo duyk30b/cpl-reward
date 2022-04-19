@@ -53,16 +53,21 @@ export class RewardRuleService {
 
   async updateValue(
     rewardRuleId: number,
-    releaseValue: number,
+    newReleaseValue: number,
     amount: number,
   ) {
+    // TODO: Câu query bị sai do limitValue là string, phép trừ bị sai
+    // Phải quay ngược lại chỗ gọi hàm .updateValue đưa hết vào transaction
+    // Nếu transaction ko thành công cần ghi log để user ko bị mất tiền oan
     return await this.rewardRuleRepository
       .createQueryBuilder('reward_rule')
       .update(RewardRule)
       .where('id = :id', { id: rewardRuleId })
-      .andWhere('limitValue >= :limit_amount', { limit_amount: amount })
+      .andWhere('(limitValue - releaseValue) >= :amount', {
+        amount: amount,
+      })
       .set({
-        releaseValue,
+        releaseValue: newReleaseValue,
       })
       .execute()
   }

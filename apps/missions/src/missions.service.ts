@@ -325,17 +325,18 @@ export class MissionsService {
      * TODO: using transaction to update value in next sprint
      */
     const fixedAmount = FixedNumber.fromString(amount)
-    const releaseValue = FixedNumber.from(rewardRule.releaseValue)
+    const newReleaseValue = FixedNumber.from(rewardRule.releaseValue)
       .addUnsafe(fixedAmount)
       .toUnsafeFloat()
     const updateMissionRewardRule = await this.rewardRuleService.updateValue(
       rewardRule.id,
-      releaseValue,
+      newReleaseValue,
       fixedAmount.toUnsafeFloat(),
     )
     if (updateMissionRewardRule.affected === 0) {
+      // TODO: Cần luu log này ra DB để admin, dev xem lại tránh việc miss mất phần thưởng của user
       this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
+        logLevel: 'error',
         traceCode: 'm011',
         data,
         extraData: {
@@ -346,9 +347,13 @@ export class MissionsService {
       return false
     }
 
+    const walletKey = rewardRule.key
+    const currency = rewardRule.currency
     this.eventEmitter.emit('update_value_reward_campaign', {
       campaignId,
       amount,
+      walletKey,
+      currency,
     })
     return true
   }

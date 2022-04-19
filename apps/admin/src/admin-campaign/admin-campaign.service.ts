@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common'
 import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
-  CampaignService,
   CAMPAIGN_STATUS,
+  CampaignService,
 } from '@lib/campaign'
-import { KEY_REWARD_RULE, RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { RewardRuleService } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -17,7 +17,6 @@ import { Brackets, In, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
-import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
@@ -105,26 +104,7 @@ export class AdminCampaignService {
 
   async create(create: ICreateCampaign) {
     create.status = AdminCampaignService.updateStatusCampaign(create)
-    const campaign = await this.campaignService.create(create)
-
-    await Promise.all(
-      Object.keys(KEY_REWARD_RULE).map(async (key) => {
-        await this.rewardRuleService.create(
-          {
-            key: KEY_REWARD_RULE[key],
-            currency: 'USDT',
-            limitValue: '0',
-            releaseValue: '0',
-          } as CreateRewardRuleDto,
-          {
-            campaignId: campaign.id,
-            missionId: null,
-            typeRule: TYPE_RULE.CAMPAIGN,
-          },
-        )
-      }),
-    )
-    return campaign
+    return await this.campaignService.create(create)
   }
 
   private static updateStatusCampaign(

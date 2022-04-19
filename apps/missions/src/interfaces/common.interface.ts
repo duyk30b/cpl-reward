@@ -21,4 +21,6 @@ export interface ICreateMissionUserLog {
 export interface IUpdateValueRewardCampaign {
   campaignId: number
   amount: string
+  key: string // Cột này đáng lẽ đổi tên thành wallet
+  currency: string
 }

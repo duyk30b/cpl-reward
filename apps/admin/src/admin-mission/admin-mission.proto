@@ -76,7 +76,6 @@ message UpdateRewardRule {
   string key = 2;
   string currency = 3;
   string limitValue = 4; // example: 12.443
-  string releaseValue = 5;
 }
 message FindOneInput {
   int32 id = 1;

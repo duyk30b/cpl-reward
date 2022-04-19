@@ -47,6 +47,9 @@ export class MissionsController {
       return
     }
 
+    // Transform user_id to string
+    msgData.user_id = msgData.user_id.toString()
+
     // Push kafka event to internal event
     this.eventEmitter.emit(this.eventEmit, {
       logLevel: 'log',

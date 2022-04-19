@@ -303,63 +303,6 @@ export class MissionsService {
     }
   }
 
-  /**
-   *
-   * @param rewardRuleId
-   * @param campaignId
-   * @param amount
-   * remove type
-   * remove currency
-   * @param data
-   */
-  async updateReleaseLimitValue(
-    rewardRuleId: number,
-    campaignId: number,
-    amount: string,
-    data: IEvent,
-  ) {
-    const rewardRule = await this.rewardRuleService.findOne({
-      id: rewardRuleId,
-    })
-    if (rewardRule === undefined) return false
-    /**
-     * Update value of mission
-     * TODO: using transaction to update value in next sprint
-     */
-    const fixedAmount = FixedNumber.fromString(amount)
-    const newReleaseValue = FixedNumber.from(rewardRule.releaseValue)
-      .addUnsafe(fixedAmount)
-      .toUnsafeFloat()
-    const updateMissionRewardRule = await this.rewardRuleService.updateValue(
-      rewardRule.id,
-      newReleaseValue,
-      fixedAmount.toUnsafeFloat(),
-    )
-    if (updateMissionRewardRule.affected === 0) {
-      // TODO: Cần luu log này ra DB để admin, dev xem lại tránh việc miss mất phần thưởng của user
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'error',
-        traceCode: 'm011',
-        data,
-        extraData: {
-          amount,
-          rewardRule,
-        },
-      })
-      return false
-    }
-
-    const walletKey = rewardRule.key
-    const currency = rewardRule.currency
-    this.eventEmitter.emit('update_value_reward_campaign', {
-      campaignId,
-      amount,
-      walletKey,
-      currency,
-    })
-    return true
-  }
-
   async commonFlowReward(
     rewardRuleId: number,
     userTarget: IGrantTarget,
@@ -367,19 +310,29 @@ export class MissionsService {
     data: IEvent,
     referrerUserId = null,
   ) {
-    // update release_value, limit_value of campaign/mission
-    /**
-     * remove type and currency yet!
-     *   userTarget.type,
-     *   userTarget.currency,
-     */
-    const updated = await this.updateReleaseLimitValue(
+    // Lưu số tiền phát ra, sử dụng transaction để tránh việc phát ra nhiều hơn con số limit (khi bị flood request)
+    const updated = await this.rewardRuleService.safeIncreaseReleaseValue(
       rewardRuleId,
-      data.campaignId,
       userTarget.amount,
-      data,
     )
-    if (!updated) return
+
+    // Đang thống kê theo cách cộng tổng mission nên chưa cần lưu theo campaign. Nếu cần lưu thì emit event này
+    // this.eventEmitter.emit('update_value_reward_campaign', {.........})
+
+    if (updated.affected === 0) {
+      // TODO: Cần luu log này ra DB để admin và dev xem lại tránh việc miss mất phần thưởng của user
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
+        traceCode: 'm011',
+        data,
+        extraData: {
+          userTarget,
+        },
+      })
+      return false
+    }
+
+    // Lưu thống kê tiền xuất ra xong, bắt đầu đi gửi tiền.
     const { wallet, deliveryMethod } = this.missionService.getWalletFromTarget(
       userTarget.wallet,
     )

@@ -25,7 +25,7 @@ import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
-import { CAMPAIGN_IS_ACTIVE } from '@lib/campaign'
+import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 
 @Injectable()
@@ -140,7 +140,9 @@ export class ApiMissionService {
       'campaigns',
       'campaigns',
       'campaigns.id = mission.campaign_id AND campaigns.is_active = ' +
-        CAMPAIGN_IS_ACTIVE.ACTIVE,
+        CAMPAIGN_IS_ACTIVE.ACTIVE +
+        ' AND campaigns.status = ' +
+        CAMPAIGN_STATUS.RUNNING,
     )
     queryBuilder.leftJoin(
       'mission_user',

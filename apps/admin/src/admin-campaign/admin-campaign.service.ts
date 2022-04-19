@@ -21,6 +21,7 @@ import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
+import { MissionService } from '@lib/mission'
 
 @Injectable()
 export class AdminCampaignService {
@@ -28,6 +29,7 @@ export class AdminCampaignService {
     private readonly priceService: InternationalPriceService,
     private readonly campaignService: CampaignService,
     private readonly rewardRuleService: RewardRuleService,
+    private readonly missionService: MissionService,
   ) {}
 
   @Interval(5000)
@@ -162,6 +164,22 @@ export class AdminCampaignService {
   // }
 
   async update(iUpdateCampaign: IUpdateCampaign) {
+    const missions = await this.missionService.find({
+      campaignId: iUpdateCampaign.id,
+    })
+
+    if (missions.length > 0) {
+      const misionsOpeningDate = missions.map((mission) => mission.openingDate)
+      const misionsClosingDate = missions.map((mission) => mission.closingDate)
+
+      if (
+        iUpdateCampaign.startDate > Math.min(...misionsOpeningDate) ||
+        iUpdateCampaign.endDate < Math.max(...misionsClosingDate)
+      ) {
+        return {}
+      }
+    }
+
     iUpdateCampaign.status =
       AdminCampaignService.updateStatusCampaign(iUpdateCampaign)
     return await this.campaignService.update(iUpdateCampaign)

@@ -58,10 +58,7 @@ export class CommonService {
     operator: string,
   ) {
     const bfPropertyVal = FixedNumber.fromString(propertyValue)
-    const bfVal =
-      typeof value === 'string'
-        ? FixedNumber.from(value)
-        : FixedNumber.fromString(value)
+    const bfVal = FixedNumber.from(value)
     const bbPropertyVal = BigNumber.from(bfPropertyVal.toHexString())
     const bbVal = BigNumber.from(bfVal.toHexString())
     if (operator === '==') return bbVal.eq(bbPropertyVal)

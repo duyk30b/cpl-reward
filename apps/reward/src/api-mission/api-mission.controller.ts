@@ -8,11 +8,7 @@ import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decor
 import { PaginatedMissionDto } from './dto/paginated-mission.dto'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 import { ApiPaginateUserRewardHistory } from './dto/api-paginate-user-reward-history.dto'
-import {
-  instanceToInstance,
-  instanceToPlain,
-  plainToInstance,
-} from 'class-transformer'
+import { instanceToPlain, plainToInstance } from 'class-transformer'
 
 // import { EventEmitter2 } from '@nestjs/event-emitter'
 

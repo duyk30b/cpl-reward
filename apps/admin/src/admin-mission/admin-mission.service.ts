@@ -186,6 +186,10 @@ export class AdminMissionService {
     const mission = await this.missionService.update(update)
     await Promise.all(
       update.rewardRules.map(async (item) => {
+        if (item.releaseValue) {
+          delete item.releaseValue
+        }
+
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,

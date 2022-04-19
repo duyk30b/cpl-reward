@@ -225,12 +225,14 @@ export class MissionsService {
       return
     }
 
-    for (const idx in rewardRules) {
-      const checkMoneyDownToZero = this.checkMoneyDownToZero(rewardRules[idx])
+    for (const rewardRulesKey in rewardRules) {
+      const checkMoneyDownToZero = this.checkMoneyDownToZero(
+        rewardRules[rewardRulesKey],
+      )
       if (!checkMoneyDownToZero) continue
 
       const checkMoneyReward = this.checkMoneyReward(
-        rewardRules[idx],
+        rewardRules[rewardRulesKey],
         mainUser,
         referredUser,
       )
@@ -241,8 +243,8 @@ export class MissionsService {
           traceCode: 'm010',
           data,
           extraData: {
-            currency: rewardRules[idx].currency,
-            limitValue: rewardRules[idx].limitValue,
+            currency: rewardRules[rewardRulesKey].currency,
+            limitValue: rewardRules[rewardRulesKey].limitValue,
             userId,
             mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,
             referredUserId,
@@ -255,12 +257,12 @@ export class MissionsService {
 
       if (
         mainUser !== undefined &&
-        rewardRules[idx].currency === mainUser.currency &&
-        rewardRules[idx].key === mainUser.type
+        rewardRules[rewardRulesKey].currency === mainUser.currency &&
+        rewardRules[rewardRulesKey].key === mainUser.type
       ) {
         // user
         await this.commonFlowReward(
-          rewardRules[idx].id,
+          rewardRules[rewardRulesKey].id,
           mainUser,
           userId,
           data,
@@ -279,12 +281,12 @@ export class MissionsService {
       if (
         referredUserId !== '0' &&
         referredUser !== undefined &&
-        rewardRules[idx].currency === referredUser.currency &&
-        rewardRules[idx].key === referredUser.type
+        rewardRules[rewardRulesKey].currency === referredUser.currency &&
+        rewardRules[rewardRulesKey].key === referredUser.type
       ) {
         // referred user
         await this.commonFlowReward(
-          rewardRules[idx].id,
+          rewardRules[rewardRulesKey].id,
           referredUser,
           referredUserId,
           data,

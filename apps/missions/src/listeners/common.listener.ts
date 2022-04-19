@@ -78,10 +78,12 @@ export class CommonListener {
     const missionUser = await this.missionUserService.findOne({
       missionId: updateMissionUser.data.missionId,
       userId: updateMissionUser.userId,
+      campaignId: updateMissionUser.data.campaignId,
     })
     const createMissionUserLogData = {
       missionId: updateMissionUser.data.missionId,
       userId: updateMissionUser.userId,
+      campaignId: updateMissionUser.data.campaignId,
       successCount: 1,
       moneyEarned: FixedNumber.fromString(
         updateMissionUser.userTarget.amount,

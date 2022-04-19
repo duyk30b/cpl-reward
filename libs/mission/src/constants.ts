@@ -130,11 +130,11 @@ export const INFO_EVENTS = [
         display: 'number',
         description: 'ID of user who just logged in',
       },
-      {
-        key: 'lang',
-        type: 'string',
-        description: 'Language of user (en/jp...)',
-      },
+      // {
+      //   key: 'lang',
+      //   type: 'string',
+      //   description: 'Language of user (en/ja)',
+      // },
       {
         key: 'ip',
         type: 'string',
@@ -184,11 +184,11 @@ export const INFO_EVENTS = [
     properties: [
       // uuid,last_login,referrer_code,email,email_verify_at,created_at,updated_at,id,status,type,email_verify_status,' +
       //     'authenticator_verify_status,kyc_verify_status,referred_by_id, channel_id
-      {
-        key: 'uuid',
-        type: 'string',
-        description: 'User UUID',
-      },
+      // {
+      //   key: 'uuid',
+      //   type: 'string',
+      //   description: 'User UUID',
+      // },
       {
         key: 'last_login',
         type: 'unix_timestamp',

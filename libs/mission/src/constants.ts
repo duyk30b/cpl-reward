@@ -48,6 +48,14 @@ export const USER_KYC_VERIFY_STATUS = {
   REJECTED: 4,
 }
 
+export const USER_ACCOUNT_LV_OPTIONS = {
+  LV_1: 1,
+  LV_2: 2,
+  LV_3: 3,
+  LV_4: 4,
+  LV_5: 5,
+}
+
 export const KYC_TYPE = {
   PERSONAL: 1,
   ENTERPRISE: 2,
@@ -130,11 +138,11 @@ export const INFO_EVENTS = [
         display: 'number',
         description: 'ID of user who just logged in',
       },
-      {
-        key: 'lang',
-        type: 'string',
-        description: 'Language of user (en/jp...)',
-      },
+      // {
+      //   key: 'lang',
+      //   type: 'string',
+      //   description: 'Language of user (en/ja)',
+      // },
       {
         key: 'ip',
         type: 'string',
@@ -184,11 +192,11 @@ export const INFO_EVENTS = [
     properties: [
       // uuid,last_login,referrer_code,email,email_verify_at,created_at,updated_at,id,status,type,email_verify_status,' +
       //     'authenticator_verify_status,kyc_verify_status,referred_by_id, channel_id
-      {
-        key: 'uuid',
-        type: 'string',
-        description: 'User UUID',
-      },
+      // {
+      //   key: 'uuid',
+      //   type: 'string',
+      //   description: 'User UUID',
+      // },
       {
         key: 'last_login',
         type: 'unix_timestamp',
@@ -435,12 +443,14 @@ export const INFO_EVENTS = [
       },
       {
         key: 'old_level',
-        type: 'number',
+        type: 'enum',
+        options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level before change',
       },
       {
         key: 'new_level',
-        type: 'number',
+        type: 'enum',
+        options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level after change',
       },
     ],

@@ -48,6 +48,14 @@ export const USER_KYC_VERIFY_STATUS = {
   REJECTED: 4,
 }
 
+export const USER_ACCOUNT_LV_OPTIONS = {
+  LV_1: 1,
+  LV_2: 2,
+  LV_3: 3,
+  LV_4: 4,
+  LV_5: 5,
+}
+
 export const KYC_TYPE = {
   PERSONAL: 1,
   ENTERPRISE: 2,
@@ -435,12 +443,14 @@ export const INFO_EVENTS = [
       },
       {
         key: 'old_level',
-        type: 'number',
+        type: 'enum',
+        options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level before change',
       },
       {
         key: 'new_level',
-        type: 'number',
+        type: 'enum',
+        options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level after change',
       },
     ],

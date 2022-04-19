@@ -8,7 +8,7 @@ export class CreateUserRewardHistoryDto {
   missionId: number
 
   @Expose({ name: 'user_id' })
-  userId: number
+  userId: string
 
   @Expose({ name: 'user_type' })
   userType: string
@@ -20,5 +20,14 @@ export class CreateUserRewardHistoryDto {
   currency: string
 
   @Expose()
-  wallet: string
+  wallet: number
+
+  @Expose({ name: 'delivery_method' })
+  deliveryMethod: number
+
+  @Expose()
+  status?: number
+
+  @Expose({ name: 'referrer_user_id' })
+  referrerUserId: string
 }

@@ -6,6 +6,7 @@ import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto
 import { plainToInstance } from 'class-transformer'
 import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 import { OptionalRewardRule } from '@lib/reward-rule/reward-rule.interface'
+import { FixedNumber } from 'ethers'
 
 @Injectable()
 export class RewardRuleService {
@@ -51,20 +52,24 @@ export class RewardRuleService {
     return await this.rewardRuleRepository.findOne(conditions)
   }
 
-  async updateValue(
-    rewardRuleId: number,
-    releaseValue: number,
-    limitValue = 0,
-  ) {
-    // TODO: using queue to update value in next sprint
+  async safeIncreaseReleaseValue(rewardRuleId: number, increaseAmount: string) {
+    // Transaction here.
+    //const currentRewardRule = await this.findOne({ id: rewardRuleId })
+
+    const fixedIncreaseAmount = FixedNumber.fromString(increaseAmount)
+    // const newReleaseValue = FixedNumber.from(currentRewardRule.releaseValue)
+    //   .addUnsafe(fixedIncreaseAmount)
+    //   .toUnsafeFloat()
+
     return await this.rewardRuleRepository
       .createQueryBuilder('reward_rule')
       .update(RewardRule)
-      .where({ id: rewardRuleId })
+      .where('id = :id', { id: rewardRuleId })
+      .andWhere('(limitValue - releaseValue) >= :amount')
       .set({
-        releaseValue,
-        limitValue,
+        releaseValue: () => `release_value + :amount`,
       })
+      .setParameters({ amount: fixedIncreaseAmount.toUnsafeFloat() })
       .execute()
   }
 

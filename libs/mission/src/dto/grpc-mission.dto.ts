@@ -9,20 +9,20 @@ export class GrpcMissionDto {
   @Expose()
   title: string
 
-  @Expose({ name: 'title_jp' })
-  titleJp: string
+  @Expose({ name: 'title_ja' })
+  titleJa: string
 
   @Expose({ name: 'detail_explain' })
   detailExplain: string
 
-  @Expose({ name: 'detail_explain_jp' })
-  detailExplainJp: string
+  @Expose({ name: 'detail_explain_ja' })
+  detailExplainJa: string
 
   @Expose({ name: 'guide_link' })
   guideLink: string
 
-  @Expose({ name: 'guide_link_jp' })
-  guideLinkJp: string
+  @Expose({ name: 'guide_link_ja' })
+  guideLinkJa: string
 
   @Expose({ name: 'opening_date' })
   openingDate: number

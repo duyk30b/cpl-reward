@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import {
+  DELIVERY_METHOD_WALLET,
   EVENTS,
   GRANT_TARGET_USER,
-  GRANT_TARGET_WALLET,
-  IS_ACTIVE_MISSION,
+  MISSION_STATUS,
   MissionService,
-  STATUS_MISSION,
   TARGET_TYPE,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
@@ -14,13 +13,20 @@ import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
   ICreateMission,
-  MissionFilterInput,
   IUpdateMission,
+  MissionFilterInput,
 } from './admin-mission.interface'
 import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
 import { FixedNumber } from 'ethers'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
+import * as moment from 'moment-timezone'
+import { Interval } from '@nestjs/schedule'
+import { LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
+import { CampaignService } from '@lib/campaign'
+import { Mission } from '@lib/mission/entities/mission.entity'
+import { CommonService } from '@lib/common'
+import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
 
 @Injectable()
 export class AdminMissionService {
@@ -28,10 +34,28 @@ export class AdminMissionService {
     private readonly missionService: MissionService,
     private readonly rewardRuleService: RewardRuleService,
     private readonly missionEventService: MissionEventService,
+    private readonly campaignService: CampaignService,
+    private readonly commonService: CommonService,
   ) {}
 
-  async updateEndedStatus(now: number) {
-    return this.missionService.updateEndedStatus(now)
+  @Interval(5000)
+  async handleIntervalUpdateStatus() {
+    const now = moment().unix()
+
+    await this.missionService.updateStatus(
+      {
+        closingDate: LessThanOrEqual(now),
+      },
+      MISSION_STATUS.ENDED,
+    )
+    await this.missionService.updateStatus(
+      {
+        openingDate: LessThanOrEqual(now),
+        closingDate: MoreThanOrEqual(now),
+        status: Not(MISSION_STATUS.OUT_OF_BUDGET),
+      },
+      MISSION_STATUS.RUNNING,
+    )
   }
 
   private getTargetType(grantTarget: TargetDto[]) {
@@ -50,25 +74,25 @@ export class AdminMissionService {
     return grantTarget.map((target) => {
       if (
         [
-          GRANT_TARGET_WALLET.REWARD_BALANCE,
-          GRANT_TARGET_WALLET.DIRECT_BALANCE,
-        ].includes(GRANT_TARGET_WALLET[target.wallet])
+          DELIVERY_METHOD_WALLET.REWARD_BALANCE,
+          DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+        ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       )
         target.type = 'balance'
 
       if (
         [
-          GRANT_TARGET_WALLET.REWARD_CASHBACK,
-          GRANT_TARGET_WALLET.DIRECT_CASHBACK,
-        ].includes(GRANT_TARGET_WALLET[target.wallet])
+          DELIVERY_METHOD_WALLET.REWARD_CASHBACK,
+          DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       )
         target.type = 'cashback'
 
       if (
         [
-          GRANT_TARGET_WALLET.REWARD_DIVIDEND,
-          GRANT_TARGET_WALLET.DIRECT_DIVIDEND,
-        ].includes(GRANT_TARGET_WALLET[target.wallet])
+          DELIVERY_METHOD_WALLET.REWARD_DIVIDEND,
+          DELIVERY_METHOD_WALLET.DIRECT_DIVIDEND,
+        ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       )
         target.type = 'dividend'
       return target
@@ -88,26 +112,50 @@ export class AdminMissionService {
 
   private updateTypeInUser(userConditions: UserConditionDto[]) {
     return userConditions.map((condition) => {
-      const propertyType = USER_CONDITION_TYPES[condition.property]
-      condition.type = propertyType === undefined ? '' : propertyType
+      const property = USER_CONDITION_TYPES[condition.property]
+      condition.type =
+        property === undefined ? '' : property.original || property.type
 
       return condition
     })
   }
 
-  private static updateStatusByActive(isActive: number) {
-    if (isActive === IS_ACTIVE_MISSION.ACTIVE) return STATUS_MISSION.RUNNING
-    if (isActive === IS_ACTIVE_MISSION.INACTIVE) return STATUS_MISSION.INACTIVE
+  private updateStatusMission(input: ICreateMission) {
+    // checking out_of_budget status
+    const checkOutOfBudget = this.commonService.checkOutOfBudget(
+      input.grantTarget,
+      input.rewardRules,
+    )
+    if (!checkOutOfBudget) return MISSION_STATUS.OUT_OF_BUDGET
+
+    // checking time status
+    const now = moment().unix()
+    if (now < input.openingDate) return MISSION_STATUS.COMING_SOON
+    if (input.openingDate <= now && input.closingDate >= now)
+      return MISSION_STATUS.RUNNING
+    if (now > input.closingDate) return MISSION_STATUS.ENDED
   }
 
-  async create(create: ICreateMission) {
+  private async validateRangeTimeCampaign(
+    create: ICreateMission | IUpdateMission,
+  ) {
+    const campaign = await this.campaignService.getById(create.campaignId)
+    return (
+      campaign.startDate <= create.openingDate &&
+      campaign.endDate >= create.closingDate
+    )
+  }
+
+  async create(create: ICreateMission | IUpdateMission) {
+    const validateRangeTime = await this.validateRangeTimeCampaign(create)
+    if (!validateRangeTime) return new Mission()
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
     create.targetType = this.getTargetType(create.grantTarget)
     create.judgmentConditions = this.updateTypeInJudgment(
       create.judgmentConditions,
     )
     create.userConditions = this.updateTypeInUser(create.userConditions)
-    create.status = AdminMissionService.updateStatusByActive(create.isActive)
+    create.status = this.updateStatusMission(create)
     const mission = await this.missionService.create(create)
     await Promise.all(
       create.rewardRules.map(async (item) => {
@@ -127,16 +175,35 @@ export class AdminMissionService {
   }
 
   async update(update: IUpdateMission) {
+    const validateRangeTime = await this.validateRangeTimeCampaign(update)
+    if (!validateRangeTime) return new Mission()
     update.grantTarget = this.updateTypeInTarget(update.grantTarget)
     update.targetType = this.getTargetType(update.grantTarget)
     update.judgmentConditions = this.updateTypeInJudgment(
       update.judgmentConditions,
     )
     update.userConditions = this.updateTypeInUser(update.userConditions)
-    update.status = AdminMissionService.updateStatusByActive(update.isActive)
+    const createdRewardRules = await this.rewardRuleService.find({
+      where: {
+        missionId: update.id,
+      },
+    })
+
+    update.rewardRules.forEach((rule) => {
+      const existedRule = createdRewardRules.find((item) => item.id === rule.id)
+      if (existedRule) {
+        rule.releaseValue = existedRule.releaseValue.toString()
+      }
+    })
+
+    update.status = this.updateStatusMission(update)
     const mission = await this.missionService.update(update)
     await Promise.all(
       update.rewardRules.map(async (item) => {
+        if (item.releaseValue) {
+          delete item.releaseValue
+        }
+
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,

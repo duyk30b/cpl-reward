@@ -1,17 +1,19 @@
+import { IEvent } from './missions.interface'
+
 export interface ISendRewardToBalance {
   id: number
-  userId: number
+  userId: string
   currency: string
   amount: number
   type: string
-  eventName: string
+  data: IEvent
 }
 
 export interface ISendRewardToCashback {
   id: number
-  userId: number
+  userId: string
   currency: string
   amount: string
   historyId: number
-  eventName: string
+  data: IEvent
 }

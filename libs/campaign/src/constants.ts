@@ -1,19 +1,19 @@
 export const CAMPAIGN_SEARCH_FIELD_MAP = {
   title: 'campaign.title',
-  title_jp: 'campaign.titleJp',
-  description_jp: 'campaign.descriptionJp',
-  notification_link_jp: 'campaign.notificationLinkJp',
-  image_link_jp: 'campaign.imageLinkJp',
+  title_ja: 'campaign.titleJa',
+  description_ja: 'campaign.descriptionJa',
+  notification_link_ja: 'campaign.notificationLinkJa',
+  image_link_ja: 'campaign.imageLinkJa',
 }
 
 export const CAMPAIGN_SORT_FIELD_MAP = {
   id: 'campaign.id',
   title: 'campaign.title',
   description: 'campaign.description',
-  title_jp: 'campaign.titleJp',
-  description_jp: 'campaign.descriptionJp',
-  notification_link_jp: 'campaign.notificationLinkJp',
-  image_link_jp: 'campaign.imageLinkJp',
+  title_ja: 'campaign.titleJa',
+  description_ja: 'campaign.descriptionJa',
+  notification_link_ja: 'campaign.notificationLinkJa',
+  image_link_ja: 'campaign.imageLinkJa',
   start_date: 'campaign.startDate',
   end_date: 'campaign.endDate',
   notification_link: 'campaign.notificationLink',

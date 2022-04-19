@@ -3,6 +3,8 @@ import { AdminCommonService } from './admin-common.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import { CreateActionLogInput } from './admin-common.interface'
 import { USER_CONDITION_TYPES } from '@lib/mission'
+import { ListEventsDto, UserConditionListDto } from './admin-common.dto'
+import { plainToInstance } from 'class-transformer'
 
 @Controller('common')
 export class AdminCommonController {
@@ -16,7 +18,7 @@ export class AdminCommonController {
   @GrpcMethod('GrpcAdminCommonService', 'ListEvents')
   listEvents() {
     const events = this.adminCommonService.listEvents()
-    return { events }
+    return plainToInstance(ListEventsDto, { events })
   }
 
   @GrpcMethod('GrpcAdminCommonService', 'ListGrantTarget')
@@ -28,8 +30,8 @@ export class AdminCommonController {
 
   @GrpcMethod('GrpcAdminCommonService', 'ListUserConditions')
   listUserConditions() {
-    return {
-      list: Object.keys(USER_CONDITION_TYPES),
-    }
+    return plainToInstance(UserConditionListDto, {
+      list: USER_CONDITION_TYPES,
+    })
   }
 }

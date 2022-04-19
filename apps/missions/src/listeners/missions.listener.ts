@@ -1,22 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
-import {
-  IEvent,
-  IJudgmentCondition,
-  IUserCondition,
-  IEventByName,
-} from '../interfaces/missions.interface'
+import { IEventByName } from '../interfaces/missions.interface'
 import { ExternalUserService } from '@lib/external-user'
-import { EVENTS, MissionService, STATUS_MISSION } from '@lib/mission'
-import * as moment from 'moment-timezone'
+import { EVENTS } from '@lib/mission'
 import { MissionsService } from '../missions.service'
-import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
-import { CampaignService, STATUS_CAMPAIGN } from '@lib/campaign'
 
 @Injectable()
 export class MissionsListener {
-  private readonly logger = new Logger(MissionsListener.name)
-
   constructor(
     private eventEmitter: EventEmitter2,
     private externalUserService: ExternalUserService,
@@ -24,33 +14,40 @@ export class MissionsListener {
   ) {}
 
   @OnEvent('received_kafka_event')
-  async handleNewEvent(eventByName: IEventByName) {
-    if (!EVENTS[eventByName.msgName]) {
+  async handleNewEvent(data: IEventByName) {
+    if (!EVENTS[data.msgName]) {
       this.eventEmitter.emit('write_log', {
         logLevel: 'error',
-        traceCode: 'm001',
-        data: {},
+        traceCode: 'm002',
+        data: {
+          msgData: data.msgData,
+          msgName: data.msgName,
+          msgId: data.msgId,
+        },
       })
       return
-
-      // this.logger.error(
-      //   `[EVENT ${eventByName.msgName}] not registered. Developer please add this event to enum EVENTS`,
-      // )
-      // return
     }
-    const eventName = EVENTS[eventByName.msgName]
+    const eventName = EVENTS[data.msgName]
     const missionsByEvent = await this.missionsService.getMissionsByEvent(
       eventName,
     )
     if (missionsByEvent.length === 0) {
-      this.logger.log(`[EVENT ${eventName}] has no corresponding mission`)
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm003',
+        data: {
+          msgData: data.msgData,
+          msgName: data.msgName,
+          msgId: data.msgId,
+        },
+      })
       return
     }
     missionsByEvent.map((missionEvent) => {
       this.missionsService.mainFunction({
-        msgId: eventByName.msgId,
-        msgName: eventByName.msgName,
-        msgData: eventByName.msgData,
+        msgId: data.msgId,
+        msgName: data.msgName,
+        msgData: data.msgData,
         missionId: missionEvent.missionId,
         campaignId: missionEvent.campaignId,
       })

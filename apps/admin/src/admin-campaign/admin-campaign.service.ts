@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common'
 import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
+  CAMPAIGN_STATUS,
   CampaignService,
-  IS_ACTIVE_CAMPAIGN,
-  STATUS_CAMPAIGN,
 } from '@lib/campaign'
-import { KEY_REWARD_RULE, RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { RewardRuleService } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -14,28 +13,49 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
-import { Brackets } from 'typeorm'
+import { Brackets, In, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService } from '@lib/common'
-import { CreateRewardRuleDto } from '@lib/reward-rule/dto/create-reward-rule.dto'
+import * as moment from 'moment-timezone'
+import { Interval } from '@nestjs/schedule'
+import { InternationalPriceService } from '@lib/international-price'
+import { MissionService } from '@lib/mission'
 
 @Injectable()
 export class AdminCampaignService {
   constructor(
+    private readonly priceService: InternationalPriceService,
     private readonly campaignService: CampaignService,
     private readonly rewardRuleService: RewardRuleService,
+    private readonly missionService: MissionService,
   ) {}
+
+  @Interval(5000)
+  async handleIntervalUpdateStatus() {
+    const now = moment().unix()
+
+    await this.campaignService.updateStatus(
+      {
+        endDate: LessThanOrEqual(now),
+      },
+      CAMPAIGN_STATUS.ENDED,
+    )
+    await this.campaignService.updateStatus(
+      {
+        startDate: LessThanOrEqual(now),
+        endDate: MoreThanOrEqual(now),
+        status: Not(CAMPAIGN_STATUS.OUT_OF_BUDGET),
+      },
+      CAMPAIGN_STATUS.RUNNING,
+    )
+  }
 
   async cancel(id: number): Promise<{ affected: number }> {
     const deleteResult = await this.campaignService.delete(id)
     return {
       affected: deleteResult.affected,
     }
-  }
-
-  async updateEndedStatus(now: number) {
-    return this.campaignService.updateEndedStatus(now)
   }
 
   /**
@@ -85,33 +105,18 @@ export class AdminCampaignService {
   // }
 
   async create(create: ICreateCampaign) {
-    create.status = AdminCampaignService.updateStatusByActive(create.isActive)
-    const campaign = await this.campaignService.create(create)
-
-    await Promise.all(
-      Object.keys(KEY_REWARD_RULE).map(async (key) => {
-        await this.rewardRuleService.create(
-          {
-            key: KEY_REWARD_RULE[key],
-            currency: 'USDT',
-            limitValue: '0',
-            releaseValue: '0',
-          } as CreateRewardRuleDto,
-          {
-            campaignId: campaign.id,
-            missionId: null,
-            typeRule: TYPE_RULE.CAMPAIGN,
-          },
-        )
-      }),
-    )
-    return campaign
+    create.status = AdminCampaignService.updateStatusCampaign(create)
+    return await this.campaignService.create(create)
   }
 
-  private static updateStatusByActive(isActive: number) {
-    if (isActive === IS_ACTIVE_CAMPAIGN.ACTIVE) return STATUS_CAMPAIGN.RUNNING
-    if (isActive === IS_ACTIVE_CAMPAIGN.INACTIVE)
-      return STATUS_CAMPAIGN.INACTIVE
+  private static updateStatusCampaign(
+    input: IUpdateCampaign | ICreateCampaign,
+  ) {
+    const now = moment().unix()
+    if (now < input.startDate) return CAMPAIGN_STATUS.COMING_SOON
+    if (input.startDate <= now && input.endDate >= now)
+      return CAMPAIGN_STATUS.RUNNING
+    if (now > input.endDate) return CAMPAIGN_STATUS.ENDED
   }
 
   /**
@@ -139,9 +144,24 @@ export class AdminCampaignService {
   // }
 
   async update(iUpdateCampaign: IUpdateCampaign) {
-    iUpdateCampaign.status = AdminCampaignService.updateStatusByActive(
-      iUpdateCampaign.isActive,
-    )
+    const missions = await this.missionService.find({
+      campaignId: iUpdateCampaign.id,
+    })
+
+    if (missions.length > 0) {
+      const misionsOpeningDate = missions.map((mission) => mission.openingDate)
+      const misionsClosingDate = missions.map((mission) => mission.closingDate)
+
+      if (
+        iUpdateCampaign.startDate > Math.min(...misionsOpeningDate) ||
+        iUpdateCampaign.endDate < Math.max(...misionsClosingDate)
+      ) {
+        return {}
+      }
+    }
+
+    iUpdateCampaign.status =
+      AdminCampaignService.updateStatusCampaign(iUpdateCampaign)
     return await this.campaignService.update(iUpdateCampaign)
   }
 
@@ -161,22 +181,41 @@ export class AdminCampaignService {
           pagination.currentPage,
         ),
       route: '/campaigns',
-      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
+      paginationType: PaginationTypeEnum.TAKE_AND_SKIP,
     }
     const queryBuilder = this.queryBuilder(campaignFilter)
+    const campaigns = await this.campaignService.getPaginate(
+      options,
+      queryBuilder,
+    )
 
-    // TODO: Wrong totalItems count, due to this issue: https://github.com/nestjsx/nestjs-typeorm-paginate/issues/627
-    // queryBuilder.leftJoinAndSelect(
-    //   'campaign.rewardRules',
-    //   'rewardRules',
-    //   "rewardRules.type_rule = 'campaign'",
-    // )
+    // Join reward_rules. Get unique campaignIds
+    const campaignIds = Array.from(
+      new Set(
+        campaigns.items.map((x) => {
+          return x.id
+        }),
+      ),
+    )
+    // Map rewardRules with campaign
+    const rewardRules = await this.rewardRuleService.find({
+      where: { campaignId: In(campaignIds) },
+    })
 
-    const result = await this.campaignService.paginate(options, queryBuilder)
+    const currencies = rewardRules.map((rule) => rule.currency)
+    const prices = await this.getCoinPrice(currencies)
+
+    for (let i = 0; i < campaigns.items.length; i++) {
+      campaigns.items[i].rewardRules = rewardRules.filter(
+        (c) => c.campaignId === campaigns.items[i].id,
+      )
+    }
+
     return {
-      pagination: result.meta,
-      data: result.items,
-      links: CommonService.customLinks(result.links),
+      pagination: campaigns.meta,
+      data: campaigns.items,
+      links: CommonService.customLinks(campaigns.links),
+      prices,
     }
   }
 
@@ -185,11 +224,6 @@ export class AdminCampaignService {
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
-    queryBuilder.leftJoinAndSelect(
-      'campaign.rewardRules',
-      'rewardRules',
-      "rewardRules.type_rule = 'campaign'",
-    )
     queryBuilder.addSelect('campaign.*')
     if (searchText) {
       queryBuilder.andWhere(
@@ -209,9 +243,9 @@ export class AdminCampaignService {
     }
 
     if (sort && CAMPAIGN_SORT_FIELD_MAP[sort]) {
-      queryBuilder.addOrderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
+      queryBuilder.orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
     } else {
-      queryBuilder.addOrderBy('campaign.priority', 'DESC')
+      queryBuilder.orderBy('campaign.priority', 'DESC')
       queryBuilder.addOrderBy('campaign.id', 'DESC')
     }
 
@@ -220,5 +254,28 @@ export class AdminCampaignService {
 
   private static escapeLikeChars(str: string) {
     return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
+  }
+
+  private async getCoinPrice(currencies: Array<string>) {
+    const currencyPriceQueries = []
+    const queriedCurrencies = ['USDT']
+
+    currencies.forEach((currency) => {
+      if (queriedCurrencies.includes(currency)) {
+        return
+      }
+
+      queriedCurrencies.push(currency)
+      currencyPriceQueries.push(this.priceService.getPriceInUsdt(currency))
+    })
+
+    const result = await Promise.allSettled(currencyPriceQueries)
+    const fulfilledResult = result.filter(
+      (res) => res.status === 'fulfilled',
+    ) as PromiseFulfilledResult<any>[]
+    return fulfilledResult.map((res) => ({
+      currency: [res?.value?.coin?.toUpperCase()],
+      price: res?.value?.price,
+    }))
   }
 }

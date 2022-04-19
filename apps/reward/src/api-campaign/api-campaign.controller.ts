@@ -5,6 +5,7 @@ import {
   Param,
   HttpStatus,
   HttpException,
+  Req,
 } from '@nestjs/common'
 import { ApiCampaignService } from './api-campaign.service'
 import {
@@ -20,6 +21,7 @@ import { PaginatedCampaignDto } from './dto/paginated-campaign.dto'
 import { PaginatedDto } from '../dto/paginated.dto'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
 import { GetCampaignByIdResponse } from './constants'
+import { IRequestWithUserId } from '../interfaces/request-with-user-id'
 
 @ApiTags('campaigns')
 @Controller('campaigns')
@@ -38,10 +40,13 @@ export class ApiCampaignController {
   @ApiPaginatedResponse(PaginatedCampaignDto)
   async findAll(
     @Query() apiCampaignFilterDto: ApiCampaignFilterDto,
-    // @Req() request: IRequestWithUserId,
+    @Req() request: IRequestWithUserId,
   ) {
     // request.userId
-    return this.apiCampaignService.findAll(apiCampaignFilterDto)
+    return this.apiCampaignService.findPublicCampaigns(
+      apiCampaignFilterDto,
+      request.userId,
+    )
   }
 
   @Get(':id')

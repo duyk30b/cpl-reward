@@ -13,7 +13,7 @@ import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { JsonColumnTransformer } from '@lib/mysql/typeorm.transformer'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
-import { IS_ACTIVE_MISSION, STATUS_MISSION, TARGET_TYPE } from '../enum'
+import { MISSION_IS_ACTIVE, MISSION_STATUS, TARGET_TYPE } from '../enum'
 
 @Entity({
   name: 'missions',
@@ -31,25 +31,25 @@ export class Mission extends MyBaseEntity {
   @Expose()
   title: string
 
-  @Column({ name: 'title_jp' })
-  @Expose({ name: 'title_jp' })
-  titleJp: string
+  @Column({ name: 'title_ja' })
+  @Expose({ name: 'title_ja' })
+  titleJa: string
 
   @Column({ name: 'detail_explain', type: 'text', default: '' })
   @Expose({ name: 'detail_explain' })
   detailExplain: string
 
-  @Column({ name: 'detail_explain_jp', type: 'text', default: '' })
-  @Expose({ name: 'detail_explain_jp' })
-  detailExplainJp: string
+  @Column({ name: 'detail_explain_ja', type: 'text', default: '' })
+  @Expose({ name: 'detail_explain_ja' })
+  detailExplainJa: string
 
   @Column({ name: 'guide_link', default: null, type: 'text' })
   @Expose({ name: 'guide_link' })
   guideLink: string
 
-  @Column({ name: 'guide_link_jp', type: 'text', default: '' })
-  @Expose({ name: 'guide_link_jp' })
-  guideLinkJp: string
+  @Column({ name: 'guide_link_ja', type: 'text', default: '' })
+  @Expose({ name: 'guide_link_ja' })
+  guideLinkJa: string
 
   @Column({ name: 'opening_date' })
   @Expose({ name: 'opening_date' })
@@ -70,14 +70,14 @@ export class Mission extends MyBaseEntity {
   @Column({
     name: 'is_active',
     type: 'smallint',
-    default: IS_ACTIVE_MISSION.ACTIVE,
+    default: MISSION_IS_ACTIVE.ACTIVE,
   })
   @Expose({ name: 'is_active' })
   isActive: number
 
   @Column({
     type: 'smallint',
-    default: STATUS_MISSION.RUNNING,
+    default: MISSION_STATUS.RUNNING,
   })
   @Expose()
   status: number

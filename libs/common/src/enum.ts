@@ -16,3 +16,9 @@ export enum SortType {
   asc = 'ASC',
   desc = 'DESC',
 }
+
+export enum TypeEvent {
+  AUTH = 'AUTH_',
+  BCE = 'BCE_',
+  HIGH_LOW = 'HIGH_LOW_',
+}

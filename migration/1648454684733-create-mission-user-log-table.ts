@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm'
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm'
 
 export class createMissionUserLogTable1648454684733
   implements MigrationInterface
@@ -20,8 +20,12 @@ export class createMissionUserLogTable1648454684733
             type: 'int',
           },
           {
-            name: 'user_id',
+            name: 'campaign_id',
             type: 'int',
+          },
+          {
+            name: 'user_id',
+            type: 'bigInt',
           },
           {
             name: 'success_count',
@@ -64,9 +68,36 @@ export class createMissionUserLogTable1648454684733
       }),
       true,
     )
+
+    await queryRunner.createIndex(
+      'mission_user_logs',
+      new TableIndex({
+        name: 'INDEX_CAMPAIGN_ID',
+        columnNames: ['campaign_id'],
+      }),
+    )
+
+    await queryRunner.createIndex(
+      'mission_user_logs',
+      new TableIndex({
+        name: 'INDEX_MISSION_ID',
+        columnNames: ['mission_id'],
+      }),
+    )
+
+    await queryRunner.createIndex(
+      'mission_user_logs',
+      new TableIndex({
+        name: 'INDEX_USER_ID',
+        columnNames: ['user_id'],
+      }),
+    )
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropIndex('campaigns', 'INDEX_CAMPAIGN_ID')
+    await queryRunner.dropIndex('campaigns', 'INDEX_MISSION_ID')
+    await queryRunner.dropIndex('campaigns', 'INDEX_USER_ID')
     await queryRunner.dropTable('mission_user_logs')
   }
 }

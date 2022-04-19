@@ -30,7 +30,7 @@ export class createUserRewardHistoriesTable1648454632120
           },
           {
             name: 'user_id',
-            type: 'int',
+            type: 'bigInt',
           },
           {
             name: 'user_type',

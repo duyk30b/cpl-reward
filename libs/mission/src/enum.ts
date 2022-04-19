@@ -1,10 +1,21 @@
-export enum GRANT_TARGET_WALLET {
+export enum DELIVERY_METHOD_WALLET {
   REWARD_BALANCE = 'reward_balance',
   REWARD_CASHBACK = 'reward_cashback',
   REWARD_DIVIDEND = 'reward_dividend',
   DIRECT_BALANCE = 'direct_balance',
   DIRECT_CASHBACK = 'direct_cashback',
   DIRECT_DIVIDEND = 'direct_dividend',
+}
+
+export enum DELIVERY_METHOD {
+  MANUAL = 1,
+  AUTO = 2,
+}
+
+export enum WALLET {
+  BALANCE = 1,
+  CASHBACK = 2,
+  DIVIDEND = 3,
 }
 
 export enum GRANT_TARGET_USER {
@@ -38,20 +49,20 @@ export enum EVENTS {
   HIGH_LOW_CANCEL = 'high_low_cancel',
 }
 
-export enum IS_ACTIVE_MISSION {
+export enum MISSION_IS_ACTIVE {
   INACTIVE = 0,
   ACTIVE = 1,
 }
 
-export enum STATUS_MISSION {
-  RUNNING = 0,
-  OUT_OF_BUDGET = 1,
-  ENDED = 2,
-  INACTIVE = 3,
+export enum MISSION_STATUS {
+  RUNNING = 1,
+  OUT_OF_BUDGET = 2,
+  ENDED = 3,
+  COMING_SOON = 4,
 }
 
 export enum TARGET_TYPE {
-  HYBRID = 0,
-  ONLY_MAIN = 1,
-  ONLY_REFERRED = 2,
+  HYBRID = 1,
+  ONLY_MAIN = 2,
+  ONLY_REFERRED = 3,
 }

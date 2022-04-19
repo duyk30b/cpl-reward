@@ -23,19 +23,19 @@ export interface ICampaignFilter {
 export class ICampaign {
   @Expose()
   title: string
-  @Expose({ name: 'title_jp' })
-  titleJp: string
+  @Expose({ name: 'title_ja' })
+  titleJa: string
 
   @Expose()
   description: string
-  @Expose({ name: 'description_jp' })
-  descriptionJp: string
+  @Expose({ name: 'description_ja' })
+  descriptionJa: string
 
   // @Expose({ name: 'detail_explain' })
   // detailExplain: string
   //
-  // @Expose({ name: 'detail_explain_jp' })
-  // detailExplainJp: string
+  // @Expose({ name: 'detail_explain_ja' })
+  // detailExplainJa: string
 
   @Expose({ name: 'start_date' })
   startDate: number
@@ -44,13 +44,13 @@ export class ICampaign {
 
   @Expose({ name: 'notification_link' })
   notificationLink: string
-  @Expose({ name: 'notification_link_jp' })
-  notificationLinkJp: string
+  @Expose({ name: 'notification_link_ja' })
+  notificationLinkJa: string
 
   @Expose({ name: 'campaign_image' })
   campaignImage: string
-  @Expose({ name: 'campaign_image_jp' })
-  campaignImageJp: string
+  @Expose({ name: 'campaign_image_ja' })
+  campaignImageJa: string
 
   @Expose()
   priority?: number

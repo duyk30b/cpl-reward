@@ -60,20 +60,20 @@ export class createCampaignTable1648452713926 implements MigrationInterface {
             default: 0,
           },
           {
-            name: 'title_jp',
+            name: 'title_ja',
             type: 'varchar',
           },
           {
-            name: 'description_jp',
+            name: 'description_ja',
             type: 'text',
           },
           {
-            name: 'notification_link_jp',
+            name: 'notification_link_ja',
             type: 'text',
             isNullable: true,
           },
           {
-            name: 'campaign_image_jp',
+            name: 'campaign_image_ja',
             type: 'text',
             isNullable: true,
           },

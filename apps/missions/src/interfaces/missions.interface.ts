@@ -4,6 +4,14 @@ export interface IEventByName {
   msgData: any
 }
 
+export interface IWriteLog {
+  logLevel: string
+  traceCode: string
+  data: IEvent
+  extraData: any
+  params: any
+}
+
 export interface IEvent {
   msgData: any
   missionId?: number
@@ -43,13 +51,5 @@ export interface IUserCondition {
   property: string
   operator: string
   value: string
-  type?: string
-}
-
-export interface IGrantTarget {
-  user: string
-  amount: string
-  currency: string
-  wallet: string
   type?: string
 }

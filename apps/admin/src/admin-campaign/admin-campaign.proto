@@ -14,6 +14,12 @@ message ListCampaignResult {
   repeated Result data = 1;
   Pagination pagination = 2;
   Links links = 3;
+  repeated Price prices = 4;
+}
+
+message Price {
+  string currency = 1;
+  string price = 2;
 }
 
 message Links {
@@ -59,37 +65,37 @@ message FindOneInput {
 message UpdateInput {
   int32 id = 1;
   string title = 2;
-  string titleJp = 3;
+  string titleJa = 3;
   string description = 4;
-  string descriptionJp = 5;
+  string descriptionJa = 5;
   int32 startDate = 6; // example: 1642668896
   int32 endDate = 7;
   string notificationLink = 8;
-  string notificationLinkJp = 9;
+  string notificationLinkJa = 9;
   string campaignImage = 10;
-  string campaignImageJp = 11;
+  string campaignImageJa = 11;
   int32 priority = 12; // default: 0
   bool isSystem = 13; // default: false
   int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 15; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 status = 15; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
 }
 
 message Result {
   int32 id = 1;
   string title = 2;
-  string titleJp = 3;
+  string titleJa = 3;
   string description = 4;
-  string descriptionJp = 5;
+  string descriptionJa = 5;
   int32 startDate = 6; // example: 1642668896
   int32 endDate = 7;
   string notificationLink = 8;
-  string notificationLinkJp = 9;
+  string notificationLinkJa = 9;
   string campaignImage = 10;
-  string campaignImageJp = 11;
+  string campaignImageJa = 11;
   int32 priority = 12; // default: 0
   bool isSystem = 13; // default: false
   int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 15; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 status = 15; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
   int32 createdAt = 16;
   int32 updatedAt = 17;
   repeated RewardRuleResult rewardRules = 18;
@@ -97,19 +103,19 @@ message Result {
 
 message CreateInput {
   string title = 1;
-  string titleJp = 2;
+  string titleJa = 2;
   string description = 3;
-  string descriptionJp = 4;
+  string descriptionJa = 4;
   int32 startDate = 5; // example: 1642668896
   int32 endDate = 6;
   string notificationLink = 7;
-  string notificationLinkJp = 8;
+  string notificationLinkJa = 8;
   string campaignImage = 9;
-  string campaignImageJp = 10;
+  string campaignImageJa = 10;
   int32 priority = 11; // default: 0
   bool isSystem = 12; // default: false
   int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
-  int32 status = 14; // default: 0 (RUNNING) / 1 (EMPTY_MONEY) / 2 (ENDED)
+  int32 status = 14; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
 }
 
 message RewardRuleResult {
@@ -120,4 +126,5 @@ message RewardRuleResult {
   string currency = 5;
   string limitValue = 6; // example: 12.443
   string releaseValue = 7; // example: 12.443
+  string typeRule = 8; // mission / campaign
 }

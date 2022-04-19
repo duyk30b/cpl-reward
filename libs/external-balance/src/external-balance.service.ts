@@ -3,22 +3,25 @@ import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
 import { firstValueFrom } from 'rxjs'
 import { map } from 'rxjs'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Injectable()
 export class ExternalBalanceService {
+  eventEmit = 'write_log'
   private readonly logger = new Logger(ExternalBalanceService.name)
 
   constructor(
+    private eventEmitter: EventEmitter2,
     private httpService: HttpService,
     private configService: ConfigService,
   ) {}
 
   async changeUserBalance(
-    userId: number,
+    userId: string,
     amount: number,
     currency: string,
     type: string,
-    eventName: string,
+    data: any,
   ): Promise<any> {
     const balanceToken = this.configService.get('balance.token')
     const postBalanceUrl =
@@ -49,10 +52,15 @@ export class ExternalBalanceService {
           )
           .pipe(map((response) => response.data)),
       )
-      this.logger.log(
-        `[EVENT ${eventName}]. Result send cashback. ` +
-          `result => ${JSON.stringify(result)}`,
-      )
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm015',
+        data,
+        extraData: {
+          result: JSON.stringify(result),
+        },
+        params: { type: 'balance' },
+      })
       if (!result) {
         return null
       }

@@ -4,8 +4,20 @@ import { plainToInstance } from 'class-transformer'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { STATUS } from './enum'
+import { USER_REWARD_STATUS } from './enum'
 import { GRANT_TARGET_USER } from '@lib/mission'
+import {
+  IPaginationMeta,
+  paginate,
+  paginateRaw,
+  PaginationTypeEnum,
+} from 'nestjs-typeorm-paginate'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
+import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
+import { Min } from 'class-validator'
+import { formatPaginate } from '@lib/common/utils'
 
 @Injectable()
 export class UserRewardHistoryService {
@@ -40,8 +52,8 @@ export class UserRewardHistoryService {
 
   async getAmountByUser(
     missionIds: number[],
-    userId: number,
-    statusList: number[],
+    userId: string,
+    statusName: number,
   ) {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
@@ -51,12 +63,13 @@ export class UserRewardHistoryService {
     queryBuilder.andWhere('history.userId = :user_id', {
       user_id: userId,
     })
-    queryBuilder.where('history.status IN (:...status_list)', {
-      status_list: statusList,
+    queryBuilder.andWhere('history.status = :status_name', {
+      status_name: statusName,
     })
     queryBuilder.groupBy('history.currency')
     queryBuilder.addGroupBy('history.missionId')
     queryBuilder.select('history.currency')
+    queryBuilder.addSelect('history.wallet')
     queryBuilder.addSelect('history.missionId')
     queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
     const histories = await queryBuilder.getRawMany()
@@ -71,25 +84,51 @@ export class UserRewardHistoryService {
     return result
   }
 
-  async getAmountEarned(userId: number) {
+  async getAffiliateEarned(userId: string) {
     const queryBuilder =
       this.userRewardHistoryRepository.createQueryBuilder('history')
     queryBuilder.where('history.userId = :user_id', {
       user_id: userId,
     })
-    queryBuilder.andWhere(
-      "(history.status = ':status_type_auto' OR history.status = ':status_type_manual')",
-      {
-        status_type_auto: STATUS.AUTO_RECEIVED,
-        status_type_manual: STATUS.MANUAL_RECEIVED,
-      },
-    )
+    queryBuilder.andWhere('history.status = :status_type', {
+      status_type: USER_REWARD_STATUS.RECEIVED,
+    })
     queryBuilder.andWhere('history.userType = :user_type', {
       user_type: GRANT_TARGET_USER.REFERRAL_USER,
     })
     queryBuilder.groupBy('history.currency')
     queryBuilder.select('history.currency')
+    queryBuilder.addSelect('history.wallet')
     queryBuilder.addSelect('SUM (history.amount)', 'total_amount')
     return queryBuilder.getRawMany()
+  }
+
+  async getAffiliateDetailHistory(filter: PaginateUserRewardHistory) {
+    const queryBuilder =
+      this.userRewardHistoryRepository.createQueryBuilder('history')
+    if (filter.userId) {
+      queryBuilder.where('user_id = :user_id', {
+        user_id: filter.userId,
+      })
+    }
+    queryBuilder.andWhere('user_type = :referral_user', {
+      referral_user: GRANT_TARGET_USER.REFERRAL_USER,
+    })
+
+    if (filter.sort) {
+      const sortType = filter.sortType || 'DESC'
+      queryBuilder.orderBy(filter.sort, sortType)
+    } else {
+      queryBuilder.orderBy('id', 'DESC')
+    }
+
+    const page = Math.max(1, filter.page || 1)
+    const limit = Math.min(50, filter.limit || 20)
+    const options: IPaginationOptions = {
+      page: page,
+      limit: limit,
+      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
+    }
+    return formatPaginate(paginate(queryBuilder, options))
   }
 }

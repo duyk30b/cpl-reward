@@ -3,8 +3,9 @@ import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  IS_SYSTEM,
-  IS_ACTIVE_CAMPAIGN,
+  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -14,12 +15,16 @@ import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { CommonService } from '@lib/common'
+import { MISSION_STATUS, TARGET_TYPE } from '@lib/mission'
 
 @Injectable()
 export class ApiCampaignService {
   constructor(private readonly campaignService: CampaignService) {}
 
-  async findAll(apiCampaignFilterDto: ApiCampaignFilterDto) {
+  async findPublicCampaigns(
+    apiCampaignFilterDto: ApiCampaignFilterDto,
+    userId: string,
+  ) {
     const limit =
       (Number(apiCampaignFilterDto.limit) > 100
         ? 100
@@ -39,8 +44,8 @@ export class ApiCampaignService {
       route: '/campaigns',
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
-    const queryBuilder = this.queryBuilder(apiCampaignFilterDto)
-    const result = await this.campaignService.paginate(options, queryBuilder)
+    const queryBuilder = this.campaignQueryBuilder(apiCampaignFilterDto, userId)
+    const result = await this.campaignService.getPaginate(options, queryBuilder)
     CommonService.customLinks(result.links)
     return {
       pagination: result.meta,
@@ -49,30 +54,49 @@ export class ApiCampaignService {
     }
   }
 
-  private queryBuilder(
+  private campaignQueryBuilder(
     campaignFilter: ApiCampaignFilterDto,
+    userId: string,
   ): SelectQueryBuilder<Campaign> {
     const { searchField, searchText, sort, sortType } = campaignFilter
     const queryBuilder = this.campaignService.initQueryBuilder()
+    queryBuilder.leftJoin(
+      'mission_user',
+      'mission_user',
+      'mission_user.campaign_id = campaign.id AND mission_user.user_id = ' +
+        userId,
+    )
     queryBuilder.select([
+      'mission_user.success_count AS success_count',
       'campaign.id',
       'campaign.description',
-      'campaign.descriptionJp',
+      'campaign.descriptionJa',
       'campaign.title',
-      'campaign.titleJp',
+      'campaign.titleJa',
       'campaign.startDate',
       'campaign.endDate',
       'campaign.notificationLink',
-      'campaign.notificationLinkJp',
+      'campaign.notificationLinkJa',
       'campaign.campaignImage',
-      'campaign.campaignImageJp',
+      'campaign.campaignImageJa',
+      'campaign.status',
     ])
     queryBuilder.where('campaign.isSystem = :is_system ', {
-      is_system: IS_SYSTEM.FALSE,
+      is_system: CAMPAIGN_IS_SYSTEM.FALSE,
     })
     queryBuilder.andWhere('campaign.isActive = :is_active ', {
-      is_active: IS_ACTIVE_CAMPAIGN.ACTIVE,
+      is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
     })
+
+    // Only show running mission or completed by user
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where('campaign.status = ' + CAMPAIGN_STATUS.RUNNING).orWhere(
+          'success_count > 0',
+        )
+      }),
+    )
+
     if (searchText) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
@@ -94,7 +118,7 @@ export class ApiCampaignService {
       queryBuilder.orderBy(CAMPAIGN_SORT_FIELD_MAP[sort], sortType || 'ASC')
     } else {
       queryBuilder.orderBy('campaign.priority', 'DESC')
-      queryBuilder.orderBy('campaign.id', 'DESC')
+      queryBuilder.addOrderBy('campaign.id', 'DESC')
     }
 
     return queryBuilder
@@ -107,8 +131,8 @@ export class ApiCampaignService {
   async findOne(id: number) {
     return this.campaignService.findOne({
       id,
-      isActive: IS_ACTIVE_CAMPAIGN.ACTIVE,
-      isSystem: IS_SYSTEM.FALSE,
+      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
     })
   }
 }

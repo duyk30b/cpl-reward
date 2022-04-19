@@ -1,7 +1,7 @@
 export interface ChangeUserCashback {
-  user_id: number
+  user_id: string
   currency: string
   amount: string
   historyId: number
-  eventName: string
+  data: any
 }

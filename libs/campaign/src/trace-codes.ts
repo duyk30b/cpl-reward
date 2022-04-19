@@ -9,7 +9,7 @@ export const TRACE_CODES = {
   m008: 'User has received enough rewards',
   m009: 'Mission had out of budget',
   m010: 'Mission reward was not enough money',
-  m011: 'Update limit value fail',
+  m011: 'DANGER!!! Update release value fail.',
   m012: 'Compare {{name}} condition fail',
   m013: 'Update reward history fail',
   m014: 'Send reward to {{type}} fail',

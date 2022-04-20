@@ -94,3 +94,14 @@ build_release:
   only:
     - release
 
+deploy_release:
+  extends: .deploy_template_prod_v2
+  environment:
+    name: release
+  variables:
+    VALUES_PATH: /_helm_templates/customer-reward/values-prod.yaml
+    IMAGE_TAG_KEY: tag
+  only:
+    - release
+
+

@@ -31,6 +31,9 @@ import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
 import * as Handlebars from 'handlebars'
+import { IUpdateMissionUser } from './interfaces/common.interface'
+import { plainToInstance } from 'class-transformer'
+import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
 
 @Injectable()
 export class MissionsService {
@@ -260,6 +263,23 @@ export class MissionsService {
         rewardRules[rewardRulesKey].currency === mainUser.currency &&
         rewardRules[rewardRulesKey].key === mainUser.type
       ) {
+        const updatedSuccessCount = await this.updateSuccessCount({
+          userId,
+          limitReceivedReward: mission.limitReceivedReward,
+          userType: GRANT_TARGET_USER.USER,
+          userTarget: mainUser,
+          data,
+        })
+
+        if (!updatedSuccessCount) {
+          this.eventEmitter.emit(this.eventEmit, {
+            logLevel: 'warn',
+            traceCode: 'm017',
+            data,
+          })
+          continue
+        }
+
         // user
         await this.commonFlowReward(
           rewardRules[rewardRulesKey].id,
@@ -268,14 +288,6 @@ export class MissionsService {
           data,
           referredUserId,
         )
-
-        this.eventEmitter.emit('update_mission_user', {
-          userId,
-          limitReceivedReward: mission.limitReceivedReward,
-          userType: GRANT_TARGET_USER.USER,
-          userTarget: mainUser,
-          data,
-        })
       }
 
       if (
@@ -284,6 +296,23 @@ export class MissionsService {
         rewardRules[rewardRulesKey].currency === referredUser.currency &&
         rewardRules[rewardRulesKey].key === referredUser.type
       ) {
+        const updatedSuccessCount = await this.updateSuccessCount({
+          userId: referredUserId,
+          limitReceivedReward: mission.limitReceivedReward,
+          userType: GRANT_TARGET_USER.REFERRAL_USER,
+          userTarget: referredUser,
+          data,
+        })
+
+        if (!updatedSuccessCount) {
+          this.eventEmitter.emit(this.eventEmit, {
+            logLevel: 'warn',
+            traceCode: 'm017',
+            data,
+          })
+          continue
+        }
+
         // referred user
         await this.commonFlowReward(
           rewardRules[rewardRulesKey].id,
@@ -291,14 +320,6 @@ export class MissionsService {
           referredUserId,
           data,
         )
-
-        this.eventEmitter.emit('update_mission_user', {
-          userId: referredUserId,
-          limitReceivedReward: mission.limitReceivedReward,
-          userType: GRANT_TARGET_USER.REFERRAL_USER,
-          userTarget: referredUser,
-          data,
-        })
       }
     }
   }
@@ -649,5 +670,64 @@ export class MissionsService {
       String(rewardRule.releaseValue),
     )
     return fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() > 0
+  }
+
+  async updateSuccessCount(updateMissionUser: IUpdateMissionUser) {
+    try {
+      const missionUser = await this.missionUserService.findOne({
+        missionId: updateMissionUser.data.missionId,
+        userId: updateMissionUser.userId,
+        campaignId: updateMissionUser.data.campaignId,
+      })
+      const createMissionUserLogData = {
+        missionId: updateMissionUser.data.missionId,
+        userId: updateMissionUser.userId,
+        campaignId: updateMissionUser.data.campaignId,
+        successCount: 1,
+        moneyEarned: FixedNumber.fromString(
+          updateMissionUser.userTarget.amount,
+        ).toString(),
+        note: `event: ${updateMissionUser.data.msgName} save this log`,
+        userType: updateMissionUser.userTarget.user,
+        currency: updateMissionUser.userTarget.currency,
+      }
+      if (missionUser === undefined) {
+        // create
+        const createMissionUserData = plainToInstance(
+          CreateMissionUserDto,
+          createMissionUserLogData,
+          {
+            ignoreDecorators: true,
+            excludeExtraneousValues: true,
+          },
+        )
+        await this.missionUserService.save(createMissionUserData)
+        this.eventEmitter.emit(
+          'create_mission_user_log',
+          createMissionUserLogData,
+        )
+
+        return true
+      }
+
+      // update
+      const updated = await this.missionUserService.increaseSuccessCount(
+        missionUser.id,
+        updateMissionUser.limitReceivedReward,
+      )
+
+      if (updated.affected > 0) {
+        this.eventEmitter.emit(
+          'create_mission_user_log',
+          createMissionUserLogData,
+        )
+
+        return true
+      }
+
+      return false
+    } catch (error) {
+      return false
+    }
   }
 }

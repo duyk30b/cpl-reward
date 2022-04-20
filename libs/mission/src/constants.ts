@@ -116,9 +116,10 @@ export const USER_CONDITION_TYPES = {
     display: 'string',
   },
   account_lv: {
-    type: 'string',
+    type: 'number',
     original: 'number',
-    display: 'number',
+    display: 'enum',
+    options: USER_ACCOUNT_LV_OPTIONS,
   },
   channel_id: {
     type: 'string',

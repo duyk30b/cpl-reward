@@ -22,14 +22,19 @@ import { TraceListener } from './listeners/trace.listener'
 import { MissionsListener } from './listeners/missions.listener'
 import { RedisQueueModule } from '@lib/redis-queue'
 import global_config from 'config/global_config'
+import { ScheduleModule } from '@nestjs/schedule'
+import { HealthService } from './health.service'
+import { TerminusModule } from '@nestjs/terminus'
 
 @Module({
   controllers: [MissionsController],
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [global_config],
     }),
+    TerminusModule,
     MysqlModule,
     RedisQueueModule,
     CommonModule,
@@ -55,6 +60,7 @@ import global_config from 'config/global_config'
     MissionsService,
     MissionsListener,
     TraceListener,
+    HealthService,
   ],
 })
 export class MissionsModule {}

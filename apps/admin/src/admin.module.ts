@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import dbConfigure from 'config/db'
 import { InternationalPrice } from '@lib/international-price/entities/international-price.entity'
+import { HealthModule } from './health/health.module'
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { InternationalPrice } from '@lib/international-price/entities/internatio
     AdminCommonModule,
     UserRewardHistoryModule,
     ScheduleModule.forRoot(),
+    HealthModule,
   ],
   controllers: [AdminController],
 })

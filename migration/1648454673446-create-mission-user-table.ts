@@ -63,7 +63,7 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
       true,
     )
     await queryRunner.createIndex(
-      'mission_user_logs',
+      'mission_user',
       new TableIndex({
         name: 'INDEX_CAMPAIGN_ID',
         columnNames: ['campaign_id'],
@@ -71,7 +71,7 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
     )
 
     await queryRunner.createIndex(
-      'mission_user_logs',
+      'mission_user',
       new TableIndex({
         name: 'INDEX_MISSION_ID',
         columnNames: ['mission_id'],
@@ -79,7 +79,7 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
     )
 
     await queryRunner.createIndex(
-      'mission_user_logs',
+      'mission_user',
       new TableIndex({
         name: 'INDEX_USER_ID',
         columnNames: ['user_id'],
@@ -88,9 +88,9 @@ export class createMissionUserTable1648454673446 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex('campaigns', 'INDEX_CAMPAIGN_ID')
-    await queryRunner.dropIndex('campaigns', 'INDEX_MISSION_ID')
-    await queryRunner.dropIndex('campaigns', 'INDEX_USER_ID')
+    await queryRunner.dropIndex('mission_user', 'INDEX_CAMPAIGN_ID')
+    await queryRunner.dropIndex('mission_user', 'INDEX_MISSION_ID')
+    await queryRunner.dropIndex('mission_user', 'INDEX_USER_ID')
     await queryRunner.dropTable('mission_users')
   }
 }

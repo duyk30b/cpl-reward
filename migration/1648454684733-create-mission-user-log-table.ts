@@ -95,9 +95,9 @@ export class createMissionUserLogTable1648454684733
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex('campaigns', 'INDEX_CAMPAIGN_ID')
-    await queryRunner.dropIndex('campaigns', 'INDEX_MISSION_ID')
-    await queryRunner.dropIndex('campaigns', 'INDEX_USER_ID')
+    await queryRunner.dropIndex('mission_user_logs', 'INDEX_CAMPAIGN_ID')
+    await queryRunner.dropIndex('mission_user_logs', 'INDEX_MISSION_ID')
+    await queryRunner.dropIndex('mission_user_logs', 'INDEX_USER_ID')
     await queryRunner.dropTable('mission_user_logs')
   }
 }

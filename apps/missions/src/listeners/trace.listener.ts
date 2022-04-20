@@ -56,20 +56,22 @@ export class TraceListener {
         break
     }
 
-    if (data && data.msgName) {
-      const dataLog = {
-        msgName: data.msgName,
-        type: 'REWARD_' + data.msgName,
-        user_id: data.msgData.user_id,
-        message_id: data.msgId,
-        mission_id: data.missionId,
-        data: data,
-        level_log: logLevel,
+    if (this.configService.get('enable_save_log')) {
+      if (data && data.msgName) {
+        const dataLog = {
+          msgName: data.msgName,
+          type: 'REWARD_' + data.msgName,
+          user_id: data.msgData.user_id,
+          message_id: data.msgId,
+          mission_id: data.missionId,
+          data: data,
+          level_log: logLevel,
+        }
+        await this.redisQueueService.addRewardMissionsJob(
+          'reward_missions',
+          dataLog,
+        )
       }
-      await this.redisQueueService.addRewardMissionsJob(
-        'reward_missions',
-        dataLog,
-      )
     }
   }
 }

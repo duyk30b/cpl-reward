@@ -15,4 +15,5 @@ export const TRACE_CODES = {
   m014: 'Send reward to {{type}} fail',
   m015: 'Result send {{type}}',
   m016: 'Invalid data struct',
+  m017: 'Failed to reach success_count',
 }

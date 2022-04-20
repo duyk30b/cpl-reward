@@ -4,7 +4,7 @@ import { IGrantTarget } from '@lib/common/common.interface'
 export interface IUpdateMissionUser {
   userId: string
   limitReceivedReward: number
-  // userType: string
+  userType: string
   userTarget: IGrantTarget
   data: IEvent
 }

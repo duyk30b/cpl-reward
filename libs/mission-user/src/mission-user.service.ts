@@ -56,6 +56,19 @@ export class MissionUserService {
     return this.missionUserRepository.save(missionUserEntity)
   }
 
+  async increaseSuccessCount(id: number, limit: number) {
+    return this.missionUserRepository
+      .createQueryBuilder()
+      .update(MissionUser)
+      .where('id = :id', { id })
+      .andWhere('(success_count + 1) <= :limit')
+      .set({
+        successCount: () => 'success_count + 1',
+      })
+      .setParameters({ limit: limit })
+      .execute()
+  }
+
   async findOne(condition) {
     return this.missionUserRepository.findOne(condition)
   }

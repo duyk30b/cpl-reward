@@ -12,6 +12,10 @@ export class MissionUserLog extends MyBaseEntity {
   @Expose()
   id: number
 
+  @Column({ name: 'campaign_id' })
+  @Expose({ name: 'campaign_id' })
+  campaignId: number
+
   @Column({ name: 'mission_id' })
   @Expose({ name: 'mission_id' })
   missionId: number

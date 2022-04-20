@@ -31,6 +31,16 @@ stages:
       -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
       -H "Content-Type: application/json"
 
+.deploy_template_prod_v2:
+  stage: deploy
+  image: curlimages/curl
+  script:
+    - |
+      curl -X POST "$GIT_HOOK_URL_PROD_V2" \
+      -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
+      -H "Content-Type: application/json"
+
+
 build_dev:
   extends: .build_template
   environment:

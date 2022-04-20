@@ -113,5 +113,6 @@ deploy_release:
     IMAGE_TAG_KEY: tag
   only:
     - release
+  when: manual
 
 

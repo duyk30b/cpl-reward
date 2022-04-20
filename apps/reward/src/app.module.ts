@@ -17,6 +17,7 @@ import { ApiMissionController } from './api-mission/api-mission.controller'
 import { ConfigModule } from '@nestjs/config'
 import configuration from '@lib/common/configuration'
 import { ExternalCashbackModule } from '@lib/external-cashback'
+import { HealthModule } from './health/health.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ExternalCashbackModule } from '@lib/external-cashback'
     ConfigModule.forRoot({
       load: [configuration],
     }),
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

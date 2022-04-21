@@ -56,3 +56,6 @@ dist
 start_stop_services.sh
 .gitignore
 .idea
+
+.vscode
+health

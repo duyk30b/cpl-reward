@@ -26,5 +26,8 @@ export class HealthService {
       time: new Date().getTime(),
     }
     await WriteData('/usr/src/app', fileName, JSON.stringify(data) + '\n')
+    if (result.status != 'ok') {
+      process.emit('exit', 999)
+    }
   }
 }

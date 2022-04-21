@@ -228,40 +228,37 @@ export class MissionsService {
       return
     }
 
-    for (const rewardRulesKey in rewardRules) {
-      const checkMoneyDownToZero = this.checkMoneyDownToZero(
-        rewardRules[rewardRulesKey],
-      )
-      if (!checkMoneyDownToZero) continue
-
+    for (const rewardRuleKey in rewardRules) {
       const checkMoneyReward = this.checkMoneyReward(
-        rewardRules[rewardRulesKey],
+        rewardRules[rewardRuleKey],
         mainUser,
         referredUser,
       )
 
-      if (!checkMoneyReward) {
+      if (!checkMoneyReward.status) {
         this.eventEmitter.emit(this.eventEmit, {
           logLevel: 'warn',
           traceCode: 'm010',
           data,
           extraData: {
-            currency: rewardRules[rewardRulesKey].currency,
-            limitValue: rewardRules[rewardRulesKey].limitValue,
+            currency: rewardRules[rewardRuleKey].currency,
+            limitValue: rewardRules[rewardRuleKey].limitValue,
+            releaseValue: rewardRules[rewardRuleKey].releaseValue,
             userId,
             mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,
             referredUserId,
             referredUserAmount:
               referredUser === undefined ? 'N/A' : referredUser.amount,
           },
+          params: { source: checkMoneyReward.source },
         })
         continue
       }
 
       if (
         mainUser !== undefined &&
-        rewardRules[rewardRulesKey].currency === mainUser.currency &&
-        rewardRules[rewardRulesKey].key === mainUser.type
+        rewardRules[rewardRuleKey].currency === mainUser.currency &&
+        rewardRules[rewardRuleKey].key === mainUser.type
       ) {
         const updatedSuccessCount = await this.updateSuccessCount({
           userId,
@@ -282,7 +279,7 @@ export class MissionsService {
 
         // user
         await this.commonFlowReward(
-          rewardRules[rewardRulesKey].id,
+          rewardRules[rewardRuleKey].id,
           mainUser,
           userId,
           data,
@@ -293,8 +290,8 @@ export class MissionsService {
       if (
         referredUserId !== '0' &&
         referredUser !== undefined &&
-        rewardRules[rewardRulesKey].currency === referredUser.currency &&
-        rewardRules[rewardRulesKey].key === referredUser.type
+        rewardRules[rewardRuleKey].currency === referredUser.currency &&
+        rewardRules[rewardRuleKey].key === referredUser.type
       ) {
         const updatedSuccessCount = await this.updateSuccessCount({
           userId: referredUserId,
@@ -315,7 +312,7 @@ export class MissionsService {
 
         // referred user
         await this.commonFlowReward(
-          rewardRules[rewardRulesKey].id,
+          rewardRules[rewardRuleKey].id,
           referredUser,
           referredUserId,
           data,
@@ -590,6 +587,13 @@ export class MissionsService {
     const fixedReleaseValue = FixedNumber.fromString(
       String(rewardRule.releaseValue),
     )
+
+    if (fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() <= 0)
+      return {
+        status: false,
+        source: '1',
+      }
+
     const fixedMainUserAmount = FixedNumber.fromString(
       mainUser === undefined || rewardRule.currency !== mainUser.currency
         ? '0'
@@ -601,13 +605,15 @@ export class MissionsService {
         ? '0'
         : referredUser.amount,
     )
-    return (
-      fixedLimitValue
-        .subUnsafe(fixedReleaseValue)
-        .subUnsafe(fixedMainUserAmount)
-        .subUnsafe(fixedReferredUserAmount)
-        .toUnsafeFloat() >= 0
-    )
+    return {
+      status:
+        fixedLimitValue
+          .subUnsafe(fixedReleaseValue)
+          .subUnsafe(fixedMainUserAmount)
+          .subUnsafe(fixedReferredUserAmount)
+          .toUnsafeFloat() >= 0,
+      source: '2',
+    }
   }
 
   getDetailUserFromGrantTarget(grantTarget: string) {
@@ -660,16 +666,6 @@ export class MissionsService {
         msgData[property] = Number(msgData[property]) * 1000
     }
     return msgData
-  }
-
-  checkMoneyDownToZero(rewardRule: RewardRule) {
-    const fixedLimitValue = FixedNumber.fromString(
-      String(rewardRule.limitValue),
-    )
-    const fixedReleaseValue = FixedNumber.fromString(
-      String(rewardRule.releaseValue),
-    )
-    return fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() > 0
   }
 
   async updateSuccessCount(updateMissionUser: IUpdateMissionUser) {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import { Pagination, paginate } from 'nestjs-typeorm-paginate'
+import { Pagination, paginate, paginateRaw } from 'nestjs-typeorm-paginate'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
@@ -83,8 +83,12 @@ export class CampaignService {
   async getPaginate(
     options: IPaginationOptions<CustomPaginationMetaTransformer>,
     queryBuilder: SelectQueryBuilder<Campaign> = null,
+    isRaw = false,
   ): Promise<Pagination<Campaign, CustomPaginationMetaTransformer>> {
     if (queryBuilder === null) queryBuilder = this.queryBuilder()
+    if (isRaw) {
+      return paginateRaw(queryBuilder, options)
+    }
     return paginate<Campaign, CustomPaginationMetaTransformer>(
       queryBuilder,
       options,

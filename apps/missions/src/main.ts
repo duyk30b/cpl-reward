@@ -44,5 +44,10 @@ async function bootstrap() {
   app.useGlobalInterceptors(new SentryInterceptor())
 
   await app.listen(port)
+
+  process.on('exit', async () => {
+    await app.close()
+    process.exit(1)
+  })
 }
 bootstrap()

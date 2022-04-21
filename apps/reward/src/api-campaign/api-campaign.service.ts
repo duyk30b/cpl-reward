@@ -47,7 +47,7 @@ export class ApiCampaignService {
     const result = await this.campaignService.getPaginate(
       options,
       queryBuilder,
-      true,
+      false,
     )
     CommonService.customLinks(result.links)
     return {

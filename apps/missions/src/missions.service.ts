@@ -447,12 +447,17 @@ export class MissionsService {
   ) {
     if (judgmentConditions.length === 0) return true
     let result = true
+    let errorCondition = null
     for (const idx in judgmentConditions) {
       const currentCondition = judgmentConditions[idx]
       if (currentCondition.eventName !== EVENTS[eventName]) continue
 
       const checkExistMessageValue = messageValue[currentCondition.property]
-      if (checkExistMessageValue === undefined) continue
+      if (checkExistMessageValue === undefined) {
+        errorCondition = currentCondition
+        result = false
+        break
+      }
 
       if (
         currentCondition.type === 'unix_timestamp' &&
@@ -461,7 +466,9 @@ export class MissionsService {
                 ${Number(currentCondition.value)}`)
       ) {
         // compare timestamp fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -473,7 +480,9 @@ export class MissionsService {
         )
       ) {
         // compare number fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -483,7 +492,9 @@ export class MissionsService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -493,24 +504,26 @@ export class MissionsService {
                 ${currentCondition.value}`)
       ) {
         // compare boolean and other fail
+        errorCondition = currentCondition
         result = false
-      }
-
-      if (!result) {
-        this.eventEmitter.emit('write_log', {
-          logLevel: 'warn',
-          traceCode: 'm012',
-          extraData: {
-            eventProperty: currentCondition.property,
-            eventValue: messageValue[currentCondition.property],
-            operator: currentCondition.operator,
-            conditionValue: currentCondition.value,
-          },
-          params: { name: 'Judgment' },
-        })
         break
       }
     }
+
+    if (!result && errorCondition !== null) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm012',
+        extraData: {
+          eventProperty: errorCondition.property,
+          eventValue: messageValue[errorCondition.property],
+          operator: errorCondition.operator,
+          conditionValue: errorCondition.value,
+        },
+        params: { name: 'Judgment' },
+      })
+    }
+
     return result
   }
 
@@ -521,6 +534,7 @@ export class MissionsService {
   checkUserConditions(userConditions: IUserCondition[], user: IUser) {
     if (userConditions.length === 0) return true
     let result = true
+    let errorCondition = null
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -528,7 +542,12 @@ export class MissionsService {
       )
 
       const checkExistUserProperty = user[currentCondition.property]
-      if (checkExistUserProperty === undefined) continue
+      if (checkExistUserProperty === undefined) {
+        // exist condition but data input not exist this property
+        errorCondition = currentCondition
+        result = false
+        break
+      }
 
       if (
         currentCondition.type === 'number' &&
@@ -539,7 +558,9 @@ export class MissionsService {
         )
       ) {
         // compare number fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -549,7 +570,9 @@ export class MissionsService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -559,24 +582,26 @@ export class MissionsService {
                 ${currentCondition.value}`)
       ) {
         // compare boolean and other fail
+        errorCondition = currentCondition
         result = false
-      }
-
-      if (!result) {
-        this.eventEmitter.emit('write_log', {
-          logLevel: 'warn',
-          traceCode: 'm012',
-          extraData: {
-            eventProperty: currentCondition.property,
-            eventValue: user[currentCondition.property],
-            operator: currentCondition.operator,
-            conditionValue: currentCondition.value,
-          },
-          params: { name: 'User' },
-        })
         break
       }
     }
+
+    if (!result && errorCondition !== null) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm012',
+        extraData: {
+          eventProperty: errorCondition.property,
+          eventValue: user[errorCondition.property],
+          operator: errorCondition.operator,
+          conditionValue: errorCondition.value,
+        },
+        params: { name: 'User' },
+      })
+    }
+
     return result
   }
 

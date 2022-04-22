@@ -22,3 +22,19 @@ export enum TypeEvent {
   BCE = 'BCE_',
   HIGH_LOW = 'HIGH_LOW_',
 }
+
+export enum EventEmitterType {
+  CREATE_MISSION_USER_LOG = 'create_mission_user_log',
+}
+
+export enum MissionUserLogNoteCode {
+  SUCCESS = 1,
+  FAILED_RAISE_REWARD = 2,
+  FAILED_RELEASE_MONEY = 3,
+}
+
+export enum MissionUserLogStatus {
+  IGNORE = 0,
+  NEED_TO_RESOLVE = 1,
+  RESOLVED = 2,
+}

@@ -10,6 +10,12 @@ import {
   UserRewardHistoryService,
 } from '@lib/user-reward-history'
 import { ExternalCashbackService } from '@lib/external-cashback'
+import {
+  EventEmitterType,
+  MissionUserLogNoteCode,
+  MissionUserLogStatus,
+} from '@lib/common'
+import { DELIVERY_METHOD_WALLET } from '@lib/mission'
 
 @Injectable()
 export class ExternalListener {
@@ -33,6 +39,23 @@ export class ExternalListener {
         data: input.data,
       })
     if (sendRewardToCashback === null) {
+      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+        campaignId: input.data.campaignId,
+        missionId: input.data.missionId,
+        userId: input.userId,
+        successCount: 0,
+        moneyEarned: input.amount,
+        note: JSON.stringify({
+          event: input.data.msgName,
+          result: 'Failed to release money',
+          statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
+        }),
+        userType: input.userType,
+        currency: input.currency,
+        wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        status: MissionUserLogStatus.NEED_TO_RESOLVE,
+      })
+
       const result = await this.userRewardHistoryService.updateById(input.id, {
         status: USER_REWARD_STATUS.FAIL,
       })
@@ -59,6 +82,23 @@ export class ExternalListener {
       })
       return
     }
+
+    this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+      campaignId: input.data.campaignId,
+      missionId: input.data.missionId,
+      userId: input.userId,
+      successCount: 0,
+      moneyEarned: input.amount,
+      note: JSON.stringify({
+        event: input.data.msgName,
+        result: 'Success',
+        statusCode: MissionUserLogNoteCode.SUCCESS,
+      }),
+      userType: input.userType,
+      currency: input.currency,
+      wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+      status: MissionUserLogStatus.IGNORE,
+    })
 
     const result = await this.userRewardHistoryService.updateById(input.id, {
       status: USER_REWARD_STATUS.RECEIVED,
@@ -87,6 +127,23 @@ export class ExternalListener {
         input.data,
       )
     if (sendRewardToBalance === null) {
+      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+        campaignId: input.data.campaignId,
+        missionId: input.data.missionId,
+        userId: input.userId,
+        successCount: 0,
+        moneyEarned: input.amount,
+        note: JSON.stringify({
+          event: input.data.msgName,
+          result: 'Failed to release money',
+          statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
+        }),
+        userType: input.userType,
+        currency: input.currency,
+        wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+        status: MissionUserLogStatus.NEED_TO_RESOLVE,
+      })
+
       const result = await this.userRewardHistoryService.updateById(input.id, {
         status: USER_REWARD_STATUS.FAIL,
       })
@@ -113,6 +170,24 @@ export class ExternalListener {
       })
       return
     }
+
+    // Save success log to user_mission_log
+    this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+      campaignId: input.data.campaignId,
+      missionId: input.data.missionId,
+      userId: input.userId,
+      successCount: 0,
+      moneyEarned: input.amount,
+      note: JSON.stringify({
+        event: input.data.msgName,
+        result: 'Success',
+        statusCode: MissionUserLogNoteCode.SUCCESS,
+      }),
+      userType: input.userType,
+      currency: input.currency,
+      wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+      status: MissionUserLogStatus.IGNORE,
+    })
 
     const result = await this.userRewardHistoryService.updateById(input.id, {
       status: USER_REWARD_STATUS.RECEIVED,

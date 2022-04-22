@@ -32,7 +32,7 @@ export class ExternalBalanceService {
       currency
 
     try {
-      const result = firstValueFrom(
+      const result = await firstValueFrom(
         await this.httpService
           .post(
             postBalanceUrl,
@@ -67,6 +67,16 @@ export class ExternalBalanceService {
       return result
     } catch (e) {
       this.logger.log(e)
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm018',
+        data,
+        extraData: {
+          result: e.message,
+        },
+        params: { type: 'balance' },
+      })
+
       return null
     }
   }

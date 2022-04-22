@@ -7,7 +7,12 @@ import {
   MissionService,
   MISSION_STATUS,
 } from '@lib/mission'
-import { CommonService } from '@lib/common'
+import {
+  CommonService,
+  EventEmitterType,
+  MissionUserLogNoteCode,
+  MissionUserLogStatus,
+} from '@lib/common'
 import { Injectable } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -338,7 +343,24 @@ export class MissionsService {
     // this.eventEmitter.emit('update_value_reward_campaign', {.........})
 
     if (updated.affected === 0) {
-      // TODO: Cần luu log này ra DB để admin và dev xem lại tránh việc miss mất phần thưởng của user
+      // Log: increased success_count but failed to release reward, because of out of budget
+      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+        campaignId: data.campaignId,
+        missionId: data.missionId,
+        userId: userId,
+        successCount: 0,
+        moneyEarned: userTarget.amount,
+        note: JSON.stringify({
+          event: data.msgName,
+          result: 'Failed to raise reward after increase success count',
+          statusCode: MissionUserLogNoteCode.FAILED_RAISE_REWARD,
+        }),
+        userType: userTarget.user,
+        currency: userTarget.currency,
+        wallet: DELIVERY_METHOD_WALLET[userTarget.wallet],
+        status: MissionUserLogStatus.IGNORE,
+      })
+
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
         traceCode: 'm011',
@@ -377,6 +399,7 @@ export class MissionsService {
         currency: userTarget.currency,
         type: 'reward',
         data,
+        userType: userTarget.user,
       })
     }
     if (
@@ -391,6 +414,7 @@ export class MissionsService {
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
         data,
+        userType: userTarget.user,
       })
     }
   }
@@ -713,22 +737,42 @@ export class MissionsService {
         currency: updateMissionUser.userTarget.currency,
       }
       if (missionUser === undefined) {
-        // create
-        const createMissionUserData = plainToInstance(
-          CreateMissionUserDto,
-          createMissionUserLogData,
-          {
-            ignoreDecorators: true,
-            excludeExtraneousValues: true,
-          },
-        )
-        await this.missionUserService.save(createMissionUserData)
-        this.eventEmitter.emit(
-          'create_mission_user_log',
-          createMissionUserLogData,
-        )
+        try {
+          // create
+          const createMissionUserData = plainToInstance(
+            CreateMissionUserDto,
+            createMissionUserLogData,
+            {
+              ignoreDecorators: true,
+              excludeExtraneousValues: true,
+            },
+          )
+          await this.missionUserService.save(createMissionUserData)
 
-        return true
+          return true
+        } catch (error) {
+          // retry update if failed to create
+          const existedMissionUser = await this.missionUserService.findOne({
+            missionId: updateMissionUser.data.missionId,
+            userId: updateMissionUser.userId,
+            campaignId: updateMissionUser.data.campaignId,
+          })
+
+          if (existedMissionUser === undefined) {
+            return false
+          }
+
+          const updated = await this.missionUserService.increaseSuccessCount(
+            existedMissionUser.id,
+            updateMissionUser.limitReceivedReward,
+          )
+
+          if (updated.affected > 0) {
+            return true
+          }
+
+          return false
+        }
       }
 
       // update
@@ -738,11 +782,6 @@ export class MissionsService {
       )
 
       if (updated.affected > 0) {
-        this.eventEmitter.emit(
-          'create_mission_user_log',
-          createMissionUserLogData,
-        )
-
         return true
       }
 

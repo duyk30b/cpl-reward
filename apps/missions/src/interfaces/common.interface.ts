@@ -16,6 +16,7 @@ export interface ICreateMissionUserLog {
   moneyEarned: string
   note: string
   userType: string
+  currency: string
 }
 
 export interface IUpdateValueRewardCampaign {

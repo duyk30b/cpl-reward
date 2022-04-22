@@ -24,4 +24,10 @@ export class CreateMissionUserLogDto {
 
   @Expose()
   currency: string
+
+  @Expose()
+  wallet: string
+
+  @Expose()
+  status: number
 }

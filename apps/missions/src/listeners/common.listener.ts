@@ -9,6 +9,7 @@ import {
 } from '../interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserLogDto } from '@lib/mission-user-log/dto/create-mission-user-log.dto'
+import { EventEmitterType } from '@lib/common'
 
 @Injectable()
 export class CommonListener {
@@ -58,7 +59,7 @@ export class CommonListener {
     // )
   }
 
-  @OnEvent('create_mission_user_log')
+  @OnEvent(EventEmitterType.CREATE_MISSION_USER_LOG)
   async handleMissionUserLog(data: ICreateMissionUserLog) {
     const createMissionUserLog = plainToInstance(
       CreateMissionUserLogDto,
@@ -68,6 +69,7 @@ export class CommonListener {
         excludeExtraneousValues: true,
       },
     )
+
     await this.missionUserLogService.save(createMissionUserLog)
   }
 }

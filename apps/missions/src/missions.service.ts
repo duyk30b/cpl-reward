@@ -7,7 +7,12 @@ import {
   MissionService,
   MISSION_STATUS,
 } from '@lib/mission'
-import { CommonService } from '@lib/common'
+import {
+  CommonService,
+  EventEmitterType,
+  MissionUserLogNoteCode,
+  MissionUserLogStatus,
+} from '@lib/common'
 import { Injectable } from '@nestjs/common'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import {
@@ -228,40 +233,37 @@ export class MissionsService {
       return
     }
 
-    for (const rewardRulesKey in rewardRules) {
-      const checkMoneyDownToZero = this.checkMoneyDownToZero(
-        rewardRules[rewardRulesKey],
-      )
-      if (!checkMoneyDownToZero) continue
-
+    for (const rewardRuleKey in rewardRules) {
       const checkMoneyReward = this.checkMoneyReward(
-        rewardRules[rewardRulesKey],
+        rewardRules[rewardRuleKey],
         mainUser,
         referredUser,
       )
 
-      if (!checkMoneyReward) {
+      if (!checkMoneyReward.status) {
         this.eventEmitter.emit(this.eventEmit, {
           logLevel: 'warn',
           traceCode: 'm010',
           data,
           extraData: {
-            currency: rewardRules[rewardRulesKey].currency,
-            limitValue: rewardRules[rewardRulesKey].limitValue,
+            currency: rewardRules[rewardRuleKey].currency,
+            limitValue: rewardRules[rewardRuleKey].limitValue,
+            releaseValue: rewardRules[rewardRuleKey].releaseValue,
             userId,
             mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,
             referredUserId,
             referredUserAmount:
               referredUser === undefined ? 'N/A' : referredUser.amount,
           },
+          params: { source: checkMoneyReward.source },
         })
         continue
       }
 
       if (
         mainUser !== undefined &&
-        rewardRules[rewardRulesKey].currency === mainUser.currency &&
-        rewardRules[rewardRulesKey].key === mainUser.type
+        rewardRules[rewardRuleKey].currency === mainUser.currency &&
+        rewardRules[rewardRuleKey].key === mainUser.type
       ) {
         const updatedSuccessCount = await this.updateSuccessCount({
           userId,
@@ -282,7 +284,7 @@ export class MissionsService {
 
         // user
         await this.commonFlowReward(
-          rewardRules[rewardRulesKey].id,
+          rewardRules[rewardRuleKey].id,
           mainUser,
           userId,
           data,
@@ -293,8 +295,8 @@ export class MissionsService {
       if (
         referredUserId !== '0' &&
         referredUser !== undefined &&
-        rewardRules[rewardRulesKey].currency === referredUser.currency &&
-        rewardRules[rewardRulesKey].key === referredUser.type
+        rewardRules[rewardRuleKey].currency === referredUser.currency &&
+        rewardRules[rewardRuleKey].key === referredUser.type
       ) {
         const updatedSuccessCount = await this.updateSuccessCount({
           userId: referredUserId,
@@ -315,7 +317,7 @@ export class MissionsService {
 
         // referred user
         await this.commonFlowReward(
-          rewardRules[rewardRulesKey].id,
+          rewardRules[rewardRuleKey].id,
           referredUser,
           referredUserId,
           data,
@@ -341,7 +343,24 @@ export class MissionsService {
     // this.eventEmitter.emit('update_value_reward_campaign', {.........})
 
     if (updated.affected === 0) {
-      // TODO: Cần luu log này ra DB để admin và dev xem lại tránh việc miss mất phần thưởng của user
+      // Log: increased success_count but failed to release reward, because of out of budget
+      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+        campaignId: data.campaignId,
+        missionId: data.missionId,
+        userId: userId,
+        successCount: 0,
+        moneyEarned: userTarget.amount,
+        note: JSON.stringify({
+          event: data.msgName,
+          result: 'Failed to raise reward after increase success count',
+          statusCode: MissionUserLogNoteCode.FAILED_RAISE_REWARD,
+        }),
+        userType: userTarget.user,
+        currency: userTarget.currency,
+        wallet: DELIVERY_METHOD_WALLET[userTarget.wallet],
+        status: MissionUserLogStatus.IGNORE,
+      })
+
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
         traceCode: 'm011',
@@ -380,6 +399,7 @@ export class MissionsService {
         currency: userTarget.currency,
         type: 'reward',
         data,
+        userType: userTarget.user,
       })
     }
     if (
@@ -394,6 +414,7 @@ export class MissionsService {
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
         data,
+        userType: userTarget.user,
       })
     }
   }
@@ -450,12 +471,17 @@ export class MissionsService {
   ) {
     if (judgmentConditions.length === 0) return true
     let result = true
+    let errorCondition = null
     for (const idx in judgmentConditions) {
       const currentCondition = judgmentConditions[idx]
       if (currentCondition.eventName !== EVENTS[eventName]) continue
 
       const checkExistMessageValue = messageValue[currentCondition.property]
-      if (checkExistMessageValue === undefined) continue
+      if (checkExistMessageValue === undefined) {
+        errorCondition = currentCondition
+        result = false
+        break
+      }
 
       if (
         currentCondition.type === 'unix_timestamp' &&
@@ -464,7 +490,9 @@ export class MissionsService {
                 ${Number(currentCondition.value)}`)
       ) {
         // compare timestamp fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -476,7 +504,9 @@ export class MissionsService {
         )
       ) {
         // compare number fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -486,7 +516,9 @@ export class MissionsService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -496,24 +528,26 @@ export class MissionsService {
                 ${currentCondition.value}`)
       ) {
         // compare boolean and other fail
+        errorCondition = currentCondition
         result = false
-      }
-
-      if (!result) {
-        this.eventEmitter.emit('write_log', {
-          logLevel: 'warn',
-          traceCode: 'm012',
-          extraData: {
-            eventProperty: currentCondition.property,
-            eventValue: messageValue[currentCondition.property],
-            operator: currentCondition.operator,
-            conditionValue: currentCondition.value,
-          },
-          params: { name: 'Judgment' },
-        })
         break
       }
     }
+
+    if (!result && errorCondition !== null) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm012',
+        extraData: {
+          eventProperty: errorCondition.property,
+          eventValue: messageValue[errorCondition.property],
+          operator: errorCondition.operator,
+          conditionValue: errorCondition.value,
+        },
+        params: { name: 'Judgment' },
+      })
+    }
+
     return result
   }
 
@@ -524,6 +558,7 @@ export class MissionsService {
   checkUserConditions(userConditions: IUserCondition[], user: IUser) {
     if (userConditions.length === 0) return true
     let result = true
+    let errorCondition = null
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -531,7 +566,12 @@ export class MissionsService {
       )
 
       const checkExistUserProperty = user[currentCondition.property]
-      if (checkExistUserProperty === undefined) continue
+      if (checkExistUserProperty === undefined) {
+        // exist condition but data input not exist this property
+        errorCondition = currentCondition
+        result = false
+        break
+      }
 
       if (
         currentCondition.type === 'number' &&
@@ -542,7 +582,9 @@ export class MissionsService {
         )
       ) {
         // compare number fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -552,7 +594,9 @@ export class MissionsService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
+        errorCondition = currentCondition
         result = false
+        break
       }
 
       if (
@@ -562,24 +606,26 @@ export class MissionsService {
                 ${currentCondition.value}`)
       ) {
         // compare boolean and other fail
+        errorCondition = currentCondition
         result = false
-      }
-
-      if (!result) {
-        this.eventEmitter.emit('write_log', {
-          logLevel: 'warn',
-          traceCode: 'm012',
-          extraData: {
-            eventProperty: currentCondition.property,
-            eventValue: user[currentCondition.property],
-            operator: currentCondition.operator,
-            conditionValue: currentCondition.value,
-          },
-          params: { name: 'User' },
-        })
         break
       }
     }
+
+    if (!result && errorCondition !== null) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm012',
+        extraData: {
+          eventProperty: errorCondition.property,
+          eventValue: user[errorCondition.property],
+          operator: errorCondition.operator,
+          conditionValue: errorCondition.value,
+        },
+        params: { name: 'User' },
+      })
+    }
+
     return result
   }
 
@@ -590,6 +636,13 @@ export class MissionsService {
     const fixedReleaseValue = FixedNumber.fromString(
       String(rewardRule.releaseValue),
     )
+
+    if (fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() <= 0)
+      return {
+        status: false,
+        source: '1',
+      }
+
     const fixedMainUserAmount = FixedNumber.fromString(
       mainUser === undefined || rewardRule.currency !== mainUser.currency
         ? '0'
@@ -601,13 +654,15 @@ export class MissionsService {
         ? '0'
         : referredUser.amount,
     )
-    return (
-      fixedLimitValue
-        .subUnsafe(fixedReleaseValue)
-        .subUnsafe(fixedMainUserAmount)
-        .subUnsafe(fixedReferredUserAmount)
-        .toUnsafeFloat() >= 0
-    )
+    return {
+      status:
+        fixedLimitValue
+          .subUnsafe(fixedReleaseValue)
+          .subUnsafe(fixedMainUserAmount)
+          .subUnsafe(fixedReferredUserAmount)
+          .toUnsafeFloat() >= 0,
+      source: '2',
+    }
   }
 
   getDetailUserFromGrantTarget(grantTarget: string) {
@@ -662,16 +717,6 @@ export class MissionsService {
     return msgData
   }
 
-  checkMoneyDownToZero(rewardRule: RewardRule) {
-    const fixedLimitValue = FixedNumber.fromString(
-      String(rewardRule.limitValue),
-    )
-    const fixedReleaseValue = FixedNumber.fromString(
-      String(rewardRule.releaseValue),
-    )
-    return fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() > 0
-  }
-
   async updateSuccessCount(updateMissionUser: IUpdateMissionUser) {
     try {
       const missionUser = await this.missionUserService.findOne({
@@ -692,22 +737,42 @@ export class MissionsService {
         currency: updateMissionUser.userTarget.currency,
       }
       if (missionUser === undefined) {
-        // create
-        const createMissionUserData = plainToInstance(
-          CreateMissionUserDto,
-          createMissionUserLogData,
-          {
-            ignoreDecorators: true,
-            excludeExtraneousValues: true,
-          },
-        )
-        await this.missionUserService.save(createMissionUserData)
-        this.eventEmitter.emit(
-          'create_mission_user_log',
-          createMissionUserLogData,
-        )
+        try {
+          // create
+          const createMissionUserData = plainToInstance(
+            CreateMissionUserDto,
+            createMissionUserLogData,
+            {
+              ignoreDecorators: true,
+              excludeExtraneousValues: true,
+            },
+          )
+          await this.missionUserService.save(createMissionUserData)
 
-        return true
+          return true
+        } catch (error) {
+          // retry update if failed to create
+          const existedMissionUser = await this.missionUserService.findOne({
+            missionId: updateMissionUser.data.missionId,
+            userId: updateMissionUser.userId,
+            campaignId: updateMissionUser.data.campaignId,
+          })
+
+          if (existedMissionUser === undefined) {
+            return false
+          }
+
+          const updated = await this.missionUserService.increaseSuccessCount(
+            existedMissionUser.id,
+            updateMissionUser.limitReceivedReward,
+          )
+
+          if (updated.affected > 0) {
+            return true
+          }
+
+          return false
+        }
       }
 
       // update
@@ -717,11 +782,6 @@ export class MissionsService {
       )
 
       if (updated.affected > 0) {
-        this.eventEmitter.emit(
-          'create_mission_user_log',
-          createMissionUserLogData,
-        )
-
         return true
       }
 

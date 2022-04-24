@@ -127,7 +127,10 @@ export const USER_CONDITION_TYPES = {
     display: 'number',
   },
 }
-
+/**
+ * DO NOT REMOVE ANY PROPERTY 'TYPE' OR 'ORIGINAL' IN BELOW CONSTANT.
+ * EVERY ACTION TO REMOVE WILL BE MAKE CRITICAL IN WORKER WHEN RUNNING
+ */
 export const INFO_EVENTS = [
   {
     eventName: EVENTS.AUTH_USER_LOGIN,
@@ -136,6 +139,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'ID of user who just logged in',
       },
@@ -173,6 +177,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -231,6 +236,7 @@ export const INFO_EVENTS = [
       {
         key: 'id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -238,6 +244,7 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Account status',
+        original: 'number',
         display: 'enum',
         options: USER_STATUS,
       },
@@ -245,6 +252,7 @@ export const INFO_EVENTS = [
         key: 'type',
         type: 'number',
         description: 'Account type',
+        original: 'number',
         display: 'enum',
         options: USER_TYPE,
       },
@@ -252,6 +260,7 @@ export const INFO_EVENTS = [
         key: 'email_verify_status',
         type: 'number',
         description: 'Email verify status',
+        original: 'number',
         display: 'enum',
         options: USER_EMAIL_VERIFY_STATUS,
       },
@@ -259,6 +268,7 @@ export const INFO_EVENTS = [
         key: 'authenticator_verify_status',
         type: 'number',
         description: 'Authenticator verify status',
+        original: 'number',
         display: 'enum',
         options: USER_AUTHENTICATOR_VERIFY_STATUS,
       },
@@ -266,6 +276,7 @@ export const INFO_EVENTS = [
         key: 'kyc_verify_status',
         type: 'number',
         description: 'KYC verify status',
+        original: 'number',
         display: 'enum',
         options: USER_KYC_VERIFY_STATUS,
       },
@@ -288,12 +299,14 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
       {
         key: 'device_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'Device ID',
       },
@@ -311,6 +324,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -323,6 +337,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -335,6 +350,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -342,6 +358,7 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Status',
+        original: 'number',
         display: 'enum',
         options: USER_AUTHENTICATOR_VERIFY_STATUS,
       },
@@ -353,12 +370,14 @@ export const INFO_EVENTS = [
       {
         key: 'id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'ID',
       },
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -366,6 +385,7 @@ export const INFO_EVENTS = [
         key: 'type',
         type: 'number',
         description: 'Type',
+        original: 'number',
         display: 'enum',
         options: KYC_TYPE,
       },
@@ -378,6 +398,7 @@ export const INFO_EVENTS = [
         key: 'id_document_type',
         type: 'number',
         description: 'Document type ID',
+        original: 'number',
         display: 'enum',
         options: KYC_ID_DOCUMENT_TYPE,
       },
@@ -389,6 +410,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_kyc_history_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'KYC history id',
       },
@@ -396,6 +418,7 @@ export const INFO_EVENTS = [
         key: 'status',
         type: 'number',
         description: 'Status',
+        original: 'number',
         display: 'enum',
         options: KYC_STATUS,
       },
@@ -423,6 +446,7 @@ export const INFO_EVENTS = [
       {
         key: 'id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -439,6 +463,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -468,6 +493,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -484,6 +510,7 @@ export const INFO_EVENTS = [
       {
         key: 'quantity',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'Quantity',
       },
@@ -511,6 +538,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -527,12 +555,14 @@ export const INFO_EVENTS = [
       {
         key: 'amount',
         type: 'string', // Type khi gửi về từ kafka là string, nhưng bản chất là giá trị là number
+        original: 'number',
         display: 'number',
         description: 'Amount',
       },
       {
         key: 'fee',
         type: 'string', // Type khi gửi về từ kafka là string, nhưng bản chất là giá trị là number
+        original: 'number',
         display: 'number',
         description: 'Fee',
       },
@@ -561,6 +591,7 @@ export const INFO_EVENTS = [
   //     {
   //       key: 'user_id',
   //       type: 'string',
+  //       original: 'number',
   //       display: 'number',
   //       description: 'User ID',
   //     },
@@ -577,12 +608,14 @@ export const INFO_EVENTS = [
   //     {
   //       key: 'amount',
   //       type: 'string',
+  //       original: 'number',
   //       display: 'number',
   //       description: 'Amount',
   //     },
   //     {
   //       key: 'fee',
   //       type: 'string',
+  //       original: 'number',
   //       display: 'number',
   //       description: 'Fee',
   //     },
@@ -599,36 +632,42 @@ export const INFO_EVENTS = [
       {
         key: 'id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'Transfer ID',
       },
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
       {
         key: 'bcast_balance',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'BCAST balance',
       },
       {
         key: 'bcast_available_balance',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'BCAST available balance',
       },
       {
         key: 'usdt_balance',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'USDT balance',
       },
       {
         key: 'usdt_available_balance',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'USDT available balance',
       },
@@ -647,6 +686,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -693,12 +733,14 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Expire Time',
       },
@@ -745,6 +787,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Created At',
       },
@@ -756,6 +799,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Resell Expire',
       },
@@ -797,6 +841,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Updated At',
       },
@@ -818,6 +863,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -864,12 +910,14 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Expire Time',
       },
@@ -916,6 +964,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Created At',
       },
@@ -927,6 +976,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Resell Expire',
       },
@@ -968,6 +1018,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Updated At',
       },
@@ -989,6 +1040,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -1035,12 +1087,14 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Expire Time',
       },
@@ -1087,6 +1141,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Created At',
       },
@@ -1098,6 +1153,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Resell Expire',
       },
@@ -1139,6 +1195,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Updated At',
       },
@@ -1160,6 +1217,7 @@ export const INFO_EVENTS = [
       {
         key: 'user_id',
         type: 'string',
+        original: 'number',
         display: 'number',
         description: 'User ID',
       },
@@ -1206,12 +1264,14 @@ export const INFO_EVENTS = [
       {
         key: 'buy_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Buy Time',
       },
       {
         key: 'expire_time',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Expire Time',
       },
@@ -1258,6 +1318,7 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Created At',
       },
@@ -1269,6 +1330,7 @@ export const INFO_EVENTS = [
       {
         key: 'resell_expire',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Resell Expire',
       },
@@ -1310,6 +1372,7 @@ export const INFO_EVENTS = [
       {
         key: 'updated_at',
         type: 'string',
+        original: 'unix_timestamp',
         display: 'unix_timestamp',
         description: 'Updated At',
       },

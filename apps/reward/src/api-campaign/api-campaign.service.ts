@@ -15,7 +15,6 @@ import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { CommonService } from '@lib/common'
-import { MISSION_STATUS, TARGET_TYPE } from '@lib/mission'
 
 @Injectable()
 export class ApiCampaignService {
@@ -45,7 +44,11 @@ export class ApiCampaignService {
       paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
     }
     const queryBuilder = this.campaignQueryBuilder(apiCampaignFilterDto, userId)
-    const result = await this.campaignService.getPaginate(options, queryBuilder)
+    const result = await this.campaignService.getPaginate(
+      options,
+      queryBuilder,
+      false,
+    )
     CommonService.customLinks(result.links)
     return {
       pagination: result.meta,
@@ -64,7 +67,8 @@ export class ApiCampaignService {
       'mission_user',
       'mission_user',
       'mission_user.campaign_id = campaign.id AND mission_user.user_id = ' +
-        userId,
+        userId +
+        ' AND (SELECT missions.is_active FROM missions WHERE missions.id = mission_user.mission_id AND is_active = true LIMIT 0,1) IS NOT NULL',
     )
     queryBuilder.select([
       'mission_user.success_count AS success_count',
@@ -88,7 +92,7 @@ export class ApiCampaignService {
       is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
     })
 
-    // Only show running mission or completed by user
+    // Only show running campaign or completed by user
     queryBuilder.andWhere(
       new Brackets((qb) => {
         qb.where('campaign.status = ' + CAMPAIGN_STATUS.RUNNING).orWhere(

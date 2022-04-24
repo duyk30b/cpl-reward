@@ -1,6 +1,9 @@
 import { Expose } from 'class-transformer'
 
 export class CreateMissionUserLogDto {
+  @Expose({ name: 'campaign_id' })
+  campaignId: number
+
   @Expose({ name: 'mission_id' })
   missionId: number
 
@@ -21,4 +24,10 @@ export class CreateMissionUserLogDto {
 
   @Expose()
   currency: string
+
+  @Expose()
+  wallet: string
+
+  @Expose()
+  status: number
 }

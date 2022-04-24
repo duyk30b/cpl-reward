@@ -8,7 +8,7 @@ export const TRACE_CODES = {
   m007: 'Mission reward rules was not exist!',
   m008: 'User has received enough rewards',
   m009: 'Mission had out of budget',
-  m010: 'Mission reward was not enough money',
+  m010: 'Mission reward was not enough money. Source: {{source}}',
   m011: 'DANGER!!! Update release value fail.',
   m012: 'Compare {{name}} condition fail',
   m013: 'Update reward history fail',
@@ -16,4 +16,5 @@ export const TRACE_CODES = {
   m015: 'Result send {{type}}',
   m016: 'Invalid data struct',
   m017: 'Failed to reach success_count',
+  m018: 'Result send failed {{type}}',
 }

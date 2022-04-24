@@ -66,4 +66,12 @@ export class MissionUserLog extends MyBaseEntity {
   @Column()
   @Expose()
   currency: string
+
+  @Column()
+  @Expose()
+  wallet: string
+
+  @Column()
+  @Expose()
+  status: number
 }

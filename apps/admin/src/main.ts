@@ -13,11 +13,17 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         url: '0.0.0.0:5000',
-        package: ['admin_campaign', 'admin_mission', 'admin_common'],
+        package: [
+          'admin_campaign',
+          'admin_mission',
+          'admin_common',
+          'grpc.health.v1',
+        ],
         protoPath: [
           join(__dirname, '../admin/admin-campaign/admin-campaign.proto'),
           join(__dirname, '../admin/admin-mission/admin-mission.proto'),
           join(__dirname, '../admin/admin-common/admin-common.proto'),
+          join(__dirname, '../admin/health/health.proto'),
         ],
       },
     },

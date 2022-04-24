@@ -73,6 +73,15 @@ export class ExternalCashbackService {
       return result
     } catch (e) {
       this.logger.log(e)
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm018',
+        data: input.data,
+        extraData: {
+          result: e.message,
+        },
+        params: { type: 'cashback' },
+      })
       return null
     }
   }

@@ -4,7 +4,7 @@ export interface ISendRewardToBalance {
   id: number
   userId: string
   currency: string
-  amount: number
+  amount: string
   type: string
   data: IEvent
   userType: string

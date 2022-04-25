@@ -18,7 +18,7 @@ export class ExternalBalanceService {
 
   async changeUserBalance(
     userId: string,
-    amount: number,
+    amount: string,
     currency: string,
     type: string,
     data: any,
@@ -72,7 +72,9 @@ export class ExternalBalanceService {
         traceCode: 'm018',
         data,
         extraData: {
-          result: e.message,
+          statusCode: e.response.status,
+          statusText: e.response.statusText,
+          detailMessage: e.response.data.error,
         },
         params: { type: 'balance' },
       })

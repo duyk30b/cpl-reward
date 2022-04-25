@@ -35,7 +35,6 @@ import { IGrantTarget } from '@lib/common/common.interface'
 import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
 import { ExternalUserService } from '@lib/external-user'
-import * as Handlebars from 'handlebars'
 import { IUpdateMissionUser } from './interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
@@ -678,11 +677,6 @@ export class MissionsService {
     return { mainUser, referredUser }
   }
 
-  getLogMessageFromTemplate(templateTxt: string, params: any) {
-    const template = Handlebars.compile(templateTxt)
-    return template(params)
-  }
-
   transformEventData(msgData: any, msgName: string) {
     const typeOfProperties = this.missionService.getInfoEventsByKey(
       EVENTS[msgName],
@@ -767,11 +761,7 @@ export class MissionsService {
             updateMissionUser.limitReceivedReward,
           )
 
-          if (updated.affected > 0) {
-            return true
-          }
-
-          return false
+          return updated.affected > 0
         }
       }
 
@@ -781,11 +771,7 @@ export class MissionsService {
         updateMissionUser.limitReceivedReward,
       )
 
-      if (updated.affected > 0) {
-        return true
-      }
-
-      return false
+      return updated.affected > 0
     } catch (error) {
       return false
     }

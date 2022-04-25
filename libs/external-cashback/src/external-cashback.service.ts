@@ -48,6 +48,38 @@ export class ExternalCashbackService {
       auto_confirm: 1,
     }
     try {
+      /**
+       * Structure Result
+       * {
+       *   user_id: xxxxx,
+       *   reference_id: 'xxxxx',
+       *   update_time: '1650878587072',
+       *   balance_accounts: [
+       *     {
+       *       user_id: xxxxx,
+       *       type: 'CASHBACK',
+       *       currency: 'USDTSSS',
+       *       created_at: '1650878587072',
+       *       updated_at: '1650878587072',
+       *       actual_balance: '2.123',
+       *       available_balance: '2.123',
+       *       id: 441
+       *     }
+       *   ],
+       *   balance_transactions: [
+       *     {
+       *       reference_id: 'xxxxx',
+       *       type: 'REWARD',
+       *       balance_account_id: 441,
+       *       onHoldTransactionId: null,
+       *       amount: '2.123',
+       *       created_at: '1650878587072',
+       *       id: '1298'
+       *     }
+       *   ],
+       *   on_hold_transactions: []
+       * }
+       */
       const result = await firstValueFrom(
         await this.httpService
           .post(postBoUrl, JSON.stringify(postData), {
@@ -78,7 +110,9 @@ export class ExternalCashbackService {
         traceCode: 'm018',
         data: input.data,
         extraData: {
-          result: e.message,
+          statusCode: e.response.status,
+          statusText: e.response.statusText,
+          detailMessage: e.response.data.message,
         },
         params: { type: 'cashback' },
       })

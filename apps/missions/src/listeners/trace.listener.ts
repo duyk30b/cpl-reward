@@ -2,18 +2,18 @@ import { Injectable, Logger } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { TRACE_CODES } from '@lib/campaign/trace-codes'
 import { IWriteLog } from '../interfaces/missions.interface'
-import { MissionsService } from '../missions.service'
 import { ConfigService } from '@nestjs/config'
 import { RedisQueueService } from '@lib/redis-queue'
+import { CommonService } from '@lib/common'
 
 @Injectable()
 export class TraceListener {
   private readonly logger = new Logger(TraceListener.name)
 
   constructor(
-    private readonly missionsService: MissionsService,
     private readonly configService: ConfigService,
     private readonly redisQueueService: RedisQueueService,
+    private readonly commonService: CommonService,
   ) {}
 
   @OnEvent('write_log')
@@ -32,8 +32,8 @@ export class TraceListener {
       `[M${missionId}] [C${campaignId}]` +
       ` [Message: ${
         TRACE_CODES[traceCode] === undefined
-          ? this.missionsService.getLogMessageFromTemplate(traceCode, params)
-          : this.missionsService.getLogMessageFromTemplate(
+          ? this.commonService.getLogMessageFromTemplate(traceCode, params)
+          : this.commonService.getLogMessageFromTemplate(
               TRACE_CODES[traceCode],
               params === undefined ? {} : params,
             )

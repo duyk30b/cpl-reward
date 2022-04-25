@@ -1,4 +1,7 @@
 import { Controller } from '@nestjs/common'
+// import { Controller, Get } from '@nestjs/common'
+// import { ExternalCashbackService } from '@lib/external-cashback'
+// import { ExternalBalanceService } from '@lib/external-balance'
 
 @Controller('main')
 export class AppController {
@@ -14,5 +17,28 @@ export class AppController {
   //         })
   //     })
   //   }
+  // }
+  // constructor(
+  //   private readonly externalCashbackService: ExternalCashbackService,
+  //   private readonly externalBalanceService: ExternalBalanceService,
+  // ) {}
+  //
+  // @Get('test')
+  // async test() {
+  //   await this.externalCashbackService.changeUserCashback({
+  //     user_id: '64781',
+  //     currency: 'USDTSSS',
+  //     amount: '2.123',
+  //     historyId: 100001,
+  //     data: {},
+  //   })
+  //
+  //   await this.externalBalanceService.changeUserBalance(
+  //     '64781',
+  //     '2.123',
+  //     'USDT',
+  //     'reward',
+  //     {},
+  //   )
   // }
 }

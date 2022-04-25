@@ -133,67 +133,6 @@ export const USER_CONDITION_TYPES = {
  */
 export const INFO_EVENTS = [
   {
-    eventName: EVENTS.AUTH_USER_LOGIN,
-    properties: [
-      //user_id,lang,ip,is_register,time,channel_id
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'ID of user who just logged in',
-      },
-      // {
-      //   key: 'lang',
-      //   type: 'string',
-      //   description: 'Language of user (en/ja)',
-      // },
-      {
-        key: 'ip',
-        type: 'string',
-        description: 'IP address',
-      },
-      {
-        key: 'is_register',
-        type: 'boolean',
-        description: 'Is brand new account?',
-      },
-      {
-        key: 'time',
-        type: 'unix_timestamp',
-        description: 'Register time (unix timestamp)',
-      },
-      {
-        key: 'channel_id',
-        type: 'number',
-        description: 'Channel ID',
-      },
-    ],
-  },
-  {
-    eventName: EVENTS.AUTH_USER_CHANGE_EMAIL,
-    properties: [
-      //user_id,old_email,new_email
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'User ID',
-      },
-      {
-        key: 'old_email',
-        type: 'string',
-        description: 'Old Email',
-      },
-      {
-        key: 'new_email',
-        type: 'string',
-        description: 'New Email',
-      },
-    ],
-  },
-  {
     eventName: EVENTS.AUTH_USER_CREATED,
     properties: [
       // uuid,last_login,referrer_code,email,email_verify_at,created_at,updated_at,id,status,type,email_verify_status,' +
@@ -293,6 +232,67 @@ export const INFO_EVENTS = [
     ],
   },
   {
+    eventName: EVENTS.AUTH_USER_CHANGE_EMAIL,
+    properties: [
+      //user_id,old_email,new_email
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'old_email',
+        type: 'string',
+        description: 'Old Email',
+      },
+      {
+        key: 'new_email',
+        type: 'string',
+        description: 'New Email',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_LOGIN,
+    properties: [
+      //user_id,lang,ip,is_register,time,channel_id
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'ID of user who just logged in',
+      },
+      // {
+      //   key: 'lang',
+      //   type: 'string',
+      //   description: 'Language of user (en/ja)',
+      // },
+      {
+        key: 'ip',
+        type: 'string',
+        description: 'IP address',
+      },
+      {
+        key: 'is_register',
+        type: 'boolean',
+        description: 'Is brand new account?',
+      },
+      {
+        key: 'time',
+        type: 'unix_timestamp',
+        description: 'Register time (unix timestamp)',
+      },
+      {
+        key: 'channel_id',
+        type: 'number',
+        description: 'Channel ID',
+      },
+    ],
+  },
+  {
     eventName: EVENTS.AUTH_USER_LOGOUT,
     properties: [
       //user_id,device_id,time
@@ -331,19 +331,6 @@ export const INFO_EVENTS = [
     ],
   },
   {
-    eventName: EVENTS.AUTH_USER_CHANGE_INFO,
-    properties: [
-      //user_id
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'User ID',
-      },
-    ],
-  },
-  {
     eventName: EVENTS.AUTH_USER_AUTHENTICATOR_STATUS_UPDATED,
     properties: [
       //status,user_id,otp_secret
@@ -361,6 +348,27 @@ export const INFO_EVENTS = [
         original: 'number',
         display: 'enum',
         options: USER_AUTHENTICATOR_VERIFY_STATUS,
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_KYC_STATUS_UPDATED,
+    properties: [
+      // status, user_id
+      {
+        key: 'status',
+        type: 'number',
+        description: 'Status',
+        original: 'number',
+        display: 'enum',
+        options: KYC_STATUS,
+      },
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
       },
     ],
   },
@@ -439,7 +447,6 @@ export const INFO_EVENTS = [
       },
     ],
   },
-
   {
     eventName: EVENTS.AUTH_USER_KYC_AUTO_KYC_FINISHED,
     properties: [
@@ -478,6 +485,19 @@ export const INFO_EVENTS = [
         type: 'enum',
         options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level after change',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_CHANGE_INFO,
+    properties: [
+      //user_id
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
       },
     ],
   },

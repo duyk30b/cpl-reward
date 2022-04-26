@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { QueryBuilder, Repository } from 'typeorm'
 import { paginate, paginateRaw, Pagination } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'

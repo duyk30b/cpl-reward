@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import {
   DELIVERY_METHOD,
-  DELIVERY_METHOD_WALLET,
   GRANT_TARGET_USER,
   MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,

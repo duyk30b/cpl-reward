@@ -110,11 +110,11 @@ export const USER_CONDITION_TYPES = {
     display: 'enum',
     options: USER_EMAIL_VERIFY_STATUS,
   },
-  referrer_code: {
-    type: 'string',
-    original: 'number',
-    display: 'string',
-  },
+  // referrer_code: {
+  //   type: 'string',
+  //   original: 'number',
+  //   display: 'string',
+  // },
   account_lv: {
     type: 'number',
     original: 'number',
@@ -122,7 +122,7 @@ export const USER_CONDITION_TYPES = {
     options: USER_ACCOUNT_LV_OPTIONS,
   },
   channel_id: {
-    type: 'string',
+    type: 'number',
     original: 'number',
     display: 'number',
   },

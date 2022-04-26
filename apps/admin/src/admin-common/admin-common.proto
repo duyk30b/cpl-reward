@@ -7,6 +7,7 @@ service GrpcAdminCommonService {
   rpc ListEvents(Empty) returns (ListEventsResult);
   rpc ListGrantTarget(Empty) returns (GrantTargetResult);
   rpc ListUserConditions(Empty) returns (ResultUserConditions);
+  rpc ListDisplayConditions(Empty) returns (ResultUserConditions);
 }
 
 message GrantTargetResult {

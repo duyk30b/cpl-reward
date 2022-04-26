@@ -6,17 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { USER_REWARD_STATUS } from './enum'
 import { GRANT_TARGET_USER } from '@lib/mission'
-import {
-  IPaginationMeta,
-  paginate,
-  paginateRaw,
-  PaginationTypeEnum,
-} from 'nestjs-typeorm-paginate'
-import { Campaign } from '@lib/campaign/entities/campaign.entity'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import { paginate, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
-import { Min } from 'class-validator'
 import { formatPaginate } from '@lib/common/utils'
 
 @Injectable()

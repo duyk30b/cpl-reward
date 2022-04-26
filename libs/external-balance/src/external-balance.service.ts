@@ -23,6 +23,7 @@ export class ExternalBalanceService {
     type: string,
     data: any,
   ): Promise<any> {
+    currency = currency.toLowerCase()
     const balanceToken = this.configService.get('balance.token')
     const postBalanceUrl =
       this.configService.get('balance.url') +

@@ -26,8 +26,6 @@ import { LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 import { CampaignService } from '@lib/campaign'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService } from '@lib/common'
-import { UpdateRewardRuleDto } from '@lib/reward-rule/dto/update-reward-rule.dto'
-
 @Injectable()
 export class AdminMissionService {
   constructor(
@@ -155,6 +153,7 @@ export class AdminMissionService {
       create.judgmentConditions,
     )
     create.userConditions = this.updateTypeInUser(create.userConditions)
+    create.displayConditions = this.updateTypeInUser(create.displayConditions)
     create.status = this.updateStatusMission(create)
     const mission = await this.missionService.create(create)
     await Promise.all(
@@ -183,6 +182,7 @@ export class AdminMissionService {
       update.judgmentConditions,
     )
     update.userConditions = this.updateTypeInUser(update.userConditions)
+    update.displayConditions = this.updateTypeInUser(update.displayConditions)
     const createdRewardRules = await this.rewardRuleService.find({
       where: {
         missionId: update.id,

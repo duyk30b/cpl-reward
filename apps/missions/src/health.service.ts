@@ -21,11 +21,15 @@ export class HealthService {
       () =>
         this.db.pingCheck('database', { connection: this.defaultConnection }),
     ])
-    const data = {
-      ...result,
-      time: new Date().getTime(),
+
+    if (result.status === 'ok') {
+      const data = {
+        ...result,
+        time: new Date().getTime(),
+      }
+      await WriteData('/usr/src/app', fileName, JSON.stringify(data) + '\n')
     }
-    await WriteData('/usr/src/app', fileName, JSON.stringify(data) + '\n')
+
     if (result.status != 'ok') {
       process.emit('exit', 999)
     }

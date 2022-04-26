@@ -155,6 +155,21 @@ export class MissionsService {
       return
     }
 
+    // Kiểm tra điều kiện hiển thị
+    const checkDisplayConditions = this.checkUserConditions(
+      mission.displayConditions as unknown as IUserCondition[],
+      user,
+    )
+    if (!checkDisplayConditions) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm019',
+        data,
+        params: { condition_name: 'User' },
+      })
+      return
+    }
+
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.checkUserConditions(
       mission.userConditions as unknown as IUserCondition[],

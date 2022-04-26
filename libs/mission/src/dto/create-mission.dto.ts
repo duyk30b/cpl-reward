@@ -54,6 +54,10 @@ export class CreateMissionDto {
   @Type(() => UserConditionDto)
   userConditions: UserConditionDto[]
 
+  @Expose({ name: 'display_conditions' })
+  @Type(() => UserConditionDto)
+  displayConditions: UserConditionDto[]
+
   @Expose({ name: 'grant_target' })
   @Type(() => TargetDto)
   grantTarget: TargetDto[]

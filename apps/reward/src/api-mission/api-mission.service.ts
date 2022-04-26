@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import {
   DELIVERY_METHOD,
-  DELIVERY_METHOD_WALLET,
   GRANT_TARGET_USER,
   MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
@@ -140,9 +139,7 @@ export class ApiMissionService {
       'campaigns',
       'campaigns',
       'campaigns.id = mission.campaign_id AND campaigns.is_active = ' +
-        CAMPAIGN_IS_ACTIVE.ACTIVE +
-        ' AND campaigns.status = ' +
-        CAMPAIGN_STATUS.RUNNING,
+        CAMPAIGN_IS_ACTIVE.ACTIVE,
     )
     queryBuilder.leftJoin(
       'mission_user',
@@ -198,9 +195,13 @@ export class ApiMissionService {
     // Only show running mission or completed by user
     queryBuilder.andWhere(
       new Brackets((qb) => {
-        qb.where('mission.status = ' + MISSION_STATUS.RUNNING).orWhere(
-          'success_count > 0',
-        )
+        qb.where(
+          new Brackets((qbc) => {
+            qbc
+              .where('mission.status = ' + MISSION_STATUS.RUNNING)
+              .andWhere('campaigns.status = ' + CAMPAIGN_STATUS.RUNNING)
+          }),
+        ).orWhere('success_count > 0')
       }),
     )
 

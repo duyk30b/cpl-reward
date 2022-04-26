@@ -50,6 +50,10 @@ export class GrpcMissionDto {
   @Type(() => UserConditionDto)
   userConditions: UserConditionDto[]
 
+  @Expose({ name: 'display_conditions' })
+  @Type(() => UserConditionDto)
+  displayConditions: UserConditionDto[]
+
   @Expose({ name: 'grant_target' })
   @Type(() => GrpcTarget)
   grantTarget: GrpcTarget[]

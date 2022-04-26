@@ -34,4 +34,14 @@ export class AdminCommonController {
       list: USER_CONDITION_TYPES,
     })
   }
+
+  @GrpcMethod('GrpcAdminCommonService', 'ListDisplayConditions')
+  listDisplayConditions() {
+    return plainToInstance(UserConditionListDto, {
+      list: {
+        account_lv: USER_CONDITION_TYPES.account_lv,
+        kyc_verify_status: USER_CONDITION_TYPES.kyc_verify_status,
+      },
+    })
+  }
 }

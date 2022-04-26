@@ -52,6 +52,11 @@ class IMission {
   @Type(() => UserConditionDto)
   @Expose({ name: 'user_conditions' })
   userConditions: UserConditionDto[]
+
+  @Type(() => UserConditionDto)
+  @Expose({ name: 'display_conditions' })
+  displayConditions: UserConditionDto[]
+
   @Type(() => TargetDto)
   @Expose({ name: 'grant_target' })
   grantTarget: TargetDto[]

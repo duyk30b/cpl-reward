@@ -31,6 +31,8 @@ export class ExternalCashbackService {
    * auto_confirm: 1
    */
   async changeUserCashback(input: ChangeUserCashback): Promise<any> {
+    input.currency = input.currency.toLowerCase()
+
     const postBoUrl =
       this.configService
         .get('cashback.url')

@@ -109,6 +109,15 @@ export class Mission extends MyBaseEntity {
   userConditions: string
 
   @Column({
+    name: 'display_conditions',
+    default: null,
+    transformer: JsonColumnTransformer,
+    type: 'text',
+  })
+  @Expose({ name: 'display_conditions' })
+  displayConditions: string
+
+  @Column({
     name: 'grant_target',
     default: null,
     transformer: JsonColumnTransformer,
@@ -147,6 +156,8 @@ export class Mission extends MyBaseEntity {
       this.judgmentConditions = JSON.parse(this.judgmentConditions)
     if (this.userConditions !== undefined)
       this.userConditions = JSON.parse(this.userConditions)
+    if (this.displayConditions !== undefined)
+      this.displayConditions = JSON.parse(this.displayConditions)
     if (this.grantTarget !== undefined)
       this.grantTarget = JSON.parse(this.grantTarget)
   }

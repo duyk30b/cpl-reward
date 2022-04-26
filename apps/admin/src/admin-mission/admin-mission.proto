@@ -29,6 +29,7 @@ message CreateInput {
   repeated JudgmentConditions judgmentConditions = 15;
   repeated UserConditions userConditions = 16;
   repeated GrantTarget grantTarget = 17;
+  repeated UserConditions displayConditions = 18;
 }
 
 message CreateRewardRule {
@@ -70,6 +71,7 @@ message UpdateInput {
   repeated JudgmentConditions judgmentConditions = 16;
   repeated UserConditions userConditions = 17;
   repeated GrantTarget grantTarget = 18;
+  repeated UserConditions displayConditions = 19;
 }
 message UpdateRewardRule {
   int32 id = 1;
@@ -130,6 +132,7 @@ message Result {
   repeated GrantTarget grantTarget = 18;
   int32 createdAt = 19;
   int32 updatedAt = 20;
+  repeated UserConditions displayConditions = 21;
 }
 
 message RewardRuleResult {

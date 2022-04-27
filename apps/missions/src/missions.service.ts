@@ -156,8 +156,10 @@ export class MissionsService {
     }
 
     // Kiểm tra điều kiện hiển thị
+    const displayConditions =
+      mission.displayConditions === null ? [] : mission.displayConditions
     const checkDisplayConditions = this.checkUserConditions(
-      mission.displayConditions as unknown as IUserCondition[],
+      displayConditions as unknown as IUserCondition[],
       user,
     )
     if (!checkDisplayConditions) {

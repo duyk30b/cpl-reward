@@ -36,14 +36,14 @@ async function bootstrap() {
 
   await app.startAllMicroservices()
 
-  // const port: number = configService.get<number>('common.campaigns_port')
+  const port: number = configService.get<number>('common.campaigns_port')
 
   // Sentry
   const SENTRY_DSN = configService.get('common.sentry_dsn')
   Sentry.init({ dsn: SENTRY_DSN })
   app.useGlobalInterceptors(new SentryInterceptor())
 
-  // await app.listen(port)
+  await app.listen(port)
 
   process.on('exit', async () => {
     await app.close()

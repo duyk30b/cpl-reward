@@ -8,6 +8,11 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
+import {
+  MissingRewardsFilterDto,
+  UpdateRewardLogDto,
+  FilterCountRewardLogDto,
+} from './admin-campaign.dto'
 
 @Controller('campaign')
 export class AdminCampaignController {
@@ -38,5 +43,20 @@ export class AdminCampaignController {
   @GrpcMethod('GrpcAdminCampaignService', 'List')
   async list(campaignFilter: ICampaignFilter) {
     return await this.adminCampaignService.findAll(campaignFilter)
+  }
+
+  @GrpcMethod('GrpcAdminCampaignService', 'GetMissingRewards')
+  async getMissingRewards(input: MissingRewardsFilterDto) {
+    return await this.adminCampaignService.getMissingRewards(input)
+  }
+
+  @GrpcMethod('GrpcAdminCampaignService', 'UpdateRewardLog')
+  async updateRewardLog(input: UpdateRewardLogDto) {
+    return await this.adminCampaignService.updateRewardLog(input)
+  }
+
+  @GrpcMethod('GrpcAdminCampaignService', 'CountRewardLog')
+  async countRewardLog(input: FilterCountRewardLogDto) {
+    return await this.adminCampaignService.countRewardLog(input)
   }
 }

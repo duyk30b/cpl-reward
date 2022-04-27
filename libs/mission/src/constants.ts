@@ -224,6 +224,11 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Referred by user id',
       },
+      {
+        key: 'channel_id',
+        type: 'number',
+        description: 'Channel ID',
+      },
     ],
   },
   {

@@ -14,19 +14,15 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import {
   USER_REWARD_STATUS,
   UserRewardHistoryService,
 } from '@lib/user-reward-history'
-import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
-import { lastValueFrom } from 'rxjs'
 
 @Injectable()
 export class ApiMissionService {
@@ -179,12 +175,12 @@ export class ApiMissionService {
     })
 
     if (missionFilter.fromId) {
-      queryBuilder.andWhere('mission.id >= :fromId ', {
+      queryBuilder.andWhere('mission.id > :fromId ', {
         fromId: missionFilter.fromId,
       })
     } else {
       if (missionFilter.toId) {
-        queryBuilder.andWhere('mission.id <= :toId ', {
+        queryBuilder.andWhere('mission.id < :toId ', {
           toId: missionFilter.toId,
         })
       }
@@ -257,6 +253,9 @@ export class ApiMissionService {
         .orderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     }
+
+    queryBuilder.limit(missionFilter.limit)
+
     return queryBuilder
   }
 

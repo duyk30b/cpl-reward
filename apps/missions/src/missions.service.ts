@@ -202,36 +202,6 @@ export class MissionsService {
       return
     }
 
-    // Lấy thông tin tiền thưởng cho từng đối tượng
-    const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
-      mission.grantTarget,
-    )
-    if (mainUser === undefined && referredUser === undefined) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm001',
-        data,
-        extraData: null,
-        params: { name: 'Grant Target' },
-      })
-      return
-    }
-
-    // check số lần tối đa user nhận thưởng từ mission
-    const successCount = await this.getSuccessCount(data.missionId, userId)
-    if (successCount >= mission.limitReceivedReward) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm008',
-        data,
-        extraData: {
-          successCount,
-          limitReceivedReward: mission.limitReceivedReward,
-        },
-      })
-      return
-    }
-
     const checkOutOfBudget = this.commonService.checkOutOfBudget(
       mission.grantTarget,
       rewardRules,
@@ -249,38 +219,82 @@ export class MissionsService {
       return
     }
 
-    for (const rewardRuleKey in rewardRules) {
-      const checkMoneyReward = this.checkMoneyReward(
-        rewardRules[rewardRuleKey],
-        mainUser,
-        referredUser,
-      )
+    // Lấy thông tin tiền thưởng cho từng đối tượng
+    const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
+      mission.grantTarget,
+    )
+    if (mainUser === undefined && referredUser === undefined) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm001',
+        data,
+        extraData: null,
+        params: { name: 'Grant Target' },
+      })
+      return
+    }
 
-      if (!checkMoneyReward.status) {
-        this.eventEmitter.emit(this.eventEmit, {
-          logLevel: 'warn',
-          traceCode: 'm010',
-          data,
-          extraData: {
-            currency: rewardRules[rewardRuleKey].currency,
-            limitValue: rewardRules[rewardRuleKey].limitValue,
-            releaseValue: rewardRules[rewardRuleKey].releaseValue,
-            userId,
-            mainUserAmount: mainUser === undefined ? 'N/A' : mainUser.amount,
-            referredUserId,
-            referredUserAmount:
-              referredUser === undefined ? 'N/A' : referredUser.amount,
-          },
-          params: { source: checkMoneyReward.source },
-        })
-        continue
-      }
+    if (mainUser === undefined) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm001',
+        data,
+        extraData: null,
+        params: { name: 'MainUser GrantTarget' },
+      })
+      return
+    }
 
-      if (
-        mainUser !== undefined &&
-        rewardRules[rewardRuleKey].currency === mainUser.currency &&
-        rewardRules[rewardRuleKey].key === mainUser.type
-      ) {
+    // trả thưởng cho main user
+    let isCompleteRewardMainUser = true
+    // check số lần tối đa user nhận thưởng từ mission
+    const successCount = await this.getSuccessCount(data.missionId, userId)
+    if (successCount >= mission.limitReceivedReward) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm008',
+        data,
+        extraData: {
+          successCount,
+          limitReceivedReward: mission.limitReceivedReward,
+        },
+      })
+    } else {
+      // loop reward để trả thưởng cho main user
+      for (const rewardRuleKey in rewardRules) {
+        if (
+          rewardRules[rewardRuleKey].currency !== mainUser.currency ||
+          rewardRules[rewardRuleKey].key !== mainUser.type
+        )
+          continue
+
+        const checkMoneyRewardMain = this.checkMoneyReward(
+          rewardRules[rewardRuleKey],
+          mainUser,
+          referredUser,
+          'user',
+        )
+
+        if (!checkMoneyRewardMain.status) {
+          this.eventEmitter.emit(this.eventEmit, {
+            logLevel: 'warn',
+            traceCode: 'm010',
+            data,
+            extraData: {
+              currency: rewardRules[rewardRuleKey].currency,
+              limitValue: rewardRules[rewardRuleKey].limitValue,
+              releaseValue: rewardRules[rewardRuleKey].releaseValue,
+              userId,
+              mainUserAmount: mainUser.amount,
+              referredUserId,
+              referredUserAmount:
+                referredUser === undefined ? 'N/A' : referredUser.amount,
+            },
+            params: { source: checkMoneyRewardMain.source },
+          })
+          break
+        }
+
         const updatedSuccessCount = await this.updateSuccessCount({
           userId,
           limitReceivedReward: mission.limitReceivedReward,
@@ -295,11 +309,11 @@ export class MissionsService {
             traceCode: 'm017',
             data,
           })
-          continue
+          break
         }
 
         // user
-        await this.commonFlowReward(
+        isCompleteRewardMainUser = await this.commonFlowReward(
           rewardRules[rewardRuleKey].id,
           mainUser,
           userId,
@@ -307,38 +321,90 @@ export class MissionsService {
           referredUserId,
         )
       }
+    }
 
+    // nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
+    if (!isCompleteRewardMainUser) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm014',
+        data,
+        extraData: null,
+        params: { name: 'MainUser' },
+      })
+      return
+    }
+
+    // referred user không tồn tại
+    if (referredUserId === '0' || referredUser === undefined) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm001',
+        data,
+        extraData: null,
+        params: { name: 'ReferredUser GrantTarget' },
+      })
+      return
+    }
+
+    // loop reward để trả thưởng cho referred user
+    for (const rewardRuleKey in rewardRules) {
       if (
-        referredUserId !== '0' &&
-        referredUser !== undefined &&
-        rewardRules[rewardRuleKey].currency === referredUser.currency &&
-        rewardRules[rewardRuleKey].key === referredUser.type
-      ) {
-        const updatedSuccessCount = await this.updateSuccessCount({
-          userId: referredUserId,
-          limitReceivedReward: mission.limitReceivedReward,
-          userType: GRANT_TARGET_USER.REFERRAL_USER,
-          userTarget: referredUser,
+        rewardRules[rewardRuleKey].currency !== referredUser.currency ||
+        rewardRules[rewardRuleKey].key !== referredUser.type
+      )
+        continue
+
+      const checkMoneyRewardReferred = this.checkMoneyReward(
+        rewardRules[rewardRuleKey],
+        mainUser,
+        referredUser,
+        'referred_user',
+      )
+
+      if (!checkMoneyRewardReferred.status) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm010',
+          data,
+          extraData: {
+            currency: rewardRules[rewardRuleKey].currency,
+            limitValue: rewardRules[rewardRuleKey].limitValue,
+            releaseValue: rewardRules[rewardRuleKey].releaseValue,
+            userId,
+            mainUserAmount: mainUser.amount,
+            referredUserId,
+            referredUserAmount: referredUser.amount,
+          },
+          params: { source: checkMoneyRewardReferred.source },
+        })
+        break
+      }
+
+      const updatedSuccessCount = await this.updateSuccessCount({
+        userId: referredUserId,
+        limitReceivedReward: mission.limitReceivedReward,
+        userType: GRANT_TARGET_USER.REFERRAL_USER,
+        userTarget: referredUser,
+        data,
+      })
+
+      if (!updatedSuccessCount) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm017',
           data,
         })
-
-        if (!updatedSuccessCount) {
-          this.eventEmitter.emit(this.eventEmit, {
-            logLevel: 'warn',
-            traceCode: 'm017',
-            data,
-          })
-          continue
-        }
-
-        // referred user
-        await this.commonFlowReward(
-          rewardRules[rewardRuleKey].id,
-          referredUser,
-          referredUserId,
-          data,
-        )
+        break
       }
+
+      // referred user
+      await this.commonFlowReward(
+        rewardRules[rewardRuleKey].id,
+        referredUser,
+        referredUserId,
+        data,
+      )
     }
   }
 
@@ -403,6 +469,7 @@ export class MissionsService {
       deliveryMethod,
       referrerUserId,
     })
+    if (!userRewardHistory) return false
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
         DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&
@@ -433,6 +500,7 @@ export class MissionsService {
         userType: userTarget.user,
       })
     }
+    return true
   }
 
   /**
@@ -645,7 +713,12 @@ export class MissionsService {
     return result
   }
 
-  checkMoneyReward(rewardRule: RewardRule, mainUser: any, referredUser: any) {
+  checkMoneyReward(
+    rewardRule: RewardRule,
+    mainUser: any,
+    referredUser: any,
+    type: string,
+  ) {
     const fixedLimitValue = FixedNumber.fromString(
       String(rewardRule.limitValue),
     )
@@ -656,7 +729,7 @@ export class MissionsService {
     if (fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() <= 0)
       return {
         status: false,
-        source: '1',
+        source: `1 - ${type}`,
       }
 
     const fixedMainUserAmount = FixedNumber.fromString(
@@ -677,7 +750,7 @@ export class MissionsService {
           .subUnsafe(fixedMainUserAmount)
           .subUnsafe(fixedReferredUserAmount)
           .toUnsafeFloat() >= 0,
-      source: '2',
+      source: `2 - ${type}`,
     }
   }
 
@@ -734,6 +807,7 @@ export class MissionsService {
         missionId: updateMissionUser.data.missionId,
         userId: updateMissionUser.userId,
         campaignId: updateMissionUser.data.campaignId,
+        userType: updateMissionUser.userType,
       })
       const createMissionUserLogData = {
         missionId: updateMissionUser.data.missionId,

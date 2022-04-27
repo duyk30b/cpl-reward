@@ -246,7 +246,7 @@ export class MissionsService {
     }
 
     // trả thưởng cho main user
-    let isCompleteRewardMainUser = true
+    let isCompleteRewardMainUser = false
     // check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
     if (successCount >= mission.limitReceivedReward) {
@@ -330,7 +330,7 @@ export class MissionsService {
         traceCode: 'm014',
         data,
         extraData: null,
-        params: { name: 'MainUser' },
+        params: { type: 'MainUser' },
       })
       return
     }

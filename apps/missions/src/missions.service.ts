@@ -272,6 +272,7 @@ export class MissionsService {
           rewardRules[rewardRuleKey],
           mainUser,
           referredUser,
+          'user',
         )
 
         if (!checkMoneyRewardMain.status) {
@@ -353,6 +354,32 @@ export class MissionsService {
         rewardRules[rewardRuleKey].key !== referredUser.type
       )
         continue
+
+      const checkMoneyRewardReferred = this.checkMoneyReward(
+        rewardRules[rewardRuleKey],
+        mainUser,
+        referredUser,
+        'referred_user',
+      )
+
+      if (!checkMoneyRewardReferred.status) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm010',
+          data,
+          extraData: {
+            currency: rewardRules[rewardRuleKey].currency,
+            limitValue: rewardRules[rewardRuleKey].limitValue,
+            releaseValue: rewardRules[rewardRuleKey].releaseValue,
+            userId,
+            mainUserAmount: mainUser.amount,
+            referredUserId,
+            referredUserAmount: referredUser.amount,
+          },
+          params: { source: checkMoneyRewardReferred.source },
+        })
+        break
+      }
 
       const updatedSuccessCount = await this.updateSuccessCount({
         userId: referredUserId,
@@ -686,7 +713,12 @@ export class MissionsService {
     return result
   }
 
-  checkMoneyReward(rewardRule: RewardRule, mainUser: any, referredUser: any) {
+  checkMoneyReward(
+    rewardRule: RewardRule,
+    mainUser: any,
+    referredUser: any,
+    type: string,
+  ) {
     const fixedLimitValue = FixedNumber.fromString(
       String(rewardRule.limitValue),
     )
@@ -697,7 +729,7 @@ export class MissionsService {
     if (fixedLimitValue.subUnsafe(fixedReleaseValue).toUnsafeFloat() <= 0)
       return {
         status: false,
-        source: '1',
+        source: `1 - ${type}`,
       }
 
     const fixedMainUserAmount = FixedNumber.fromString(
@@ -718,7 +750,7 @@ export class MissionsService {
           .subUnsafe(fixedMainUserAmount)
           .subUnsafe(fixedReferredUserAmount)
           .toUnsafeFloat() >= 0,
-      source: '2',
+      source: `2 - ${type}`,
     }
   }
 

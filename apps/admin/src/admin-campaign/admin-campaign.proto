@@ -8,6 +8,9 @@ service GrpcAdminCampaignService {
   rpc FindOne(FindOneInput) returns (Result);
   rpc Update(UpdateInput) returns (Result);
   rpc List(ListInput) returns (ListCampaignResult);
+  rpc GetMissingRewards(MissingRewardsFilter) returns (MissingRewardsResult);
+  rpc UpdateRewardLog(UpdateRewardLogInput) returns (UpdateRewardLogResult);
+  rpc CountRewardLog(CountRewardLogInput) returns (CountRewardLogResult);
 }
 
 message ListCampaignResult {
@@ -127,4 +130,47 @@ message RewardRuleResult {
   string limitValue = 6; // example: 12.443
   string releaseValue = 7; // example: 12.443
   string typeRule = 8; // mission / campaign
+}
+
+message MissingRewardsResult {
+  repeated MissingRewards data = 1;
+  Pagination pagination = 2;
+}
+
+message MissingRewards {
+  int32 id = 1;
+  int32 campaignId = 2;
+  int32 missionId = 3;
+  int32 userId = 4;
+  string moneyEarned = 5;
+  string note = 6;
+  string currency = 7;
+  string userType = 8;
+  string wallet = 9;
+  int32 status = 10;
+  int32 createdAt = 11;
+}
+
+message MissingRewardsFilter {
+  int32 page = 1;
+  int32 limit = 2;
+  string sort = 3;
+  string sortType = 4; // ASC / DESC
+}
+
+message UpdateRewardLogInput {
+  int32 id = 1;
+  int32 status = 2;
+}
+
+message UpdateRewardLogResult {
+  bool success = 1;
+}
+
+message CountRewardLogInput {
+  int32 status = 1;
+}
+
+message CountRewardLogResult {
+  int32 count = 1;
 }

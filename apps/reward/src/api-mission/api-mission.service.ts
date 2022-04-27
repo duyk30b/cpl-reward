@@ -14,13 +14,10 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import {
   USER_REWARD_STATUS,
   UserRewardHistoryService,
 } from '@lib/user-reward-history'
-import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
@@ -38,41 +35,28 @@ export class ApiMissionService {
     apiMissionFilterDto: ApiMissionFilterDto,
     userId: string,
   ) {
-    const limit =
+    apiMissionFilterDto.limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
-    const page = apiMissionFilterDto.page || 1
-    const options = {
-      page,
-      limit,
-      metaTransformer: (
-        pagination: IPaginationMeta,
-      ): CustomPaginationMetaTransformer =>
-        new CustomPaginationMetaTransformer(
-          pagination.totalItems,
-          pagination.itemsPerPage,
-          pagination.currentPage,
-        ),
-      route: '/missions',
-      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
-    }
+
+    const linkParams = instanceToPlain(apiMissionFilterDto, {
+      exposeUnsetFields: false,
+    })
+
     const queryBuilder = this.missionsQueryBuilder(apiMissionFilterDto, userId)
-    const missions = await this.missionService.missionPaginate(
-      options,
-      queryBuilder,
-      true,
-    )
+    const missions = await queryBuilder.getRawMany()
 
     // Empty missions
-    if (missions.items.length === 0) {
+    if (missions.length === 0) {
       return {
-        pagination: missions.meta,
-        data: missions.items,
-        links: CommonService.customLinks(missions.links),
+        links: {
+          next: '',
+          prev: '',
+        },
       }
     }
 
     // Else missions not empty
-    const missionIds = missions.items.map((m) => {
+    const missionIds = missions.map((m) => {
       return m.id
     })
 
@@ -89,42 +73,63 @@ export class ApiMissionService {
         USER_REWARD_STATUS.NOT_RECEIVE,
       )
 
-    return {
-      pagination: missions.meta,
-      data: missions.items.map((rawMission) => {
-        const mission = plainToInstance(Mission, rawMission, {
-          ignoreDecorators: true,
-          //excludeExtraneousValues: false,
-        })
-        const money = this.getMoneyOfUser(
-          JSON.parse(mission.grantTarget),
-          mission.id,
-          receivedHistories,
-          notReceivedHistories,
-          mission.limitReceivedReward,
-        )
-        delete mission.grantTarget
+    const data = missions.map((rawMission) => {
+      const mission = plainToInstance(Mission, rawMission, {
+        ignoreDecorators: true,
+        //excludeExtraneousValues: false,
+      })
+      const money = this.getMoneyOfUser(
+        JSON.parse(mission.grantTarget),
+        mission.id,
+        receivedHistories,
+        notReceivedHistories,
+        mission.limitReceivedReward,
+      )
+      delete mission.grantTarget
 
-        // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
-        if (money.wallet == 'DIRECT_CASHBACK') {
-          money.wallet = WALLET.CASHBACK
-          money.deliveryMethod = DELIVERY_METHOD.AUTO
-        }
-        if (money.wallet == 'DIRECT_BALANCE') {
-          money.wallet = WALLET.BALANCE
-          money.deliveryMethod = DELIVERY_METHOD.AUTO
-        }
-        return {
-          ...instanceToPlain(mission, { exposeUnsetFields: false }),
-          currency: money.currency,
-          wallet: money.wallet,
-          delivery_method: money.deliveryMethod,
-          total_reward_amount: money.totalRewardAmount,
-          received_amount: money.receivedAmount,
-          not_received_amount: money.notReceivedAmount,
-        }
-      }),
-      links: CommonService.customLinks(missions.links),
+      // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
+      if (money.wallet == 'DIRECT_CASHBACK') {
+        money.wallet = WALLET.CASHBACK
+        money.deliveryMethod = DELIVERY_METHOD.AUTO
+      }
+      if (money.wallet == 'DIRECT_BALANCE') {
+        money.wallet = WALLET.BALANCE
+        money.deliveryMethod = DELIVERY_METHOD.AUTO
+      }
+      return {
+        ...instanceToPlain(mission, { exposeUnsetFields: false }),
+        currency: money.currency,
+        wallet: money.wallet,
+        delivery_method: money.deliveryMethod,
+        total_reward_amount: money.totalRewardAmount,
+        received_amount: money.receivedAmount,
+        not_received_amount: money.notReceivedAmount,
+      }
+    })
+
+    if (data.length === 0) {
+      return {
+        links: {
+          next: '',
+          prev: '',
+        },
+      }
+    }
+
+    const linkParamsFrom = { ...linkParams }
+    linkParamsFrom['from_id'] = data[data.length - 1]['id']
+    delete linkParamsFrom['to_id']
+
+    const linkParamTo = { ...linkParams }
+    linkParamTo['to_id'] = data[0]['id']
+    delete linkParamTo['from_id']
+
+    return {
+      data: data,
+      links: {
+        next: new URLSearchParams(linkParamsFrom).toString(),
+        prev: new URLSearchParams(linkParamTo).toString(),
+      },
     }
   }
 
@@ -168,6 +173,18 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
+
+    if (missionFilter.fromId) {
+      queryBuilder.andWhere('mission.id > :fromId ', {
+        fromId: missionFilter.fromId,
+      })
+    } else {
+      if (missionFilter.toId) {
+        queryBuilder.andWhere('mission.id < :toId ', {
+          toId: missionFilter.toId,
+        })
+      }
+    }
 
     // Đoạn này cho phép front-end lấy số tiền mỗi user kiếm được, gom nhóm theo mission.
     // Truyền grantTarget lên để phân biệt tiền tự kiếm được hay từ affiliate
@@ -236,6 +253,9 @@ export class ApiMissionService {
         .orderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     }
+
+    queryBuilder.limit(missionFilter.limit)
+
     return queryBuilder
   }
 

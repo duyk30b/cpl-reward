@@ -21,6 +21,15 @@ import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
 import { MissionService } from '@lib/mission'
+import { MissionUserLogService } from '@lib/mission-user-log'
+import {
+  FilterCountRewardLogDto,
+  MissingRewardsFilterDto,
+  UpdateRewardLogDto,
+} from './admin-campaign.dto'
+import { plainToClass } from 'class-transformer'
+import { MissionUserFilterDto } from '@lib/mission-user-log/dto/mission-user-filter.dto'
+import { UpdateMissionUserLogDto } from '@lib/mission-user-log/dto/update-mission-user-log.dto'
 
 @Injectable()
 export class AdminCampaignService {
@@ -29,6 +38,7 @@ export class AdminCampaignService {
     private readonly campaignService: CampaignService,
     private readonly rewardRuleService: RewardRuleService,
     private readonly missionService: MissionService,
+    private readonly missionUserLogService: MissionUserLogService,
   ) {}
 
   @Interval(5000)
@@ -277,5 +287,33 @@ export class AdminCampaignService {
       currency: [res?.value?.coin?.toUpperCase()],
       price: res?.value?.price,
     }))
+  }
+
+  async getMissingRewards(input: MissingRewardsFilterDto) {
+    return await this.missionUserLogService.getList(input)
+  }
+
+  async updateRewardLog(input: UpdateRewardLogDto) {
+    const transformedInput = plainToClass(UpdateMissionUserLogDto, input, {
+      ignoreDecorators: true,
+    })
+
+    const result = await this.missionUserLogService.update(
+      input.id,
+      transformedInput,
+    )
+
+    return {
+      success: result.affected > 0,
+    }
+  }
+
+  async countRewardLog(input: FilterCountRewardLogDto) {
+    const filter = plainToClass(MissionUserFilterDto, input, {
+      ignoreDecorators: true,
+    })
+
+    const count = await this.missionUserLogService.count(filter)
+    return { count }
   }
 }

@@ -72,11 +72,14 @@ export class ExternalBalanceService {
         logLevel: 'warn',
         traceCode: 'm018',
         data,
-        extraData: {
-          statusCode: e.response.status,
-          statusText: e.response.statusText,
-          detailMessage: e.response.data.error,
-        },
+        extraData:
+          e.response === undefined
+            ? null
+            : {
+                statusCode: e.response.status,
+                statusText: e.response.statusText,
+                detailMessage: e.response.data.message,
+              },
         params: { type: 'balance' },
       })
 

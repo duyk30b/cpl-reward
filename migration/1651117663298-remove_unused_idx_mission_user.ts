@@ -21,8 +21,8 @@ export class removeUnusedIdxMissionUser1651117663298
       'mission_user',
       new TableIndex({
         isUnique: true,
-        name: 'UNIQUE_MISSION_USER_UMCT',
-        columnNames: ['user_id', 'mission_id', 'campaign_id', 'user_type'],
+        name: 'UNIQUE_MISSION_USER_UMC',
+        columnNames: ['user_id', 'mission_id', 'campaign_id'],
       }),
     )
   }

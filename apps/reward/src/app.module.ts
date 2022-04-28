@@ -17,12 +17,12 @@ import { ApiMissionController } from './api-mission/api-mission.controller'
 import { ConfigModule } from '@nestjs/config'
 import configuration from '@lib/common/configuration'
 import { HealthModule } from './health/health.module'
-// import { ExternalCashbackModule } from '@lib/external-cashback'
 // import { EventEmitterModule } from '@nestjs/event-emitter'
 // import { TraceListener } from '../../missions/src/listeners/trace.listener'
 // import { RedisQueueModule } from '@lib/redis-queue'
 // import { CommonModule } from '@lib/common'
 // import { ExternalBalanceModule } from '@lib/external-balance'
+// import { ExternalCashbackModule } from '@lib/external-cashback'
 
 @Module({
   imports: [

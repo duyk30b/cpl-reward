@@ -149,6 +149,7 @@ message MissingRewards {
   string wallet = 9;
   int32 status = 10;
   int32 createdAt = 11;
+  int32 rewardHistoryId = 12;
 }
 
 message MissingRewardsFilter {

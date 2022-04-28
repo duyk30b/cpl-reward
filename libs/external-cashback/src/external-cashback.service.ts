@@ -38,8 +38,13 @@ export class ExternalCashbackService {
         .get('cashback.url')
         .replace('service-api', 'service-internal') + '/transaction/create'
 
+    const inputData = {
+      user_id: input.user_id,
+      currency: input.currency,
+      amount: input.amount,
+    }
     const postData = {
-      ...input,
+      ...inputData,
       balance_type: 'CASHBACK',
       transaction_type: 'REWARD',
       reference_id: `${input.historyId}`,

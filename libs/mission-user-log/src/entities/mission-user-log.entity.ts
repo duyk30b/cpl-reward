@@ -74,4 +74,8 @@ export class MissionUserLog extends MyBaseEntity {
   @Column()
   @Expose()
   status: number
+
+  @Column({ name: 'reward_history_id' })
+  @Expose({ name: 'reward_history_id' })
+  rewardHistoryId: number
 }

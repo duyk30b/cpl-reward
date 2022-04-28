@@ -54,6 +54,7 @@ export class ExternalListener {
         currency: input.currency,
         wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
         status: MissionUserLogStatus.NEED_TO_RESOLVE,
+        rewardHistoryId: input.historyId,
       })
 
       const result = await this.userRewardHistoryService.updateById(input.id, {
@@ -98,6 +99,7 @@ export class ExternalListener {
       currency: input.currency,
       wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
       status: MissionUserLogStatus.IGNORE,
+      rewardHistoryId: input.historyId,
     })
 
     const result = await this.userRewardHistoryService.updateById(input.id, {
@@ -142,6 +144,7 @@ export class ExternalListener {
         currency: input.currency,
         wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
         status: MissionUserLogStatus.NEED_TO_RESOLVE,
+        rewardHistoryId: input.id,
       })
 
       const result = await this.userRewardHistoryService.updateById(input.id, {
@@ -187,6 +190,7 @@ export class ExternalListener {
       currency: input.currency,
       wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
       status: MissionUserLogStatus.IGNORE,
+      rewardHistoryId: input.id,
     })
 
     const result = await this.userRewardHistoryService.updateById(input.id, {

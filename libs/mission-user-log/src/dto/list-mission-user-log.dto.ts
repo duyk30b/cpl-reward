@@ -6,7 +6,7 @@ export class ListMissionUserLogDto {
 }
 
 export const MissionUserSortable = [
-  'id',
+  'reward_history_id',
   'campaign_id',
   'mission_id',
   'user_id',

@@ -72,6 +72,12 @@ export class MissionUserLogService {
       .execute()
   }
 
+  async findOne(id: number) {
+    return await this.missionUserLogRepository.findOne({
+      where: { id },
+    })
+  }
+
   async count(filter: MissionUserFilterDto) {
     return await this.missionUserLogRepository.count({
       where: { ...filter },

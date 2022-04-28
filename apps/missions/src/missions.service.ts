@@ -469,7 +469,26 @@ export class MissionsService {
       deliveryMethod,
       referrerUserId,
     })
-    if (!userRewardHistory) return false
+    if (!userRewardHistory) {
+      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+        campaignId: data.campaignId,
+        missionId: data.missionId,
+        userId: userId,
+        successCount: 0,
+        moneyEarned: userTarget.amount,
+        note: JSON.stringify({
+          event: data.msgName,
+          result: 'Failed to create reward history after release reward',
+          statusCode: MissionUserLogNoteCode.FAILED_CREATE_HISTORY,
+        }),
+        userType: userTarget.user,
+        currency: userTarget.currency,
+        wallet: DELIVERY_METHOD_WALLET[userTarget.wallet],
+        status: MissionUserLogStatus.IGNORE,
+      })
+
+      return false
+    }
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
         DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&

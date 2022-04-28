@@ -65,6 +65,7 @@ export class ExternalCashbackService {
         traceCode: 'm015',
         data: input.data,
         extraData: {
+          request: postData,
           result: JSON.stringify(result),
         },
         params: { type: 'cashback' },
@@ -79,14 +80,17 @@ export class ExternalCashbackService {
         logLevel: 'warn',
         traceCode: 'm018',
         data: input.data,
-        extraData:
-          e.response === undefined
-            ? null
-            : {
-                statusCode: e.response.status,
-                statusText: e.response.statusText,
-                detailMessage: e.response.data.message,
-              },
+        extraData: {
+          request: postData,
+          response:
+            e.response === undefined
+              ? null
+              : {
+                  statusCode: e.response.status,
+                  statusText: e.response.statusText,
+                  detailMessage: e.response.data.message,
+                },
+        },
         params: { type: 'cashback' },
       })
       return null

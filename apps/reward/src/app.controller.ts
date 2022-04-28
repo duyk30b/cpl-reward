@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common'
 // import { Controller, Get } from '@nestjs/common'
 // import { ExternalCashbackService } from '@lib/external-cashback'
 // import { ExternalBalanceService } from '@lib/external-balance'
+// import { AppService } from './app.service'
 
 @Controller('main')
 export class AppController {
@@ -21,18 +22,22 @@ export class AppController {
   // constructor(
   //   private readonly externalCashbackService: ExternalCashbackService,
   //   private readonly externalBalanceService: ExternalBalanceService,
+  //   private readonly appService: AppService,
   // ) {}
-  //
   // @Get('test')
   // async test() {
-  //   await this.externalCashbackService.changeUserCashback({
-  //     user_id: '64781',
-  //     currency: 'USDTSSS',
-  //     amount: '2.123',
-  //     historyId: 100001,
-  //     data: {},
-  //   })
-  //
+  //   for (let i = 0; i < 100; i++) {
+  //     await this.appService.waitforme()
+  //     console.log(i)
+  //     const result = await this.externalCashbackService.changeUserCashback({
+  //       user_id: '64781',
+  //       currency: 'USDT',
+  //       amount: '1.0',
+  //       historyId: 100001 + i,
+  //       data: {},
+  //     })
+  //     console.log(result)
+  //   }
   //   await this.externalBalanceService.changeUserBalance(
   //     '64781',
   //     '2.123',
@@ -40,5 +45,6 @@ export class AppController {
   //     'reward',
   //     {},
   //   )
+  //   return 'done'
   // }
 }

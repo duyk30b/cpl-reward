@@ -219,6 +219,21 @@ export class MissionsService {
       return
     }
 
+    // check số lần tối đa user nhận thưởng từ mission
+    const successCount = await this.getSuccessCount(data.missionId, userId)
+    if (successCount >= mission.limitReceivedReward) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm008',
+        data,
+        extraData: {
+          successCount,
+          limitReceivedReward: mission.limitReceivedReward,
+        },
+      })
+      return
+    }
+
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
@@ -246,81 +261,67 @@ export class MissionsService {
     }
 
     // trả thưởng cho main user
-    let isCompleteRewardMainUser = true
-    // check số lần tối đa user nhận thưởng từ mission
-    const successCount = await this.getSuccessCount(data.missionId, userId)
-    if (successCount >= mission.limitReceivedReward) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm008',
+    let isCompleteRewardMainUser = false
+    // loop reward để trả thưởng cho main user
+    for (const rewardRuleKey in rewardRules) {
+      if (
+        rewardRules[rewardRuleKey].currency !== mainUser.currency ||
+        rewardRules[rewardRuleKey].key !== mainUser.type
+      )
+        continue
+
+      const checkMoneyRewardMain = this.checkMoneyReward(
+        rewardRules[rewardRuleKey],
+        mainUser,
+        referredUser,
+        'user',
+      )
+
+      if (!checkMoneyRewardMain.status) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm010',
+          data,
+          extraData: {
+            currency: rewardRules[rewardRuleKey].currency,
+            limitValue: rewardRules[rewardRuleKey].limitValue,
+            releaseValue: rewardRules[rewardRuleKey].releaseValue,
+            userId,
+            mainUserAmount: mainUser.amount,
+            referredUserId,
+            referredUserAmount:
+              referredUser === undefined ? 'N/A' : referredUser.amount,
+          },
+          params: { source: checkMoneyRewardMain.source },
+        })
+        break
+      }
+
+      const updatedSuccessCount = await this.updateSuccessCount({
+        userId,
+        limitReceivedReward: mission.limitReceivedReward,
+        userType: GRANT_TARGET_USER.USER,
+        userTarget: mainUser,
         data,
-        extraData: {
-          successCount,
-          limitReceivedReward: mission.limitReceivedReward,
-        },
       })
-    } else {
-      // loop reward để trả thưởng cho main user
-      for (const rewardRuleKey in rewardRules) {
-        if (
-          rewardRules[rewardRuleKey].currency !== mainUser.currency ||
-          rewardRules[rewardRuleKey].key !== mainUser.type
-        )
-          continue
 
-        const checkMoneyRewardMain = this.checkMoneyReward(
-          rewardRules[rewardRuleKey],
-          mainUser,
-          referredUser,
-          'user',
-        )
-
-        if (!checkMoneyRewardMain.status) {
-          this.eventEmitter.emit(this.eventEmit, {
-            logLevel: 'warn',
-            traceCode: 'm010',
-            data,
-            extraData: {
-              currency: rewardRules[rewardRuleKey].currency,
-              limitValue: rewardRules[rewardRuleKey].limitValue,
-              releaseValue: rewardRules[rewardRuleKey].releaseValue,
-              userId,
-              mainUserAmount: mainUser.amount,
-              referredUserId,
-              referredUserAmount:
-                referredUser === undefined ? 'N/A' : referredUser.amount,
-            },
-            params: { source: checkMoneyRewardMain.source },
-          })
-          break
-        }
-
-        const updatedSuccessCount = await this.updateSuccessCount({
-          userId,
-          limitReceivedReward: mission.limitReceivedReward,
-          userType: GRANT_TARGET_USER.USER,
-          userTarget: mainUser,
+      if (!updatedSuccessCount) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm017',
           data,
         })
-
-        if (!updatedSuccessCount) {
-          this.eventEmitter.emit(this.eventEmit, {
-            logLevel: 'warn',
-            traceCode: 'm017',
-            data,
-          })
-          break
-        }
-
-        // user
-        isCompleteRewardMainUser = await this.commonFlowReward(
-          rewardRules[rewardRuleKey].id,
-          mainUser,
-          userId,
-          data,
-          referredUserId,
-        )
+        break
       }
+
+      // user
+      isCompleteRewardMainUser = await this.commonFlowReward(
+        rewardRules[rewardRuleKey].id,
+        mainUser,
+        userId,
+        data,
+        referredUserId,
+      )
     }
 
     // nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
@@ -330,7 +331,7 @@ export class MissionsService {
         traceCode: 'm014',
         data,
         extraData: null,
-        params: { name: 'MainUser' },
+        params: { type: 'MainUser' },
       })
       return
     }
@@ -841,6 +842,7 @@ export class MissionsService {
             missionId: updateMissionUser.data.missionId,
             userId: updateMissionUser.userId,
             campaignId: updateMissionUser.data.campaignId,
+            userType: updateMissionUser.userType,
           })
 
           if (existedMissionUser === undefined) {
@@ -850,6 +852,7 @@ export class MissionsService {
           const updated = await this.missionUserService.increaseSuccessCount(
             existedMissionUser.id,
             updateMissionUser.limitReceivedReward,
+            updateMissionUser.userType,
           )
 
           return updated.affected > 0
@@ -860,6 +863,7 @@ export class MissionsService {
       const updated = await this.missionUserService.increaseSuccessCount(
         missionUser.id,
         updateMissionUser.limitReceivedReward,
+        updateMissionUser.userType,
       )
 
       return updated.affected > 0

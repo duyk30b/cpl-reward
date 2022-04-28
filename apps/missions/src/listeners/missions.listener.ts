@@ -51,27 +51,6 @@ export class MissionsListener {
         missionId: missionEvent.missionId,
         campaignId: missionEvent.campaignId,
       })
-      this.missionsService.mainFunction({
-        msgId: data.msgId,
-        msgName: data.msgName,
-        msgData: data.msgData,
-        missionId: missionEvent.missionId,
-        campaignId: missionEvent.campaignId,
-      })
-      this.missionsService.mainFunction({
-        msgId: data.msgId,
-        msgName: data.msgName,
-        msgData: data.msgData,
-        missionId: missionEvent.missionId,
-        campaignId: missionEvent.campaignId,
-      })
-      this.missionsService.mainFunction({
-        msgId: data.msgId,
-        msgName: data.msgName,
-        msgData: data.msgData,
-        missionId: missionEvent.missionId,
-        campaignId: missionEvent.campaignId,
-      })
     })
   }
 }

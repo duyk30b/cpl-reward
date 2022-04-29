@@ -55,7 +55,6 @@ export class ApiMissionService {
     }
 
     do {
-      console.log('Vong tiep theo bat dau tu ' + apiMissionFilterDto.fromId)
       const queryBuilder = this.missionsQueryBuilder(
         apiMissionFilterDto,
         userId,
@@ -179,8 +178,11 @@ export class ApiMissionService {
     missionFilter: ApiMissionFilterDto,
     userId: string,
   ): SelectQueryBuilder<Mission> {
-    const { searchField, searchText, sort, sortType, grantTarget } =
-      missionFilter
+    const { searchField, searchText, sort, sortType } = missionFilter
+    let { grantTarget } = missionFilter
+    if (!grantTarget) {
+      grantTarget = GRANT_TARGET_USER.USER
+    }
     const queryBuilder = this.missionService.initQueryBuilder()
     queryBuilder.innerJoin(
       'campaigns',
@@ -192,7 +194,10 @@ export class ApiMissionService {
       'mission_user',
       'mission_user',
       'mission_user.mission_id = mission.id AND mission_user.user_id = ' +
-        userId,
+        userId +
+        ' AND mission_user.user_type = "' +
+        grantTarget +
+        '"',
     )
 
     // Note: Đoạn này chỉ dùng để đếm nếu user chưa đc trả thưởng hết
@@ -244,7 +249,7 @@ export class ApiMissionService {
     // Truyền grantTarget lên để phân biệt tiền tự kiếm được hay từ affiliate
     // Tuy nhiên màn hình affiliate lại đang design kiểu history từng lần một, ko gom nhóm theo mission
     // Vì vậy đoạn GRANT_TARGET_USER.REFERRAL_USER này chưa đc gọi, để đây thôi
-    if (!grantTarget || grantTarget === GRANT_TARGET_USER.USER) {
+    if (grantTarget === GRANT_TARGET_USER.USER) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where('mission.targetType = ' + TARGET_TYPE.ONLY_MAIN).orWhere(

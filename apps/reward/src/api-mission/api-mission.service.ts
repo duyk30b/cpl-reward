@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   DELIVERY_METHOD,
   GRANT_TARGET_USER,
@@ -23,12 +23,17 @@ import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
+import { IUserCondition } from '../../../missions/src/interfaces/missions.interface'
+import { ExternalUserService } from '@lib/external-user'
 
 @Injectable()
 export class ApiMissionService {
+  private readonly logger = new Logger(ApiMissionService.name)
+
   constructor(
     private readonly missionService: MissionService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
+    private readonly externalUserService: ExternalUserService,
   ) {}
 
   async findPublicMissions(
@@ -42,93 +47,125 @@ export class ApiMissionService {
       exposeUnsetFields: false,
     })
 
-    const queryBuilder = this.missionsQueryBuilder(apiMissionFilterDto, userId)
-    const missions = await queryBuilder.getRawMany()
-
-    // Empty missions
-    if (missions.length === 0) {
-      return {
-        links: {
-          next: '',
-          prev: '',
-        },
-      }
+    let data = []
+    const user = await this.externalUserService.getUserInfo(userId)
+    if (!user) {
+      this.logger.warn('Cannot find user by ID: ' + userId)
+      return null
     }
 
-    // Else missions not empty
-    const missionIds = missions.map((m) => {
-      return m.id
-    })
-
-    const receivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(
-        missionIds,
+    do {
+      const queryBuilder = this.missionsQueryBuilder(
+        apiMissionFilterDto,
         userId,
-        USER_REWARD_STATUS.RECEIVED,
       )
-    const notReceivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(
-        missionIds,
-        userId,
-        USER_REWARD_STATUS.NOT_RECEIVE,
+      let missions = await queryBuilder.getRawMany()
+
+      // Empty missions
+      if (missions.length === 0) {
+        break
+      }
+
+      // Tăng from và to để phục vụ do while ko bị infinitive
+      apiMissionFilterDto.fromId = missions[missions.length - 1]['id']
+      apiMissionFilterDto.toId = missions[0]['id']
+
+      // Lọc bớt các mission chưa completed mà ko đủ điều kiện hiển thị
+      missions = missions.filter(
+        (m) =>
+          m.completed ||
+          !m.displayConditions ||
+          this.missionService.checkUserConditions(
+            JSON.parse(m.displayConditions) as unknown as IUserCondition[],
+            user,
+          ),
       )
 
-    const data = missions.map((rawMission) => {
-      const mission = plainToInstance(Mission, rawMission, {
-        ignoreDecorators: true,
-        //excludeExtraneousValues: false,
+      if (missions.length === 0) {
+        continue
+      }
+
+      // Else missions not empty
+      const missionIds = missions.map((m) => {
+        return m.id
       })
-      const money = this.getMoneyOfUser(
-        JSON.parse(mission.grantTarget),
-        mission.id,
-        receivedHistories,
-        notReceivedHistories,
-        mission.limitReceivedReward,
-      )
-      delete mission.grantTarget
 
-      // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
-      if (money.wallet == 'DIRECT_CASHBACK') {
-        money.wallet = WALLET.CASHBACK
-        money.deliveryMethod = DELIVERY_METHOD.AUTO
-      }
-      if (money.wallet == 'DIRECT_BALANCE') {
-        money.wallet = WALLET.BALANCE
-        money.deliveryMethod = DELIVERY_METHOD.AUTO
-      }
-      return {
-        ...instanceToPlain(mission, { exposeUnsetFields: false }),
-        currency: money.currency,
-        wallet: money.wallet,
-        delivery_method: money.deliveryMethod,
-        total_reward_amount: money.totalRewardAmount,
-        received_amount: money.receivedAmount,
-        not_received_amount: money.notReceivedAmount,
-      }
-    })
+      const receivedHistories =
+        await this.userRewardHistoryService.getAmountByUser(
+          missionIds,
+          userId,
+          USER_REWARD_STATUS.RECEIVED,
+        )
+      const notReceivedHistories =
+        await this.userRewardHistoryService.getAmountByUser(
+          missionIds,
+          userId,
+          USER_REWARD_STATUS.NOT_RECEIVE,
+        )
 
-    if (data.length === 0) {
-      return {
-        links: {
-          next: '',
-          prev: '',
-        },
+      const newData = missions.map((rawMission) => {
+        const mission = plainToInstance(Mission, rawMission, {
+          ignoreDecorators: true,
+          //excludeExtraneousValues: false,
+        })
+        const money = this.getMoneyOfUser(
+          JSON.parse(mission.grantTarget),
+          mission.id,
+          receivedHistories,
+          notReceivedHistories,
+          mission.limitReceivedReward,
+        )
+        delete mission.grantTarget
+
+        // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
+        if (money.wallet == 'DIRECT_CASHBACK') {
+          money.wallet = WALLET.CASHBACK
+          money.deliveryMethod = DELIVERY_METHOD.AUTO
+        }
+        if (money.wallet == 'DIRECT_BALANCE') {
+          money.wallet = WALLET.BALANCE
+          money.deliveryMethod = DELIVERY_METHOD.AUTO
+        }
+        return {
+          ...instanceToPlain(mission, { exposeUnsetFields: false }),
+          currency: money.currency,
+          wallet: money.wallet,
+          delivery_method: money.deliveryMethod,
+          total_reward_amount: money.totalRewardAmount,
+          received_amount: money.receivedAmount,
+          not_received_amount: money.notReceivedAmount,
+        }
+      })
+      data = data.concat(newData)
+
+      // Data.push cac missionExtras thoa man
+      if (data.length >= apiMissionFilterDto.limit) {
+        break
       }
+    } while (true)
+
+    // Return
+    let nextLink = ''
+    let prevLink = ''
+
+    if (data.length > 0) {
+      const linkParamsFrom = { ...linkParams }
+      linkParamsFrom['from_id'] = data[data.length - 1]['id']
+      delete linkParamsFrom['to_id']
+
+      const linkParamTo = { ...linkParams }
+      linkParamTo['to_id'] = data[0]['id']
+      delete linkParamTo['from_id']
+
+      nextLink = new URLSearchParams(linkParamsFrom).toString()
+      prevLink = new URLSearchParams(linkParamTo).toString()
     }
-
-    const linkParamsFrom = { ...linkParams }
-    linkParamsFrom['from_id'] = data[data.length - 1]['id']
-    delete linkParamsFrom['to_id']
-
-    const linkParamTo = { ...linkParams }
-    linkParamTo['to_id'] = data[0]['id']
-    delete linkParamTo['from_id']
 
     return {
       data: data,
       links: {
-        next: new URLSearchParams(linkParamsFrom).toString(),
-        prev: new URLSearchParams(linkParamTo).toString(),
+        next: nextLink,
+        prev: prevLink,
       },
     }
   }
@@ -152,6 +189,15 @@ export class ApiMissionService {
       'mission_user.mission_id = mission.id AND mission_user.user_id = ' +
         userId,
     )
+
+    // Note: Đoạn này chỉ dùng để đếm nếu user chưa đc trả thưởng hết
+    // Lưu ý sau này 1 user đc thưởng nhiều lần trong mission thì phải viết câu query thứ 2 chứ ko join đc
+    queryBuilder.leftJoin(
+      'user_reward_histories',
+      'user_reward_histories',
+      'user_reward_histories.mission_id = mission.id AND mission_user.user_id = ' +
+        userId,
+    )
     queryBuilder.select([
       'mission_user.success_count AS success_count',
       'mission.title AS title',
@@ -166,9 +212,11 @@ export class ApiMissionService {
       'mission.guideLinkJa AS guideLinkJa',
       'mission.limitReceivedReward AS limitReceivedReward',
       'mission.grantTarget AS grantTarget',
+      'mission.displayConditions AS displayConditions',
       'mission.campaignId AS campaignId',
       'mission.status AS status',
       'IF (success_count >= mission.limitReceivedReward, true, false) AS completed', // Check if user completed this campaign
+      'user_reward_histories.status AS reward_status',
     ])
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,

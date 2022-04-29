@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { QueryBuilder, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { paginate, paginateRaw, Pagination } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
@@ -15,6 +15,11 @@ import {
   DELIVERY_METHOD_WALLET,
   WALLET,
 } from '@lib/mission/enum'
+import {
+  IUser,
+  IUserCondition,
+} from '../../../apps/missions/src/interfaces/missions.interface'
+import { CommonService } from '@lib/common'
 
 @Injectable()
 export class MissionService {
@@ -135,6 +140,71 @@ export class MissionService {
         result.deliveryMethod = DELIVERY_METHOD.AUTO
         break
     }
+    return result
+  }
+
+  // TODO: Hàm này bị lặp code so với missions.service của repo mission
+  /**
+   * @param userConditions
+   * @param user
+   */
+  checkUserConditions(userConditions: IUserCondition[], user: IUser) {
+    if (userConditions.length === 0) return true
+    let result = true
+    let errorCondition = null
+    for (const idx in userConditions) {
+      const currentCondition = userConditions[idx]
+      currentCondition.property = CommonService.convertSnakeToCamelStr(
+        currentCondition.property,
+      )
+
+      const checkExistUserProperty = user[currentCondition.property]
+      if (checkExistUserProperty === undefined) {
+        // exist condition but data input not exist this property
+        errorCondition = currentCondition
+        result = false
+        break
+      }
+
+      if (
+        currentCondition.type === 'number' &&
+        !CommonService.compareNumberCondition(
+          currentCondition.value,
+          user[currentCondition.property],
+          currentCondition.operator,
+        )
+      ) {
+        // compare number fail
+        errorCondition = currentCondition
+        result = false
+        break
+      }
+
+      if (
+        currentCondition.type === 'string' &&
+        !eval(`'${user[currentCondition.property]}'
+                ${currentCondition.operator}
+                '${currentCondition.value}'`)
+      ) {
+        // compare string fail
+        errorCondition = currentCondition
+        result = false
+        break
+      }
+
+      if (
+        currentCondition.type === 'boolean' &&
+        !eval(`${user[currentCondition.property]}
+                ${currentCondition.operator}
+                ${currentCondition.value}`)
+      ) {
+        // compare boolean and other fail
+        errorCondition = currentCondition
+        result = false
+        break
+      }
+    }
+
     return result
   }
 }

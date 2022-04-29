@@ -16,6 +16,7 @@ import {
   MissionUserLogStatus,
 } from '@lib/common'
 import { DELIVERY_METHOD_WALLET } from '@lib/mission'
+import { IdGeneratorService } from '@lib/id-generator'
 
 @Injectable()
 export class ExternalListener {
@@ -26,16 +27,18 @@ export class ExternalListener {
     private readonly externalBalanceService: ExternalBalanceService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalCashbackService: ExternalCashbackService,
+    private readonly idGeneratorService: IdGeneratorService,
   ) {}
 
   @OnEvent('send_reward_to_cashback')
   async handleSendRewardToCashbackEvent(input: ISendRewardToCashback) {
+    const referenceId = this.idGeneratorService.generateId()
     const sendRewardToCashback =
       await this.externalCashbackService.changeUserCashback({
         user_id: input.userId,
         currency: input.currency,
         amount: input.amount,
-        historyId: input.historyId,
+        referenceId: referenceId.toString(),
         data: input.data,
       })
     if (sendRewardToCashback === null) {

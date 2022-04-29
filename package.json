@@ -128,7 +128,8 @@
       "^@lib/mongo(|/.*)$": "<rootDir>/libs/mongo/src/$1",
       "^@lib/redis-queue(|/.*)$": "<rootDir>/libs/redis-queue/src/$1",
       "^@lib/redis(|/.*)$": "<rootDir>/libs/redis/src/$1",
-      "^@lib/international-price(|/.*)$": "<rootDir>/libs/international-price/src/$1"
+      "^@lib/international-price(|/.*)$": "<rootDir>/libs/international-price/src/$1",
+      "^@lib/id-generator(|/.*)$": "<rootDir>/libs/id-generator/src/$1"
     }
   }
 }

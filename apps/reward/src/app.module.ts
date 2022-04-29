@@ -17,6 +17,7 @@ import { ApiMissionController } from './api-mission/api-mission.controller'
 import { ConfigModule } from '@nestjs/config'
 import configuration from '@lib/common/configuration'
 import { HealthModule } from './health/health.module'
+// import { IdGeneratorModule } from '@lib/id-generator'
 // import { EventEmitterModule } from '@nestjs/event-emitter'
 // import { TraceListener } from '../../missions/src/listeners/trace.listener'
 // import { RedisQueueModule } from '@lib/redis-queue'
@@ -35,6 +36,7 @@ import { HealthModule } from './health/health.module'
     }),
     HealthModule,
     // test
+    // IdGeneratorModule,
     // EventEmitterModule.forRoot({
     //   wildcard: true,
     //   delimiter: '_',

@@ -47,7 +47,7 @@ export class ExternalCashbackService {
       ...inputData,
       balance_type: 'CASHBACK',
       transaction_type: 'REWARD',
-      reference_id: `${input.historyId}`,
+      reference_id: input.referenceId,
       fee_currency: '0',
       fee_balance_type: 'CASHBACK',
       fee_transaction_type: 'MANUALLY',

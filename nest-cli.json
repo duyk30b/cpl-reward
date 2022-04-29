@@ -229,6 +229,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/international-price/tsconfig.lib.json"
       }
+    },
+    "id-generator": {
+      "type": "library",
+      "root": "libs/id-generator",
+      "entryFile": "index",
+      "sourceRoot": "libs/id-generator/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/id-generator/tsconfig.lib.json"
+      }
     }
   }
 }

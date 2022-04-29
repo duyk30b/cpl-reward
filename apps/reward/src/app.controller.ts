@@ -1,12 +1,17 @@
-import { Controller } from '@nestjs/common'
-// import { Controller, Get } from '@nestjs/common'
-// import { ExternalCashbackService } from '@lib/external-cashback'
-// import { ExternalBalanceService } from '@lib/external-balance'
+// import { Controller } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 // import { AppService } from './app.service'
+// import { RewardRuleService } from '@lib/reward-rule'
+// import { IdGeneratorService } from '@lib/id-generator'
 
 @Controller('main')
 export class AppController {
-  // constructor(private readonly rewardRuleService: RewardRuleService) {}
+  // constructor(
+  //   private readonly idGeneratorService: IdGeneratorService,
+  //   private readonly appService: AppService,
+  //   private readonly rewardRuleService: RewardRuleService,
+  // ) {}
+
   // @Get('debug_transaction')
   // async debugTransaction() {
   //   for (let i = 0; i < 100; i++) {
@@ -19,32 +24,16 @@ export class AppController {
   //     })
   //   }
   // }
-  // constructor(
-  //   private readonly externalCashbackService: ExternalCashbackService,
-  //   private readonly externalBalanceService: ExternalBalanceService,
-  //   private readonly appService: AppService,
-  // ) {}
-  // @Get('test')
-  // async test() {
-  //   for (let i = 0; i < 100; i++) {
-  //     await this.appService.waitforme()
-  //     console.log(i)
-  //     const result = await this.externalCashbackService.changeUserCashback({
-  //       user_id: '64781',
-  //       currency: 'USDT',
-  //       amount: '1.0',
-  //       historyId: 100001 + i,
-  //       data: {},
-  //     })
-  //     console.log(result)
-  //   }
-  //   await this.externalBalanceService.changeUserBalance(
-  //     '64781',
-  //     '2.123',
-  //     'USDT',
-  //     'reward',
-  //     {},
-  //   )
-  //   return 'done'
-  // }
+
+  @Get('test')
+  async test() {
+    //   for (let i = 0; i < 100; i++) {
+    //     await this.appService.waitforme()
+    //     console.log(i)
+    //   }
+
+    // const id = this.idGeneratorService.generateId()
+
+    return 'ok'
+  }
 }

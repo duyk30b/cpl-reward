@@ -2,6 +2,6 @@ export interface ChangeUserCashback {
   user_id: string
   currency: string
   amount: string
-  historyId: number
+  referenceId: string
   data: any
 }

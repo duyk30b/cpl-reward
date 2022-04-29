@@ -25,6 +25,7 @@ import global_config from 'config/global_config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { HealthService } from './health.service'
 import { TerminusModule } from '@nestjs/terminus'
+import { IdGeneratorModule } from '@lib/id-generator'
 
 @Module({
   controllers: [MissionsController],
@@ -53,6 +54,7 @@ import { TerminusModule } from '@nestjs/terminus'
     MissionEventModule,
     CampaignModule,
     MissionModule,
+    IdGeneratorModule,
   ],
   providers: [
     CommonListener,

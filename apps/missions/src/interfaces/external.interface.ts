@@ -8,6 +8,7 @@ export interface ISendRewardToBalance {
   type: string
   data: IEvent
   userType: string
+  referenceId: string
 }
 
 export interface ISendRewardToCashback {
@@ -18,4 +19,5 @@ export interface ISendRewardToCashback {
   historyId: number
   data: IEvent
   userType: string
+  referenceId: string
 }

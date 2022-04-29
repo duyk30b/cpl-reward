@@ -38,6 +38,7 @@ import { ExternalUserService } from '@lib/external-user'
 import { IUpdateMissionUser } from './interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
+import { IdGeneratorService } from '@lib/id-generator'
 
 @Injectable()
 export class MissionsService {
@@ -53,6 +54,7 @@ export class MissionsService {
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalUserService: ExternalUserService,
     private readonly commonService: CommonService,
+    private readonly idGeneratorService: IdGeneratorService,
   ) {}
 
   async mainFunction(data: IEvent) {
@@ -458,6 +460,7 @@ export class MissionsService {
     const { wallet, deliveryMethod } = this.missionService.getWalletFromTarget(
       userTarget.wallet,
     )
+    const referenceId = this.idGeneratorService.generateId()
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
       missionId: data.missionId,
@@ -468,6 +471,7 @@ export class MissionsService {
       wallet,
       deliveryMethod,
       referrerUserId,
+      referenceId: referenceId.toString(),
     })
     if (!userRewardHistory) {
       this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
@@ -502,6 +506,7 @@ export class MissionsService {
         type: 'reward',
         data,
         userType: userTarget.user,
+        referenceId: referenceId.toString(),
       })
     }
     if (
@@ -517,6 +522,7 @@ export class MissionsService {
         historyId: userRewardHistory.id,
         data,
         userType: userTarget.user,
+        referenceId: referenceId.toString(),
       })
     }
     return true

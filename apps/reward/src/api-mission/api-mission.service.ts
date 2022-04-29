@@ -55,6 +55,7 @@ export class ApiMissionService {
     }
 
     do {
+      console.log('Vong tiep theo bat dau tu ' + apiMissionFilterDto.fromId)
       const queryBuilder = this.missionsQueryBuilder(
         apiMissionFilterDto,
         userId,
@@ -66,9 +67,12 @@ export class ApiMissionService {
         break
       }
 
+      // console.log('Misssion')
+      //console.log(missions)
+
       // Tăng from và to để phục vụ do while ko bị infinitive
-      apiMissionFilterDto.fromId = missions[missions.length - 1]['id']
-      apiMissionFilterDto.toId = missions[0]['id']
+      apiMissionFilterDto.fromId = missions[0]['id']
+      apiMissionFilterDto.toId = missions[missions.length - 1]['id']
 
       // Lọc bớt các mission chưa completed mà ko đủ điều kiện hiển thị
       missions = missions.filter(
@@ -140,6 +144,7 @@ export class ApiMissionService {
 
       // Data.push cac missionExtras thoa man
       if (data.length >= apiMissionFilterDto.limit) {
+        data = data.splice(0, apiMissionFilterDto.limit)
         break
       }
     } while (true)
@@ -150,15 +155,15 @@ export class ApiMissionService {
 
     if (data.length > 0) {
       const linkParamsFrom = { ...linkParams }
-      linkParamsFrom['from_id'] = data[data.length - 1]['id']
+      linkParamsFrom['from_id'] = data[0]['id']
       delete linkParamsFrom['to_id']
 
-      const linkParamTo = { ...linkParams }
-      linkParamTo['to_id'] = data[0]['id']
-      delete linkParamTo['from_id']
+      const linkParamsTo = { ...linkParams }
+      linkParamsTo['to_id'] = data[data.length - 1]['id']
+      delete linkParamsTo['from_id']
 
-      nextLink = new URLSearchParams(linkParamsFrom).toString()
-      prevLink = new URLSearchParams(linkParamTo).toString()
+      nextLink = new URLSearchParams(linkParamsTo).toString()
+      prevLink = new URLSearchParams(linkParamsFrom).toString()
     }
 
     return {
@@ -195,14 +200,17 @@ export class ApiMissionService {
     queryBuilder.leftJoin(
       'user_reward_histories',
       'user_reward_histories',
-      'user_reward_histories.mission_id = mission.id AND mission_user.user_id = ' +
-        userId,
+      'user_reward_histories.mission_id = mission.id AND user_reward_histories.user_id = ' +
+        userId +
+        ' AND user_reward_histories.status = ' +
+        USER_REWARD_STATUS.FAIL,
     )
     queryBuilder.select([
       'mission_user.success_count AS success_count',
       'mission.title AS title',
       'mission.titleJa AS titleJa',
       'mission.id AS id',
+      'mission.priority AS priority',
       'mission.isActive as isActive',
       'mission.detailExplain AS detailExplain',
       'mission.detailExplainJa AS detailExplainJa',
@@ -222,16 +230,14 @@ export class ApiMissionService {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
 
-    if (missionFilter.fromId) {
+    if (missionFilter.toId) {
+      queryBuilder.andWhere('mission.id < :toId ', {
+        toId: missionFilter.toId,
+      })
+    } else if (missionFilter.fromId) {
       queryBuilder.andWhere('mission.id > :fromId ', {
         fromId: missionFilter.fromId,
       })
-    } else {
-      if (missionFilter.toId) {
-        queryBuilder.andWhere('mission.id < :toId ', {
-          toId: missionFilter.toId,
-        })
-      }
     }
 
     // Đoạn này cho phép front-end lấy số tiền mỗi user kiếm được, gom nhóm theo mission.
@@ -291,14 +297,15 @@ export class ApiMissionService {
       )
     }
 
+    // TODO: Vì lý do
     if (sort && MISSION_SORT_FIELD_MAP[sort]) {
       queryBuilder
         .orderBy(MISSION_SORT_FIELD_MAP[sort], sortType || 'ASC')
-        .addOrderBy('mission.priority', 'DESC')
+        //.addOrderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     } else {
       queryBuilder
-        .orderBy('mission.priority', 'DESC')
+        //.orderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     }
 

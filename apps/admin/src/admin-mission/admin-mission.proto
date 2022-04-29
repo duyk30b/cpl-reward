@@ -17,8 +17,8 @@ message CreateInput {
   string titleJa = 3;
   string detailExplain = 4;
   string detailExplainJa = 5;
-  string guideLink = 6;
-  string guideLinkJa = 7;
+  optional string guideLink = 6;
+  optional string guideLinkJa = 7;
   int32 openingDate = 8; // example: 1642668896
   int32 closingDate = 9;
   int32 priority = 10;
@@ -59,8 +59,8 @@ message UpdateInput {
   string titleJa = 4;
   string detailExplain = 5;
   string detailExplainJa = 6;
-  string guideLink = 7;
-  string guideLinkJa = 8;
+  optional string guideLink = 7;
+  optional string guideLinkJa = 8;
   int32 openingDate = 9; // example: 1642668896
   int32 closingDate = 10;
   int32 priority = 11;

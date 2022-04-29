@@ -20,10 +20,10 @@ class IMission {
   detailExplainJa: string
 
   @Expose({ name: 'guide_link' })
-  guideLink: string
+  guideLink?: string
 
   @Expose({ name: 'guide_link_ja' })
-  guideLinkJa: string
+  guideLinkJa?: string
 
   @Expose({ name: 'opening_date' })
   openingDate: number

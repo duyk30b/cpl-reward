@@ -515,7 +515,7 @@ export class MissionsService {
           userType: userTarget.user,
           referenceId,
         },
-        { delay: 100 },
+        { delay: 1000 },
       )
     }
     if (
@@ -535,7 +535,7 @@ export class MissionsService {
           userType: userTarget.user,
           referenceId,
         },
-        { delay: 100 },
+        { delay: 1000 },
       )
     }
     return true

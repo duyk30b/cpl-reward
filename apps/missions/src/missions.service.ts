@@ -43,6 +43,10 @@ import { Queue } from 'bull'
 import { InjectQueue } from '@nestjs/bull'
 import { QUEUE_SEND_BALANCE, QUEUE_SEND_CASHBACK } from '@lib/queue'
 import { RedisService } from '@lib/redis'
+import {
+  SendRewardToBalance,
+  SendRewardToCashback,
+} from './interfaces/external.interface'
 
 @Injectable()
 export class MissionsService {
@@ -505,7 +509,7 @@ export class MissionsService {
         DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&
       userRewardHistory
     ) {
-      const cashbackBody = {
+      const cashbackBody = plainToInstance(SendRewardToCashback, {
         id: userRewardHistory.id,
         userId: userId,
         amount: userTarget.amount,
@@ -514,7 +518,7 @@ export class MissionsService {
         data,
         userType: userTarget.user,
         referenceId,
-      }
+      })
       await this.throttleSendMoney(userId, QUEUE_SEND_BALANCE, 2, cashbackBody)
     }
     if (
@@ -522,7 +526,7 @@ export class MissionsService {
         DELIVERY_METHOD_WALLET.DIRECT_CASHBACK &&
       userRewardHistory
     ) {
-      const balanceBody = {
+      const balanceBody = plainToInstance(SendRewardToBalance, {
         id: userRewardHistory.id,
         userId: userId,
         amount: userTarget.amount,
@@ -531,7 +535,7 @@ export class MissionsService {
         data,
         userType: userTarget.user,
         referenceId,
-      }
+      })
       await this.throttleSendMoney(userId, QUEUE_SEND_CASHBACK, 0, balanceBody)
     }
     return true
@@ -549,7 +553,9 @@ export class MissionsService {
     const currentTime = CommonService.currentUnixTime()
     const lastRequestTime = await this.redisService.get(keyName)
     if (!lastRequestTime) {
-      await this.redisService.set(keyName, currentTime)
+      await this.redisService.set(keyName, currentTime, {
+        ttl: throttleTime,
+      })
     } else {
       let intNextRequest = parseInt(lastRequestTime.toString())
       if (intNextRequest >= currentTime) {
@@ -558,7 +564,9 @@ export class MissionsService {
       } else {
         intNextRequest = currentTime
       }
-      await this.redisService.set(keyName, intNextRequest)
+      await this.redisService.set(keyName, intNextRequest, {
+        ttl: throttleTime,
+      })
     }
     await this.rewardQueue.add(queueName, data, {
       delay: delayTime,

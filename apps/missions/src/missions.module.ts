@@ -21,11 +21,15 @@ import { ExternalCashbackModule } from '@lib/external-cashback'
 import { TraceListener } from './listeners/trace.listener'
 import { MissionsListener } from './listeners/missions.listener'
 import { RedisQueueModule } from '@lib/redis-queue'
-import global_config from 'config/global_config'
+import globalConfig from 'config/global_config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { HealthService } from './health.service'
 import { TerminusModule } from '@nestjs/terminus'
 import { IdGeneratorModule } from '@lib/id-generator'
+import { BullOptionsFactory } from '@lib/queue'
+import { BullModule } from '@nestjs/bull'
+import queueConfig from '@lib/queue/configuration'
+import { MissionsProcessor } from './missions.processor'
 
 @Module({
   controllers: [MissionsController],
@@ -33,7 +37,7 @@ import { IdGeneratorModule } from '@lib/id-generator'
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [global_config],
+      load: [globalConfig, queueConfig],
     }),
     TerminusModule,
     MysqlModule,
@@ -55,6 +59,10 @@ import { IdGeneratorModule } from '@lib/id-generator'
     CampaignModule,
     MissionModule,
     IdGeneratorModule,
+    BullModule.registerQueueAsync({
+      name: 'reward',
+      useClass: BullOptionsFactory,
+    }),
   ],
   providers: [
     CommonListener,
@@ -63,6 +71,7 @@ import { IdGeneratorModule } from '@lib/id-generator'
     MissionsListener,
     TraceListener,
     HealthService,
+    MissionsProcessor,
   ],
 })
 export class MissionsModule {}

@@ -162,21 +162,21 @@ export class MissionsService {
     }
 
     // Kiểm tra điều kiện hiển thị
-    const displayConditions =
-      mission.displayConditions === null ? [] : mission.displayConditions
-    const checkDisplayConditions = this.checkUserConditions(
-      displayConditions as unknown as IUserCondition[],
-      user,
-    )
-    if (!checkDisplayConditions) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm019',
-        data,
-        params: { condition_name: 'User' },
-      })
-      return
-    }
+    // const displayConditions =
+    //   mission.displayConditions === null ? [] : mission.displayConditions
+    // const checkDisplayConditions = this.checkUserConditions(
+    //   displayConditions as unknown as IUserCondition[],
+    //   user,
+    // )
+    // if (!checkDisplayConditions) {
+    //   this.eventEmitter.emit(this.eventEmit, {
+    //     logLevel: 'warn',
+    //     traceCode: 'm019',
+    //     data,
+    //     params: { condition_name: 'User' },
+    //   })
+    //   return
+    // }
 
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.checkUserConditions(

@@ -39,6 +39,9 @@ import { IUpdateMissionUser } from './interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
 import { IdGeneratorService } from '@lib/id-generator'
+import { Queue } from 'bull'
+import { InjectQueue } from '@nestjs/bull'
+import { QUEUE_SEND_BALANCE, QUEUE_SEND_CASHBACK } from '@lib/queue'
 
 @Injectable()
 export class MissionsService {
@@ -55,6 +58,7 @@ export class MissionsService {
     private readonly externalUserService: ExternalUserService,
     private readonly commonService: CommonService,
     private readonly idGeneratorService: IdGeneratorService,
+    @InjectQueue('reward') private readonly rewardQueue: Queue,
   ) {}
 
   async mainFunction(data: IEvent) {
@@ -158,21 +162,21 @@ export class MissionsService {
     }
 
     // Kiểm tra điều kiện hiển thị
-    const displayConditions =
-      mission.displayConditions === null ? [] : mission.displayConditions
-    const checkDisplayConditions = this.checkUserConditions(
-      displayConditions as unknown as IUserCondition[],
-      user,
-    )
-    if (!checkDisplayConditions) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm019',
-        data,
-        params: { condition_name: 'User' },
-      })
-      return
-    }
+    // const displayConditions =
+    //   mission.displayConditions === null ? [] : mission.displayConditions
+    // const checkDisplayConditions = this.checkUserConditions(
+    //   displayConditions as unknown as IUserCondition[],
+    //   user,
+    // )
+    // if (!checkDisplayConditions) {
+    //   this.eventEmitter.emit(this.eventEmit, {
+    //     logLevel: 'warn',
+    //     traceCode: 'm019',
+    //     data,
+    //     params: { condition_name: 'User' },
+    //   })
+    //   return
+    // }
 
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.checkUserConditions(
@@ -460,7 +464,8 @@ export class MissionsService {
     const { wallet, deliveryMethod } = this.missionService.getWalletFromTarget(
       userTarget.wallet,
     )
-    const referenceId = this.idGeneratorService.generateId()
+
+    const referenceId = this.getReferenceUniqueId(userTarget.wallet)
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
       missionId: data.missionId,
@@ -471,7 +476,7 @@ export class MissionsService {
       wallet,
       deliveryMethod,
       referrerUserId,
-      referenceId: referenceId.toString(),
+      referenceId,
     })
     if (!userRewardHistory) {
       this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
@@ -498,34 +503,54 @@ export class MissionsService {
         DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&
       userRewardHistory
     ) {
-      this.eventEmitter.emit('send_reward_to_balance', {
-        id: userRewardHistory.id,
-        userId: userId,
-        amount: userTarget.amount,
-        currency: userTarget.currency,
-        type: 'reward',
-        data,
-        userType: userTarget.user,
-        referenceId: referenceId.toString(),
-      })
+      await this.rewardQueue.add(
+        QUEUE_SEND_BALANCE,
+        {
+          id: userRewardHistory.id,
+          userId: userId,
+          amount: userTarget.amount,
+          currency: userTarget.currency,
+          type: 'reward',
+          data,
+          userType: userTarget.user,
+          referenceId,
+        },
+        { delay: 1000 },
+      )
     }
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
         DELIVERY_METHOD_WALLET.DIRECT_CASHBACK &&
       userRewardHistory
     ) {
-      this.eventEmitter.emit('send_reward_to_cashback', {
-        id: userRewardHistory.id,
-        userId: userId,
-        amount: userTarget.amount,
-        currency: userTarget.currency,
-        historyId: userRewardHistory.id,
-        data,
-        userType: userTarget.user,
-        referenceId: referenceId.toString(),
-      })
+      await this.rewardQueue.add(
+        QUEUE_SEND_CASHBACK,
+        {
+          id: userRewardHistory.id,
+          userId: userId,
+          amount: userTarget.amount,
+          currency: userTarget.currency,
+          historyId: userRewardHistory.id,
+          data,
+          userType: userTarget.user,
+          referenceId,
+        },
+        { delay: 1000 },
+      )
     }
     return true
+  }
+
+  private getReferenceUniqueId(wallet: string): string {
+    if (
+      DELIVERY_METHOD_WALLET[wallet] === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK
+    )
+      return this.idGeneratorService.generateId(1).toString()
+    if (
+      DELIVERY_METHOD_WALLET[wallet] === DELIVERY_METHOD_WALLET.DIRECT_BALANCE
+    )
+      return this.idGeneratorService.generateId(2).toString()
+    return '0'
   }
 
   /**

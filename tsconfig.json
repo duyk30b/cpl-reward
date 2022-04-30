@@ -141,6 +141,12 @@
       ],
       "@lib/id-generator/*": [
         "libs/id-generator/src/*"
+      ],
+      "@lib/queue": [
+        "libs/queue/src"
+      ],
+      "@lib/queue/*": [
+        "libs/queue/src/*"
       ]
     }
   }

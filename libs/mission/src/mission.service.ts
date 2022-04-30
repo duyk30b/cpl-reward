@@ -198,8 +198,6 @@ export class MissionService {
                 ${currentCondition.operator}
                 ${currentCondition.value}`)
       ) {
-        // compare boolean and other fail
-        errorCondition = currentCondition
         result = false
         break
       }

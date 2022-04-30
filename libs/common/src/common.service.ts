@@ -97,4 +97,8 @@ export class CommonService {
   static randomItem(items) {
     return items[Math.floor(Math.random() * items.length)]
   }
+
+  static currentUnixTime() {
+    return Math.floor(+new Date() / 1000)
+  }
 }

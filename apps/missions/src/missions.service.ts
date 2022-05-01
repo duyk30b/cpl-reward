@@ -163,7 +163,8 @@ export class MissionsService {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm006',
-        data,
+        data: user,
+        extraData: mission.userConditions,
         params: { condition_name: 'User' },
       })
       return

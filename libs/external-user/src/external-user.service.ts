@@ -22,10 +22,12 @@ export class ExternalUserService implements OnModuleInit {
       const user = plainToInstance(
         User,
         await lastValueFrom(this.userService.findOne({ id: userId })),
+        { ignoreDecorators: true },
       )
       if (!(await validate(user))) {
         return null
       }
+      return user
     } catch (e) {
       this.logger.log(`[External User] Error: ${e.message}`)
       return null

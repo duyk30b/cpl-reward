@@ -4,7 +4,10 @@ import {
   WALLET,
   DELIVERY_METHOD,
 } from '../libs/mission/src/enum'
-import { KEY_REWARD_RULE, TYPE_RULE } from '../libs/reward-rule/src/enum'
+import {
+  REWARD_RULE_WALLET,
+  REWARD_RULE_APPLY_FOR,
+} from '../libs/reward-rule/src/enum'
 
 export class updateEnumColumns1650004605670 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -79,8 +82,8 @@ export class updateEnumColumns1650004605670 implements MigrationInterface {
         newColumn: new TableColumn({
           name: 'type_rule',
           type: 'enum',
-          enum: [TYPE_RULE.CAMPAIGN, TYPE_RULE.MISSION],
-          default: `"${TYPE_RULE.CAMPAIGN}"`,
+          enum: [REWARD_RULE_APPLY_FOR.CAMPAIGN, REWARD_RULE_APPLY_FOR.MISSION],
+          default: `"${REWARD_RULE_APPLY_FOR.CAMPAIGN}"`,
         }),
       },
       {
@@ -92,11 +95,11 @@ export class updateEnumColumns1650004605670 implements MigrationInterface {
           name: 'key',
           type: 'enum',
           enum: [
-            KEY_REWARD_RULE.CASHBACK,
-            KEY_REWARD_RULE.BALANCE,
-            KEY_REWARD_RULE.DIVIDEND,
+            REWARD_RULE_WALLET.CASHBACK,
+            REWARD_RULE_WALLET.BALANCE,
+            REWARD_RULE_WALLET.DIVIDEND,
           ],
-          default: `"${KEY_REWARD_RULE.BALANCE}"`,
+          default: `"${REWARD_RULE_WALLET.BALANCE}"`,
         }),
       },
     ])
@@ -163,8 +166,8 @@ export class updateEnumColumns1650004605670 implements MigrationInterface {
         oldColumn: new TableColumn({
           name: 'type_rule',
           type: 'enum',
-          enum: [TYPE_RULE.CAMPAIGN, TYPE_RULE.MISSION],
-          default: `"${TYPE_RULE.CAMPAIGN}"`,
+          enum: [REWARD_RULE_APPLY_FOR.CAMPAIGN, REWARD_RULE_APPLY_FOR.MISSION],
+          default: `"${REWARD_RULE_APPLY_FOR.CAMPAIGN}"`,
         }),
         newColumn: new TableColumn({
           name: 'type_rule',
@@ -176,11 +179,11 @@ export class updateEnumColumns1650004605670 implements MigrationInterface {
           name: 'key',
           type: 'enum',
           enum: [
-            KEY_REWARD_RULE.CASHBACK,
-            KEY_REWARD_RULE.BALANCE,
-            KEY_REWARD_RULE.DIVIDEND,
+            REWARD_RULE_WALLET.CASHBACK,
+            REWARD_RULE_WALLET.BALANCE,
+            REWARD_RULE_WALLET.DIVIDEND,
           ],
-          default: `"${KEY_REWARD_RULE.BALANCE}"`,
+          default: `"${REWARD_RULE_WALLET.BALANCE}"`,
         }),
         newColumn: new TableColumn({
           name: 'key',

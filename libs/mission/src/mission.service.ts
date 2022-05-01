@@ -15,11 +15,9 @@ import {
   DELIVERY_METHOD_WALLET,
   WALLET,
 } from '@lib/mission/enum'
-import {
-  IUser,
-  IUserCondition,
-} from '../../../apps/missions/src/interfaces/missions.interface'
+import { IUserCondition } from '../../../apps/missions/src/interfaces/missions.interface'
 import { CommonService } from '@lib/common'
+import { User } from '@lib/external-user/user.interface'
 
 @Injectable()
 export class MissionService {
@@ -148,10 +146,10 @@ export class MissionService {
    * @param userConditions
    * @param user
    */
-  checkUserConditions(userConditions: IUserCondition[], user: IUser) {
+  checkUserConditions(userConditions: IUserCondition[], user: User) {
     if (userConditions.length === 0) return true
     let result = true
-    let errorCondition = null
+    // const errorCondition = null
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -161,7 +159,7 @@ export class MissionService {
       const checkExistUserProperty = user[currentCondition.property]
       if (checkExistUserProperty === undefined) {
         // exist condition but data input not exist this property
-        errorCondition = currentCondition
+        // errorCondition = currentCondition
         result = false
         break
       }
@@ -175,7 +173,7 @@ export class MissionService {
         )
       ) {
         // compare number fail
-        errorCondition = currentCondition
+        // errorCondition = currentCondition
         result = false
         break
       }
@@ -187,7 +185,7 @@ export class MissionService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
-        errorCondition = currentCondition
+        // errorCondition = currentCondition
         result = false
         break
       }

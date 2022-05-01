@@ -4,6 +4,7 @@ import { BigNumber, FixedNumber } from 'ethers'
 import { IGrantTarget } from './common.interface'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import * as Handlebars from 'handlebars'
+import * as moment from 'moment-timezone'
 
 @Injectable()
 export class CommonService {
@@ -19,7 +20,7 @@ export class CommonService {
     return FixedNumber.fromString(String(releaseValue))
   }
 
-  checkOutOfBudget(inputGrantTargets: any, inputRewardRules: any) {
+  checkOnBudget(inputGrantTargets: any, inputRewardRules: any) {
     const grantTargets = inputGrantTargets as unknown as IGrantTarget[]
     const rewardRules = inputRewardRules as unknown as RewardRule[]
 
@@ -99,6 +100,15 @@ export class CommonService {
   }
 
   static currentUnixTime() {
-    return Math.floor(+new Date() / 1000)
+    return moment().unix()
+  }
+
+  static hideEmail(email) {
+    return email.replace(/(.{2})(.*)(?=@)/, function (gp1, gp2, gp3) {
+      for (let i = 0; i < gp3.length; i++) {
+        gp2 += '*'
+      }
+      return gp2
+    })
   }
 }

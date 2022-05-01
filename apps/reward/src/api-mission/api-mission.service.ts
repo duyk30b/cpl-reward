@@ -25,6 +25,8 @@ import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 import { IUserCondition } from '../../../missions/src/interfaces/missions.interface'
 import { ExternalUserService } from '@lib/external-user'
+import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
+import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 
 @Injectable()
 export class ApiMissionService {
@@ -42,10 +44,10 @@ export class ApiMissionService {
   ) {
     apiMissionFilterDto.limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
-
-    const linkParams = instanceToPlain(apiMissionFilterDto, {
-      exposeUnsetFields: false,
-    })
+    apiMissionFilterDto.fromId = Math.max(
+      apiMissionFilterDto.fromId ? apiMissionFilterDto.fromId : 1,
+      1,
+    )
 
     let data = []
     const user = await this.externalUserService.getUserInfo(userId)
@@ -54,24 +56,42 @@ export class ApiMissionService {
       return null
     }
 
+    let missions = []
     do {
+      const page = apiMissionFilterDto.fromId
+      const limit = apiMissionFilterDto.limit
+      const options = {
+        page,
+        limit,
+        metaTransformer: (
+          pagination: IPaginationMeta,
+        ): CustomPaginationMetaTransformer =>
+          new CustomPaginationMetaTransformer(
+            pagination.totalItems,
+            pagination.itemsPerPage,
+            pagination.currentPage,
+          ),
+        route: '/missions',
+        paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
+      }
       const queryBuilder = this.missionsQueryBuilder(
         apiMissionFilterDto,
         userId,
       )
-      let missions = await queryBuilder.getRawMany()
+      const queryResults = await this.missionService.missionPaginate(
+        options,
+        queryBuilder,
+        true,
+      )
+      missions = queryResults.items
+      apiMissionFilterDto.fromId++
+
+      // let missions = queryBuilder.getRawMany()
 
       // Empty missions
-      if (missions.length === 0) {
+      if (!missions || missions.length === 0) {
         break
       }
-
-      // console.log('Misssion')
-      //console.log(missions)
-
-      // Tăng from và to để phục vụ do while ko bị infinitive
-      apiMissionFilterDto.fromId = missions[0]['id']
-      apiMissionFilterDto.toId = missions[missions.length - 1]['id']
 
       // Lọc bớt các mission chưa completed mà ko đủ điều kiện hiển thị
       missions = missions.filter(
@@ -119,6 +139,7 @@ export class ApiMissionService {
           mission.limitReceivedReward,
         )
         delete mission.grantTarget
+        delete mission.displayConditions
 
         // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
         if (money.wallet == 'DIRECT_CASHBACK') {
@@ -143,26 +164,20 @@ export class ApiMissionService {
 
       // Data.push cac missionExtras thoa man
       if (data.length >= apiMissionFilterDto.limit) {
-        data = data.splice(0, apiMissionFilterDto.limit)
         break
       }
     } while (true)
 
     // Return
     let nextLink = ''
-    let prevLink = ''
+    const prevLink = ''
 
     if (data.length > 0) {
-      const linkParamsFrom = { ...linkParams }
-      linkParamsFrom['from_id'] = data[0]['id']
-      delete linkParamsFrom['to_id']
-
-      const linkParamsTo = { ...linkParams }
-      linkParamsTo['to_id'] = data[data.length - 1]['id']
-      delete linkParamsTo['from_id']
-
-      nextLink = new URLSearchParams(linkParamsTo).toString()
-      prevLink = new URLSearchParams(linkParamsFrom).toString()
+      nextLink = new URLSearchParams(
+        instanceToPlain(apiMissionFilterDto, {
+          exposeUnsetFields: false,
+        }),
+      ).toString()
     }
 
     return {
@@ -200,8 +215,10 @@ export class ApiMissionService {
         '"',
     )
 
-    // Note: Đoạn này chỉ dùng để đếm nếu user chưa đc trả thưởng hết
-    // Lưu ý sau này 1 user đc thưởng nhiều lần trong mission thì phải viết câu query thứ 2 chứ ko join đc
+    // Đoạn này dùng để kiểm tra user có bị trả thưởng xịt do lỗi hệ thống ko
+    // Tuy nhiên nếu sau này 1 user đc nhận nhiều lần trong 1 mission
+    // Sẽ phát sinh vấn đề là có history thành công / chờ bấm nút redeem / gửi thất bại
+    // Thì chưa biết ưu tiên hiển thị cái gì, cũng cần lưu ý đoạn left join này đang chỉ query status = FAIL
     queryBuilder.leftJoin(
       'user_reward_histories',
       'user_reward_histories',
@@ -234,16 +251,6 @@ export class ApiMissionService {
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
-
-    if (missionFilter.toId) {
-      queryBuilder.andWhere('mission.id < :toId ', {
-        toId: missionFilter.toId,
-      })
-    } else if (missionFilter.fromId) {
-      queryBuilder.andWhere('mission.id > :fromId ', {
-        fromId: missionFilter.fromId,
-      })
-    }
 
     // Đoạn này cho phép front-end lấy số tiền mỗi user kiếm được, gom nhóm theo mission.
     // Truyền grantTarget lên để phân biệt tiền tự kiếm được hay từ affiliate
@@ -306,11 +313,11 @@ export class ApiMissionService {
     if (sort && MISSION_SORT_FIELD_MAP[sort]) {
       queryBuilder
         .orderBy(MISSION_SORT_FIELD_MAP[sort], sortType || 'ASC')
-        //.addOrderBy('mission.priority', 'DESC')
+        .addOrderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     } else {
       queryBuilder
-        //.orderBy('mission.priority', 'DESC')
+        .orderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     }
 

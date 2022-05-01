@@ -20,25 +20,6 @@ export interface IEvent {
   msgId: string
 }
 
-export interface IUser {
-  id: string
-  uuid: string
-  email: string
-  type: string
-  status: string
-  referrerCode: string
-  referredById: string
-  createdAt: string
-  updatedAt: string
-  bceUpdatedAt: string
-  emailVerifyStatus: string
-  authenticatorVerifyStatus: string
-  kycVerifyStatus: string
-  userInfoStatus: string
-  accountLv: string
-  channelId: number
-}
-
 export interface IJudgmentCondition {
   eventName: string
   property: string

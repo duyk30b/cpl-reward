@@ -18,7 +18,11 @@ export class TraceListener {
 
   @OnEvent('write_log')
   async traceLog(input: IWriteLog) {
-    const { logLevel, traceCode, data, extraData, params } = input
+    const { logLevel, traceCode, params } = input
+    let { data, extraData } = input
+    data = this.hideInformation(data)
+    extraData = this.hideInformation(extraData)
+
     const msgId = data === undefined ? 'N/A' : data.msgId
     const missionId = data === undefined ? '' : data.missionId
     const campaignId = data === undefined ? '' : data.campaignId
@@ -73,5 +77,26 @@ export class TraceListener {
         )
       }
     }
+  }
+
+  hideInformation(data: any) {
+    if (data && data.msgData) {
+      // Email
+      if (data.msgData.email) {
+        data.msgData.email = CommonService.hideEmail(data.msgData.email)
+      }
+      if (data.email) {
+        data.email = CommonService.hideEmail(data.email)
+      }
+
+      // IP
+      if (data.msgData.ip) {
+        data.msgData.ip = '***'
+      }
+      if (data.ip) {
+        data.ip = '***'
+      }
+    }
+    return data
   }
 }

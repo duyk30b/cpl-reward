@@ -50,6 +50,9 @@ export class ExternalBalanceService {
           })
           .pipe(map((response) => response.data)),
       )
+      if (result && result.api_token) {
+        result.api_token = '***'
+      }
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
         traceCode: 'm015',

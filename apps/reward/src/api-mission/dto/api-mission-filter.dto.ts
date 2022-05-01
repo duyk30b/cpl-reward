@@ -7,7 +7,7 @@ export class ApiMissionFilterDto {
   @Expose({ name: 'campaign_id' })
   campaignId: number
 
-  @ApiProperty({ required: false, example: 1 })
+  @ApiProperty({ name: 'from_id', required: false, example: 1 })
   @Expose()
   fromId: number
 

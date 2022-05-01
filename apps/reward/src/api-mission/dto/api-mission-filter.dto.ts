@@ -3,14 +3,6 @@ import { Expose } from 'class-transformer'
 import { GRANT_TARGET_USER } from '@lib/mission'
 
 export class ApiMissionFilterDto {
-  @ApiProperty({ name: 'from_id', required: false, example: 0 })
-  @Expose({ name: 'from_id' })
-  fromId: number
-
-  @ApiProperty({ name: 'to_id', required: false, example: 10 })
-  @Expose({ name: 'to_id' })
-  toId: number
-
   @ApiProperty({ name: 'campaign_id', required: false, example: 1 })
   @Expose({ name: 'campaign_id' })
   campaignId: number

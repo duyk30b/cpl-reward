@@ -45,8 +45,8 @@ export class ApiMissionService {
   ) {
     apiMissionFilterDto.limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
-    apiMissionFilterDto.page = Math.max(
-      apiMissionFilterDto.page ? apiMissionFilterDto.page : 1,
+    apiMissionFilterDto.fromId = Math.max(
+      apiMissionFilterDto.fromId ? apiMissionFilterDto.fromId : 1,
       1,
     )
 
@@ -59,7 +59,7 @@ export class ApiMissionService {
 
     let missions = []
     do {
-      const page = apiMissionFilterDto.page
+      const page = apiMissionFilterDto.fromId
       const limit = apiMissionFilterDto.limit
       const options = {
         page,
@@ -85,7 +85,7 @@ export class ApiMissionService {
         true,
       )
       missions = queryResults.items
-      apiMissionFilterDto.page++
+      apiMissionFilterDto.fromId++
 
       // let missions = queryBuilder.getRawMany()
 

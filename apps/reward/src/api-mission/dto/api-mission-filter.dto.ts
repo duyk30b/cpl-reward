@@ -9,7 +9,7 @@ export class ApiMissionFilterDto {
 
   @ApiProperty({ required: false, example: 1 })
   @Expose()
-  page: number
+  fromId: number
 
   @ApiProperty({ required: false, example: 20 })
   @Expose()

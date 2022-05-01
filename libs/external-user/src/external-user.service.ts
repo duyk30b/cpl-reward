@@ -2,6 +2,9 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { lastValueFrom } from 'rxjs'
 import UserService from './user.service.interface'
 import { ClientGrpc } from '@nestjs/microservices'
+import { plainToInstance } from 'class-transformer'
+import { User } from '@lib/external-user/user.interface'
+import { validate } from 'class-validator'
 
 @Injectable()
 export class ExternalUserService implements OnModuleInit {
@@ -14,9 +17,17 @@ export class ExternalUserService implements OnModuleInit {
     this.userService = this.clientGrpc.getService<UserService>('UserService')
   }
 
-  async getUserInfo(userId: string) {
+  async getUserInfo(userId: string): Promise<User> {
     try {
-      return await lastValueFrom(this.userService.findOne({ id: userId }))
+      const user = plainToInstance(
+        User,
+        await lastValueFrom(this.userService.findOne({ id: userId })),
+        { ignoreDecorators: true },
+      )
+      if (!(await validate(user))) {
+        return null
+      }
+      return user
     } catch (e) {
       this.logger.log(`[External User] Error: ${e.message}`)
       return null

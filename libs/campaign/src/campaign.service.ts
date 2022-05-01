@@ -9,6 +9,11 @@ import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
+import {
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_STATUS,
+} from '@lib/campaign/enum'
 
 @Injectable()
 export class CampaignService {
@@ -19,6 +24,17 @@ export class CampaignService {
 
   async delete(id: number) {
     return await this.campaignRepository.delete({ id })
+  }
+
+  async getRunningCampaignById(campaignId: number): Promise<Campaign> {
+    const campaign = await this.findOne({
+      id: campaignId,
+      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+      status: CAMPAIGN_STATUS.RUNNING,
+    })
+    if (!campaign) return null
+    return campaign
   }
 
   async getById(campaignId: number, options = undefined) {

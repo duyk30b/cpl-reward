@@ -8,7 +8,7 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { KEY_REWARD_RULE, TYPE_RULE } from '../enum'
+import { REWARD_RULE_WALLET, REWARD_RULE_APPLY_FOR } from '../enum'
 import { FixedNumber } from 'ethers'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
@@ -35,19 +35,19 @@ export class RewardRule extends MyBaseEntity {
   @Column({
     name: 'type_rule',
     type: 'enum',
-    enum: TYPE_RULE,
-    default: TYPE_RULE.CAMPAIGN,
+    enum: REWARD_RULE_APPLY_FOR,
+    default: REWARD_RULE_APPLY_FOR.CAMPAIGN,
   })
   @Expose({ name: 'type_rule' })
-  typeRule: TYPE_RULE
+  typeRule: REWARD_RULE_APPLY_FOR
 
   @Column({
     type: 'enum',
-    enum: KEY_REWARD_RULE,
-    default: KEY_REWARD_RULE.BALANCE,
+    enum: REWARD_RULE_WALLET,
+    default: REWARD_RULE_WALLET.BALANCE,
   })
   @Expose()
-  key: KEY_REWARD_RULE
+  key: REWARD_RULE_WALLET
 
   @Column()
   @Expose()

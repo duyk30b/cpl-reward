@@ -1,11 +1,15 @@
-import { IEvent, IUser } from './interfaces/missions.interface'
 import {
+  IEvent,
+  IJudgmentCondition,
+  IUserCondition,
+} from './interfaces/missions.interface'
+import {
+  DELIVERY_METHOD_WALLET,
   EVENTS,
   GRANT_TARGET_USER,
-  DELIVERY_METHOD_WALLET,
   MISSION_IS_ACTIVE,
-  MissionService,
   MISSION_STATUS,
+  MissionService,
 } from '@lib/mission'
 import {
   CommonService,
@@ -14,23 +18,13 @@ import {
   MissionUserLogStatus,
 } from '@lib/common'
 import { Injectable } from '@nestjs/common'
-import { Campaign } from '@lib/campaign/entities/campaign.entity'
-import {
-  CampaignService,
-  CAMPAIGN_IS_ACTIVE,
-  CAMPAIGN_IS_SYSTEM,
-  CAMPAIGN_STATUS,
-} from '@lib/campaign'
+import { CAMPAIGN_STATUS, CampaignService } from '@lib/campaign'
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
-import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { RewardRuleService, REWARD_RULE_APPLY_FOR } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import {
-  IJudgmentCondition,
-  IUserCondition,
-} from './interfaces/missions.interface'
 import { IGrantTarget } from '@lib/common/common.interface'
 import { FixedNumber } from 'ethers'
 import * as moment from 'moment-timezone'
@@ -47,6 +41,8 @@ import {
   SendRewardToBalance,
   SendRewardToCashback,
 } from './interfaces/external.interface'
+import { Mission } from '@lib/mission/entities/mission.entity'
+import { User } from '@lib/external-user/user.interface'
 
 @Injectable()
 export class MissionsService {
@@ -68,85 +64,42 @@ export class MissionsService {
   ) {}
 
   async mainFunction(data: IEvent) {
-    const user = await this.externalUserService.getUserInfo(
-      data.msgData.user_id,
+    // Kiểm tra tính khả dụng của campaign
+    const campaign = await this.campaignService.getRunningCampaignById(
+      data.campaignId,
     )
-    if (user === null) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm001',
-        data,
-        extraData: null,
-        params: { name: 'User' },
-      })
-      return
-    }
-
-    const userId = user.id
-    const referredUserId =
-      user.referredById === undefined ? '0' : user.referredById
-
-    const now = moment().unix()
-
-    // Kiểm tra thời gian khả dụng của campaign
-    const campaign = await this.getCampaignById(data.campaignId)
     if (!campaign) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm004',
-        data,
-        extraData: null,
-        params: { name: 'Campaign' },
-      })
-      return
-    }
-    if (now < campaign.startDate || now > campaign.endDate) {
-      await this.campaignService.update({
-        id: campaign.id,
-        status: CAMPAIGN_STATUS.ENDED,
-      })
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm005',
-        data,
-        extraData: {
-          now,
-          startDate: campaign.startDate,
-          endDate: campaign.endDate,
-        },
-        params: { name: 'Campaign' },
-      })
+      // this.eventEmitter.emit(this.eventEmit, {
+      //   logLevel: 'debug',
+      //   traceCode: 'm004',
+      //   data,
+      //   extraData: null,
+      //   params: { name: 'Campaign' },
+      // })
       return
     }
 
-    // Kiểm tra thời gian khả dụng của mission
-    const mission = await this.getMissionById(data.missionId)
-    if (!mission) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm004',
-        data,
-        extraData: null,
-        params: { name: 'Mission' },
-      })
+    // Kiểm tra tính khả dụng của mission
+    const { mission, rewardRules } = await this.syncMissionStatus(
+      data.missionId,
+    )
+    if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
+      // this.eventEmitter.emit(this.eventEmit, {
+      //   logLevel: 'debug',
+      //   traceCode: 'm004',
+      //   data,
+      //   extraData: null,
+      //   params: { name: 'Mission' },
+      // })
       return
     }
-    if (now < mission.openingDate || now > mission.closingDate) {
-      await this.missionService.update({
-        id: mission.id,
-        status: MISSION_STATUS.ENDED,
-      })
 
+    if (rewardRules.length === 0) {
       this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm005',
+        logLevel: 'error',
+        traceCode: 'm007',
         data,
-        extraData: {
-          now,
-          openingDate: mission.openingDate,
-          closingDate: mission.closingDate,
-        },
-        params: { name: 'Mission' },
+        extraData: mission,
       })
       return
     }
@@ -166,6 +119,23 @@ export class MissionsService {
       })
       return
     }
+
+    const user = await this.externalUserService.getUserInfo(
+      data.msgData.user_id,
+    )
+    if (!user) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm001',
+        data,
+        extraData: null,
+        params: { name: 'User' },
+      })
+      return
+    }
+
+    const userId = user.id
+    const referredUserId = user.referredById || '0'
 
     // Kiểm tra điều kiện hiển thị
     // const displayConditions =
@@ -199,38 +169,6 @@ export class MissionsService {
       return
     }
 
-    // Lấy danh sách phần thưởng theo mission
-    const rewardRules = await this.rewardRuleService.find({
-      campaignId: data.campaignId,
-      missionId: data.missionId,
-      typeRule: TYPE_RULE.MISSION,
-    })
-    if (rewardRules.length === 0) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm007',
-        data,
-      })
-      return
-    }
-
-    const checkOutOfBudget = this.commonService.checkOutOfBudget(
-      mission.grantTarget,
-      rewardRules,
-    )
-    if (!checkOutOfBudget) {
-      await this.missionService.update({
-        id: mission.id,
-        status: MISSION_STATUS.OUT_OF_BUDGET,
-      })
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm009',
-        data,
-      })
-      return
-    }
-
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
@@ -246,7 +184,7 @@ export class MissionsService {
       return
     }
 
-    // check số lần tối đa user nhận thưởng từ mission
+    // Check số lần tối đa user nhận thưởng từ mission
     const successCount = await this.getSuccessCount(data.missionId, userId)
     if (mainUser !== undefined && successCount >= mission.limitReceivedReward) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -418,6 +356,9 @@ export class MissionsService {
         params: { name: 'ReferredUser GrantTarget' },
       })
     }
+
+    // Update lại status của reward một lần nữa
+    await this.syncMissionStatus(mission.id)
   }
 
   async commonFlowReward(
@@ -605,17 +546,6 @@ export class MissionsService {
     return await this.missionEventService.findByEventName(eventName)
   }
 
-  async getCampaignById(campaignId: number): Promise<Campaign> {
-    const campaign = await this.campaignService.findOne({
-      id: campaignId,
-      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
-      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
-      status: MISSION_STATUS.RUNNING,
-    })
-    if (!campaign) return null
-    return campaign
-  }
-
   async getMissionById(missionId: number) {
     const mission = await this.missionService.findOne({
       id: missionId,
@@ -657,7 +587,6 @@ export class MissionsService {
                 ${Number(currentCondition.value)}`)
       ) {
         // compare timestamp fail
-        errorCondition = currentCondition
         result = false
         break
       }
@@ -671,7 +600,6 @@ export class MissionsService {
         )
       ) {
         // compare number fail
-        errorCondition = currentCondition
         result = false
         break
       }
@@ -683,7 +611,6 @@ export class MissionsService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
-        errorCondition = currentCondition
         result = false
         break
       }
@@ -695,7 +622,6 @@ export class MissionsService {
                 ${currentCondition.value}`)
       ) {
         // compare boolean and other fail
-        errorCondition = currentCondition
         result = false
         break
       }
@@ -722,7 +648,7 @@ export class MissionsService {
    * @param userConditions
    * @param user
    */
-  checkUserConditions(userConditions: IUserCondition[], user: IUser) {
+  checkUserConditions(userConditions: IUserCondition[], user: User) {
     if (userConditions.length === 0) return true
     let result = true
     let errorCondition = null
@@ -951,6 +877,69 @@ export class MissionsService {
       return updated.affected > 0
     } catch (error) {
       return false
+    }
+  }
+
+  // TODO: Logic tính mission status trùng với hàm calcMissionsStatus, nên gộp làm 1
+  async syncMissionStatus(
+    missionId: number,
+  ): Promise<{ mission: Mission; rewardRules: RewardRule[] }> {
+    let rewardRules = []
+    let mission = await this.getMissionById(missionId)
+    if (!mission) {
+      return { mission: null, rewardRules: [] }
+    }
+    let missionStatus = mission.status
+
+    rewardRules = await this.rewardRuleService.find({
+      campaignId: mission.campaignId,
+      missionId: mission.id,
+      typeRule: REWARD_RULE_APPLY_FOR.MISSION,
+    })
+
+    if (rewardRules.length === 0) {
+      return {
+        mission: mission,
+        rewardRules: rewardRules,
+      }
+    }
+
+    // Calculate mission status
+    const onBudget = this.commonService.checkOnBudget(
+      mission.grantTarget,
+      rewardRules,
+    )
+    if (!onBudget) {
+      missionStatus = MISSION_STATUS.OUT_OF_BUDGET
+      // this.eventEmitter.emit(this.eventEmit, {
+      //   logLevel: 'warn',
+      //   traceCode: 'm009',
+      //   mission,
+      // })
+    } else {
+      const now = CommonService.currentUnixTime()
+      if (now < mission.openingDate) {
+        missionStatus = MISSION_STATUS.COMING_SOON
+      }
+      if (mission.openingDate <= now && mission.closingDate >= now) {
+        missionStatus = MISSION_STATUS.RUNNING
+      }
+      if (now > mission.closingDate) {
+        missionStatus = MISSION_STATUS.ENDED
+      }
+    }
+
+    // Update if mission status changed
+    if (missionStatus != mission.status) {
+      mission = await this.missionService.update({
+        id: mission.id,
+        status: missionStatus,
+      })
+    }
+
+    return {
+      mission: mission,
+      rewardRules: rewardRules,
     }
   }
 }

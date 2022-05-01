@@ -8,7 +8,7 @@ import {
   TARGET_TYPE,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
-import { RewardRuleService, TYPE_RULE } from '@lib/reward-rule'
+import { RewardRuleService, REWARD_RULE_APPLY_FOR } from '@lib/reward-rule'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
@@ -20,9 +20,8 @@ import { TargetDto } from '@lib/mission/dto/target.dto'
 import { GrpcMissionDto } from '@lib/mission/dto/grpc-mission.dto'
 import { FixedNumber } from 'ethers'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
-import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
-import { LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
+import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { CampaignService } from '@lib/campaign'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService } from '@lib/common'
@@ -39,18 +38,21 @@ export class AdminMissionService {
 
   @Interval(5000)
   async handleIntervalUpdateStatus() {
-    const now = moment().unix()
+    const now = CommonService.currentUnixTime()
 
+    // Ended
     await this.missionService.updateStatus(
       {
         closingDate: LessThanOrEqual(now),
       },
       MISSION_STATUS.ENDED,
     )
+
+    // Running
     await this.missionService.updateStatus(
       {
         openingDate: LessThanOrEqual(now),
-        closingDate: MoreThanOrEqual(now),
+        closingDate: MoreThan(now),
         status: Not(MISSION_STATUS.OUT_OF_BUDGET),
       },
       MISSION_STATUS.RUNNING,
@@ -119,16 +121,17 @@ export class AdminMissionService {
     })
   }
 
-  private updateStatusMission(input: ICreateMission) {
+  // TODO: Logic tính mission status trùng với hàm calcAndUpdateMissionStatus, nên gộp làm 1
+  private calcMissionsStatus(input: ICreateMission) {
     // checking out_of_budget status
-    const checkOutOfBudget = this.commonService.checkOutOfBudget(
+    const onBudget = this.commonService.checkOnBudget(
       input.grantTarget,
       input.rewardRules,
     )
-    if (!checkOutOfBudget) return MISSION_STATUS.OUT_OF_BUDGET
+    if (!onBudget) return MISSION_STATUS.OUT_OF_BUDGET
 
     // checking time status
-    const now = moment().unix()
+    const now = CommonService.currentUnixTime()
     if (now < input.openingDate) return MISSION_STATUS.COMING_SOON
     if (input.openingDate <= now && input.closingDate >= now)
       return MISSION_STATUS.RUNNING
@@ -155,14 +158,14 @@ export class AdminMissionService {
     )
     create.userConditions = this.updateTypeInUser(create.userConditions)
     create.displayConditions = this.updateTypeInUser(create.displayConditions)
-    create.status = this.updateStatusMission(create)
+    create.status = this.calcMissionsStatus(create)
     const mission = await this.missionService.create(create)
     await Promise.all(
       create.rewardRules.map(async (item) => {
         await this.rewardRuleService.create(item, {
           campaignId: create.campaignId,
           missionId: mission.id,
-          typeRule: TYPE_RULE.MISSION,
+          typeRule: REWARD_RULE_APPLY_FOR.MISSION,
         })
       }),
     )
@@ -197,7 +200,7 @@ export class AdminMissionService {
       }
     })
 
-    update.status = this.updateStatusMission(update)
+    update.status = this.calcMissionsStatus(update)
     const mission = await this.missionService.update(update)
     await Promise.all(
       update.rewardRules.map(async (item) => {
@@ -208,7 +211,7 @@ export class AdminMissionService {
         await this.rewardRuleService.update(item, {
           campaignId: mission.campaignId,
           missionId: mission.id,
-          typeRule: TYPE_RULE.MISSION,
+          typeRule: REWARD_RULE_APPLY_FOR.MISSION,
         })
         return item
       }),
@@ -230,7 +233,7 @@ export class AdminMissionService {
     }
     const grpcMission = mission as unknown as GrpcMissionDto
     grpcMission.rewardRules
-      .filter((item) => item.typeRule == TYPE_RULE.MISSION)
+      .filter((item) => item.typeRule == REWARD_RULE_APPLY_FOR.MISSION)
       .map((item) => {
         item.limitValue = FixedNumber.fromString(
           String(item.limitValue),

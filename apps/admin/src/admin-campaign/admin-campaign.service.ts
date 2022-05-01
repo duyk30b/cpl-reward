@@ -13,11 +13,10 @@ import {
   ICreateCampaign,
   IUpdateCampaign,
 } from './admin-campaign.interface'
-import { Brackets, In, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
+import { Brackets, In, LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { CommonService, MissionUserLogStatus } from '@lib/common'
-import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
 import { MissionService } from '@lib/mission'
@@ -48,7 +47,7 @@ export class AdminCampaignService {
 
   @Interval(5000)
   async handleIntervalUpdateStatus() {
-    const now = moment().unix()
+    const now = CommonService.currentUnixTime()
 
     await this.campaignService.updateStatus(
       {
@@ -59,7 +58,7 @@ export class AdminCampaignService {
     await this.campaignService.updateStatus(
       {
         startDate: LessThanOrEqual(now),
-        endDate: MoreThanOrEqual(now),
+        endDate: MoreThan(now),
         status: Not(CAMPAIGN_STATUS.OUT_OF_BUDGET),
       },
       CAMPAIGN_STATUS.RUNNING,
@@ -73,90 +72,22 @@ export class AdminCampaignService {
     }
   }
 
-  /**
-   * Do not use below function to find one campaign yet
-   */
-  // async findOneOld(id: number) {
-  //   const campaign = await this.campaignService.getById(id, {
-  //     relations: ['rewardRules'],
-  //   })
-  //   if (!campaign) {
-  //     return null
-  //   }
-  //   if (campaign.rewardRules !== undefined && campaign.rewardRules.length > 0) {
-  //     campaign.rewardRules = campaign.rewardRules.filter(
-  //       (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
-  //     )
-  //   }
-  //   return campaign
-  // }
-
   async findOne(id: number) {
     return this.campaignService.getById(id)
   }
 
-  /**
-   * Do not use below function to create campaign yet
-   */
-  // async createOld(createCampaignInput: ICreateCampaign) {
-  //   let campaign = await this.campaignService.create(createCampaignInput)
-  //   await Promise.all(
-  //     createCampaignInput.rewardRules.map(async (item) => {
-  //       await this.rewardRuleService.create(item, {
-  //         campaignId: campaign.id,
-  //         missionId: null,
-  //         typeRule: TYPE_RULE.CAMPAIGN,
-  //       })
-  //       return item
-  //     }),
-  //   )
-  //   campaign = await this.campaignService.getById(campaign.id, {
-  //     relations: ['rewardRules'],
-  //   })
-  //   campaign.rewardRules = campaign.rewardRules.filter(
-  //     (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
-  //   )
-  //   return campaign
-  // }
-
   async create(create: ICreateCampaign) {
-    create.status = AdminCampaignService.updateStatusCampaign(create)
+    create.status = AdminCampaignService.calcCampaignStatus(create)
     return await this.campaignService.create(create)
   }
 
-  private static updateStatusCampaign(
-    input: IUpdateCampaign | ICreateCampaign,
-  ) {
-    const now = moment().unix()
+  private static calcCampaignStatus(input: IUpdateCampaign | ICreateCampaign) {
+    const now = CommonService.currentUnixTime()
     if (now < input.startDate) return CAMPAIGN_STATUS.COMING_SOON
-    if (input.startDate <= now && input.endDate >= now)
+    if (input.startDate <= now && input.endDate > now)
       return CAMPAIGN_STATUS.RUNNING
     if (now > input.endDate) return CAMPAIGN_STATUS.ENDED
   }
-
-  /**
-   * Do not use below function to update campaign yet
-   */
-  // async updateOld(updateCampaignInput: IUpdateCampaign) {
-  //   let campaign = await this.campaignService.update(updateCampaignInput)
-  //   await Promise.all(
-  //     updateCampaignInput.rewardRules.map(async (item) => {
-  //       await this.rewardRuleService.update(item, {
-  //         campaignId: campaign.id,
-  //         missionId: null,
-  //         typeRule: TYPE_RULE.CAMPAIGN,
-  //       })
-  //       return item
-  //     }),
-  //   )
-  //   campaign = await this.campaignService.getById(campaign.id, {
-  //     relations: ['rewardRules'],
-  //   })
-  //   campaign.rewardRules = campaign.rewardRules.filter(
-  //     (item) => item.typeRule == TYPE_RULE.CAMPAIGN,
-  //   )
-  //   return campaign
-  // }
 
   async update(iUpdateCampaign: IUpdateCampaign) {
     const missions = await this.missionService.find({
@@ -164,19 +95,19 @@ export class AdminCampaignService {
     })
 
     if (missions.length > 0) {
-      const misionsOpeningDate = missions.map((mission) => mission.openingDate)
-      const misionsClosingDate = missions.map((mission) => mission.closingDate)
+      const missionsOpeningDate = missions.map((mission) => mission.openingDate)
+      const missionsClosingDate = missions.map((mission) => mission.closingDate)
 
       if (
-        iUpdateCampaign.startDate > Math.min(...misionsOpeningDate) ||
-        iUpdateCampaign.endDate < Math.max(...misionsClosingDate)
+        iUpdateCampaign.startDate > Math.min(...missionsOpeningDate) ||
+        iUpdateCampaign.endDate < Math.max(...missionsClosingDate)
       ) {
         return {}
       }
     }
 
     iUpdateCampaign.status =
-      AdminCampaignService.updateStatusCampaign(iUpdateCampaign)
+      AdminCampaignService.calcCampaignStatus(iUpdateCampaign)
     return await this.campaignService.update(iUpdateCampaign)
   }
 

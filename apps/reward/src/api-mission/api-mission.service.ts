@@ -27,7 +27,6 @@ import { IUserCondition } from '../../../missions/src/interfaces/missions.interf
 import { ExternalUserService } from '@lib/external-user'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
-import { CommonService } from '@lib/common'
 
 @Injectable()
 export class ApiMissionService {
@@ -216,8 +215,10 @@ export class ApiMissionService {
         '"',
     )
 
-    // Note: Đoạn này chỉ dùng để đếm nếu user chưa đc trả thưởng hết
-    // Lưu ý sau này 1 user đc thưởng nhiều lần trong mission thì phải viết câu query thứ 2 chứ ko join đc
+    // Đoạn này dùng để kiểm tra user có bị trả thưởng xịt do lỗi hệ thống ko
+    // Tuy nhiên nếu sau này 1 user đc nhận nhiều lần trong 1 mission
+    // Sẽ phát sinh vấn đề là có history thành công / chờ bấm nút redeem / gửi thất bại
+    // Thì chưa biết ưu tiên hiển thị cái gì, cũng cần lưu ý đoạn left join này đang chỉ query status = FAIL
     queryBuilder.leftJoin(
       'user_reward_histories',
       'user_reward_histories',

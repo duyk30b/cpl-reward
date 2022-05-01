@@ -15,6 +15,10 @@ export class ApiMissionFilterDto {
   @Expose({ name: 'campaign_id' })
   campaignId: number
 
+  @ApiProperty({ required: false, example: 1 })
+  @Expose()
+  page: number
+
   @ApiProperty({ required: false, example: 20 })
   @Expose()
   limit: number

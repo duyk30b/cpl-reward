@@ -110,11 +110,11 @@ export const USER_CONDITION_TYPES = {
     display: 'enum',
     options: USER_EMAIL_VERIFY_STATUS,
   },
-  referrer_code: {
-    type: 'string',
-    original: 'number',
-    display: 'string',
-  },
+  // referrer_code: {
+  //   type: 'string',
+  //   original: 'number',
+  //   display: 'string',
+  // },
   account_lv: {
     type: 'number',
     original: 'number',
@@ -122,7 +122,7 @@ export const USER_CONDITION_TYPES = {
     options: USER_ACCOUNT_LV_OPTIONS,
   },
   channel_id: {
-    type: 'string',
+    type: 'number',
     original: 'number',
     display: 'number',
   },
@@ -133,71 +133,10 @@ export const USER_CONDITION_TYPES = {
  */
 export const INFO_EVENTS = [
   {
-    eventName: EVENTS.AUTH_USER_LOGIN,
-    properties: [
-      //user_id,lang,ip,is_register,time,channel_id
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'ID of user who just logged in',
-      },
-      // {
-      //   key: 'lang',
-      //   type: 'string',
-      //   description: 'Language of user (en/ja)',
-      // },
-      {
-        key: 'ip',
-        type: 'string',
-        description: 'IP address',
-      },
-      {
-        key: 'is_register',
-        type: 'boolean',
-        description: 'Is brand new account?',
-      },
-      {
-        key: 'time',
-        type: 'unix_timestamp',
-        description: 'Register time (unix timestamp)',
-      },
-      {
-        key: 'channel_id',
-        type: 'number',
-        description: 'Channel ID',
-      },
-    ],
-  },
-  {
-    eventName: EVENTS.AUTH_USER_CHANGE_EMAIL,
-    properties: [
-      //user_id,old_email,new_email
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'User ID',
-      },
-      {
-        key: 'old_email',
-        type: 'string',
-        description: 'Old Email',
-      },
-      {
-        key: 'new_email',
-        type: 'string',
-        description: 'New Email',
-      },
-    ],
-  },
-  {
     eventName: EVENTS.AUTH_USER_CREATED,
     properties: [
       // uuid,last_login,referrer_code,email,email_verify_at,created_at,updated_at,id,status,type,email_verify_status,' +
-      //     'authenticator_verify_status,kyc_verify_status,referred_by_id, channel_id
+      //     'authenticator_verify_status,kyc_verify_status,referred_by_id
       // {
       //   key: 'uuid',
       //   type: 'string',
@@ -208,11 +147,11 @@ export const INFO_EVENTS = [
         type: 'unix_timestamp',
         description: 'Last login time',
       },
-      {
-        key: 'referrer_code',
-        type: 'string',
-        description: 'Referer code of user',
-      },
+      // {
+      //   key: 'referrer_code',
+      //   type: 'string',
+      //   description: 'Referer code of user',
+      // },
       {
         key: 'email',
         type: 'string',
@@ -264,22 +203,22 @@ export const INFO_EVENTS = [
         display: 'enum',
         options: USER_EMAIL_VERIFY_STATUS,
       },
-      {
-        key: 'authenticator_verify_status',
-        type: 'number',
-        description: 'Authenticator verify status',
-        original: 'number',
-        display: 'enum',
-        options: USER_AUTHENTICATOR_VERIFY_STATUS,
-      },
-      {
-        key: 'kyc_verify_status',
-        type: 'number',
-        description: 'KYC verify status',
-        original: 'number',
-        display: 'enum',
-        options: USER_KYC_VERIFY_STATUS,
-      },
+      // {
+      //   key: 'authenticator_verify_status',
+      //   type: 'number',
+      //   description: 'Authenticator verify status',
+      //   original: 'number',
+      //   display: 'enum',
+      //   options: USER_AUTHENTICATOR_VERIFY_STATUS,
+      // },
+      // {
+      //   key: 'kyc_verify_status',
+      //   type: 'number',
+      //   description: 'KYC verify status',
+      //   original: 'number',
+      //   display: 'enum',
+      //   options: USER_KYC_VERIFY_STATUS,
+      // },
       {
         key: 'referred_by_id',
         type: 'number',
@@ -289,6 +228,62 @@ export const INFO_EVENTS = [
         key: 'channel_id',
         type: 'number',
         description: 'Channel ID',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_CHANGE_EMAIL,
+    properties: [
+      //user_id,old_email,new_email
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'old_email',
+        type: 'string',
+        description: 'Old Email',
+      },
+      {
+        key: 'new_email',
+        type: 'string',
+        description: 'New Email',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_LOGIN,
+    properties: [
+      //user_id,lang,ip,is_register,time
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'ID of user who just logged in',
+      },
+      // {
+      //   key: 'lang',
+      //   type: 'string',
+      //   description: 'Language of user (en/ja)',
+      // },
+      {
+        key: 'ip',
+        type: 'string',
+        description: 'IP address',
+      },
+      {
+        key: 'is_register',
+        type: 'boolean',
+        description: 'Is brand new account?',
+      },
+      {
+        key: 'time',
+        type: 'unix_timestamp',
+        description: 'Register time (unix timestamp)',
       },
     ],
   },
@@ -331,19 +326,6 @@ export const INFO_EVENTS = [
     ],
   },
   {
-    eventName: EVENTS.AUTH_USER_CHANGE_INFO,
-    properties: [
-      //user_id
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'User ID',
-      },
-    ],
-  },
-  {
     eventName: EVENTS.AUTH_USER_AUTHENTICATOR_STATUS_UPDATED,
     properties: [
       //status,user_id,otp_secret
@@ -361,6 +343,27 @@ export const INFO_EVENTS = [
         original: 'number',
         display: 'enum',
         options: USER_AUTHENTICATOR_VERIFY_STATUS,
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_KYC_STATUS_UPDATED,
+    properties: [
+      // status, user_id
+      {
+        key: 'status',
+        type: 'number',
+        description: 'Status',
+        original: 'number',
+        display: 'enum',
+        options: KYC_STATUS,
+      },
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
       },
     ],
   },
@@ -405,41 +408,40 @@ export const INFO_EVENTS = [
       {
         key: 'country_id',
         type: 'number',
-        description: 'Country ID',
+        description: 'Country ID (get list from setting v2 API)',
       },
-      {
-        key: 'user_kyc_history_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'KYC history id',
-      },
-      {
-        key: 'status',
-        type: 'number',
-        description: 'Status',
-        original: 'number',
-        display: 'enum',
-        options: KYC_STATUS,
-      },
-      {
-        key: 'cynopsis_processing',
-        type: 'boolean',
-        description: 'Is Cynopsis processing',
-      },
-      {
-        key: 'created_at',
-        type: 'unix_timestamp',
-        description: 'Created at (unix time)',
-      },
-      {
-        key: 'updated_at',
-        type: 'unix_timestamp',
-        description: 'Updated at (unix time)',
-      },
+      // {
+      //   key: 'user_kyc_history_id',
+      //   type: 'string',
+      //   original: 'number',
+      //   display: 'number',
+      //   description: 'KYC history id',
+      // },
+      // {
+      //   key: 'status',
+      //   type: 'number',
+      //   description: 'Status',
+      //   original: 'number',
+      //   display: 'enum',
+      //   options: KYC_STATUS,
+      // },
+      // {
+      //   key: 'cynopsis_processing',
+      //   type: 'boolean',
+      //   description: 'Is Cynopsis processing',
+      // },
+      // {
+      //   key: 'created_at',
+      //   type: 'unix_timestamp',
+      //   description: 'Created at (unix time)',
+      // },
+      // {
+      //   key: 'updated_at',
+      //   type: 'unix_timestamp',
+      //   description: 'Updated at (unix time)',
+      // },
     ],
   },
-
   {
     eventName: EVENTS.AUTH_USER_KYC_AUTO_KYC_FINISHED,
     properties: [
@@ -469,15 +471,32 @@ export const INFO_EVENTS = [
       },
       {
         key: 'old_level',
-        type: 'enum',
+        type: 'number',
+        original: 'number',
+        display: 'enum',
         options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level before change',
       },
       {
         key: 'new_level',
-        type: 'enum',
+        type: 'number',
+        original: 'number',
+        display: 'enum',
         options: USER_ACCOUNT_LV_OPTIONS,
         description: 'Account level after change',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.AUTH_USER_CHANGE_INFO,
+    properties: [
+      //user_id
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
       },
     ],
   },
@@ -784,13 +803,13 @@ export const INFO_EVENTS = [
         type: 'string',
         description: 'Status',
       },
-      {
-        key: 'created_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Created At',
-      },
+      // {
+      //   key: 'created_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Created At',
+      // },
       {
         key: 'allow_resell',
         type: 'number',
@@ -838,13 +857,13 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Sell Payout',
       },
-      {
-        key: 'updated_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Updated At',
-      },
+      // {
+      //   key: 'updated_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Updated At',
+      // },
       {
         key: 'id',
         type: 'number',
@@ -961,13 +980,13 @@ export const INFO_EVENTS = [
         type: 'string',
         description: 'Status',
       },
-      {
-        key: 'created_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Created At',
-      },
+      // {
+      //   key: 'created_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Created At',
+      // },
       {
         key: 'allow_resell',
         type: 'number',
@@ -1015,13 +1034,13 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Sell Payout',
       },
-      {
-        key: 'updated_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Updated At',
-      },
+      // {
+      //   key: 'updated_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Updated At',
+      // },
       {
         key: 'id',
         type: 'number',
@@ -1138,13 +1157,13 @@ export const INFO_EVENTS = [
         type: 'string',
         description: 'Status',
       },
-      {
-        key: 'created_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Created At',
-      },
+      // {
+      //   key: 'created_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Created At',
+      // },
       {
         key: 'allow_resell',
         type: 'number',
@@ -1192,13 +1211,13 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Sell Payout',
       },
-      {
-        key: 'updated_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Updated At',
-      },
+      // {
+      //   key: 'updated_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Updated At',
+      // },
       {
         key: 'id',
         type: 'number',
@@ -1315,13 +1334,13 @@ export const INFO_EVENTS = [
         type: 'string',
         description: 'Status',
       },
-      {
-        key: 'created_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Created At',
-      },
+      // {
+      //   key: 'created_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Created At',
+      // },
       {
         key: 'allow_resell',
         type: 'number',
@@ -1369,13 +1388,13 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Sell Payout',
       },
-      {
-        key: 'updated_at',
-        type: 'string',
-        original: 'unix_timestamp',
-        display: 'unix_timestamp',
-        description: 'Updated At',
-      },
+      // {
+      //   key: 'updated_at',
+      //   type: 'string',
+      //   original: 'unix_timestamp',
+      //   display: 'unix_timestamp',
+      //   description: 'Updated At',
+      // },
       {
         key: 'id',
         type: 'number',

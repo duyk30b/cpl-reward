@@ -30,4 +30,7 @@ export class CreateUserRewardHistoryDto {
 
   @Expose({ name: 'referrer_user_id' })
   referrerUserId: string
+
+  @Expose({ name: 'reference_id' })
+  referenceId: string
 }

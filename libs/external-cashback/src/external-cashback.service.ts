@@ -31,16 +31,23 @@ export class ExternalCashbackService {
    * auto_confirm: 1
    */
   async changeUserCashback(input: ChangeUserCashback): Promise<any> {
+    input.currency = input.currency.toLowerCase()
+
     const postBoUrl =
       this.configService
         .get('cashback.url')
         .replace('service-api', 'service-internal') + '/transaction/create'
 
+    const inputData = {
+      user_id: input.user_id,
+      currency: input.currency,
+      amount: input.amount,
+    }
     const postData = {
-      ...input,
+      ...inputData,
       balance_type: 'CASHBACK',
       transaction_type: 'REWARD',
-      reference_id: `${input.historyId}`,
+      reference_id: input.referenceId,
       fee_currency: '0',
       fee_balance_type: 'CASHBACK',
       fee_transaction_type: 'MANUALLY',
@@ -63,6 +70,7 @@ export class ExternalCashbackService {
         traceCode: 'm015',
         data: input.data,
         extraData: {
+          request: postData,
           result: JSON.stringify(result),
         },
         params: { type: 'cashback' },
@@ -78,7 +86,15 @@ export class ExternalCashbackService {
         traceCode: 'm018',
         data: input.data,
         extraData: {
-          result: e.message,
+          request: postData,
+          response:
+            e.response === undefined
+              ? null
+              : {
+                  statusCode: e.response.status,
+                  statusText: e.response.statusText,
+                  detailMessage: e.response.data.message,
+                },
         },
         params: { type: 'cashback' },
       })

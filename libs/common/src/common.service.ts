@@ -3,9 +3,15 @@ import { IPaginationLinks } from 'nestjs-typeorm-paginate'
 import { BigNumber, FixedNumber } from 'ethers'
 import { IGrantTarget } from './common.interface'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
+import * as Handlebars from 'handlebars'
 
 @Injectable()
 export class CommonService {
+  getLogMessageFromTemplate(templateTxt: string, params: any) {
+    const template = Handlebars.compile(templateTxt)
+    return template(params)
+  }
+
   getFixedReleaseValue(reward: RewardRule) {
     const releaseValue =
       reward.releaseValue === undefined ? '0' : reward.releaseValue
@@ -90,5 +96,9 @@ export class CommonService {
 
   static randomItem(items) {
     return items[Math.floor(Math.random() * items.length)]
+  }
+
+  static currentUnixTime() {
+    return Math.floor(+new Date() / 1000)
   }
 }

@@ -16,8 +16,14 @@ import { ExternalUserModule } from '@lib/external-user'
 import { ApiMissionController } from './api-mission/api-mission.controller'
 import { ConfigModule } from '@nestjs/config'
 import configuration from '@lib/common/configuration'
-import { ExternalCashbackModule } from '@lib/external-cashback'
 import { HealthModule } from './health/health.module'
+// import { IdGeneratorModule } from '@lib/id-generator'
+// import { EventEmitterModule } from '@nestjs/event-emitter'
+// import { TraceListener } from '../../missions/src/listeners/trace.listener'
+// import { RedisQueueModule } from '@lib/redis-queue'
+// import { CommonModule } from '@lib/common'
+// import { ExternalBalanceModule } from '@lib/external-balance'
+// import { ExternalCashbackModule } from '@lib/external-cashback'
 
 @Module({
   imports: [
@@ -25,11 +31,20 @@ import { HealthModule } from './health/health.module'
     ApiMissionModule,
     ApiCampaignModule,
     ExternalUserModule,
-    ExternalCashbackModule,
     ConfigModule.forRoot({
       load: [configuration],
     }),
     HealthModule,
+    // test
+    // IdGeneratorModule,
+    // EventEmitterModule.forRoot({
+    //   wildcard: true,
+    //   delimiter: '_',
+    // }),
+    // RedisQueueModule,
+    // CommonModule,
+    // ExternalCashbackModule,
+    // ExternalBalanceModule,
   ],
   controllers: [AppController],
   providers: [
@@ -38,6 +53,8 @@ import { HealthModule } from './health/health.module'
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
     },
+    // test
+    // TraceListener,
   ],
 })
 export class AppModule implements NestModule {

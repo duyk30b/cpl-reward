@@ -5,7 +5,7 @@ import { MissionUserLogService } from '@lib/mission-user-log'
 import { MissionUserService } from '@lib/mission-user'
 import {
   ICreateMissionUserLog,
-  IUpdateValueRewardCampaign,
+  // IUpdateValueRewardCampaign,
 } from '../interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserLogDto } from '@lib/mission-user-log/dto/create-mission-user-log.dto'
@@ -21,43 +21,44 @@ export class CommonListener {
   ) {}
 
   @OnEvent('update_value_reward_campaign')
-  async handleUpdateValRewardCampaign(data: IUpdateValueRewardCampaign) {
-    // Hiện tại chỉ limit và thống kê tổng theo mission, ko cần cộng tổng mission vào campaign nên đoạn code dưới bỏ
+  async handleUpdateValRewardCampaign() {
     return true
-
-    // let rewardRule = await this.rewardRuleService.findOne({
-    //   campaignId: data.campaignId,
-    //   typeRule: TYPE_RULE.CAMPAIGN,
-    //   key: data.key,
-    //   currency: data.currency,
-    // })
-    //
-    // if (!rewardRule) {
-    //   rewardRule = await this.rewardRuleService.create(
-    //     {
-    //       key: data.key,
-    //       currency: data.currency,
-    //       limitValue: '0',
-    //       releaseValue: '0',
-    //     } as CreateRewardRuleDto,
-    //     {
-    //       campaignId: data.campaignId,
-    //       missionId: null,
-    //       typeRule: TYPE_RULE.CAMPAIGN,
-    //     },
-    //   )
-    // }
-    //
-    // const fixedAmount = FixedNumber.fromString(data.amount)
-    // rewardRule.releaseValue = FixedNumber.from(rewardRule.releaseValue)
-    //   .addUnsafe(fixedAmount)
-    //   .toUnsafeFloat()
-    // await this.rewardRuleService.safeUpdateReleaseValue(
-    //   rewardRule.id,
-    //   rewardRule.releaseValue,
-    //   fixedAmount.toUnsafeFloat(),
-    // )
   }
+
+  // async handleUpdateValRewardCampaign(data: IUpdateValueRewardCampaign) {
+  // let rewardRule = await this.rewardRuleService.findOne({
+  //   campaignId: data.campaignId,
+  //   typeRule: TYPE_RULE.CAMPAIGN,
+  //   key: data.key,
+  //   currency: data.currency,
+  // })
+  //
+  // if (!rewardRule) {
+  //   rewardRule = await this.rewardRuleService.create(
+  //     {
+  //       key: data.key,
+  //       currency: data.currency,
+  //       limitValue: '0',
+  //       releaseValue: '0',
+  //     } as CreateRewardRuleDto,
+  //     {
+  //       campaignId: data.campaignId,
+  //       missionId: null,
+  //       typeRule: TYPE_RULE.CAMPAIGN,
+  //     },
+  //   )
+  // }
+  //
+  // const fixedAmount = FixedNumber.fromString(data.amount)
+  // rewardRule.releaseValue = FixedNumber.from(rewardRule.releaseValue)
+  //   .addUnsafe(fixedAmount)
+  //   .toUnsafeFloat()
+  // await this.rewardRuleService.safeUpdateReleaseValue(
+  //   rewardRule.id,
+  //   rewardRule.releaseValue,
+  //   fixedAmount.toUnsafeFloat(),
+  // )
+  // }
 
   @OnEvent(EventEmitterType.CREATE_MISSION_USER_LOG)
   async handleMissionUserLog(data: ICreateMissionUserLog) {

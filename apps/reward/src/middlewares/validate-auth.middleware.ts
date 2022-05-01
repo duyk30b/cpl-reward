@@ -8,7 +8,6 @@ import { NextFunction } from 'express'
 import { ExternalUserService } from '@lib/external-user'
 import { IRequestWithUserId } from '../interfaces/request-with-user-id'
 import { ConfigService } from '@nestjs/config'
-import { Environment } from '@lib/common'
 
 @Injectable()
 export class ValidateAuthMiddleware implements NestMiddleware {

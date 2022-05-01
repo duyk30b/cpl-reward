@@ -43,8 +43,8 @@ services:
       dockerfile: ./Dockerfile
       target: builder
     command: npm run start:dev missions
-    ports:
-      - ${MISSIONS_MAP_PORT}
+    #    ports:
+    #      - ${MISSIONS_MAP_PORT}
     volumes:
       - .:/usr/src/app
     restart: unless-stopped

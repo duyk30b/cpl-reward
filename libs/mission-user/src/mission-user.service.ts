@@ -5,6 +5,7 @@ import { MissionUser } from '@lib/mission-user/entities/mission-user.entity'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
 import { UpdateMissionUserDto } from '@lib/mission-user/dto/update-mission-user.dto'
+import { GRANT_TARGET_USER } from '@lib/mission'
 
 @Injectable()
 export class MissionUserService {
@@ -56,12 +57,15 @@ export class MissionUserService {
     return this.missionUserRepository.save(missionUserEntity)
   }
 
-  async increaseSuccessCount(id: number, limit: number) {
-    return this.missionUserRepository
+  async increaseSuccessCount(id: number, limit: number, userType: string) {
+    const query = this.missionUserRepository
       .createQueryBuilder()
       .update(MissionUser)
       .where('id = :id', { id })
-      .andWhere('(success_count + 1) <= :limit')
+    if (userType === GRANT_TARGET_USER.USER) {
+      query.andWhere('(success_count + 1) <= :limit')
+    }
+    return query
       .set({
         successCount: () => 'success_count + 1',
       })

@@ -24,17 +24,17 @@ export enum GRANT_TARGET_USER {
 }
 
 export enum EVENTS {
-  AUTH_USER_LOGIN = 'auth_user_login',
-  AUTH_USER_CHANGE_EMAIL = 'auth_user_change_email',
   AUTH_USER_CREATED = 'auth_user_created',
+  AUTH_USER_CHANGE_EMAIL = 'auth_user_change_email',
+  AUTH_USER_LOGIN = 'auth_user_login',
   AUTH_USER_LOGOUT = 'auth_user_logout',
   AUTH_USER_CHANGE_PASSWORD = 'auth_user_change_password',
-  AUTH_USER_CHANGE_INFO = 'auth_user_change_info',
   AUTH_USER_AUTHENTICATOR_STATUS_UPDATED = 'auth_user_authenticator_status_updated',
+  AUTH_USER_KYC_STATUS_UPDATED = 'auth_user_kyc_status_updated',
   AUTH_USER_KYC_REGISTERED = 'auth_user_kyc_registered',
   AUTH_USER_KYC_AUTO_KYC_FINISHED = 'auth_user_kyc_auto_kyc_finished',
   AUTH_USER_CHANGE_LV = 'auth_user_change_lv',
-  AUTH_USER_KYC_STATUS_UPDATED = 'auth_user_kyc_status_updated',
+  AUTH_USER_CHANGE_INFO = 'auth_user_change_info',
 
   // BCE
   BCE_TRADING_MATCHED = 'bce_trading_matched',

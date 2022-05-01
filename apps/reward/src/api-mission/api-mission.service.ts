@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   DELIVERY_METHOD,
-  DELIVERY_METHOD_WALLET,
   GRANT_TARGET_USER,
   MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
@@ -15,84 +14,99 @@ import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Brackets } from 'typeorm'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
-import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import {
   USER_REWARD_STATUS,
   UserRewardHistoryService,
 } from '@lib/user-reward-history'
-import { CommonService } from '@lib/common/common.service'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
 import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
+import { IUserCondition } from '../../../missions/src/interfaces/missions.interface'
+import { ExternalUserService } from '@lib/external-user'
 
 @Injectable()
 export class ApiMissionService {
+  private readonly logger = new Logger(ApiMissionService.name)
+
   constructor(
     private readonly missionService: MissionService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
+    private readonly externalUserService: ExternalUserService,
   ) {}
 
   async findPublicMissions(
     apiMissionFilterDto: ApiMissionFilterDto,
     userId: string,
   ) {
-    const limit =
+    apiMissionFilterDto.limit =
       (apiMissionFilterDto.limit > 100 ? 100 : apiMissionFilterDto.limit) || 20
-    const page = apiMissionFilterDto.page || 1
-    const options = {
-      page,
-      limit,
-      metaTransformer: (
-        pagination: IPaginationMeta,
-      ): CustomPaginationMetaTransformer =>
-        new CustomPaginationMetaTransformer(
-          pagination.totalItems,
-          pagination.itemsPerPage,
-          pagination.currentPage,
-        ),
-      route: '/missions',
-      paginationType: PaginationTypeEnum.LIMIT_AND_OFFSET,
-    }
-    const queryBuilder = this.missionsQueryBuilder(apiMissionFilterDto, userId)
-    const missions = await this.missionService.missionPaginate(
-      options,
-      queryBuilder,
-      true,
-    )
 
-    // Empty missions
-    if (missions.items.length === 0) {
-      return {
-        pagination: missions.meta,
-        data: missions.items,
-        links: CommonService.customLinks(missions.links),
-      }
-    }
-
-    // Else missions not empty
-    const missionIds = missions.items.map((m) => {
-      return m.id
+    const linkParams = instanceToPlain(apiMissionFilterDto, {
+      exposeUnsetFields: false,
     })
 
-    const receivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(
-        missionIds,
+    let data = []
+    const user = await this.externalUserService.getUserInfo(userId)
+    if (!user) {
+      this.logger.warn('Cannot find user by ID: ' + userId)
+      return null
+    }
+
+    do {
+      const queryBuilder = this.missionsQueryBuilder(
+        apiMissionFilterDto,
         userId,
-        USER_REWARD_STATUS.RECEIVED,
       )
-    const notReceivedHistories =
-      await this.userRewardHistoryService.getAmountByUser(
-        missionIds,
-        userId,
-        USER_REWARD_STATUS.NOT_RECEIVE,
+      let missions = await queryBuilder.getRawMany()
+
+      // Empty missions
+      if (missions.length === 0) {
+        break
+      }
+
+      // console.log('Misssion')
+      //console.log(missions)
+
+      // Tăng from và to để phục vụ do while ko bị infinitive
+      apiMissionFilterDto.fromId = missions[0]['id']
+      apiMissionFilterDto.toId = missions[missions.length - 1]['id']
+
+      // Lọc bớt các mission chưa completed mà ko đủ điều kiện hiển thị
+      missions = missions.filter(
+        (m) =>
+          m.completed ||
+          !m.displayConditions ||
+          this.missionService.checkUserConditions(
+            JSON.parse(m.displayConditions) as unknown as IUserCondition[],
+            user,
+          ),
       )
 
-    return {
-      pagination: missions.meta,
-      data: missions.items.map((rawMission) => {
+      if (missions.length === 0) {
+        continue
+      }
+
+      // Else missions not empty
+      const missionIds = missions.map((m) => {
+        return m.id
+      })
+
+      const receivedHistories =
+        await this.userRewardHistoryService.getAmountByUser(
+          missionIds,
+          userId,
+          USER_REWARD_STATUS.RECEIVED,
+        )
+      const notReceivedHistories =
+        await this.userRewardHistoryService.getAmountByUser(
+          missionIds,
+          userId,
+          USER_REWARD_STATUS.NOT_RECEIVE,
+        )
+
+      const newData = missions.map((rawMission) => {
         const mission = plainToInstance(Mission, rawMission, {
           ignoreDecorators: true,
           //excludeExtraneousValues: false,
@@ -124,8 +138,39 @@ export class ApiMissionService {
           received_amount: money.receivedAmount,
           not_received_amount: money.notReceivedAmount,
         }
-      }),
-      links: CommonService.customLinks(missions.links),
+      })
+      data = data.concat(newData)
+
+      // Data.push cac missionExtras thoa man
+      if (data.length >= apiMissionFilterDto.limit) {
+        data = data.splice(0, apiMissionFilterDto.limit)
+        break
+      }
+    } while (true)
+
+    // Return
+    let nextLink = ''
+    let prevLink = ''
+
+    if (data.length > 0) {
+      const linkParamsFrom = { ...linkParams }
+      linkParamsFrom['from_id'] = data[0]['id']
+      delete linkParamsFrom['to_id']
+
+      const linkParamsTo = { ...linkParams }
+      linkParamsTo['to_id'] = data[data.length - 1]['id']
+      delete linkParamsTo['from_id']
+
+      nextLink = new URLSearchParams(linkParamsTo).toString()
+      prevLink = new URLSearchParams(linkParamsFrom).toString()
+    }
+
+    return {
+      data: data,
+      links: {
+        next: nextLink,
+        prev: prevLink,
+      },
     }
   }
 
@@ -133,28 +178,44 @@ export class ApiMissionService {
     missionFilter: ApiMissionFilterDto,
     userId: string,
   ): SelectQueryBuilder<Mission> {
-    const { searchField, searchText, sort, sortType, grantTarget } =
-      missionFilter
+    const { searchField, searchText, sort, sortType } = missionFilter
+    let { grantTarget } = missionFilter
+    if (!grantTarget) {
+      grantTarget = GRANT_TARGET_USER.USER
+    }
     const queryBuilder = this.missionService.initQueryBuilder()
     queryBuilder.innerJoin(
       'campaigns',
       'campaigns',
       'campaigns.id = mission.campaign_id AND campaigns.is_active = ' +
-        CAMPAIGN_IS_ACTIVE.ACTIVE +
-        ' AND campaigns.status = ' +
-        CAMPAIGN_STATUS.RUNNING,
+        CAMPAIGN_IS_ACTIVE.ACTIVE,
     )
     queryBuilder.leftJoin(
       'mission_user',
       'mission_user',
       'mission_user.mission_id = mission.id AND mission_user.user_id = ' +
-        userId,
+        userId +
+        ' AND mission_user.user_type = "' +
+        grantTarget +
+        '"',
+    )
+
+    // Note: Đoạn này chỉ dùng để đếm nếu user chưa đc trả thưởng hết
+    // Lưu ý sau này 1 user đc thưởng nhiều lần trong mission thì phải viết câu query thứ 2 chứ ko join đc
+    queryBuilder.leftJoin(
+      'user_reward_histories',
+      'user_reward_histories',
+      'user_reward_histories.mission_id = mission.id AND user_reward_histories.user_id = ' +
+        userId +
+        ' AND user_reward_histories.status = ' +
+        USER_REWARD_STATUS.FAIL,
     )
     queryBuilder.select([
       'mission_user.success_count AS success_count',
       'mission.title AS title',
       'mission.titleJa AS titleJa',
       'mission.id AS id',
+      'mission.priority AS priority',
       'mission.isActive as isActive',
       'mission.detailExplain AS detailExplain',
       'mission.detailExplainJa AS detailExplainJa',
@@ -164,19 +225,31 @@ export class ApiMissionService {
       'mission.guideLinkJa AS guideLinkJa',
       'mission.limitReceivedReward AS limitReceivedReward',
       'mission.grantTarget AS grantTarget',
+      'mission.displayConditions AS displayConditions',
       'mission.campaignId AS campaignId',
       'mission.status AS status',
       'IF (success_count >= mission.limitReceivedReward, true, false) AS completed', // Check if user completed this campaign
+      'user_reward_histories.status AS reward_status',
     ])
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
     })
 
+    if (missionFilter.toId) {
+      queryBuilder.andWhere('mission.id < :toId ', {
+        toId: missionFilter.toId,
+      })
+    } else if (missionFilter.fromId) {
+      queryBuilder.andWhere('mission.id > :fromId ', {
+        fromId: missionFilter.fromId,
+      })
+    }
+
     // Đoạn này cho phép front-end lấy số tiền mỗi user kiếm được, gom nhóm theo mission.
     // Truyền grantTarget lên để phân biệt tiền tự kiếm được hay từ affiliate
     // Tuy nhiên màn hình affiliate lại đang design kiểu history từng lần một, ko gom nhóm theo mission
     // Vì vậy đoạn GRANT_TARGET_USER.REFERRAL_USER này chưa đc gọi, để đây thôi
-    if (!grantTarget || grantTarget === GRANT_TARGET_USER.USER) {
+    if (grantTarget === GRANT_TARGET_USER.USER) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where('mission.targetType = ' + TARGET_TYPE.ONLY_MAIN).orWhere(
@@ -198,9 +271,13 @@ export class ApiMissionService {
     // Only show running mission or completed by user
     queryBuilder.andWhere(
       new Brackets((qb) => {
-        qb.where('mission.status = ' + MISSION_STATUS.RUNNING).orWhere(
-          'success_count > 0',
-        )
+        qb.where(
+          new Brackets((qbc) => {
+            qbc
+              .where('mission.status = ' + MISSION_STATUS.RUNNING)
+              .andWhere('campaigns.status = ' + CAMPAIGN_STATUS.RUNNING)
+          }),
+        ).orWhere('success_count > 0')
       }),
     )
 
@@ -225,16 +302,20 @@ export class ApiMissionService {
       )
     }
 
+    // TODO: Vì lý do
     if (sort && MISSION_SORT_FIELD_MAP[sort]) {
       queryBuilder
         .orderBy(MISSION_SORT_FIELD_MAP[sort], sortType || 'ASC')
-        .addOrderBy('mission.priority', 'DESC')
+        //.addOrderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     } else {
       queryBuilder
-        .orderBy('mission.priority', 'DESC')
+        //.orderBy('mission.priority', 'DESC')
         .addOrderBy('mission.id', 'DESC')
     }
+
+    queryBuilder.limit(missionFilter.limit)
+
     return queryBuilder
   }
 

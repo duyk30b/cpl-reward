@@ -16,11 +16,24 @@ import {
 import { Brackets, In, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
-import { CommonService } from '@lib/common'
+import { CommonService, MissionUserLogStatus } from '@lib/common'
 import * as moment from 'moment-timezone'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
 import { MissionService } from '@lib/mission'
+import { MissionUserLogService } from '@lib/mission-user-log'
+import {
+  FilterCountRewardLogDto,
+  MissingRewardsFilterDto,
+  UpdateRewardLogDto,
+} from './admin-campaign.dto'
+import { plainToClass } from 'class-transformer'
+import { MissionUserFilterDto } from '@lib/mission-user-log/dto/mission-user-filter.dto'
+import { UpdateMissionUserLogDto } from '@lib/mission-user-log/dto/update-mission-user-log.dto'
+import {
+  UserRewardHistoryService,
+  USER_REWARD_STATUS,
+} from '@lib/user-reward-history'
 
 @Injectable()
 export class AdminCampaignService {
@@ -29,6 +42,8 @@ export class AdminCampaignService {
     private readonly campaignService: CampaignService,
     private readonly rewardRuleService: RewardRuleService,
     private readonly missionService: MissionService,
+    private readonly missionUserLogService: MissionUserLogService,
+    private readonly userRewardHistoryService: UserRewardHistoryService,
   ) {}
 
   @Interval(5000)
@@ -277,5 +292,49 @@ export class AdminCampaignService {
       currency: [res?.value?.coin?.toUpperCase()],
       price: res?.value?.price,
     }))
+  }
+
+  async getMissingRewards(input: MissingRewardsFilterDto) {
+    return await this.missionUserLogService.getList(input)
+  }
+
+  async updateRewardLog(input: UpdateRewardLogDto) {
+    const transformedInput = plainToClass(UpdateMissionUserLogDto, input, {
+      ignoreDecorators: true,
+    })
+
+    const result = await this.missionUserLogService.update(
+      input.id,
+      transformedInput,
+    )
+
+    if (input.status !== MissionUserLogStatus.RESOLVED) {
+      return {
+        success: result.affected > 0,
+      }
+    }
+
+    const missionUserLog = await this.missionUserLogService.findOne(input.id)
+    if (missionUserLog.rewardHistoryId) {
+      await this.userRewardHistoryService.updateById(
+        missionUserLog.rewardHistoryId,
+        {
+          status: USER_REWARD_STATUS.RECEIVED,
+        },
+      )
+    }
+
+    return {
+      success: result.affected > 0,
+    }
+  }
+
+  async countRewardLog(input: FilterCountRewardLogDto) {
+    const filter = plainToClass(MissionUserFilterDto, input, {
+      ignoreDecorators: true,
+    })
+
+    const count = await this.missionUserLogService.count(filter)
+    return { count }
   }
 }

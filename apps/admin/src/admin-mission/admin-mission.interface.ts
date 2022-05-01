@@ -20,10 +20,10 @@ class IMission {
   detailExplainJa: string
 
   @Expose({ name: 'guide_link' })
-  guideLink: string
+  guideLink?: string
 
   @Expose({ name: 'guide_link_ja' })
-  guideLinkJa: string
+  guideLinkJa?: string
 
   @Expose({ name: 'opening_date' })
   openingDate: number
@@ -52,6 +52,11 @@ class IMission {
   @Type(() => UserConditionDto)
   @Expose({ name: 'user_conditions' })
   userConditions: UserConditionDto[]
+
+  @Type(() => UserConditionDto)
+  @Expose({ name: 'display_conditions' })
+  displayConditions: UserConditionDto[]
+
   @Type(() => TargetDto)
   @Expose({ name: 'grant_target' })
   grantTarget: TargetDto[]

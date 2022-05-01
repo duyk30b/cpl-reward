@@ -18,11 +18,12 @@ export class ExternalBalanceService {
 
   async changeUserBalance(
     userId: string,
-    amount: number,
+    amount: string,
     currency: string,
     type: string,
     data: any,
   ): Promise<any> {
+    currency = currency.toLowerCase()
     const balanceToken = this.configService.get('balance.token')
     const postBalanceUrl =
       this.configService.get('balance.url') +
@@ -31,25 +32,22 @@ export class ExternalBalanceService {
       '/' +
       currency
 
+    const postData = {
+      amount: amount,
+      type: type,
+      api_token: balanceToken,
+    }
     try {
       const result = await firstValueFrom(
         await this.httpService
-          .post(
-            postBalanceUrl,
-            JSON.stringify({
-              amount: amount,
-              type: type,
-              api_token: balanceToken,
-            }),
-            {
-              headers: {
-                // Authorization: 'Bearer ' + balanceToken,
-                // Use api_token on body instead of Authorization on header.
-                // Because Authorization blocked by KONG gateway to validate Customer/Auth 's access token
-                'Content-Type': 'application/json',
-              },
+          .post(postBalanceUrl, JSON.stringify(postData), {
+            headers: {
+              // Authorization: 'Bearer ' + balanceToken,
+              // Use api_token on body instead of Authorization on header.
+              // Because Authorization blocked by KONG gateway to validate Customer/Auth 's access token
+              'Content-Type': 'application/json',
             },
-          )
+          })
           .pipe(map((response) => response.data)),
       )
       this.eventEmitter.emit(this.eventEmit, {
@@ -57,6 +55,7 @@ export class ExternalBalanceService {
         traceCode: 'm015',
         data,
         extraData: {
+          request: postData,
           result: JSON.stringify(result),
         },
         params: { type: 'balance' },
@@ -72,7 +71,15 @@ export class ExternalBalanceService {
         traceCode: 'm018',
         data,
         extraData: {
-          result: e.message,
+          request: postData,
+          response:
+            e.response === undefined
+              ? null
+              : {
+                  statusCode: e.response.status,
+                  statusText: e.response.statusText,
+                  detailMessage: e.response.data.message,
+                },
         },
         params: { type: 'balance' },
       })

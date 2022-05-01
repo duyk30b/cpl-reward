@@ -5,9 +5,9 @@ import { ApiMissionService } from './api-mission.service'
 import { RewardRuleModule } from '@lib/reward-rule'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
 import { CommonModule } from '@lib/common'
-import { ApiMissionListener } from './listeners/api-mission.listener'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { CampaignModule } from '@lib/campaign'
+import { ExternalUserModule } from '@lib/external-user'
 
 @Module({
   imports: [
@@ -15,6 +15,7 @@ import { CampaignModule } from '@lib/campaign'
     MissionModule,
     RewardRuleModule,
     UserRewardHistoryModule,
+    ExternalUserModule,
     CommonModule,
     EventEmitterModule.forRoot({
       wildcard: true,
@@ -22,6 +23,6 @@ import { CampaignModule } from '@lib/campaign'
     }),
   ],
   controllers: [ApiMissionController],
-  providers: [ApiMissionService, ApiMissionListener],
+  providers: [ApiMissionService],
 })
 export class ApiMissionModule {}

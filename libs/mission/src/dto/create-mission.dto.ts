@@ -20,10 +20,10 @@ export class CreateMissionDto {
   detailExplainJa: string
 
   @Expose({ name: 'guide_link' })
-  guideLink: string
+  guideLink?: string
 
   @Expose({ name: 'guide_link_ja' })
-  guideLinkJa: string
+  guideLinkJa?: string
 
   @Expose({ name: 'opening_date' })
   openingDate: number
@@ -53,6 +53,10 @@ export class CreateMissionDto {
   @Expose({ name: 'user_conditions' })
   @Type(() => UserConditionDto)
   userConditions: UserConditionDto[]
+
+  @Expose({ name: 'display_conditions' })
+  @Type(() => UserConditionDto)
+  displayConditions: UserConditionDto[]
 
   @Expose({ name: 'grant_target' })
   @Type(() => TargetDto)

@@ -30,4 +30,7 @@ export class CreateMissionUserLogDto {
 
   @Expose()
   status: number
+
+  @Expose({ name: 'reward_history_id' })
+  rewardHistoryId: number
 }

@@ -17,4 +17,5 @@ export const TRACE_CODES = {
   m016: 'Invalid data struct',
   m017: 'Failed to reach success_count',
   m018: 'Result send failed {{type}}',
+  m019: '{{condition_name}} Display condition check fail!',
 }

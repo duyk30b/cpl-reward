@@ -69,7 +69,7 @@ export class MissionsListener {
       // Giảm thiểu deadlock cho Cashback service
       const throttleTime = 2 // Redis ttl tính theo giây, bull tính theo ms nên đoạn dưới nhân 1000
       let delayTime = 0
-      const keyName = 'reward-throttle=' + data.msgData.user_id
+      const keyName = 'reward-throttle-' + data.msgData.user_id
       const currentTime = CommonService.currentUnixTime()
       const lastRequestTime = await this.redisService.get(keyName)
       if (!lastRequestTime) {

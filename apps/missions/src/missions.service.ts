@@ -33,8 +33,6 @@ import { IUpdateMissionUser } from './interfaces/common.interface'
 import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
 import { IdGeneratorService } from '@lib/id-generator'
-import { Queue } from 'bull'
-import { InjectQueue } from '@nestjs/bull'
 import { QUEUE_SEND_BALANCE, QUEUE_SEND_CASHBACK } from '@lib/queue'
 import { RedisService } from '@lib/redis'
 import {
@@ -43,6 +41,7 @@ import {
 } from './interfaces/external.interface'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { User } from '@lib/external-user/user.interface'
+import { RedisQueueService } from '@lib/redis-queue'
 
 @Injectable()
 export class MissionsService {
@@ -60,7 +59,7 @@ export class MissionsService {
     private readonly commonService: CommonService,
     private readonly idGeneratorService: IdGeneratorService,
     private readonly redisService: RedisService,
-    @InjectQueue('reward') private readonly rewardQueue: Queue,
+    private readonly redisQueueService: RedisQueueService,
   ) {}
 
   async mainFunction(data: IEvent) {
@@ -348,15 +347,17 @@ export class MissionsService {
           data,
         )
       }
-    } else {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'log',
-        traceCode: 'm001',
-        data,
-        extraData: null,
-        params: { name: 'ReferredUser GrantTarget' },
-      })
     }
+    //else {
+    // Đoạn này ko có Ref user thì thôi ko cần ghi log
+    //   this.eventEmitter.emit(this.eventEmit, {
+    //     logLevel: 'log',
+    //     traceCode: 'm001',
+    //     data,
+    //     extraData: null,
+    //     params: { name: 'ReferredUser GrantTarget' },
+    //   })
+    // }
 
     // Update lại status của reward một lần nữa
     await this.syncMissionStatus(mission.id)
@@ -461,7 +462,7 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.throttleSendMoney(userId, QUEUE_SEND_BALANCE, 2, cashbackBody)
+      await this.sendMoney(userId, QUEUE_SEND_BALANCE, 2, cashbackBody)
     }
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
@@ -478,41 +479,21 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.throttleSendMoney(userId, QUEUE_SEND_CASHBACK, 0, balanceBody)
+      await this.sendMoney(userId, QUEUE_SEND_CASHBACK, 0, balanceBody)
     }
     return true
   }
 
-  async throttleSendMoney(
+  async sendMoney(
     userId: string,
     queueName: string,
     attempts: number,
     data: any,
   ) {
-    const throttleTime = 2000 // 2000ms
-    let delayTime = 0
-    const keyName = 'reward.' + queueName + '.' + userId
-    const currentTime = CommonService.currentUnixTime()
-    const lastRequestTime = await this.redisService.get(keyName)
-    if (!lastRequestTime) {
-      await this.redisService.set(keyName, currentTime, {
-        ttl: throttleTime,
-      })
-    } else {
-      let intNextRequest = parseInt(lastRequestTime.toString())
-      if (intNextRequest >= currentTime) {
-        intNextRequest += throttleTime
-        delayTime = intNextRequest - currentTime
-      } else {
-        intNextRequest = currentTime
-      }
-      await this.redisService.set(keyName, intNextRequest, {
-        ttl: throttleTime,
-      })
-    }
-    await this.rewardQueue.add(queueName, data, {
-      delay: delayTime,
+    data.groupKey = userId
+    await this.redisQueueService.addRewardMissionsJob(queueName, data, {
       attempts: attempts,
+      backoff: 1000,
     })
   }
 

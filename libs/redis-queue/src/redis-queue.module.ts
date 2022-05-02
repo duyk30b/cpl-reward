@@ -3,7 +3,6 @@ import { RedisQueueService } from './redis-queue.service'
 import { BullModule } from '@nestjs/bull'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import redis from '../../../config/redis'
-import RedisQueue from 'config/redis_queue'
 
 @Module({
   imports: [
@@ -20,7 +19,13 @@ import RedisQueue from 'config/redis_queue'
     }),
     /* List of queue here */
     BullModule.registerQueue({
-      name: RedisQueue.rq_reward_missions,
+      name: 'reward',
+      // limiter: {
+      //   duration: 2000,
+      //   max: 1,
+      //   bounceBack: false,
+      //   groupKey: 'groupKey',
+      // },
     }),
   ],
   providers: [RedisQueueService],

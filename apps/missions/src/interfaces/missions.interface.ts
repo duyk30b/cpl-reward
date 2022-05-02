@@ -13,6 +13,7 @@ export interface IWriteLog {
 }
 
 export interface IEvent {
+  groupKey?: string
   msgData: any
   missionId?: number
   campaignId?: number

@@ -13,6 +13,8 @@ import { INFO_EVENTS } from '@lib/mission/constants'
 import {
   DELIVERY_METHOD,
   DELIVERY_METHOD_WALLET,
+  MISSION_IS_ACTIVE,
+  MISSION_STATUS,
   WALLET,
 } from '@lib/mission/enum'
 import { IUserCondition } from '../../../apps/missions/src/interfaces/missions.interface'
@@ -202,5 +204,14 @@ export class MissionService {
     }
 
     return result
+  }
+
+  async filterRunningMissions(ids: number[]) {
+    const qb = this.missionRepository.createQueryBuilder('mission')
+    qb.select('id')
+    qb.where('status = :status', { status: MISSION_STATUS.RUNNING })
+    qb.andWhere('is_active = :active', { active: MISSION_IS_ACTIVE.ACTIVE })
+    qb.andWhereInIds(ids)
+    return qb.getRawMany()
   }
 }

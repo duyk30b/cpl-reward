@@ -1,7 +1,11 @@
 import { Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
-import { QUEUE_SEND_BALANCE, QUEUE_SEND_CASHBACK } from '@lib/queue'
+import {
+  QUEUE_MISSION_MAIN_FUNCTION,
+  QUEUE_SEND_BALANCE,
+  QUEUE_SEND_CASHBACK,
+} from '@lib/queue'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
   EventEmitterType,
@@ -20,6 +24,7 @@ import {
   SendRewardToBalance,
   SendRewardToCashback,
 } from './interfaces/external.interface'
+import { MissionsService } from './missions.service'
 
 @Processor('reward')
 export class MissionsProcessor {
@@ -28,17 +33,21 @@ export class MissionsProcessor {
   private readonly logger = new Logger(MissionsProcessor.name)
 
   constructor(
+    private missionsService: MissionsService,
     private eventEmitter: EventEmitter2,
     private readonly externalBalanceService: ExternalBalanceService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalCashbackService: ExternalCashbackService,
   ) {}
 
+  @Process(QUEUE_MISSION_MAIN_FUNCTION)
+  handleMainFunction(job: Job) {
+    this.missionsService.mainFunction(job.data).then()
+  }
   @Process(QUEUE_SEND_BALANCE)
   async handleSendBalance(job: Job) {
-    //this.logger.log('Start send balance...')
     const data = plainToInstance(SendRewardToBalance, job.data)
-
+    // console.log(data.userId + ' Bat dau cong balance: ', Date.now())
     const sendRewardToBalance =
       await this.externalBalanceService.changeUserBalance(
         data.userId,
@@ -136,7 +145,7 @@ export class MissionsProcessor {
   @Process(QUEUE_SEND_CASHBACK)
   async handleSendCashback(job: Job) {
     const data = plainToInstance(SendRewardToCashback, job.data)
-
+    // console.log(data.userId + ' Bat dau cong cashback: ', Date.now())
     const sendRewardToCashback =
       await this.externalCashbackService.changeUserCashback({
         user_id: data.userId,

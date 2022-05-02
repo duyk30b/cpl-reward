@@ -414,7 +414,7 @@ export class MissionsService {
       userTarget.wallet,
     )
 
-    const referenceId = this.getReferenceUniqueId(userTarget.wallet)
+    const referenceId = this.idGeneratorService.generateSnowflakeId()
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
       missionId: data.missionId,
@@ -495,18 +495,6 @@ export class MissionsService {
       attempts: attempts,
       backoff: 1000,
     })
-  }
-
-  private getReferenceUniqueId(wallet: string): string {
-    if (
-      DELIVERY_METHOD_WALLET[wallet] === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK
-    )
-      return this.idGeneratorService.generateId(1).toString()
-    if (
-      DELIVERY_METHOD_WALLET[wallet] === DELIVERY_METHOD_WALLET.DIRECT_BALANCE
-    )
-      return this.idGeneratorService.generateId(2).toString()
-    return '0'
   }
 
   /**

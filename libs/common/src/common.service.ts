@@ -73,6 +73,7 @@ export class CommonService {
     if (operator === '>=') return bbVal.gte(bbPropertyVal)
     if (operator === '<') return bbVal.lt(bbPropertyVal)
     if (operator === '<=') return bbVal.lte(bbPropertyVal)
+    if (operator === '!=') return !bbVal.eq(bbPropertyVal)
     return false
   }
 

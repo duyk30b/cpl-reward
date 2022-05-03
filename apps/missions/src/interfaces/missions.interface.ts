@@ -13,7 +13,7 @@ export interface IWriteLog {
 }
 
 export interface IEvent {
-  groupKey?: string
+  groupKey?: string // Field này dùng để gom nhóm các job phục vụ limmiter của bull
   msgData: any
   missionId?: number
   campaignId?: number

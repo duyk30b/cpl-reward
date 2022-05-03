@@ -26,7 +26,7 @@ import {
 } from './interfaces/external.interface'
 import { MissionsService } from './missions.service'
 
-@Processor('reward')
+@Processor('worker')
 export class MissionsProcessor {
   private eventEmit = 'write_log'
 
@@ -42,12 +42,16 @@ export class MissionsProcessor {
 
   @Process(QUEUE_MISSION_MAIN_FUNCTION)
   handleMainFunction(job: Job) {
+    // console.log(
+    //   job.data.msgData.user_id + ' Bat dau cong balance: ',
+    //   Date.now() / 1000,
+    // )
     this.missionsService.mainFunction(job.data).then()
   }
   @Process(QUEUE_SEND_BALANCE)
   async handleSendBalance(job: Job) {
     const data = plainToInstance(SendRewardToBalance, job.data)
-    // console.log(data.userId + ' Bat dau cong balance: ', Date.now())
+    // console.log(data.userId + ' Bat dau cong balance: ', Date.now() / 1000)
     const sendRewardToBalance =
       await this.externalBalanceService.changeUserBalance(
         data.userId,
@@ -145,7 +149,7 @@ export class MissionsProcessor {
   @Process(QUEUE_SEND_CASHBACK)
   async handleSendCashback(job: Job) {
     const data = plainToInstance(SendRewardToCashback, job.data)
-    // console.log(data.userId + ' Bat dau cong cashback: ', Date.now())
+    //console.log(data.userId + ' Bat dau cong cashback: ', Date.now() / 1000)
     const sendRewardToCashback =
       await this.externalCashbackService.changeUserCashback({
         user_id: data.userId,

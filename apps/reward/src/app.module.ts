@@ -18,6 +18,7 @@ import { ConfigModule } from '@nestjs/config'
 import configuration from '@lib/common/configuration'
 import { HealthModule } from './health/health.module'
 // import { IdGeneratorModule } from '@lib/id-generator'
+// import { IdGeneratorModule } from '@lib/id-generator'
 // import { EventEmitterModule } from '@nestjs/event-emitter'
 // import { TraceListener } from '../../missions/src/listeners/trace.listener'
 // import { RedisQueueModule } from '@lib/redis-queue'
@@ -45,6 +46,7 @@ import { HealthModule } from './health/health.module'
     // CommonModule,
     // ExternalCashbackModule,
     // ExternalBalanceModule,
+    // IdGeneratorModule,
   ],
   controllers: [AppController],
   providers: [

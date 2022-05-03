@@ -4,15 +4,15 @@ import { ConfigService } from '@nestjs/config'
 import * as Redis from 'ioredis'
 
 @Injectable()
-export class BullOptionsFactory implements Factory {
+export class LoggerBullOptions implements Factory {
   public constructor(private configService: ConfigService) {}
 
   public createBullOptions(): BullModuleOptions {
-    const password = this.configService.get<string>('queue.pass')
+    const password = this.configService.get<string>('queue.password')
     const option: Redis.RedisOptions = {
       host: this.configService.get<string>('queue.host'),
       port: this.configService.get<number>('queue.port'),
-      db: this.configService.get<number>('queue.queue_db'),
+      db: this.configService.get<number>('queue.db'),
     }
     if (password) {
       option.password = password

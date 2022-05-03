@@ -3,8 +3,8 @@ import { OnEvent } from '@nestjs/event-emitter'
 import { TRACE_CODES } from '@lib/campaign/trace-codes'
 import { IWriteLog } from '../interfaces/missions.interface'
 import { ConfigService } from '@nestjs/config'
-import { RedisQueueService } from '@lib/redis-queue'
 import { CommonService } from '@lib/common'
+import { QueueService } from '@lib/queue'
 
 @Injectable()
 export class TraceListener {
@@ -12,7 +12,7 @@ export class TraceListener {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly redisQueueService: RedisQueueService,
+    private readonly queueService: QueueService,
     private readonly commonService: CommonService,
   ) {}
 
@@ -71,10 +71,7 @@ export class TraceListener {
           data: data,
           level_log: logLevel,
         }
-        await this.redisQueueService.addRewardMissionsJob(
-          'reward_missions',
-          dataLog,
-        )
+        await this.queueService.addLog('reward_missions', dataLog)
       }
     }
   }

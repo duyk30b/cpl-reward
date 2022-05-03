@@ -34,14 +34,13 @@ import { plainToInstance } from 'class-transformer'
 import { CreateMissionUserDto } from '@lib/mission-user/dto/create-mission-user.dto'
 import { IdGeneratorService } from '@lib/id-generator'
 import { QUEUE_SEND_BALANCE, QUEUE_SEND_CASHBACK } from '@lib/queue'
-import { RedisService } from '@lib/redis'
 import {
   SendRewardToBalance,
   SendRewardToCashback,
 } from './interfaces/external.interface'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { User } from '@lib/external-user/user.interface'
-import { RedisQueueService } from '@lib/redis-queue'
+import { QueueService } from '@lib/queue/queue.service'
 
 @Injectable()
 export class MissionsService {
@@ -58,8 +57,7 @@ export class MissionsService {
     private readonly externalUserService: ExternalUserService,
     private readonly commonService: CommonService,
     private readonly idGeneratorService: IdGeneratorService,
-    private readonly redisService: RedisService,
-    private readonly redisQueueService: RedisQueueService,
+    private readonly queueService: QueueService,
   ) {}
 
   async mainFunction(data: IEvent) {
@@ -490,8 +488,8 @@ export class MissionsService {
     attempts: number,
     data: any,
   ) {
-    data.groupKey = userId
-    await this.redisQueueService.addRewardMissionsJob(queueName, data, {
+    data.groupKey = queueName + '_' + userId
+    await this.queueService.addJob(queueName, data, {
       attempts: attempts,
       backoff: 1000,
     })

@@ -118,12 +118,6 @@
       "@lib/mongo/*": [
         "libs/mongo/src/*"
       ],
-      "@lib/redis-queue": [
-        "libs/redis-queue/src"
-      ],
-      "@lib/redis-queue/*": [
-        "libs/redis-queue/src/*"
-      ],
       "@lib/redis": [
         "libs/redis/src"
       ],

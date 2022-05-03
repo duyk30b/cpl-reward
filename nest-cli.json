@@ -203,15 +203,6 @@
         "tsConfigPath": "libs/mongo/tsconfig.lib.json"
       }
     },
-    "redis-queue": {
-      "type": "library",
-      "root": "libs/redis-queue",
-      "entryFile": "index",
-      "sourceRoot": "libs/redis-queue/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/redis-queue/tsconfig.lib.json"
-      }
-    },
     "redis": {
       "type": "library",
       "root": "libs/redis",

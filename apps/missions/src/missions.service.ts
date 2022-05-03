@@ -183,7 +183,11 @@ export class MissionsService {
     }
 
     // Check số lần tối đa user nhận thưởng từ mission
-    const successCount = await this.getSuccessCount(data.missionId, userId)
+    const successCount = await this.getSuccessCount(
+      data.missionId,
+      userId,
+      GRANT_TARGET_USER.USER,
+    )
     if (mainUser !== undefined && successCount >= mission.limitReceivedReward) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -500,11 +504,13 @@ export class MissionsService {
    *
    * @param missionId
    * @param userId
+   * @param userType
    */
-  async getSuccessCount(missionId: number, userId: string) {
+  async getSuccessCount(missionId: number, userId: string, userType: string) {
     const missionUser = await this.missionUserService.findOne({
       missionId,
       userId,
+      userType,
     })
     if (missionUser === undefined) return 0
     return missionUser.successCount

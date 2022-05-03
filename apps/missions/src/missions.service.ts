@@ -505,6 +505,7 @@ export class MissionsService {
     const missionUser = await this.missionUserService.findOne({
       missionId,
       userId,
+      userType: GRANT_TARGET_USER.USER,
     })
     if (missionUser === undefined) return 0
     return missionUser.successCount

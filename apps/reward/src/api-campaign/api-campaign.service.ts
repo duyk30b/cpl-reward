@@ -71,7 +71,7 @@ export class ApiCampaignService {
         ' AND (SELECT missions.is_active FROM missions WHERE missions.id = mission_user.mission_id AND is_active = true LIMIT 0,1) IS NOT NULL',
     )
     queryBuilder.select([
-      'mission_user.success_count AS success_count',
+      'SUM(mission_user.success_count) AS success_count',
       'campaign.id',
       'campaign.description',
       'campaign.descriptionJa',
@@ -100,6 +100,8 @@ export class ApiCampaignService {
         )
       }),
     )
+
+    queryBuilder.groupBy('campaign.id')
 
     if (searchText) {
       queryBuilder.andWhere(

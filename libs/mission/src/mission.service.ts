@@ -20,6 +20,7 @@ import {
 import { IUserCondition } from '../../../apps/missions/src/interfaces/missions.interface'
 import { CommonService } from '@lib/common'
 import { User } from '@lib/external-user/user.interface'
+import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 
 @Injectable()
 export class MissionService {
@@ -208,9 +209,18 @@ export class MissionService {
 
   async filterRunningMissions(ids: number[]) {
     const qb = this.missionRepository.createQueryBuilder('mission')
-    qb.select('id')
-    qb.where('status = :status', { status: MISSION_STATUS.RUNNING })
-    qb.andWhere('is_active = :active', { active: MISSION_IS_ACTIVE.ACTIVE })
+    qb.select('mission.id as id')
+    qb.innerJoin(
+      'campaigns',
+      'campaigns',
+      `campaigns.id = mission.campaign_id AND
+        campaigns.is_active = ${CAMPAIGN_IS_ACTIVE.ACTIVE} AND
+        campaigns.status = ${CAMPAIGN_STATUS.RUNNING}`,
+    )
+    qb.where('mission.status = :status', { status: MISSION_STATUS.RUNNING })
+    qb.andWhere('mission.is_active = :active', {
+      active: MISSION_IS_ACTIVE.ACTIVE,
+    })
     qb.andWhereInIds(ids)
     return qb.getRawMany()
   }

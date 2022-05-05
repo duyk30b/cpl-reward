@@ -464,7 +464,7 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.sendMoney(userId, QUEUE_SEND_BALANCE, 2, cashbackBody)
+      await this.sendMoney(userId, QUEUE_SEND_BALANCE, 0, cashbackBody)
     }
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
@@ -481,7 +481,7 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.sendMoney(userId, QUEUE_SEND_CASHBACK, 0, balanceBody)
+      await this.sendMoney(userId, QUEUE_SEND_CASHBACK, 2, balanceBody)
     }
     return true
   }

@@ -28,9 +28,12 @@ export class PaginatedCampaignDto {
   @ApiProperty({ name: 'campaign_image_ja' })
   campaignImageJa: string
 
-  @ApiProperty({ name: 'start_date' })
-  startDate: string
+  @ApiProperty({ name: 'start_date', example: 1651462800 })
+  startDate: number
 
-  @ApiProperty({ name: 'end_date' })
-  endDate: string
+  @ApiProperty({ name: 'end_date', example: 1652499600 })
+  endDate: number
+
+  @ApiProperty({ example: 1 })
+  status: number
 }

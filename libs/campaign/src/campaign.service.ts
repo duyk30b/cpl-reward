@@ -41,8 +41,8 @@ export class CampaignService {
     return await this.campaignRepository.findOne(campaignId, options)
   }
 
-  async findOne(options) {
-    return await this.campaignRepository.findOne(options)
+  async findOne(conditions, options = undefined) {
+    return await this.campaignRepository.findOne(conditions, options)
   }
 
   async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {

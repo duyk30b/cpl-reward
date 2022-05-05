@@ -135,10 +135,29 @@ export class ApiCampaignService {
   }
 
   async findOne(id: number) {
-    return this.campaignService.findOne({
-      id,
-      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
-      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
-    })
+    return this.campaignService.findOne(
+      {
+        id,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+      },
+      {
+        select: [
+          'id',
+          'title',
+          'titleJa',
+          'description',
+          'descriptionJa',
+          'startDate',
+          'endDate',
+          'notificationLink',
+          'notificationLinkJa',
+          'campaignImage',
+          'campaignImageJa',
+          'priority',
+          'status',
+        ],
+      },
+    )
   }
 }

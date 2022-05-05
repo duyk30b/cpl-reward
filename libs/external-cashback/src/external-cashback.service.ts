@@ -66,7 +66,7 @@ export class ExternalCashbackService {
           .pipe(map((response) => response.data)),
       )
       this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
+        logLevel: 'log',
         traceCode: 'm015',
         data: input.data,
         extraData: {
@@ -82,7 +82,7 @@ export class ExternalCashbackService {
     } catch (e) {
       this.logger.log(e)
       this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
+        logLevel: 'error',
         traceCode: 'm018',
         data: input.data,
         extraData: {

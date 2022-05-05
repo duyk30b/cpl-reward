@@ -28,7 +28,17 @@ class Links {
   last: string
 }
 
-export class PaginatedDto<TData> {
+class LoadMoreLinks {
+  @ApiProperty({
+    example:
+      'from_id=3&limit=20&sort=completef&sort_type=ASC&grant_target=user',
+  })
+  prev: string
+  @ApiProperty({ example: '' })
+  next: string
+}
+
+export class PaginatedMetaDto<TData> {
   @ApiProperty()
   pagination: Pagination
 
@@ -37,4 +47,20 @@ export class PaginatedDto<TData> {
 
   @ApiProperty()
   links: Links
+}
+
+export class PaginatedMetaLoadMoreDto<TData> {
+  @ApiProperty()
+  data: TData[]
+
+  @ApiProperty()
+  links: LoadMoreLinks
+}
+
+export class PaginatedMetaAffiliateDto<TData> {
+  @ApiProperty()
+  data: TData[]
+
+  @ApiProperty()
+  pagination: Pagination
 }

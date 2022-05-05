@@ -1,5 +1,3 @@
-export * from './configuration'
-export * from './bull-options.factory'
 export * from './constant'
-// export * from './queue.module'
-// export * from './queue.service'
+export * from './queue.module'
+export * from './queue.service'

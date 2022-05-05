@@ -54,7 +54,7 @@ export class ExternalBalanceService {
         result.api_token = '***'
       }
       this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
+        logLevel: 'log',
         traceCode: 'm015',
         data,
         extraData: {
@@ -70,7 +70,7 @@ export class ExternalBalanceService {
     } catch (e) {
       this.logger.log(e)
       this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
+        logLevel: 'error',
         traceCode: 'm018',
         data,
         extraData: {

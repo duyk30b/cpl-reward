@@ -71,7 +71,7 @@ export class ApiCampaignService {
         ' AND (SELECT missions.is_active FROM missions WHERE missions.id = mission_user.mission_id AND is_active = true LIMIT 0,1) IS NOT NULL',
     )
     queryBuilder.select([
-      'mission_user.success_count AS success_count',
+      'SUM(mission_user.success_count) AS success_count',
       'campaign.id',
       'campaign.description',
       'campaign.descriptionJa',
@@ -100,6 +100,8 @@ export class ApiCampaignService {
         )
       }),
     )
+
+    queryBuilder.groupBy('campaign.id')
 
     if (searchText) {
       queryBuilder.andWhere(
@@ -133,10 +135,29 @@ export class ApiCampaignService {
   }
 
   async findOne(id: number) {
-    return this.campaignService.findOne({
-      id,
-      isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
-      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
-    })
+    return this.campaignService.findOne(
+      {
+        id,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+      },
+      {
+        select: [
+          'id',
+          'title',
+          'titleJa',
+          'description',
+          'descriptionJa',
+          'startDate',
+          'endDate',
+          'notificationLink',
+          'notificationLinkJa',
+          'campaignImage',
+          'campaignImageJa',
+          'priority',
+          'status',
+        ],
+      },
+    )
   }
 }

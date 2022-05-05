@@ -3,6 +3,13 @@ import * as moment from 'moment-timezone'
 
 @Injectable()
 export class IdGeneratorService {
+  /**
+   * Follow this url: https://docs.dev.staging-bitcastle.work/docs/global-guide/data_id/
+   * @param orderType
+   * @param userType
+   * @param random
+   * @param startTimeStr
+   */
   generateId(
     orderType = 1,
     userType = 1,
@@ -10,14 +17,14 @@ export class IdGeneratorService {
     startTimeStr = undefined,
   ) {
     const startTime = moment
-      .tz(startTimeStr === undefined ? '2020-01-01 00:00' : startTimeStr, 'GMT')
+      .tz(startTimeStr === undefined ? '2021-01-01 00:00' : startTimeStr, 'GMT')
       .valueOf()
     const currentTime = moment().valueOf()
     const timeBInt = BigInt(currentTime) - BigInt(startTime)
     const userTypeBInt = BigInt(userType)
     const orderTypeBInt = BigInt(orderType)
     const randomBInt = BigInt(
-      random === undefined ? IdGeneratorService.getRandom(1, 4096) : random,
+      random === undefined ? this.getRandom(1, 4096) : random,
     )
     return (
       (timeBInt << 22n) |
@@ -27,19 +34,26 @@ export class IdGeneratorService {
     )
   }
 
-  private static getRandom(min, max) {
+  /**
+   * Follow this url: https://en.wikipedia.org/wiki/Snowflake_ID
+   */
+  generateSnowflakeId(startPoint = '2022-01-01 00:00') {
+    const startTime = moment.tz(startPoint, 'GMT').valueOf()
+    const currentTime = moment().valueOf()
+    const timeBInt = BigInt(currentTime) - BigInt(startTime)
+
+    // 10 bit ~ 512 to 1023
+    const instance = BigInt(this.getRandom(512, 1023))
+
+    // 12 bit ~ 2048 to 4096
+    const random = BigInt(this.getRandom(2048, 4096))
+
+    return BigInt(
+      '0b' + timeBInt.toString(2) + instance.toString(2) + random.toString(2),
+    ).toString()
+  }
+
+  getRandom(min, max) {
     return Math.floor(Math.random() * (max - min)) + min
-  }
-
-  getTimeFromId(id: bigint) {
-    return (id & (4398046511103n << 22n)) >> 22n
-  }
-
-  getUserTypeFromId(id: bigint) {
-    return (id & (15n << 18n)) >> 18n
-  }
-
-  getOrderTypeFromId(id: bigint) {
-    return (id & (63n << 12n)) >> 12n
   }
 }

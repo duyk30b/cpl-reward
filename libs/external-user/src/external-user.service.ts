@@ -24,7 +24,7 @@ export class ExternalUserService implements OnModuleInit {
         await lastValueFrom(this.userService.findOne({ id: userId })),
         { ignoreDecorators: true },
       )
-      if (!(await validate(user))) {
+      if (!(await validate(user)) || !user.id) {
         return null
       }
       return user

@@ -48,10 +48,10 @@ export class ExternalCashbackService {
       balance_type: 'CASHBACK',
       transaction_type: 'REWARD',
       reference_id: input.referenceId,
-      fee_currency: '0',
-      fee_balance_type: 'CASHBACK',
-      fee_transaction_type: 'MANUALLY',
-      fee_amount: '0',
+      // fee_currency: '0',
+      // fee_balance_type: 'CASHBACK',
+      // fee_transaction_type: 'MANUALLY',
+      // fee_amount: '0',
       auto_confirm: 1,
     }
     try {

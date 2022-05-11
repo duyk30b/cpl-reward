@@ -71,7 +71,9 @@ export class TraceListener {
           data: data,
           level_log: logLevel,
         }
-        await this.queueService.addLog('reward_missions', dataLog)
+        await this.queueService.addLog('reward_missions', dataLog, {
+          removeOnComplete: 10000,
+        })
       }
     }
   }

@@ -62,14 +62,20 @@ export class MissionsListener {
     }
 
     missionsByEvent.map((missionEvent) => {
-      this.queueService.addJob(QUEUE_MISSION_MAIN_FUNCTION, {
-        groupKey: 'main_' + data.msgData.user_id,
-        msgId: data.msgId,
-        msgName: data.msgName,
-        msgData: data.msgData,
-        missionId: missionEvent.missionId,
-        campaignId: missionEvent.campaignId,
-      })
+      this.queueService.addJob(
+        QUEUE_MISSION_MAIN_FUNCTION,
+        {
+          groupKey: 'main_' + data.msgData.user_id,
+          msgId: data.msgId,
+          msgName: data.msgName,
+          msgData: data.msgData,
+          missionId: missionEvent.missionId,
+          campaignId: missionEvent.campaignId,
+        },
+        {
+          removeOnComplete: 10000,
+        },
+      )
     })
   }
 }

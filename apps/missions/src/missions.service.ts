@@ -496,6 +496,7 @@ export class MissionsService {
     await this.queueService.addJob(queueName, data, {
       attempts: attempts,
       backoff: 1000,
+      removeOnComplete: 10000,
     })
   }
 

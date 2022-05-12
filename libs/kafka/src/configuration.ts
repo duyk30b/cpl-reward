@@ -20,9 +20,15 @@ export default registerAs('kafka', () => ({
   auth_user_change_lv: process.env.ENV + '_auth_user_change_lv',
 
   // BCE sử dụng
-  bce_trading_matched: process.env.ENV + '_bce_trading_matched',
-  bce_deposit: process.env.ENV + '_bce_deposit',
-  bce_withdraw: process.env.ENV + '_bce_withdraw',
+  bce_trading_matched:
+    (process.env.ENV == 'prod-v2' ? 'production' : process.env.ENV) +
+    '_bce_trading_matched',
+  bce_deposit:
+    (process.env.ENV == 'prod-v2' ? 'production' : process.env.ENV) +
+    '_bce_deposit',
+  bce_withdraw:
+    (process.env.ENV == 'prod-v2' ? 'production' : process.env.ENV) +
+    '_bce_withdraw',
 
   high_low_transfer_balance: process.env.ENV + '_high_low_transfer_balance',
   high_low_create: process.env.ENV + '_high_low_create',

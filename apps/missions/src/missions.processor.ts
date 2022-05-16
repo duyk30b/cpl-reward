@@ -62,7 +62,7 @@ export class MissionsProcessor {
         data.type,
         data.data,
       )
-    if (!sendRewardToBalance) {
+    if (!sendRewardToBalance.result) {
       // Continue attempt
       if (job.attemptsMade < job.opts.attempts - 1) {
         throw new Error('Send real balance fail')
@@ -70,9 +70,10 @@ export class MissionsProcessor {
 
       // Reach max attemptsMade => Job fail
       if (data.missionUserLogId) {
-        await this.missionUserLogService.update(data.missionUserLogId, {
-          status: MissionUserLogStatus.NEED_TO_RESOLVE,
-        })
+        await this.missionUserLogService.updateFailLog(
+          data.missionUserLogId,
+          sendRewardToBalance.message,
+        )
       } else {
         this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
           campaignId: data.data.campaignId,
@@ -84,6 +85,7 @@ export class MissionsProcessor {
             event: data.data.msgName,
             result: 'Failed to release money',
             statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
+            note: [sendRewardToBalance.message],
           }),
           userType: data.userType,
           currency: data.currency,
@@ -174,16 +176,17 @@ export class MissionsProcessor {
         referenceId: data.referenceId,
         data: data.data,
       })
-    if (!sendRewardToCashback) {
+    if (!sendRewardToCashback.result) {
       // Continue attempt
       if (job.attemptsMade < job.opts.attempts - 1) {
         throw new Error('Send real balance fail')
       }
 
       if (data.missionUserLogId) {
-        await this.missionUserLogService.update(data.missionUserLogId, {
-          status: MissionUserLogStatus.NEED_TO_RESOLVE,
-        })
+        await this.missionUserLogService.updateFailLog(
+          data.missionUserLogId,
+          sendRewardToCashback.message,
+        )
       } else {
         this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
           campaignId: data.data.campaignId,
@@ -195,6 +198,7 @@ export class MissionsProcessor {
             event: data.data.msgName,
             result: 'Failed to release money',
             statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
+            note: [sendRewardToCashback.message],
           }),
           userType: data.userType,
           currency: data.currency,

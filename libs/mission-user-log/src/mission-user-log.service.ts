@@ -96,6 +96,30 @@ export class MissionUserLogService {
       .execute()
   }
 
+  async updateFailLog(id: number, messageLog: string) {
+    const missionLog = await this.findOne(id)
+    if (!missionLog) {
+      return false
+    }
+
+    const logMessage = JSON.parse(missionLog.note)
+    if (logMessage.note) {
+      logMessage.note.push(messageLog)
+    } else {
+      logMessage.note = [messageLog]
+    }
+
+    return await this.missionUserLogRepository
+      .createQueryBuilder()
+      .update(MissionUserLog)
+      .set({
+        status: MissionUserLogStatus.NEED_TO_RESOLVE,
+        note: JSON.stringify(logMessage),
+      })
+      .where({ id })
+      .execute()
+  }
+
   async findOne(id: number) {
     return await this.missionUserLogRepository.findOne({
       where: { id },

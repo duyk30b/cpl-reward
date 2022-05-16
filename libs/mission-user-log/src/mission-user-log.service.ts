@@ -48,9 +48,13 @@ export class MissionUserLogService {
       'history',
       'log.reward_history_id = history.id',
     )
-    queryBuilder.where('log.status = :log_status', {
-      log_status: MissionUserLogStatus.NEED_TO_RESOLVE,
-    })
+    queryBuilder.where(
+      'log.status = :log_status OR log.status = :retry_status',
+      {
+        log_status: MissionUserLogStatus.NEED_TO_RESOLVE,
+        retry_status: MissionUserLogStatus.RETRYING,
+      },
+    )
 
     queryBuilder.select([
       'log.missionId AS missionId',

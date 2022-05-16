@@ -454,7 +454,7 @@ export class MissionsService {
         DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&
       userRewardHistory
     ) {
-      const cashbackBody = plainToInstance(SendRewardToCashback, {
+      const balanceBody = plainToInstance(SendRewardToBalance, {
         id: userRewardHistory.id,
         userId: userId,
         amount: userTarget.amount,
@@ -464,14 +464,14 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.sendMoney(userId, QUEUE_SEND_BALANCE, 0, cashbackBody)
+      await this.sendMoney(userId, QUEUE_SEND_BALANCE, 0, balanceBody)
     }
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
         DELIVERY_METHOD_WALLET.DIRECT_CASHBACK &&
       userRewardHistory
     ) {
-      const balanceBody = plainToInstance(SendRewardToBalance, {
+      const cashbackBody = plainToInstance(SendRewardToCashback, {
         id: userRewardHistory.id,
         userId: userId,
         amount: userTarget.amount,
@@ -481,7 +481,7 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.sendMoney(userId, QUEUE_SEND_CASHBACK, 2, balanceBody)
+      await this.sendMoney(userId, QUEUE_SEND_CASHBACK, 2, cashbackBody)
     }
     return true
   }

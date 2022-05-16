@@ -38,4 +38,6 @@ export enum MissionUserLogStatus {
   IGNORE = 0,
   NEED_TO_RESOLVE = 1,
   RESOLVED = 2,
+  RETRYING = 3,
+  RESOLVED_BY_RETRY = 4,
 }

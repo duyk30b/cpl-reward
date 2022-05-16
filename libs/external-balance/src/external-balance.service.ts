@@ -64,11 +64,17 @@ export class ExternalBalanceService {
         params: { type: 'balance' },
       })
       if (!result) {
-        return null
+        return {
+          result: false,
+          message: 'Cant get response',
+        }
       }
-      return result
+
+      return {
+        result: true,
+        message: '',
+      }
     } catch (e) {
-      this.logger.log(e)
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
         traceCode: 'm018',
@@ -87,7 +93,17 @@ export class ExternalBalanceService {
         params: { type: 'balance' },
       })
 
-      return null
+      return {
+        result: false,
+        message:
+          e.response === undefined
+            ? e.message
+            : {
+                statusCode: e.response.status,
+                statusText: e.response.statusText,
+                detailMessage: e.response.data.message,
+              },
+      }
     }
   }
 }

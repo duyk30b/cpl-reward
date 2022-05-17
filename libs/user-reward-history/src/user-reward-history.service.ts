@@ -123,4 +123,10 @@ export class UserRewardHistoryService {
     }
     return formatPaginate(paginate(queryBuilder, options))
   }
+
+  async findOne(id: number) {
+    return await this.userRewardHistoryRepository.findOne({
+      where: { id },
+    })
+  }
 }

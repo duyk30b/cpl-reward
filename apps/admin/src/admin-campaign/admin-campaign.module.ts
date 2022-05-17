@@ -8,6 +8,7 @@ import { InternationalPriceModule } from '@lib/international-price'
 import { MissionModule } from '@lib/mission'
 import { MissionUserLogModule } from '@lib/mission-user-log'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
+import { QueueModule } from '@lib/queue'
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UserRewardHistoryModule } from '@lib/user-reward-history'
     MissionModule,
     MissionUserLogModule,
     UserRewardHistoryModule,
+    QueueModule,
   ],
   controllers: [AdminCampaignController],
   providers: [AdminCampaignService],

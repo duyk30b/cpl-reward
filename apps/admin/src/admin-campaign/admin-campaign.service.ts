@@ -261,7 +261,7 @@ export class AdminCampaignService {
 
     if (input.status !== MissionUserLogStatus.RESOLVED) {
       // Retry for missing reward
-      if (input.status === MissionUserLogStatus.RETRYING) {
+      if (input.status === MissionUserLogStatus.RETRYING && result.affected) {
         const rewardHistory = await this.userRewardHistoryService.findOne(
           missionUserLog.rewardHistoryId,
         )

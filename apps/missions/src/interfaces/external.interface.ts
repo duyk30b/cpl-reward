@@ -6,9 +6,10 @@ export class SendRewardToBalance {
   currency: string
   amount: string
   type: string
-  data: IEvent
+  data?: IEvent
   userType: string
   referenceId: string
+  missionUserLogId?: number
 }
 
 export class SendRewardToCashback {
@@ -17,7 +18,8 @@ export class SendRewardToCashback {
   currency: string
   amount: string
   historyId: number
-  data: IEvent
+  data?: IEvent
   userType: string
   referenceId: string
+  missionUserLogId?: number
 }

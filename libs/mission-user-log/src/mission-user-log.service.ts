@@ -48,9 +48,13 @@ export class MissionUserLogService {
       'history',
       'log.reward_history_id = history.id',
     )
-    queryBuilder.where('log.status = :log_status', {
-      log_status: MissionUserLogStatus.NEED_TO_RESOLVE,
-    })
+    queryBuilder.where(
+      'log.status = :log_status OR log.status = :retry_status',
+      {
+        log_status: MissionUserLogStatus.NEED_TO_RESOLVE,
+        retry_status: MissionUserLogStatus.RETRYING,
+      },
+    )
 
     queryBuilder.select([
       'log.missionId AS missionId',
@@ -87,6 +91,30 @@ export class MissionUserLogService {
       .update(MissionUserLog)
       .set({
         ...missionUser,
+      })
+      .where({ id })
+      .execute()
+  }
+
+  async updateFailLog(id: number, messageLog: string) {
+    const missionLog = await this.findOne(id)
+    if (!missionLog) {
+      return false
+    }
+
+    const logMessage = JSON.parse(missionLog.note)
+    if (logMessage.note) {
+      logMessage.note.push(messageLog)
+    } else {
+      logMessage.note = [messageLog]
+    }
+
+    return await this.missionUserLogRepository
+      .createQueryBuilder()
+      .update(MissionUserLog)
+      .set({
+        status: MissionUserLogStatus.NEED_TO_RESOLVE,
+        note: JSON.stringify(logMessage),
       })
       .where({ id })
       .execute()

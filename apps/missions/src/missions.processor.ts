@@ -25,6 +25,7 @@ import {
   SendRewardToCashback,
 } from './interfaces/external.interface'
 import { MissionsService } from './missions.service'
+import { MissionUserLogService } from '@lib/mission-user-log'
 
 @Processor('worker')
 export class MissionsProcessor {
@@ -38,6 +39,7 @@ export class MissionsProcessor {
     private readonly externalBalanceService: ExternalBalanceService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalCashbackService: ExternalCashbackService,
+    private readonly missionUserLogService: MissionUserLogService,
   ) {}
 
   @Process(QUEUE_MISSION_MAIN_FUNCTION)
@@ -60,34 +62,43 @@ export class MissionsProcessor {
         data.type,
         data.data,
       )
-    if (!sendRewardToBalance) {
+    if (!sendRewardToBalance.result) {
       // Continue attempt
       if (job.attemptsMade < job.opts.attempts - 1) {
         throw new Error('Send real balance fail')
       }
 
       // Reach max attemptsMade => Job fail
-      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
-        campaignId: data.data.campaignId,
-        missionId: data.data.missionId,
-        userId: data.userId,
-        successCount: 0,
-        moneyEarned: data.amount,
-        note: JSON.stringify({
-          event: data.data.msgName,
-          result: 'Failed to release money',
-          statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
-        }),
-        userType: data.userType,
-        currency: data.currency,
-        wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
-        status: MissionUserLogStatus.NEED_TO_RESOLVE,
-        rewardHistoryId: data.id,
-      })
+      if (data.missionUserLogId) {
+        await this.missionUserLogService.updateFailLog(
+          data.missionUserLogId,
+          sendRewardToBalance.message,
+        )
+      } else {
+        this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+          campaignId: data.data.campaignId,
+          missionId: data.data.missionId,
+          userId: data.userId,
+          successCount: 0,
+          moneyEarned: data.amount,
+          note: JSON.stringify({
+            event: data.data.msgName,
+            result: 'Failed to release money',
+            statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
+            note: [sendRewardToBalance.message],
+          }),
+          userType: data.userType,
+          currency: data.currency,
+          wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+          status: MissionUserLogStatus.NEED_TO_RESOLVE,
+          rewardHistoryId: data.id,
+        })
+      }
 
       const history = await this.userRewardHistoryService.updateById(data.id, {
         status: USER_REWARD_STATUS.FAIL,
       })
+
       if (history.affected === 0) {
         this.eventEmitter.emit(this.eventEmit, {
           logLevel: 'error',
@@ -110,24 +121,31 @@ export class MissionsProcessor {
         params: { type: 'balance' },
       })
     } else {
-      // Save success log to user_mission_log
-      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
-        campaignId: data.data.campaignId,
-        missionId: data.data.missionId,
-        userId: data.userId,
-        successCount: 0,
-        moneyEarned: data.amount,
-        note: JSON.stringify({
-          event: data.data.msgName,
-          result: 'Success',
-          statusCode: MissionUserLogNoteCode.SUCCESS,
-        }),
-        userType: data.userType,
-        currency: data.currency,
-        wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
-        status: MissionUserLogStatus.IGNORE,
-        rewardHistoryId: data.id,
-      })
+      // SUCCEED
+      if (data.missionUserLogId) {
+        await this.missionUserLogService.update(data.missionUserLogId, {
+          status: MissionUserLogStatus.RESOLVED_BY_RETRY,
+        })
+      } else {
+        // Save success log to user_mission_log
+        this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+          campaignId: data.data.campaignId,
+          missionId: data.data.missionId,
+          userId: data.userId,
+          successCount: 0,
+          moneyEarned: data.amount,
+          note: JSON.stringify({
+            event: data.data.msgName,
+            result: 'Success',
+            statusCode: MissionUserLogNoteCode.SUCCESS,
+          }),
+          userType: data.userType,
+          currency: data.currency,
+          wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+          status: MissionUserLogStatus.IGNORE,
+          rewardHistoryId: data.id,
+        })
+      }
 
       const result = await this.userRewardHistoryService.updateById(data.id, {
         status: USER_REWARD_STATUS.RECEIVED,
@@ -158,33 +176,42 @@ export class MissionsProcessor {
         referenceId: data.referenceId,
         data: data.data,
       })
-    if (!sendRewardToCashback) {
+    if (!sendRewardToCashback.result) {
       // Continue attempt
       if (job.attemptsMade < job.opts.attempts - 1) {
         throw new Error('Send real balance fail')
       }
 
-      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
-        campaignId: data.data.campaignId,
-        missionId: data.data.missionId,
-        userId: data.userId,
-        successCount: 0,
-        moneyEarned: data.amount,
-        note: JSON.stringify({
-          event: data.data.msgName,
-          result: 'Failed to release money',
-          statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
-        }),
-        userType: data.userType,
-        currency: data.currency,
-        wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
-        status: MissionUserLogStatus.NEED_TO_RESOLVE,
-        rewardHistoryId: data.historyId,
-      })
+      if (data.missionUserLogId) {
+        await this.missionUserLogService.updateFailLog(
+          data.missionUserLogId,
+          sendRewardToCashback.message,
+        )
+      } else {
+        this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+          campaignId: data.data.campaignId,
+          missionId: data.data.missionId,
+          userId: data.userId,
+          successCount: 0,
+          moneyEarned: data.amount,
+          note: JSON.stringify({
+            event: data.data.msgName,
+            result: 'Failed to release money',
+            statusCode: MissionUserLogNoteCode.FAILED_RELEASE_MONEY,
+            note: [sendRewardToCashback.message],
+          }),
+          userType: data.userType,
+          currency: data.currency,
+          wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+          status: MissionUserLogStatus.NEED_TO_RESOLVE,
+          rewardHistoryId: data.historyId,
+        })
+      }
 
       const result = await this.userRewardHistoryService.updateById(data.id, {
         status: USER_REWARD_STATUS.FAIL,
       })
+
       if (result.affected === 0) {
         this.eventEmitter.emit(this.eventEmit, {
           logLevel: 'warn',
@@ -209,23 +236,30 @@ export class MissionsProcessor {
       return
     }
 
-    this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
-      campaignId: data.data.campaignId,
-      missionId: data.data.missionId,
-      userId: data.userId,
-      successCount: 0,
-      moneyEarned: data.amount,
-      note: JSON.stringify({
-        event: data.data.msgName,
-        result: 'Success',
-        statusCode: MissionUserLogNoteCode.SUCCESS,
-      }),
-      userType: data.userType,
-      currency: data.currency,
-      wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
-      status: MissionUserLogStatus.IGNORE,
-      rewardHistoryId: data.historyId,
-    })
+    // SUCCEED
+    if (data.missionUserLogId) {
+      await this.missionUserLogService.update(data.missionUserLogId, {
+        status: MissionUserLogStatus.RESOLVED_BY_RETRY,
+      })
+    } else {
+      this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+        campaignId: data.data.campaignId,
+        missionId: data.data.missionId,
+        userId: data.userId,
+        successCount: 0,
+        moneyEarned: data.amount,
+        note: JSON.stringify({
+          event: data.data.msgName,
+          result: 'Success',
+          statusCode: MissionUserLogNoteCode.SUCCESS,
+        }),
+        userType: data.userType,
+        currency: data.currency,
+        wallet: DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        status: MissionUserLogStatus.IGNORE,
+        rewardHistoryId: data.historyId,
+      })
+    }
 
     const result = await this.userRewardHistoryService.updateById(data.id, {
       status: USER_REWARD_STATUS.RECEIVED,

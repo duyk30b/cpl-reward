@@ -19,20 +19,29 @@ import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom
 import { CommonService, MissionUserLogStatus } from '@lib/common'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
-import { MissionService } from '@lib/mission'
+import { DELIVERY_METHOD_WALLET, MissionService } from '@lib/mission'
 import { MissionUserLogService } from '@lib/mission-user-log'
 import {
   FilterCountRewardLogDto,
   MissingRewardsFilterDto,
   UpdateRewardLogDto,
 } from './admin-campaign.dto'
-import { plainToClass } from 'class-transformer'
+import { plainToClass, plainToInstance } from 'class-transformer'
 import { MissionUserFilterDto } from '@lib/mission-user-log/dto/mission-user-filter.dto'
 import { UpdateMissionUserLogDto } from '@lib/mission-user-log/dto/update-mission-user-log.dto'
 import {
   UserRewardHistoryService,
   USER_REWARD_STATUS,
 } from '@lib/user-reward-history'
+import {
+  QueueService,
+  QUEUE_SEND_BALANCE,
+  QUEUE_SEND_CASHBACK,
+} from '@lib/queue'
+import {
+  SendRewardToBalance,
+  SendRewardToCashback,
+} from 'apps/missions/src/interfaces/external.interface'
 
 @Injectable()
 export class AdminCampaignService {
@@ -43,6 +52,7 @@ export class AdminCampaignService {
     private readonly missionService: MissionService,
     private readonly missionUserLogService: MissionUserLogService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
+    private readonly queueService: QueueService,
   ) {}
 
   @Interval(5000)
@@ -234,18 +244,72 @@ export class AdminCampaignService {
       ignoreDecorators: true,
     })
 
+    const missionUserLog = await this.missionUserLogService.findOne(input.id)
+    if (
+      input.status === MissionUserLogStatus.RETRYING &&
+      missionUserLog.status !== MissionUserLogStatus.NEED_TO_RESOLVE
+    ) {
+      return {
+        success: false,
+      }
+    }
+
     const result = await this.missionUserLogService.update(
       input.id,
       transformedInput,
     )
 
     if (input.status !== MissionUserLogStatus.RESOLVED) {
+      // Retry for missing reward
+      if (input.status === MissionUserLogStatus.RETRYING) {
+        const rewardHistory = await this.userRewardHistoryService.findOne(
+          missionUserLog.rewardHistoryId,
+        )
+
+        if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_BALANCE) {
+          const balanceBody = plainToInstance(SendRewardToCashback, {
+            id: missionUserLog.rewardHistoryId,
+            userId: missionUserLog.userId,
+            amount: missionUserLog.moneyEarned,
+            currency: missionUserLog.currency,
+            historyId: missionUserLog.rewardHistoryId,
+            userType: missionUserLog.userType,
+            referenceId: rewardHistory.referenceId,
+            missionUserLogId: missionUserLog.id,
+          })
+          await this.addSendMoneyJob(
+            missionUserLog.userId,
+            QUEUE_SEND_BALANCE,
+            0,
+            balanceBody,
+          )
+        }
+
+        if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK) {
+          const cashbackBody = plainToInstance(SendRewardToBalance, {
+            id: missionUserLog.rewardHistoryId,
+            userId: missionUserLog.userId,
+            amount: missionUserLog.moneyEarned,
+            currency: missionUserLog.currency,
+            type: 'reward',
+            userType: missionUserLog.userType,
+            referenceId: rewardHistory.referenceId,
+            missionUserLogId: missionUserLog.id,
+          })
+          await this.addSendMoneyJob(
+            missionUserLog.userId,
+            QUEUE_SEND_CASHBACK,
+            0,
+            cashbackBody,
+          )
+        }
+      }
+
       return {
         success: result.affected > 0,
       }
     }
 
-    const missionUserLog = await this.missionUserLogService.findOne(input.id)
     if (missionUserLog.rewardHistoryId) {
       await this.userRewardHistoryService.updateById(
         missionUserLog.rewardHistoryId,
@@ -267,5 +331,19 @@ export class AdminCampaignService {
 
     const count = await this.missionUserLogService.count(filter)
     return { count }
+  }
+
+  async addSendMoneyJob(
+    userId: string,
+    queueName: string,
+    attempts: number,
+    data: any,
+  ) {
+    data.groupKey = queueName + '_' + userId
+    await this.queueService.addJob(queueName, data, {
+      attempts: attempts,
+      backoff: 1000,
+      removeOnComplete: 10000,
+    })
   }
 }

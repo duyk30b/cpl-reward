@@ -276,6 +276,7 @@ export class AdminCampaignService {
             userType: missionUserLog.userType,
             referenceId: rewardHistory.referenceId,
             missionUserLogId: missionUserLog.id,
+            type: 'reward',
           })
           await this.addSendMoneyJob(
             missionUserLog.userId,
@@ -291,10 +292,10 @@ export class AdminCampaignService {
             userId: missionUserLog.userId,
             amount: missionUserLog.moneyEarned,
             currency: missionUserLog.currency,
-            type: 'reward',
             userType: missionUserLog.userType,
             referenceId: rewardHistory.referenceId,
             missionUserLogId: missionUserLog.id,
+            type: 'reward',
           })
           await this.addSendMoneyJob(
             missionUserLog.userId,

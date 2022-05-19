@@ -73,7 +73,9 @@ export class MissionsListener {
           campaignId: missionEvent.campaignId,
         },
         {
-          removeOnComplete: 10000,
+          removeOnComplete: true,
+          attempts: 2,
+          backoff: 10000,
         },
       )
     })

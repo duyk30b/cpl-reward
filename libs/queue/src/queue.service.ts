@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bull'
 import { JobOptions, Queue } from 'bull'
+import { QUEUE_SEND_BALANCE } from './constant'
 
 @Injectable()
 export class QueueService {
@@ -10,6 +11,12 @@ export class QueueService {
 
     @InjectQueue('worker')
     private workerQueue: Queue,
+
+    @InjectQueue('banker_balance')
+    private bankerBalanceQueue: Queue,
+
+    @InjectQueue('banker_cashback')
+    private bankerCashbackQueue: Queue,
   ) {}
 
   async addLog(name: string, data: any, opts?: JobOptions) {
@@ -32,10 +39,26 @@ export class QueueService {
     data: any,
   ) {
     data.groupKey = queueName + '_' + userId
-    await this.addJob(queueName, data, {
+    if (queueName == QUEUE_SEND_BALANCE) {
+      await this.addBalanceJob(queueName, data, {
+        attempts: attempts,
+        backoff: 1000,
+        removeOnComplete: true,
+      })
+    }
+
+    await this.addCashbackJob(queueName, data, {
       attempts: attempts,
       backoff: 1000,
-      removeOnComplete: 10000,
+      removeOnComplete: true,
     })
+  }
+
+  async addBalanceJob(name: string, data: any, opts?: JobOptions) {
+    return await this.bankerBalanceQueue.add(name, data, opts)
+  }
+
+  async addCashbackJob(name: string, data: any, opts?: JobOptions) {
+    return await this.bankerCashbackQueue.add(name, data, opts)
   }
 }

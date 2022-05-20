@@ -84,7 +84,7 @@ export class UserRewardHistory extends MyBaseEntity {
 
   @Column({
     type: 'smallint',
-    default: USER_REWARD_STATUS.NOT_RECEIVE,
+    default: USER_REWARD_STATUS.NEED_TO_REDEEM,
   })
   @Expose()
   status: number

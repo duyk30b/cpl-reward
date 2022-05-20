@@ -278,7 +278,7 @@ export class AdminCampaignService {
             missionUserLogId: missionUserLog.id,
             type: 'reward',
           })
-          await this.addSendMoneyJob(
+          await this.queueService.addSendMoneyJob(
             missionUserLog.userId,
             QUEUE_SEND_BALANCE,
             0,
@@ -297,7 +297,7 @@ export class AdminCampaignService {
             missionUserLogId: missionUserLog.id,
             type: 'reward',
           })
-          await this.addSendMoneyJob(
+          await this.queueService.addSendMoneyJob(
             missionUserLog.userId,
             QUEUE_SEND_CASHBACK,
             0,
@@ -332,19 +332,5 @@ export class AdminCampaignService {
 
     const count = await this.missionUserLogService.count(filter)
     return { count }
-  }
-
-  async addSendMoneyJob(
-    userId: string,
-    queueName: string,
-    attempts: number,
-    data: any,
-  ) {
-    data.groupKey = queueName + '_' + userId
-    await this.queueService.addJob(queueName, data, {
-      attempts: attempts,
-      backoff: 1000,
-      removeOnComplete: 10000,
-    })
   }
 }

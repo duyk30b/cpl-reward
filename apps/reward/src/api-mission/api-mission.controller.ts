@@ -1,9 +1,10 @@
-import { Controller, Get, Query, Req } from '@nestjs/common'
+import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common'
 import { ApiMissionService } from './api-mission.service'
 import {
   ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
@@ -20,6 +21,7 @@ import { ApiPaginateUserRewardHistory } from './dto/api-paginate-user-reward-his
 import { instanceToPlain, plainToInstance } from 'class-transformer'
 import {
   AffiliateEarnedShortResponse,
+  RedeemMissionResponse,
   UnauthorizedResponse,
 } from '../constants'
 import { ApiLoadMoreResponseDecorator } from '../decorators/api-load-more-response.decorator'
@@ -79,5 +81,23 @@ export class ApiMissionController {
     filter.userId = request.userId
 
     return this.apiMissionService.getAffiliateDetailHistory(filter)
+  }
+
+  @Post(':id/redeem')
+  @ApiOperation({
+    summary: 'Request to redeem mission',
+  })
+  @ApiParam({ name: 'id', type: 'number' })
+  @ApiUnauthorizedResponse(UnauthorizedResponse)
+  @ApiOkResponse(RedeemMissionResponse)
+  async redeem(@Param('id') id: number, @Req() request: IRequestWithUserId) {
+    const result = await this.apiMissionService.requestRedeemMission(
+      id,
+      request.userId,
+    )
+
+    return {
+      success: result,
+    }
   }
 }

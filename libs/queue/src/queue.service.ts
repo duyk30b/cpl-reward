@@ -24,4 +24,18 @@ export class QueueService {
   async addJob(name: string, data: any, opts?: JobOptions) {
     return await this.workerQueue.add(name, data, opts)
   }
+
+  async addSendMoneyJob(
+    userId: string,
+    queueName: string,
+    attempts: number,
+    data: any,
+  ) {
+    data.groupKey = queueName + '_' + userId
+    await this.addJob(queueName, data, {
+      attempts: attempts,
+      backoff: 1000,
+      removeOnComplete: 10000,
+    })
+  }
 }

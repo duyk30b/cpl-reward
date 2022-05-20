@@ -30,11 +30,12 @@ export class ValidateAuthMiddleware implements NestMiddleware {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
     }
 
-    let user = null
-    user = await this.externalUserService.getUserInfo(xBceUid)
-    if (!user) {
-      throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
-    }
+    // Remove by exceeds code, user validated by api gateway
+    // let user = null
+    // user = await this.externalUserService.getUserInfo(xBceUid)
+    // if (!user) {
+    //   throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED)
+    // }
 
     req.userId = String(xBceUid)
     next()

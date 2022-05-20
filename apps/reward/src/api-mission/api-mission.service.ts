@@ -27,6 +27,16 @@ import { IUserCondition } from '../../../missions/src/interfaces/missions.interf
 import { ExternalUserService } from '@lib/external-user'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
+import {
+  QueueService,
+  QUEUE_SEND_BALANCE,
+  QUEUE_SEND_CASHBACK,
+} from '@lib/queue'
+import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
+import {
+  SendRewardToBalance,
+  SendRewardToCashback,
+} from 'apps/missions/src/interfaces/external.interface'
 
 @Injectable()
 export class ApiMissionService {
@@ -36,6 +46,7 @@ export class ApiMissionService {
     private readonly missionService: MissionService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalUserService: ExternalUserService,
+    private readonly queueService: QueueService,
   ) {}
 
   async findPublicMissions(
@@ -113,6 +124,12 @@ export class ApiMissionService {
         return m.id
       })
 
+      const rewardHistories =
+        await this.userRewardHistoryService.getUserRewardHistoryByMissionsId(
+          missionIds,
+          userId,
+        )
+
       const receivedHistories =
         await this.userRewardHistoryService.getAmountByUser(
           missionIds,
@@ -123,7 +140,7 @@ export class ApiMissionService {
         await this.userRewardHistoryService.getAmountByUser(
           missionIds,
           userId,
-          USER_REWARD_STATUS.NOT_RECEIVE,
+          USER_REWARD_STATUS.NEED_TO_REDEEM,
         )
 
       const newData = missions.map((rawMission) => {
@@ -158,6 +175,10 @@ export class ApiMissionService {
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,
           not_received_amount: money.notReceivedAmount,
+          reward_status: this.getMissionRewardStatus(
+            rewardHistories,
+            mission.id,
+          ),
         }
       })
       data = data.concat(newData)
@@ -219,14 +240,14 @@ export class ApiMissionService {
     // Tuy nhiên nếu sau này 1 user đc nhận nhiều lần trong 1 mission
     // Sẽ phát sinh vấn đề là có history thành công / chờ bấm nút redeem / gửi thất bại
     // Thì chưa biết ưu tiên hiển thị cái gì, cũng cần lưu ý đoạn left join này đang chỉ query status = FAIL
-    queryBuilder.leftJoin(
-      'user_reward_histories',
-      'user_reward_histories',
-      'user_reward_histories.mission_id = mission.id AND user_reward_histories.user_id = ' +
-        userId +
-        ' AND user_reward_histories.status = ' +
-        USER_REWARD_STATUS.FAIL,
-    )
+    // queryBuilder.leftJoin(
+    //   'user_reward_histories',
+    //   'user_reward_histories',
+    //   'user_reward_histories.mission_id = mission.id AND user_reward_histories.user_id = ' +
+    //     userId +
+    //     ' AND user_reward_histories.status = ' +
+    //     USER_REWARD_STATUS.FAIL,
+    // )
     queryBuilder.select([
       'mission_user.success_count AS success_count',
       'mission.title AS title',
@@ -246,7 +267,7 @@ export class ApiMissionService {
       'mission.campaignId AS campaignId',
       'mission.status AS status',
       'IF (success_count >= mission.limitReceivedReward, true, false) AS completed', // Check if user completed this campaign
-      'user_reward_histories.status AS reward_status',
+      //  'user_reward_histories.status AS reward_status',
     ])
     queryBuilder.where('mission.isActive = :is_active ', {
       is_active: MISSION_IS_ACTIVE.ACTIVE,
@@ -402,7 +423,7 @@ export class ApiMissionService {
     return {
       currency: currentTarget.currency,
       wallet: currentTarget.wallet,
-      deliveryMethod: 112233,
+      // deliveryMethod: 112233,
       totalRewardAmount: totalRewardAmount.toString(),
       receivedAmount: receivedAmount.toString(),
       notReceivedAmount: notReceivedAmount.toString(),
@@ -411,5 +432,119 @@ export class ApiMissionService {
 
   public getAffiliateDetailHistory(filter: PaginateUserRewardHistory) {
     return this.userRewardHistoryService.getAffiliateDetailHistory(filter)
+  }
+
+  public async requestRedeemMission(missionId: number, userId: string) {
+    const rewardHistories = await this.userRewardHistoryService.find({
+      missionId: missionId,
+      userId: userId,
+      status: USER_REWARD_STATUS.NEED_TO_REDEEM,
+    })
+
+    const proccessList = rewardHistories.map((history) =>
+      this.processRedeemReward(history),
+    )
+
+    const result = await Promise.allSettled(proccessList)
+
+    return result.some(
+      (item) => (item as any).value && item.status === 'fulfilled',
+    )
+  }
+
+  public async processRedeemReward(rewardHistory: UserRewardHistory) {
+    const updated = await this.userRewardHistoryService.updateStatus(
+      rewardHistory.id,
+      USER_REWARD_STATUS.PROCESSING_REDEEM,
+    )
+
+    if (!updated.affected) {
+      return false
+    }
+
+    if (rewardHistory.wallet === WALLET.BALANCE) {
+      const balanceBody = plainToInstance(SendRewardToCashback, {
+        id: rewardHistory.id,
+        userId: rewardHistory.userId,
+        amount: rewardHistory.amount,
+        currency: rewardHistory.currency,
+        historyId: rewardHistory.id,
+        userType: rewardHistory.userType,
+        referenceId: rewardHistory.referenceId,
+        missionUserLogId: rewardHistory.id,
+      })
+      await this.queueService.addSendMoneyJob(
+        rewardHistory.userId,
+        QUEUE_SEND_BALANCE,
+        0,
+        balanceBody,
+      )
+    }
+
+    if (rewardHistory.wallet === WALLET.CASHBACK) {
+      const cashbackBody = plainToInstance(SendRewardToBalance, {
+        id: rewardHistory.id,
+        userId: rewardHistory.userId,
+        amount: rewardHistory.amount,
+        currency: rewardHistory.currency,
+        userType: rewardHistory.userType,
+        referenceId: rewardHistory.referenceId,
+        missionUserLogId: rewardHistory.id,
+        type: 'reward',
+      })
+      await this.queueService.addSendMoneyJob(
+        rewardHistory.userId,
+        QUEUE_SEND_CASHBACK,
+        0,
+        cashbackBody,
+      )
+    }
+
+    return true
+  }
+
+  getMissionRewardStatus(
+    rewardHistories: Array<UserRewardHistory>,
+    missionId: number,
+  ) {
+    const needRedeem = rewardHistories.some(
+      (item) =>
+        item.missionId === missionId &&
+        item.status === USER_REWARD_STATUS.NEED_TO_REDEEM,
+    )
+    if (needRedeem) {
+      return USER_REWARD_STATUS.NEED_TO_REDEEM
+    }
+
+    const processingRedeem = rewardHistories.some(
+      (item) =>
+        item.missionId === missionId &&
+        [
+          USER_REWARD_STATUS.PROCESSING_REDEEM,
+          USER_REWARD_STATUS.DEFAULT_STATUS,
+        ].includes(item.status),
+    )
+    if (processingRedeem) {
+      return USER_REWARD_STATUS.PROCESSING_REDEEM
+    }
+
+    const isFailed = rewardHistories.some(
+      (item) =>
+        item.missionId === missionId && item.status === USER_REWARD_STATUS.FAIL,
+    )
+    if (isFailed) {
+      return USER_REWARD_STATUS.FAIL
+    }
+
+    const isReceived = rewardHistories.some(
+      (item) =>
+        item.missionId === missionId &&
+        item.status === USER_REWARD_STATUS.RECEIVED,
+    )
+    if (isReceived) {
+      return USER_REWARD_STATUS.RECEIVED
+    }
+
+    return null
   }
 }

@@ -267,7 +267,7 @@ export class AdminCampaignService {
         )
 
         if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_BALANCE) {
-          const balanceBody = plainToInstance(SendRewardToCashback, {
+          const balanceBody = plainToInstance(SendRewardToBalance, {
             id: missionUserLog.rewardHistoryId,
             userId: missionUserLog.userId,
             amount: missionUserLog.moneyEarned,
@@ -287,7 +287,7 @@ export class AdminCampaignService {
         }
 
         if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK) {
-          const cashbackBody = plainToInstance(SendRewardToBalance, {
+          const cashbackBody = plainToInstance(SendRewardToCashback, {
             id: missionUserLog.rewardHistoryId,
             userId: missionUserLog.userId,
             amount: missionUserLog.moneyEarned,

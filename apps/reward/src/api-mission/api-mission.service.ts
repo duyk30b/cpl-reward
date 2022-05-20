@@ -472,6 +472,11 @@ export class ApiMissionService {
         userType: rewardHistory.userType,
         referenceId: rewardHistory.referenceId,
         type: 'reward',
+        data: {
+          campaignId: rewardHistory.campaignId,
+          missionId: rewardHistory.missionId,
+          msgName: 'redeem',
+        },
       })
       await this.queueService.addSendMoneyJob(
         rewardHistory.userId,
@@ -489,6 +494,11 @@ export class ApiMissionService {
         currency: rewardHistory.currency,
         userType: rewardHistory.userType,
         referenceId: rewardHistory.referenceId,
+        data: {
+          campaignId: rewardHistory.campaignId,
+          missionId: rewardHistory.missionId,
+          msgName: 'redeem',
+        },
       })
       await this.queueService.addSendMoneyJob(
         rewardHistory.userId,

@@ -463,7 +463,7 @@ export class ApiMissionService {
     }
 
     if (rewardHistory.wallet === WALLET.BALANCE) {
-      const balanceBody = plainToInstance(SendRewardToCashback, {
+      const balanceBody = plainToInstance(SendRewardToBalance, {
         id: rewardHistory.id,
         userId: rewardHistory.userId,
         amount: rewardHistory.amount,
@@ -471,7 +471,7 @@ export class ApiMissionService {
         historyId: rewardHistory.id,
         userType: rewardHistory.userType,
         referenceId: rewardHistory.referenceId,
-        missionUserLogId: rewardHistory.id,
+        type: 'reward',
       })
       await this.queueService.addSendMoneyJob(
         rewardHistory.userId,
@@ -482,15 +482,13 @@ export class ApiMissionService {
     }
 
     if (rewardHistory.wallet === WALLET.CASHBACK) {
-      const cashbackBody = plainToInstance(SendRewardToBalance, {
+      const cashbackBody = plainToInstance(SendRewardToCashback, {
         id: rewardHistory.id,
         userId: rewardHistory.userId,
         amount: rewardHistory.amount,
         currency: rewardHistory.currency,
         userType: rewardHistory.userType,
         referenceId: rewardHistory.referenceId,
-        missionUserLogId: rewardHistory.id,
-        type: 'reward',
       })
       await this.queueService.addSendMoneyJob(
         rewardHistory.userId,

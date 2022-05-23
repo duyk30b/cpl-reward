@@ -27,6 +27,8 @@ import { IdGeneratorModule } from '@lib/id-generator'
 import { MissionsProcessor } from './missions.processor'
 import { RedisModule } from '@lib/redis'
 import { QueueModule } from '@lib/queue/queue.module'
+import { BankerBalanceProcessor } from './banker-balance.processor'
+import { BankerCashbackProcessor } from './banker-cashback.processor'
 
 @Module({
   controllers: [MissionsController],
@@ -65,6 +67,8 @@ import { QueueModule } from '@lib/queue/queue.module'
     TraceListener,
     HealthService,
     MissionsProcessor,
+    BankerBalanceProcessor,
+    BankerCashbackProcessor,
   ],
 })
 export class MissionsModule {}

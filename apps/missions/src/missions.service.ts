@@ -70,13 +70,13 @@ export class MissionsService {
       data.campaignId,
     )
     if (!campaign) {
-      // this.eventEmitter.emit(this.eventEmit, {
-      //   logLevel: 'debug',
-      //   traceCode: 'm004',
-      //   data,
-      //   extraData: null,
-      //   params: { name: 'Campaign' },
-      // })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'debug',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Campaign' },
+      })
       return
     }
 
@@ -85,13 +85,13 @@ export class MissionsService {
       data.missionId,
     )
     if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
-      // this.eventEmitter.emit(this.eventEmit, {
-      //   logLevel: 'debug',
-      //   traceCode: 'm004',
-      //   data,
-      //   extraData: null,
-      //   params: { name: 'Mission' },
-      // })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'debug',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Mission' },
+      })
       return
     }
 

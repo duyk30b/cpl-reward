@@ -590,6 +590,11 @@ export const INFO_EVENTS = [
         type: 'boolean',
         description: 'Is first time the use do this action',
       },
+      {
+        key: 'created_at',
+        type: 'string',
+        description: 'Deposit time',
+      },
     ],
   },
   // Kafka chưa có event này (update 27/03/2022)

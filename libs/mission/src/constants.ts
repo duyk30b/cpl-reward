@@ -593,6 +593,8 @@ export const INFO_EVENTS = [
       {
         key: 'created_at',
         type: 'string',
+        original: 'number',
+        display: 'number',
         description: 'Deposit time',
       },
     ],

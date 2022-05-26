@@ -51,7 +51,7 @@ export class QueueService {
 
     // Cashback giới hạn bắn ko quá 20 request 1 giây
     //data.groupKey = queueName + '_' + userId
-    data.groupKey = 'cashback'
+    data.groupKey = 'banker_cashback'
     await this.addCashbackJob(queueName, data, {
       attempts: attempts,
       backoff: 1000,

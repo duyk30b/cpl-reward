@@ -90,8 +90,8 @@ export class Campaign extends MyBaseEntity {
   @Expose()
   status: number
 
-  @OneToMany(() => Mission, (mission) => mission.campaign)
-  @JoinColumn()
+  // @OneToMany(() => Mission, (mission) => mission.campaign)
+  // @JoinColumn()
   @Expose({
     name: 'missions',
   })

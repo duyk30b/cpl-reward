@@ -97,7 +97,7 @@ export class UserRewardHistory extends MyBaseEntity {
   @Expose({ name: 'reference_id' })
   referenceId: string
 
-  @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
-  @JoinColumn({ name: 'mission_id' })
+  // @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
+  // @JoinColumn({ name: 'mission_id' })
   mission: Mission
 }

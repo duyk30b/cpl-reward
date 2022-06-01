@@ -30,7 +30,7 @@ export class BankerBalanceProcessor {
     private readonly missionUserLogService: MissionUserLogService,
   ) {}
 
-  @Process(QUEUE_SEND_BALANCE)
+  @Process({ name: QUEUE_SEND_BALANCE, concurrency: 3 })
   async handleSendBalance(job: Job) {
     const data = plainToInstance(SendRewardToBalance, job.data)
     // console.log(data.userId + ' Bat dau cong balance: ', Date.now() / 1000)

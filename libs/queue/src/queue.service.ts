@@ -38,9 +38,10 @@ export class QueueService {
     attempts: number,
     data: any,
   ) {
+    data.groupKey = queueName + '_' + userId
+
     if (queueName == QUEUE_SEND_BALANCE) {
       // Balance ko thể nhận nhiều request cùng lúc nên groupKey fix cứng luôn
-      data.groupKey = 'banker_balance'
       await this.addBalanceJob(queueName, data, {
         attempts: attempts,
         backoff: 1000,
@@ -50,8 +51,6 @@ export class QueueService {
     }
 
     // Cashback giới hạn bắn ko quá 20 request 1 giây
-    //data.groupKey = queueName + '_' + userId
-    data.groupKey = 'banker_cashback'
     await this.addCashbackJob(queueName, data, {
       attempts: attempts,
       backoff: 1000,

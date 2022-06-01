@@ -13,13 +13,11 @@ export class MissionsProcessor {
 
   @Process(QUEUE_MISSION_MAIN_FUNCTION)
   handleMainFunction(job: Job) {
-    // console.log(
-    //   job.data.msgData.user_id + ' Bat dau cong balance: ',
-    //   Date.now() / 1000,
-    // )
-    this.logger.log(job.data.msgId + ' is running')
+    //const start = new Date().getTime()
+    //this.logger.log(job.data.msgId + ' is running')
     this.missionsService.mainFunction(job.data).then(() => {
-      this.logger.log(job.data.msgId + ' done!')
+      //const stop = new Date().getTime()
+      //this.logger.log(job.data.msgId + ' done !' + (stop - start))
     })
   }
 }

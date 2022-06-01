@@ -30,7 +30,7 @@ export class BankerCashbackProcessor {
     private readonly missionUserLogService: MissionUserLogService,
   ) {}
 
-  @Process(QUEUE_SEND_CASHBACK)
+  @Process({ name: QUEUE_SEND_CASHBACK, concurrency: 5 })
   async handleSendCashback(job: Job) {
     const data = plainToInstance(SendRewardToCashback, job.data)
     //console.log(data.userId + ' Bat dau cong cashback: ', Date.now() / 1000)

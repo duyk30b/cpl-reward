@@ -65,7 +65,8 @@ export class MissionsListener {
       this.queueService.addJob(
         QUEUE_MISSION_MAIN_FUNCTION,
         {
-          groupKey: 'main_' + data.msgData.user_id,
+          groupKey:
+            'main_' + '_' + missionEvent.missionId + '_' + data.msgData.user_id,
           msgId: data.msgId,
           msgName: data.msgName,
           msgData: data.msgData,

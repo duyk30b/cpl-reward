@@ -586,6 +586,11 @@ export const INFO_EVENTS = [
         description: 'Fee',
       },
       {
+        key: 'is_missing_event',
+        type: 'boolean',
+        description: 'Is this is event is missed and re-pushed manually',
+      },
+      {
         key: 'is_first_time',
         type: 'boolean',
         description: 'Is first time the use do this action',

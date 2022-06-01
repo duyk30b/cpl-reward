@@ -127,7 +127,7 @@ export class Mission extends MyBaseEntity {
   grantTarget: string
 
   @OneToMany(() => RewardRule, (rewardRule) => rewardRule.mission, {
-    eager: true,
+    eager: false,
   })
   @JoinColumn()
   @Expose({
@@ -135,16 +135,16 @@ export class Mission extends MyBaseEntity {
   })
   rewardRules: RewardRule[]
 
-  @ManyToOne(() => Campaign, (campaign) => campaign.missions)
-  @JoinColumn({ name: 'campaign_id' })
+  // @ManyToOne(() => Campaign, (campaign) => campaign.missions)
+  // @JoinColumn({ name: 'campaign_id' })
   campaign: Campaign
 
-  @OneToMany(
-    () => UserRewardHistory,
-    (userRewardHistory) => userRewardHistory.mission,
-    { eager: true },
-  )
-  @JoinColumn()
+  // @OneToMany(
+  //   () => UserRewardHistory,
+  //   (userRewardHistory) => userRewardHistory.mission,
+  //   { eager: false },
+  // )
+  // @JoinColumn()
   @Expose({
     name: 'user_reward_histories',
   })

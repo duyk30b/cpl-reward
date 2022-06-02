@@ -8,6 +8,7 @@ import { CommonModule } from '@lib/common'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { CampaignModule } from '@lib/campaign'
 import { ExternalUserModule } from '@lib/external-user'
+import { QueueModule } from '@lib/queue'
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ExternalUserModule } from '@lib/external-user'
       wildcard: true,
       delimiter: '_',
     }),
+    QueueModule,
   ],
   controllers: [ApiMissionController],
   providers: [ApiMissionService],

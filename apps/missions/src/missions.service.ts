@@ -10,6 +10,7 @@ import {
   MISSION_IS_ACTIVE,
   MISSION_STATUS,
   MissionService,
+  DELIVERY_METHOD,
 } from '@lib/mission'
 import {
   CommonService,
@@ -22,7 +23,10 @@ import { CAMPAIGN_STATUS, CampaignService } from '@lib/campaign'
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
-import { UserRewardHistoryService } from '@lib/user-reward-history'
+import {
+  UserRewardHistoryService,
+  USER_REWARD_STATUS,
+} from '@lib/user-reward-history'
 import { RewardRuleService, REWARD_RULE_APPLY_FOR } from '@lib/reward-rule'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { IGrantTarget } from '@lib/common/common.interface'
@@ -66,13 +70,13 @@ export class MissionsService {
       data.campaignId,
     )
     if (!campaign) {
-      // this.eventEmitter.emit(this.eventEmit, {
-      //   logLevel: 'debug',
-      //   traceCode: 'm004',
-      //   data,
-      //   extraData: null,
-      //   params: { name: 'Campaign' },
-      // })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'debug',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Campaign' },
+      })
       return
     }
 
@@ -81,13 +85,13 @@ export class MissionsService {
       data.missionId,
     )
     if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
-      // this.eventEmitter.emit(this.eventEmit, {
-      //   logLevel: 'debug',
-      //   traceCode: 'm004',
-      //   data,
-      //   extraData: null,
-      //   params: { name: 'Mission' },
-      // })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'debug',
+        traceCode: 'm004',
+        data,
+        extraData: null,
+        params: { name: 'Mission' },
+      })
       return
     }
 
@@ -428,6 +432,10 @@ export class MissionsService {
       deliveryMethod,
       referrerUserId,
       referenceId,
+      status:
+        deliveryMethod === DELIVERY_METHOD.MANUAL
+          ? USER_REWARD_STATUS.NEED_TO_REDEEM
+          : USER_REWARD_STATUS.DEFAULT_STATUS,
     })
     if (!userRewardHistory) {
       this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
@@ -464,7 +472,12 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.sendMoney(userId, QUEUE_SEND_BALANCE, 0, balanceBody)
+      await this.queueService.addSendMoneyJob(
+        userId,
+        QUEUE_SEND_BALANCE,
+        0,
+        balanceBody,
+      )
     }
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
@@ -481,23 +494,14 @@ export class MissionsService {
         userType: userTarget.user,
         referenceId,
       })
-      await this.sendMoney(userId, QUEUE_SEND_CASHBACK, 2, cashbackBody)
+      await this.queueService.addSendMoneyJob(
+        userId,
+        QUEUE_SEND_CASHBACK,
+        2,
+        cashbackBody,
+      )
     }
     return true
-  }
-
-  async sendMoney(
-    userId: string,
-    queueName: string,
-    attempts: number,
-    data: any,
-  ) {
-    data.groupKey = queueName + '_' + userId
-    await this.queueService.addJob(queueName, data, {
-      attempts: attempts,
-      backoff: 1000,
-      removeOnComplete: 10000,
-    })
   }
 
   /**

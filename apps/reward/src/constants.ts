@@ -119,3 +119,14 @@ export const GetCampaignByIdResponse = {
     },
   },
 }
+
+export const RedeemMissionResponse = {
+  schema: {
+    properties: {
+      success: {
+        type: 'boolean',
+        example: true,
+      },
+    },
+  },
+}

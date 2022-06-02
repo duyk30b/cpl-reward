@@ -285,7 +285,10 @@ export class AdminMissionService {
 
   async getMissionsByCampaign(input: MissionFilterInput) {
     const missions = await this.missionService.find({
-      campaignId: input.campaignId,
+      where: {
+        campaignId: input.campaignId,
+      },
+      relations: ['rewardRules'],
     })
 
     return { missions: missions }

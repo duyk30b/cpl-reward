@@ -5,6 +5,7 @@ import { IWriteLog } from '../interfaces/missions.interface'
 import { ConfigService } from '@nestjs/config'
 import { CommonService } from '@lib/common'
 import { QueueService } from '@lib/queue'
+import * as _ from 'lodash'
 
 @Injectable()
 export class TraceListener {
@@ -78,7 +79,8 @@ export class TraceListener {
     }
   }
 
-  hideInformation(data: any) {
+  hideInformation(dataInput: any) {
+    const data = _.clone(dataInput)
     if (data && data.msgData) {
       // Email
       if (data.msgData.email) {

@@ -51,6 +51,7 @@
     "ethers": "^5.6.1",
     "handlebars": "^4.7.7",
     "kafkajs": "^1.15.0",
+    "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "moment-timezone": "^0.5.34",
     "mongoose": "^6.2.9",

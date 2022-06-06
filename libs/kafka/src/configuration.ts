@@ -35,4 +35,7 @@ export default registerAs('kafka', () => ({
   high_low_win: process.env.ENV + '_high_low_win',
   high_low_lost: process.env.ENV + '_high_low_lost',
   high_low_cancel: process.env.ENV + '_high_low_cancel',
+
+  // reward
+  reward_user_check_in: process.env.ENV + '_reward_user_check_in',
 }))

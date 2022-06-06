@@ -6,9 +6,11 @@ import {
   HttpStatus,
   HttpException,
   Req,
+  Post,
 } from '@nestjs/common'
 import { ApiCampaignService } from './api-campaign.service'
 import {
+  ApiBadRequestResponse,
   ApiExtraModels,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -23,7 +25,9 @@ import { PaginatedMetaDto } from '../dto/paginated.dto'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
 import {
   GetCampaignByIdResponse,
+  GetCheckinCampaignResponse,
   NotFoundResponse,
+  PostCheckinCampaignResponse,
   UnauthorizedResponse,
 } from '../constants'
 import { IRequestWithUserId } from '../interfaces/request-with-user-id'
@@ -52,6 +56,36 @@ export class ApiCampaignController {
     )
   }
 
+  @Get('/checkin')
+  @ApiOperation({
+    summary: 'Get daily checkin campaign',
+  })
+  @ApiNotFoundResponse(NotFoundResponse)
+  @ApiUnauthorizedResponse(UnauthorizedResponse)
+  @ApiOkResponse(GetCheckinCampaignResponse)
+  async getCheckInCampaign(@Req() request: IRequestWithUserId) {
+    return await this.apiCampaignService.getCheckInCampaign(request.userId)
+  }
+
+  @Post('/checkin')
+  @ApiOperation({
+    summary: 'Submit event checkin to claim daily checkin reward',
+  })
+  @ApiNotFoundResponse(NotFoundResponse)
+  @ApiUnauthorizedResponse(UnauthorizedResponse)
+  @ApiOkResponse(PostCheckinCampaignResponse)
+  async claimCheckInReward(@Req() request: IRequestWithUserId) {
+    const mission = await this.apiCampaignService.sendCheckInEvent(
+      request.userId,
+    )
+    if (!mission) {
+      throw new HttpException('FAILED', HttpStatus.BAD_REQUEST)
+    }
+
+    return {
+      mission,
+    }
+  }
   @Get(':id')
   @ApiOperation({
     summary: 'Get campaign by ID',

@@ -22,7 +22,7 @@ import { FixedNumber } from 'ethers'
 import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
-import { CampaignService } from '@lib/campaign'
+import { CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService } from '@lib/common'
 
@@ -138,10 +138,10 @@ export class AdminMissionService {
     if (now > input.closingDate) return MISSION_STATUS.ENDED
   }
 
-  private async validateRangeTimeCampaign(
+  private validateRangeTimeCampaign(
     create: ICreateMission | IUpdateMission,
+    campaign,
   ) {
-    const campaign = await this.campaignService.getById(create.campaignId)
     return (
       campaign.startDate <= create.openingDate &&
       campaign.endDate >= create.closingDate
@@ -149,8 +149,16 @@ export class AdminMissionService {
   }
 
   async create(create: ICreateMission | IUpdateMission) {
-    const validateRangeTime = await this.validateRangeTimeCampaign(create)
+    const campaign = await this.campaignService.getById(create.campaignId)
+    const validateRangeTime = this.validateRangeTimeCampaign(create, campaign)
+
     if (!validateRangeTime) return new Mission()
+
+    if (campaign.type === CAMPAIGN_TYPE.ORDER) {
+      create.closingDate = campaign.endDate
+      create.openingDate = campaign.startDate
+    }
+
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
     create.targetType = this.getTargetType(create.grantTarget)
     create.judgmentConditions = this.updateTypeInJudgment(
@@ -178,8 +186,16 @@ export class AdminMissionService {
   }
 
   async update(update: IUpdateMission) {
-    const validateRangeTime = await this.validateRangeTimeCampaign(update)
+    const campaign = await this.campaignService.getById(update.campaignId)
+    const validateRangeTime = this.validateRangeTimeCampaign(update, campaign)
+
     if (!validateRangeTime) return new Mission()
+
+    if (campaign.type === CAMPAIGN_TYPE.ORDER) {
+      update.closingDate = campaign.endDate
+      update.openingDate = campaign.startDate
+    }
+
     update.grantTarget = this.updateTypeInTarget(update.grantTarget)
     update.targetType = this.getTargetType(update.grantTarget)
     update.judgmentConditions = this.updateTypeInJudgment(

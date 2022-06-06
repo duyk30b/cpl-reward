@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_TYPE,
   CAMPAIGN_IS_ACTIVE,
   CAMPAIGN_STATUS,
 } from '@lib/campaign'
@@ -15,10 +15,30 @@ import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { CommonService } from '@lib/common'
+import { KafkaService } from '@lib/kafka/kafka.service'
+import { ConfigService } from '@nestjs/config'
+import { MissionService } from '@lib/mission'
+import { plainToInstance } from 'class-transformer'
+import {
+  CheckinCampaignDto,
+  CheckinMissionStatus,
+  CheckinMissionDto,
+} from './dto/api-campaign-checkin.dto'
+import { UserRewardHistoryService } from '@lib/user-reward-history'
+import * as moment from 'moment'
 
 @Injectable()
 export class ApiCampaignService {
-  constructor(private readonly campaignService: CampaignService) {}
+  private readonly logger = new Logger(ApiCampaignService.name)
+
+  constructor(
+    private readonly campaignService: CampaignService,
+    private readonly kafkaService: KafkaService,
+    private readonly configService: ConfigService,
+    private readonly missionService: MissionService,
+    private readonly rewardHistoryService: UserRewardHistoryService,
+    private readonly commonService: CommonService,
+  ) {}
 
   async findPublicCampaigns(
     apiCampaignFilterDto: ApiCampaignFilterDto,
@@ -85,8 +105,8 @@ export class ApiCampaignService {
       'campaign.campaignImageJa',
       'campaign.status',
     ])
-    queryBuilder.where('campaign.isSystem = :is_system ', {
-      is_system: CAMPAIGN_IS_SYSTEM.FALSE,
+    queryBuilder.where('campaign.type = :type ', {
+      type: CAMPAIGN_TYPE.DEFAULT,
     })
     queryBuilder.andWhere('campaign.isActive = :is_active ', {
       is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
@@ -134,12 +154,68 @@ export class ApiCampaignService {
     return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
   }
 
+  async sendCheckInEvent(userId: string) {
+    try {
+      const campaign = await this.campaignService.findOne({
+        type: CAMPAIGN_TYPE.ORDER,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        status: CAMPAIGN_STATUS.RUNNING,
+      })
+
+      if (!campaign) {
+        return null
+      }
+
+      const missions = await this.missionService.getListCheckinMission(
+        userId,
+        campaign.id,
+      )
+
+      const existedClaimMission = missions.find((mission) => !mission.completed)
+      if (!existedClaimMission) {
+        return null
+      }
+
+      const lastReward =
+        await this.rewardHistoryService.getLastRewardByCampaignId(campaign.id)
+
+      let claimable = false
+      if (!lastReward) {
+        claimable = true
+      } else {
+        claimable = this.commonService.checkValidCheckinTime(
+          campaign.resetTime,
+          moment().unix(),
+          lastReward,
+        )
+      }
+
+      if (!claimable) {
+        return null
+      }
+
+      const topicName = this.configService.get('kafka.reward_user_check_in')
+
+      await this.kafkaService.sendMessage(topicName, {
+        user_id: userId,
+        created_at: Math.floor(Date.now() / 1000),
+      })
+
+      return plainToInstance(CheckinMissionDto, existedClaimMission, {
+        ignoreDecorators: true,
+      })
+    } catch (error) {
+      this.logger.error(error)
+      return null
+    }
+  }
+
   async findOne(id: number) {
     return this.campaignService.findOne(
       {
         id,
         isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
-        isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+        type: CAMPAIGN_TYPE.DEFAULT,
       },
       {
         select: [
@@ -159,5 +235,76 @@ export class ApiCampaignService {
         ],
       },
     )
+  }
+
+  async getCheckInCampaign(userId: string) {
+    try {
+      const campaign = await this.campaignService.findOne({
+        type: CAMPAIGN_TYPE.ORDER,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        status: CAMPAIGN_STATUS.RUNNING,
+      })
+
+      if (!campaign) {
+        return {
+          campaign: plainToInstance(CheckinCampaignDto, campaign, {
+            ignoreDecorators: true,
+          }),
+          missions: [],
+        }
+      }
+
+      const missions = await this.missionService.getListCheckinMission(
+        userId,
+        campaign.id,
+      )
+
+      const lastReward =
+        await this.rewardHistoryService.getLastRewardByCampaignId(campaign.id)
+
+      let claimable = false
+      if (!lastReward) {
+        claimable = true
+      } else {
+        claimable = this.commonService.checkValidCheckinTime(
+          campaign.resetTime,
+          moment().unix(),
+          lastReward,
+        )
+      }
+
+      if (claimable === true) {
+        let updatedClaimStatus = false
+
+        for (let index = 0; index < missions.length; index++) {
+          if (missions[index].completed) {
+            missions[index].status = CheckinMissionStatus.COMPLETED
+            continue
+          }
+
+          if (updatedClaimStatus) {
+            missions[index].status = CheckinMissionStatus.DISABLED
+            continue
+          }
+
+          missions[index].status = CheckinMissionStatus.CLAIMABLE
+          updatedClaimStatus = true
+        }
+      }
+
+      return {
+        campaign: plainToInstance(CheckinCampaignDto, campaign, {
+          ignoreDecorators: true,
+        }),
+        missions: plainToInstance(CheckinMissionDto, missions, {
+          ignoreDecorators: true,
+        }),
+      }
+    } catch (error) {
+      return {
+        campaign: null,
+        missions: [],
+      }
+    }
   }
 }

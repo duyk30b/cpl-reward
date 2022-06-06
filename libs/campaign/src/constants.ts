@@ -18,7 +18,7 @@ export const CAMPAIGN_SORT_FIELD_MAP = {
   end_date: 'campaign.endDate',
   notification_link: 'campaign.notificationLink',
   campaign_image: 'campaign.campaignImage',
-  is_system: 'campaign.isSystem',
+  type: 'campaign.type',
   status: 'campaign.status',
   priority: 'campaign.priority',
   created_at: 'campaign.createdAt',

@@ -47,6 +47,9 @@ export enum EVENTS {
   HIGH_LOW_WIN = 'high_low_win',
   HIGH_LOW_LOST = 'high_low_lost',
   HIGH_LOW_CANCEL = 'high_low_cancel',
+
+  // reward
+  REWARD_USER_CHECK_IN = 'reward_user_check_in',
 }
 
 export enum MISSION_IS_ACTIVE {

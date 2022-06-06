@@ -3,9 +3,9 @@ export enum CAMPAIGN_IS_ACTIVE {
   ACTIVE = 1,
 }
 
-export enum CAMPAIGN_IS_SYSTEM {
-  FALSE = 0,
-  TRUE = 1,
+export enum CAMPAIGN_TYPE {
+  DEFAULT = 0,
+  ORDER = 3,
 }
 
 export enum CAMPAIGN_STATUS {

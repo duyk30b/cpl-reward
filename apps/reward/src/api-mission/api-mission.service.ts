@@ -37,6 +37,7 @@ import {
   SendRewardToBalance,
   SendRewardToCashback,
 } from 'apps/missions/src/interfaces/external.interface'
+import { TransformWalletMethod } from './constant/mission'
 
 @Injectable()
 export class ApiMissionService {
@@ -158,15 +159,15 @@ export class ApiMissionService {
         delete mission.grantTarget
         delete mission.displayConditions
 
-        // TODO: Hiện chưa kịp code tách wallet với delivery method ra nên phải chế value cho FE
-        if (money.wallet == 'DIRECT_CASHBACK') {
-          money.wallet = WALLET.CASHBACK
-          money.deliveryMethod = DELIVERY_METHOD.AUTO
-        }
-        if (money.wallet == 'DIRECT_BALANCE') {
+        const missionWalletMethod = TransformWalletMethod[money.wallet]
+        if (missionWalletMethod) {
+          money.wallet = missionWalletMethod.wallet
+          money.deliveryMethod = missionWalletMethod.deliveryMethod
+        } else {
           money.wallet = WALLET.BALANCE
           money.deliveryMethod = DELIVERY_METHOD.AUTO
         }
+
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,

@@ -4,6 +4,8 @@ import {
   CAMPAIGN_SORT_FIELD_MAP,
   CAMPAIGN_STATUS,
   CampaignService,
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_TYPE,
 } from '@lib/campaign'
 import { RewardRuleService } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -16,7 +18,7 @@ import {
 import { Brackets, In, LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
-import { CommonService, MissionUserLogStatus } from '@lib/common'
+import { CommonService, ErrorMessage, MissionUserLogStatus } from '@lib/common'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
 import { DELIVERY_METHOD_WALLET, MissionService } from '@lib/mission'
@@ -100,6 +102,11 @@ export class AdminCampaignService {
   }
 
   async update(iUpdateCampaign: IUpdateCampaign) {
+    const result = {
+      message: '',
+      success: true,
+      campaign: {} as Campaign,
+    }
     const missions = await this.missionService.find({
       campaignId: iUpdateCampaign.id,
     })
@@ -112,13 +119,35 @@ export class AdminCampaignService {
         iUpdateCampaign.startDate > Math.min(...missionsOpeningDate) ||
         iUpdateCampaign.endDate < Math.max(...missionsClosingDate)
       ) {
-        return {}
+        result.success = false
+        result.message = ErrorMessage.INVALID_CAMPAIGN_TIME
+        return result
       }
     }
 
     iUpdateCampaign.status =
       AdminCampaignService.calcCampaignStatus(iUpdateCampaign)
-    return await this.campaignService.update(iUpdateCampaign)
+    const updateResult = await this.campaignService.update(iUpdateCampaign)
+
+    if (updateResult.affected === 0) {
+      result.success = false
+      result.message = ErrorMessage.INVALID_CAMPAIGN_TYPE
+      result.campaign = await this.campaignService.findOne({
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        type: CAMPAIGN_TYPE.ORDER,
+      })
+      return result
+    }
+
+    result.campaign = await this.campaignService.findOne({
+      id: iUpdateCampaign.id,
+    })
+
+    if (result.campaign.type === CAMPAIGN_TYPE.ORDER) {
+      this.missionService.updateMissionPeriod(result.campaign)
+    }
+
+    return result
   }
 
   async findAll(campaignFilter: ICampaignFilter) {

@@ -1419,4 +1419,14 @@ export const INFO_EVENTS = [
       },
     ],
   },
+  {
+    eventName: EVENTS.REWARD_USER_CHECK_IN,
+    properties: [
+      {
+        key: 'created_at',
+        type: 'number',
+        description: 'Checkin time',
+      },
+    ],
+  },
 ]

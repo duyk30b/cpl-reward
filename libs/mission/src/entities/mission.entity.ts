@@ -162,3 +162,8 @@ export class Mission extends MyBaseEntity {
       this.grantTarget = JSON.parse(this.grantTarget)
   }
 }
+
+export class MissionWithSuccessCount extends Mission {
+  @Expose({ name: 'success_count' })
+  successCount: number
+}

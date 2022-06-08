@@ -6,7 +6,7 @@ service GrpcAdminCampaignService {
   rpc Create(CreateInput) returns (Result);
   rpc Cancel(CancelInput) returns (CancelResult);
   rpc FindOne(FindOneInput) returns (Result);
-  rpc Update(UpdateInput) returns (Result);
+  rpc Update(UpdateInput) returns (UpdateResult);
   rpc List(ListInput) returns (ListCampaignResult);
   rpc GetMissingRewards(MissingRewardsFilter) returns (MissingRewardsResult);
   rpc UpdateRewardLog(UpdateRewardLogInput) returns (UpdateRewardLogResult);
@@ -78,9 +78,10 @@ message UpdateInput {
   string campaignImage = 10;
   string campaignImageJa = 11;
   int32 priority = 12; // default: 0
-  bool isSystem = 13; // default: false
+  int32 type = 13; // default: 0, order campaign: 3
   int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
   int32 status = 15; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
+  string resetTime = 19;
 }
 
 message Result {
@@ -96,12 +97,13 @@ message Result {
   string campaignImage = 10;
   string campaignImageJa = 11;
   int32 priority = 12; // default: 0
-  bool isSystem = 13; // default: false
+  int32 type = 13; // default: 0, order campaign: 3
   int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
   int32 status = 15; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
   int32 createdAt = 16;
   int32 updatedAt = 17;
   repeated RewardRuleResult rewardRules = 18;
+  string resetTime = 19;
 }
 
 message CreateInput {
@@ -116,7 +118,7 @@ message CreateInput {
   string campaignImage = 9;
   string campaignImageJa = 10;
   int32 priority = 11; // default: 0
-  bool isSystem = 12; // default: false
+  int32 type = 12; // default: 0, order campaign: 3
   int32 isActive = 13; // default: 1 (ACTIVE) / 0 (INACTIVE)
   int32 status = 14; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
 }
@@ -174,4 +176,10 @@ message CountRewardLogInput {
 
 message CountRewardLogResult {
   int32 count = 1;
+}
+
+message UpdateResult {
+  bool success = 1;
+  string message = 2;
+  Result campaign = 3;
 }

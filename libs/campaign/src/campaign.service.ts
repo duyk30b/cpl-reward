@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { Pagination, paginate, paginateRaw } from 'nestjs-typeorm-paginate'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Repository, UpdateResult } from 'typeorm'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { UpdateCampaignDto } from '@lib/campaign/dto/update-campaign.dto'
 import { CreateCampaignDto } from '@lib/campaign/dto/create-campaign.dto'
@@ -11,7 +11,7 @@ import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import {
   CAMPAIGN_IS_ACTIVE,
-  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_TYPE,
   CAMPAIGN_STATUS,
 } from '@lib/campaign/enum'
 
@@ -30,7 +30,7 @@ export class CampaignService {
     const campaign = await this.findOne({
       id: campaignId,
       isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
-      isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+      // type: CAMPAIGN_TYPE.DEFAULT,
       status: CAMPAIGN_STATUS.RUNNING,
     })
     if (!campaign) return null
@@ -45,7 +45,7 @@ export class CampaignService {
     return await this.campaignRepository.findOne(conditions, options)
   }
 
-  async update(updateCampaignDto: UpdateCampaignDto): Promise<Campaign> {
+  async update(updateCampaignDto: UpdateCampaignDto): Promise<UpdateResult> {
     const updateCampaign = plainToInstance(
       UpdateCampaignDto,
       updateCampaignDto,
@@ -57,7 +57,27 @@ export class CampaignService {
     const campaignEntity = plainToInstance(Campaign, updateCampaign, {
       ignoreDecorators: true,
     })
-    return await this.campaignRepository.save(campaignEntity)
+
+    const queryBuilder = this.campaignRepository
+      .createQueryBuilder('campaign')
+      .update({ ...campaignEntity })
+      .where({ id: campaignEntity.id })
+
+    if (
+      campaignEntity.isActive === CAMPAIGN_IS_ACTIVE.ACTIVE &&
+      campaignEntity.type === CAMPAIGN_TYPE.ORDER
+    ) {
+      queryBuilder.andWhere(
+        '(SELECT count(*) FROM campaigns where id != :id AND is_active = :active AND type = :type) = 0',
+        {
+          id: campaignEntity.id,
+          type: CAMPAIGN_TYPE.ORDER,
+          active: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        },
+      )
+    }
+
+    return await queryBuilder.execute()
   }
 
   async create(createCampaignDto: CreateCampaignDto): Promise<Campaign> {

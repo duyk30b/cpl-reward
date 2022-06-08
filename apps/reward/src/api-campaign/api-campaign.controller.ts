@@ -11,6 +11,7 @@ import {
 import { ApiCampaignService } from './api-campaign.service'
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiExtraModels,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -63,6 +64,7 @@ export class ApiCampaignController {
   @ApiNotFoundResponse(NotFoundResponse)
   @ApiUnauthorizedResponse(UnauthorizedResponse)
   @ApiOkResponse(GetCheckinCampaignResponse)
+  @ApiBearerAuth('access-token')
   async getCheckInCampaign(@Req() request: IRequestWithUserId) {
     return await this.apiCampaignService.getCheckInCampaign(request.userId)
   }
@@ -74,6 +76,7 @@ export class ApiCampaignController {
   @ApiNotFoundResponse(NotFoundResponse)
   @ApiUnauthorizedResponse(UnauthorizedResponse)
   @ApiOkResponse(PostCheckinCampaignResponse)
+  @ApiBearerAuth('access-token')
   async claimCheckInReward(@Req() request: IRequestWithUserId) {
     const mission = await this.apiCampaignService.sendCheckInEvent(
       request.userId,

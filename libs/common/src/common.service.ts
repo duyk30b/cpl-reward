@@ -6,6 +6,7 @@ import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import * as Handlebars from 'handlebars'
 import * as moment from 'moment-timezone'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Injectable()
 export class CommonService {
@@ -131,25 +132,30 @@ export class CommonService {
   }
 
   checkValidCheckinTime(
-    resetTime: string,
+    campaign: Campaign,
     checkInTime: number,
     lastReward: UserRewardHistory,
   ) {
+    let lastRewardTime = campaign.startDate
+    if (lastReward) {
+      lastRewardTime = lastReward.createdAt
+    }
+
     const currentTime = moment.unix(checkInTime)
     const currentHourMinute = currentTime.format('HH:mm')
-    const [resetTimeHour, resetTimeMinute] = resetTime.split(':')
+    const [resetTimeHour, resetTimeMinute] = campaign.resetTime.split(':')
     const judgmentTime = moment
       .unix(checkInTime)
       .hours(parseInt(resetTimeHour))
       .minutes(parseInt(resetTimeMinute))
 
-    if (currentHourMinute <= resetTime) {
+    if (currentHourMinute <= campaign.resetTime) {
       judgmentTime.subtract(1, 'day')
     }
 
     if (
       checkInTime >= judgmentTime.unix() &&
-      lastReward.createdAt < judgmentTime.unix()
+      lastRewardTime < judgmentTime.unix()
     ) {
       return true
     }

@@ -107,21 +107,28 @@ export class AdminCampaignService {
       success: true,
       campaign: {} as Campaign,
     }
-    const missions = await this.missionService.find({
-      campaignId: iUpdateCampaign.id,
-    })
 
-    if (missions.length > 0) {
-      const missionsOpeningDate = missions.map((mission) => mission.openingDate)
-      const missionsClosingDate = missions.map((mission) => mission.closingDate)
+    if (iUpdateCampaign.type !== CAMPAIGN_TYPE.ORDER) {
+      const missions = await this.missionService.find({
+        campaignId: iUpdateCampaign.id,
+      })
 
-      if (
-        iUpdateCampaign.startDate > Math.min(...missionsOpeningDate) ||
-        iUpdateCampaign.endDate < Math.max(...missionsClosingDate)
-      ) {
-        result.success = false
-        result.message = ErrorMessage.INVALID_CAMPAIGN_TIME
-        return result
+      if (missions.length > 0) {
+        const missionsOpeningDate = missions.map(
+          (mission) => mission.openingDate,
+        )
+        const missionsClosingDate = missions.map(
+          (mission) => mission.closingDate,
+        )
+
+        if (
+          iUpdateCampaign.startDate > Math.min(...missionsOpeningDate) ||
+          iUpdateCampaign.endDate < Math.max(...missionsClosingDate)
+        ) {
+          result.success = false
+          result.message = ErrorMessage.INVALID_CAMPAIGN_TIME
+          return result
+        }
       }
     }
 

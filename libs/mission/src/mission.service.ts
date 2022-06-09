@@ -4,7 +4,7 @@ import {
   MissionWithSuccessCount,
 } from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import { paginate, paginateRaw, Pagination } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
@@ -257,7 +257,9 @@ export class MissionService {
       .where({
         campaignId,
       })
-      .andWhere('mission.status = :status', { status: MISSION_STATUS.RUNNING })
+      .andWhere({
+        status: In([MISSION_STATUS.OUT_OF_BUDGET, MISSION_STATUS.RUNNING]),
+      })
       .andWhere('mission.is_active = :active', {
         active: MISSION_IS_ACTIVE.ACTIVE,
       })
@@ -296,7 +298,9 @@ export class MissionService {
         GRANT_TARGET_USER.USER +
         '"',
     )
-    qb.where('mission.status = :status', { status: MISSION_STATUS.RUNNING })
+    qb.where({
+      status: In([MISSION_STATUS.OUT_OF_BUDGET, MISSION_STATUS.RUNNING]),
+    })
     qb.andWhere({ campaignId })
     qb.andWhere('mission.is_active = :active', {
       active: MISSION_IS_ACTIVE.ACTIVE,

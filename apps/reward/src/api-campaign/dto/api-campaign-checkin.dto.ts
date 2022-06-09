@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose, Transform } from 'class-transformer'
 import { TransformWalletMethod } from '../../api-mission/constant/mission'
 
-export enum CheckinMissionStatus {
+export enum CHECKIN_MISSION_STATUS {
   COMPLETED = 1,
   CLAIMABLE = 2,
   DISABLED = 3,

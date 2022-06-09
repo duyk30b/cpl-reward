@@ -10,7 +10,7 @@ import {
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
-import { Brackets } from 'typeorm'
+import { Brackets, LessThanOrEqual } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
@@ -21,7 +21,7 @@ import { MissionService } from '@lib/mission'
 import { plainToInstance } from 'class-transformer'
 import {
   CheckinCampaignDto,
-  CheckinMissionStatus,
+  CHECKIN_MISSION_STATUS,
   CheckinMissionDto,
 } from './dto/api-campaign-checkin.dto'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
@@ -156,10 +156,13 @@ export class ApiCampaignService {
 
   async sendCheckInEvent(userId: string) {
     try {
+      const currentUnix = moment().unix()
+
       const campaign = await this.campaignService.findOne({
         type: CAMPAIGN_TYPE.ORDER,
         isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
         status: CAMPAIGN_STATUS.RUNNING,
+        startDate: LessThanOrEqual(currentUnix),
       })
 
       if (!campaign) {
@@ -179,16 +182,11 @@ export class ApiCampaignService {
       const lastReward =
         await this.rewardHistoryService.getLastRewardByCampaignId(campaign.id)
 
-      let claimable = false
-      if (!lastReward) {
-        claimable = true
-      } else {
-        claimable = this.commonService.checkValidCheckinTime(
-          campaign.resetTime,
-          moment().unix(),
-          lastReward,
-        )
-      }
+      const claimable = this.commonService.checkValidCheckinTime(
+        campaign,
+        moment().unix(),
+        lastReward,
+      )
 
       if (!claimable) {
         return null
@@ -239,17 +237,18 @@ export class ApiCampaignService {
 
   async getCheckInCampaign(userId: string) {
     try {
+      const currentUnix = moment().unix()
+
       const campaign = await this.campaignService.findOne({
         type: CAMPAIGN_TYPE.ORDER,
         isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
         status: CAMPAIGN_STATUS.RUNNING,
+        startDate: LessThanOrEqual(currentUnix),
       })
 
       if (!campaign) {
         return {
-          campaign: plainToInstance(CheckinCampaignDto, campaign, {
-            ignoreDecorators: true,
-          }),
+          campaign: null,
           missions: [],
         }
       }
@@ -262,32 +261,27 @@ export class ApiCampaignService {
       const lastReward =
         await this.rewardHistoryService.getLastRewardByCampaignId(campaign.id)
 
-      let claimable = false
-      if (!lastReward) {
-        claimable = true
-      } else {
-        claimable = this.commonService.checkValidCheckinTime(
-          campaign.resetTime,
-          moment().unix(),
-          lastReward,
-        )
-      }
+      const claimable = this.commonService.checkValidCheckinTime(
+        campaign,
+        moment().unix(),
+        lastReward,
+      )
 
       if (claimable === true) {
         let updatedClaimStatus = false
 
         for (let index = 0; index < missions.length; index++) {
           if (missions[index].completed) {
-            missions[index].status = CheckinMissionStatus.COMPLETED
+            missions[index].status = CHECKIN_MISSION_STATUS.COMPLETED
             continue
           }
 
           if (updatedClaimStatus) {
-            missions[index].status = CheckinMissionStatus.DISABLED
+            missions[index].status = CHECKIN_MISSION_STATUS.DISABLED
             continue
           }
 
-          missions[index].status = CheckinMissionStatus.CLAIMABLE
+          missions[index].status = CHECKIN_MISSION_STATUS.CLAIMABLE
           updatedClaimStatus = true
         }
       }

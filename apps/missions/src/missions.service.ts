@@ -82,36 +82,26 @@ export class MissionsService {
     }
 
     if (campaign.type === CAMPAIGN_TYPE.ORDER) {
-      // todo: check mission
-      // check last reward by campaign
+      // check last reward in ordering campaign
       const lastReward =
         await this.userRewardHistoryService.getLastRewardByCampaignId(
           campaign.id,
         )
 
-      if (lastReward) {
-        const currentUnixTime = data?.msgData.created_at
-        const currentTime = moment.unix(currentUnixTime)
-        const currentHourMinute = currentTime.format('HH:mm')
-        const [resetTimeHour, resetTimeMinute] = campaign.resetTime.split(':')
-        const judgmentTime = moment
-          .unix(currentUnixTime)
-          .hours(parseInt(resetTimeHour))
-          .minutes(parseInt(resetTimeMinute))
+      const claimable = this.commonService.checkValidCheckinTime(
+        campaign,
+        moment().unix(),
+        lastReward,
+      )
 
-        if (currentHourMinute <= campaign.resetTime) {
-          judgmentTime.subtract(1, 'day')
-        }
-
-        if (
-          !(
-            currentUnixTime >= judgmentTime.unix() &&
-            lastReward.createdAt < judgmentTime.unix()
-          )
-        ) {
-          // todo: log error here
-          return
-        }
+      if (!claimable) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm006',
+          data,
+          params: { condition_name: 'Claimable time' },
+        })
+        return
       }
     }
 
@@ -148,7 +138,12 @@ export class MissionsService {
         mission.priority,
       )
       if (previousMission.some((item) => item.successCount === 0)) {
-        // todo: log here
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm006',
+          data,
+          params: { condition_name: 'Previous mission' },
+        })
         return
       }
     }
@@ -317,6 +312,7 @@ export class MissionsService {
           userId,
           data,
           referredUserId,
+          campaign,
         )
       }
     } else {
@@ -399,6 +395,8 @@ export class MissionsService {
           referredUser,
           referredUserId,
           data,
+          null,
+          campaign,
         )
       }
     }
@@ -423,6 +421,7 @@ export class MissionsService {
     userId: string,
     data: IEvent,
     referrerUserId = null,
+    campaign: Campaign,
   ) {
     // Lưu số tiền phát ra, sử dụng transaction để tránh việc phát ra nhiều hơn con số limit (khi bị flood request)
     const updated = await this.rewardRuleService.safeIncreaseReleaseValue(
@@ -484,6 +483,8 @@ export class MissionsService {
         deliveryMethod === DELIVERY_METHOD.MANUAL
           ? USER_REWARD_STATUS.NEED_TO_REDEEM
           : USER_REWARD_STATUS.DEFAULT_STATUS,
+      createdAt:
+        campaign.type === CAMPAIGN_TYPE.ORDER ? data.msgData.created_at : null,
     })
     if (!userRewardHistory) {
       this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {

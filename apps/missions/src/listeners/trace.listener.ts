@@ -18,7 +18,8 @@ export class TraceListener {
   ) {}
 
   @OnEvent('write_log')
-  async traceLog(input: IWriteLog) {
+  async traceLog(logData: IWriteLog) {
+    const input = _.cloneDeep(logData)
     const { logLevel, traceCode, params } = input
     let { data, extraData } = input
     data = this.hideInformation(data)
@@ -79,8 +80,7 @@ export class TraceListener {
     }
   }
 
-  hideInformation(dataInput: any) {
-    const data = _.clone(dataInput)
+  hideInformation(data: any) {
     if (data && data.msgData) {
       // Email
       if (data.msgData.email) {

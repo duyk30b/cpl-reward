@@ -178,6 +178,10 @@ export const GetCheckinCampaignResponse = {
             type: 'number',
             example: 1,
           },
+          reset_time: {
+            type: 'string',
+            example: '40:20',
+          },
         },
       },
       missions: {

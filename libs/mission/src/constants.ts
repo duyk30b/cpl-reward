@@ -1427,6 +1427,11 @@ export const INFO_EVENTS = [
         type: 'number',
         description: 'Checkin time',
       },
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User id',
+      },
     ],
   },
 ]

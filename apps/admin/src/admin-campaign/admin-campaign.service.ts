@@ -151,7 +151,7 @@ export class AdminCampaignService {
     })
 
     if (result.campaign.type === CAMPAIGN_TYPE.ORDER) {
-      this.missionService.updateMissionPeriod(result.campaign)
+      this.missionService.updateMissionCheckin(result.campaign)
     }
 
     return result

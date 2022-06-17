@@ -1,6 +1,6 @@
 import { GRANT_TARGET_USER, WALLET } from '@lib/mission'
-import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose, Transform } from 'class-transformer'
+import * as moment from 'moment'
 import { TransformWalletMethod } from '../../api-mission/constant/mission'
 
 export enum CHECKIN_MISSION_STATUS {
@@ -53,6 +53,17 @@ export class CheckinCampaignDto {
   status: number
 
   @Expose({ name: 'reset_time' })
+  @Transform(
+    ({ value }) => {
+      if (!value) {
+        return null
+      }
+
+      const [hours, minutes] = value.split(':')
+      return moment().utc().hours(hours).minutes(minutes).seconds(0).unix()
+    },
+    { toPlainOnly: true },
+  )
   resetTime: string
 }
 

@@ -246,13 +246,17 @@ export class MissionService {
       .execute()
   }
 
-  async getPreviousOrderMission(campaignId: number, priority: number) {
+  async getPreviousOrderMission(
+    campaignId: number,
+    priority: number,
+    userId: string,
+  ) {
     const missions = await this.missionRepository
       .createQueryBuilder('mission')
       .leftJoin(
         'mission_user',
         'mission_user',
-        'mission.id = mission_user.mission_id',
+        `mission.id = mission_user.mission_id AND mission_user.user_id = ${userId}`,
       )
       .select('mission.*')
       .addSelect('SUM(success_count) as success_number')
@@ -266,7 +270,8 @@ export class MissionService {
         active: MISSION_IS_ACTIVE.ACTIVE,
       })
       .andWhere('priority > :priority', { priority })
-      .getMany()
+      .groupBy('mission.id')
+      .getRawMany()
 
     return plainToInstance(MissionWithSuccessCount, missions)
   }

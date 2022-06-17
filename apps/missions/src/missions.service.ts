@@ -86,6 +86,7 @@ export class MissionsService {
       const lastReward =
         await this.userRewardHistoryService.getLastRewardByCampaignId(
           campaign.id,
+          data.msgData.user_id,
         )
 
       const claimable = this.commonService.checkValidCheckinTime(
@@ -136,8 +137,10 @@ export class MissionsService {
       const previousMission = await this.missionService.getPreviousOrderMission(
         campaign.id,
         mission.priority,
+        data.msgData.user_id,
       )
-      if (previousMission.some((item) => item.successCount === 0)) {
+
+      if (previousMission.some((item) => !item.successNumber)) {
         this.eventEmitter.emit(this.eventEmit, {
           logLevel: 'warn',
           traceCode: 'm006',

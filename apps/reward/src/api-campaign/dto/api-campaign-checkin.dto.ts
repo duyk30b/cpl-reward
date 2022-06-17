@@ -60,7 +60,17 @@ export class CheckinCampaignDto {
       }
 
       const [hours, minutes] = value.split(':')
-      return moment().utc().hours(hours).minutes(minutes).seconds(0).unix()
+      const resetTimestamp = moment()
+        .utc()
+        .hours(hours)
+        .minutes(minutes)
+        .seconds(0)
+
+      if (moment().format('HH:mm') >= value) {
+        resetTimestamp.add(1, 'd')
+      }
+
+      return resetTimestamp.unix()
     },
     { toPlainOnly: true },
   )

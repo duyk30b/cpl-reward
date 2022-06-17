@@ -180,7 +180,10 @@ export class ApiCampaignService {
       }
 
       const lastReward =
-        await this.rewardHistoryService.getLastRewardByCampaignId(campaign.id)
+        await this.rewardHistoryService.getLastRewardByCampaignId(
+          campaign.id,
+          userId,
+        )
 
       const claimable = this.commonService.checkValidCheckinTime(
         campaign,
@@ -259,7 +262,10 @@ export class ApiCampaignService {
       )
 
       const lastReward =
-        await this.rewardHistoryService.getLastRewardByCampaignId(campaign.id)
+        await this.rewardHistoryService.getLastRewardByCampaignId(
+          campaign.id,
+          userId,
+        )
 
       const claimable = this.commonService.checkValidCheckinTime(
         campaign,

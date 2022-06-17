@@ -164,6 +164,6 @@ export class Mission extends MyBaseEntity {
 }
 
 export class MissionWithSuccessCount extends Mission {
-  @Expose({ name: 'success_count' })
-  successCount: number
+  @Expose({ name: 'success_number' })
+  successNumber: number
 }

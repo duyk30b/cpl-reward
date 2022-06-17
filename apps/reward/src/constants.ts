@@ -179,8 +179,8 @@ export const GetCheckinCampaignResponse = {
             example: 1,
           },
           reset_time: {
-            type: 'string',
-            example: '40:20',
+            type: 'number',
+            example: 1679541669,
           },
         },
       },

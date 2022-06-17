@@ -288,8 +288,7 @@ export class MissionService {
       'mission.guideLinkJa AS guideLinkJa',
       'mission.grantTarget AS grantTarget',
       'mission.campaignId AS campaignId',
-      'mission.status AS status',
-      'IF (success_count >= 0, true, false) AS completed',
+      'IF (success_count > 0, true, false) AS completed',
     ])
     qb.leftJoin(
       'mission_user',

@@ -25,6 +25,7 @@ import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService } from '@lib/common'
+import { classToPlain, instanceToPlain } from 'class-transformer'
 
 @Injectable()
 export class AdminMissionService {
@@ -111,7 +112,7 @@ export class AdminMissionService {
     })
   }
 
-  private updateTypeInUser(userConditions: UserConditionDto[]) {
+  private updateTypeInUser(userConditions: UserConditionDto[] = []) {
     return userConditions.map((condition) => {
       const property = USER_CONDITION_TYPES[condition.property]
       condition.type =
@@ -157,6 +158,7 @@ export class AdminMissionService {
     if (campaign.type === CAMPAIGN_TYPE.ORDER) {
       create.closingDate = campaign.endDate
       create.openingDate = campaign.startDate
+      create.displayConditions = []
     }
 
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
@@ -194,6 +196,7 @@ export class AdminMissionService {
     if (campaign.type === CAMPAIGN_TYPE.ORDER) {
       update.closingDate = campaign.endDate
       update.openingDate = campaign.startDate
+      update.displayConditions = []
     }
 
     update.grantTarget = this.updateTypeInTarget(update.grantTarget)

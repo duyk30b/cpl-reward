@@ -266,24 +266,23 @@ export class ApiCampaignService {
         moment().unix(),
         lastReward,
       )
+      let updatedClaimStatus = false
 
-      if (claimable === true) {
-        let updatedClaimStatus = false
-
-        for (let index = 0; index < missions.length; index++) {
-          if (missions[index].completed) {
-            missions[index].status = CHECKIN_MISSION_STATUS.COMPLETED
-            continue
-          }
-
-          if (updatedClaimStatus) {
-            missions[index].status = CHECKIN_MISSION_STATUS.DISABLED
-            continue
-          }
-
-          missions[index].status = CHECKIN_MISSION_STATUS.CLAIMABLE
-          updatedClaimStatus = true
+      for (let index = 0; index < missions.length; index++) {
+        if (missions[index].completed) {
+          missions[index].status = CHECKIN_MISSION_STATUS.COMPLETED
+          continue
         }
+
+        if (!updatedClaimStatus) {
+          missions[index].status = claimable
+            ? CHECKIN_MISSION_STATUS.CLAIMABLE
+            : CHECKIN_MISSION_STATUS.DISABLED
+          updatedClaimStatus = true
+          continue
+        }
+
+        missions[index].status = CHECKIN_MISSION_STATUS.DISABLED
       }
 
       return {

@@ -27,6 +27,7 @@ import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decor
 import {
   GetCampaignByIdResponse,
   GetCheckinCampaignResponse,
+  IgnoreCheckinCampaignResponse,
   NotFoundResponse,
   PostCheckinCampaignResponse,
   UnauthorizedResponse,
@@ -89,6 +90,25 @@ export class ApiCampaignController {
       mission,
     }
   }
+
+  @Post('/checkin-ignore')
+  @ApiOperation({
+    summary: 'Ignore display checkin campaign popup',
+  })
+  @ApiNotFoundResponse(NotFoundResponse)
+  @ApiUnauthorizedResponse(UnauthorizedResponse)
+  @ApiOkResponse(IgnoreCheckinCampaignResponse)
+  @ApiBearerAuth('access-token')
+  async ignoreCheckinCampaignDisplay(@Req() request: IRequestWithUserId) {
+    const result = await this.apiCampaignService.ignoreCheckinCampaignDisplay(
+      request.userId,
+    )
+
+    return {
+      result,
+    }
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get campaign by ID',

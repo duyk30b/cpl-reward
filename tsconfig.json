@@ -141,6 +141,12 @@
       ],
       "@lib/queue/*": [
         "libs/queue/src/*"
+      ],
+      "@libs/user-checkin-log": [
+        "libs/user-checkin-log/src"
+      ],
+      "@libs/user-checkin-log/*": [
+        "libs/user-checkin-log/src/*"
       ]
     }
   }

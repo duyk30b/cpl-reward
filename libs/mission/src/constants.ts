@@ -446,7 +446,7 @@ export const INFO_EVENTS = [
     eventName: EVENTS.AUTH_USER_KYC_AUTO_KYC_FINISHED,
     properties: [
       {
-        key: 'id',
+        key: 'user_id',
         type: 'string',
         original: 'number',
         display: 'number',

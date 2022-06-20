@@ -182,6 +182,10 @@ export const GetCheckinCampaignResponse = {
             type: 'number',
             example: 1679541669,
           },
+          should_show_popup: {
+            type: 'number',
+            example: 1679541669,
+          },
         },
       },
       missions: {
@@ -337,6 +341,17 @@ export const PostCheckinCampaignResponse = {
             example: '1',
           },
         },
+      },
+    },
+  },
+}
+
+export const IgnoreCheckinCampaignResponse = {
+  schema: {
+    properties: {
+      success: {
+        type: 'boolean',
+        example: true,
       },
     },
   },

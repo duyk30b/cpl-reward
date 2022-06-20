@@ -130,7 +130,8 @@
       "^@lib/redis(|/.*)$": "<rootDir>/libs/redis/src/$1",
       "^@lib/international-price(|/.*)$": "<rootDir>/libs/international-price/src/$1",
       "^@lib/id-generator(|/.*)$": "<rootDir>/libs/id-generator/src/$1",
-      "^@lib/queue(|/.*)$": "<rootDir>/libs/queue/src/$1"
+      "^@lib/queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
+      "^@libs/user-checkin-log(|/.*)$": "<rootDir>/libs/user-checkin-log/src/$1"
     }
   }
 }

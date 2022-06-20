@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { plainToInstance } from 'class-transformer'
 import { Repository } from 'typeorm'
 import { FilterUserCheckinLogDto } from './dto/filter-user-checkint-log.dto'
 import { InsertUserCheckinLogDto } from './dto/insert-user-checkint-log.dto'
@@ -13,11 +14,15 @@ export class UserCheckinLogService {
   ) {}
 
   async upsert(inputLog: InsertUserCheckinLogDto) {
+    const inputLogObject = plainToInstance(UserCheckinLog, inputLog, {
+      ignoreDecorators: true,
+    })
+
     return await this.userCheckinLogRepository
       .createQueryBuilder()
       .insert()
       .into(UserCheckinLog)
-      .values(inputLog)
+      .values(inputLogObject)
       .orUpdate(['last_ignore_display', 'last_checkin'], 'UNIQUE_USER_CAMPAIGN')
       .execute()
   }

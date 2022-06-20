@@ -1,10 +1,11 @@
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Expose } from 'class-transformer'
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({
   name: 'user_checkin_logs',
 })
-export class UserCheckinLog extends BaseEntity {
+export class UserCheckinLog extends MyBaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number

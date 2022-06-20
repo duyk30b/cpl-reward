@@ -197,11 +197,35 @@ export class ApiCampaignService {
         return null
       }
 
+      const checkinLog = await this.userCheckinLogService.findOneByUserCampaign(
+        {
+          userId: +userId,
+          campaignId: campaign.id,
+        },
+      )
+
+      if (checkinLog && checkinLog.lastCheckin) {
+        const throttleTime = this.configService.get(
+          'campaign.throttle_checkin_time',
+        )
+
+        if (currentUnix - checkinLog.lastCheckin <= throttleTime) {
+          return null
+        }
+      }
+
       const topicName = this.configService.get('kafka.reward_user_check_in')
 
       await this.kafkaService.sendMessage(topicName, {
         user_id: userId,
-        created_at: Math.floor(Date.now() / 1000),
+        created_at: currentUnix,
+      })
+
+      await this.userCheckinLogService.upsert({
+        userId: +userId,
+        campaignId: campaign.id,
+        lastIgnoreDisplay: currentUnix,
+        lastCheckin: currentUnix,
       })
 
       return plainToInstance(CheckinMissionDto, existedClaimMission, {
@@ -283,15 +307,6 @@ export class ApiCampaignService {
         getLastReward,
       ])
 
-      if (checkinLog) {
-        if (
-          checkinLog.lastIgnoreDisplay >=
-          checkinCampaign.resetDisplayPreviousTime
-        ) {
-          checkinCampaign.shouldShowPopup = false
-        }
-      }
-
       const claimable = this.commonService.checkValidCheckinTime(
         campaign,
         moment().unix(),
@@ -314,6 +329,23 @@ export class ApiCampaignService {
         }
 
         missions[index].status = CHECKIN_MISSION_STATUS.DISABLED
+      }
+
+      if (checkinLog) {
+        if (
+          checkinLog.lastIgnoreDisplay >=
+          checkinCampaign.resetDisplayPreviousTime
+        ) {
+          checkinCampaign.shouldShowPopup = false
+        }
+      }
+
+      if (
+        !missions.some(
+          (mission) => mission.status === CHECKIN_MISSION_STATUS.CLAIMABLE,
+        )
+      ) {
+        checkinCampaign.shouldShowPopup = false
       }
 
       return {

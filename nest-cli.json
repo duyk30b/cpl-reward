@@ -238,6 +238,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/queue/tsconfig.lib.json"
       }
+    },
+    "user-checkin-log": {
+      "type": "library",
+      "root": "libs/user-checkin-log",
+      "entryFile": "index",
+      "sourceRoot": "libs/user-checkin-log/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/user-checkin-log/tsconfig.lib.json"
+      }
     }
   }
 }

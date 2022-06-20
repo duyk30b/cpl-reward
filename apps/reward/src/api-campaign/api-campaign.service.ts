@@ -26,6 +26,7 @@ import {
 } from './dto/api-campaign-checkin.dto'
 import { UserRewardHistoryService } from '@lib/user-reward-history'
 import * as moment from 'moment'
+import { UserCheckinLogService } from '@libs/user-checkin-log'
 
 @Injectable()
 export class ApiCampaignService {
@@ -38,6 +39,7 @@ export class ApiCampaignService {
     private readonly missionService: MissionService,
     private readonly rewardHistoryService: UserRewardHistoryService,
     private readonly commonService: CommonService,
+    private readonly userCheckinLogService: UserCheckinLogService,
   ) {}
 
   async findPublicCampaigns(
@@ -256,16 +258,39 @@ export class ApiCampaignService {
         }
       }
 
-      const missions = await this.missionService.getListCheckinMission(
+      const checkinCampaign = plainToInstance(CheckinCampaignDto, campaign, {
+        ignoreDecorators: true,
+      })
+
+      const getMissions = this.missionService.getListCheckinMission(
         userId,
-        campaign.id,
+        checkinCampaign.id,
       )
 
-      const lastReward =
-        await this.rewardHistoryService.getLastRewardByCampaignId(
-          campaign.id,
-          userId,
-        )
+      const getCheckinLog = this.userCheckinLogService.findOneByUserCampaign({
+        userId: +userId,
+        campaignId: checkinCampaign.id,
+      })
+
+      const getLastReward = this.rewardHistoryService.getLastRewardByCampaignId(
+        checkinCampaign.id,
+        userId,
+      )
+
+      const [missions, checkinLog, lastReward] = await Promise.all([
+        getMissions,
+        getCheckinLog,
+        getLastReward,
+      ])
+
+      if (checkinLog) {
+        if (
+          checkinLog.lastIgnoreDisplay >=
+          checkinCampaign.resetDisplayPreviousTime
+        ) {
+          checkinCampaign.shouldShowPopup = false
+        }
+      }
 
       const claimable = this.commonService.checkValidCheckinTime(
         campaign,
@@ -292,18 +317,44 @@ export class ApiCampaignService {
       }
 
       return {
-        campaign: plainToInstance(CheckinCampaignDto, campaign, {
-          ignoreDecorators: true,
-        }),
+        campaign: checkinCampaign,
         missions: plainToInstance(CheckinMissionDto, missions, {
           ignoreDecorators: true,
         }),
       }
     } catch (error) {
+      this.logger.error(error)
       return {
         campaign: null,
         missions: [],
       }
+    }
+  }
+
+  async ignoreCheckinCampaignDisplay(userId: string) {
+    try {
+      const currentUnix = moment().unix()
+      const campaign = await this.campaignService.findOne({
+        type: CAMPAIGN_TYPE.ORDER,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        status: CAMPAIGN_STATUS.RUNNING,
+        startDate: LessThanOrEqual(currentUnix),
+      })
+
+      if (!campaign) {
+        return false
+      }
+
+      await this.userCheckinLogService.upsert({
+        userId: +userId,
+        campaignId: campaign.id,
+        lastIgnoreDisplay: currentUnix,
+      })
+
+      return true
+    } catch (error) {
+      this.logger.error(error)
+      return false
     }
   }
 }

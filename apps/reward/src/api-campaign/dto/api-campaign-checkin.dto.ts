@@ -31,6 +31,12 @@ export class CheckinCampaignDto {
   @Expose({ name: 'end_date' })
   endDate: number
 
+  @Expose({ name: 'created_at' })
+  createdAt: number
+
+  @Expose({ name: 'updated_at' })
+  updatedAt: number
+
   @Expose({ name: 'notification_link' })
   notificationLink: string
 
@@ -75,6 +81,28 @@ export class CheckinCampaignDto {
     { toPlainOnly: true },
   )
   resetTime: string
+
+  @Expose({ name: 'should_show_popup' })
+  shouldShowPopup = true
+
+  get resetDisplayPreviousTime() {
+    if (!this.resetTime) {
+      return 0
+    }
+
+    const [hours, minutes] = this.resetTime.split(':')
+    const resetTimestamp = moment()
+      .utc()
+      .hours(+hours)
+      .minutes(+minutes)
+      .seconds(0)
+
+    if (moment().format('HH:mm') < this.resetTime) {
+      resetTimestamp.subtract(1, 'd')
+    }
+
+    return resetTimestamp.unix()
+  }
 }
 
 export class CheckinMissionDto {

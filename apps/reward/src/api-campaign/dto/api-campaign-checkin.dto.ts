@@ -147,8 +147,8 @@ export class CheckinMissionDto {
   @Expose({ name: 'is_active' })
   isActive: number
 
-  @Expose()
-  status: number
+  @Expose({ name: 'claim_status' })
+  claimStatus: number
 
   @Exclude()
   @Expose({ name: 'display_conditions' })
@@ -163,6 +163,9 @@ export class CheckinMissionDto {
   @Exclude()
   @Expose()
   grantTarget: string
+
+  @Expose()
+  status: number
 
   // export from reward rule
   @Expose()

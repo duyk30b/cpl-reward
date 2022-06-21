@@ -249,6 +249,10 @@ export const GetCheckinCampaignResponse = {
               type: 'number',
               example: '1',
             },
+            claim_status: {
+              type: 'number',
+              example: '1',
+            },
           },
         },
       },
@@ -337,6 +341,10 @@ export const PostCheckinCampaignResponse = {
             example: '12',
           },
           wallet: {
+            type: 'number',
+            example: '1',
+          },
+          claim_status: {
             type: 'number',
             example: '1',
           },

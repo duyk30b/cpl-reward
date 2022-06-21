@@ -17,7 +17,7 @@ import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { CommonService } from '@lib/common'
 import { KafkaService } from '@lib/kafka/kafka.service'
 import { ConfigService } from '@nestjs/config'
-import { MissionService } from '@lib/mission'
+import { MissionService, MISSION_STATUS } from '@lib/mission'
 import { plainToInstance } from 'class-transformer'
 import {
   CheckinCampaignDto,
@@ -181,6 +181,10 @@ export class ApiCampaignService {
         return null
       }
 
+      if (existedClaimMission.status === MISSION_STATUS.OUT_OF_BUDGET) {
+        return null
+      }
+
       const lastReward =
         await this.rewardHistoryService.getLastRewardByCampaignId(
           campaign.id,
@@ -227,6 +231,8 @@ export class ApiCampaignService {
         lastIgnoreDisplay: currentUnix,
         lastCheckin: currentUnix,
       })
+
+      existedClaimMission.claimStatus = CHECKIN_MISSION_STATUS.COMPLETED
 
       return plainToInstance(CheckinMissionDto, existedClaimMission, {
         ignoreDecorators: true,
@@ -316,19 +322,19 @@ export class ApiCampaignService {
 
       for (let index = 0; index < missions.length; index++) {
         if (missions[index].completed) {
-          missions[index].status = CHECKIN_MISSION_STATUS.COMPLETED
+          missions[index].claimStatus = CHECKIN_MISSION_STATUS.COMPLETED
           continue
         }
 
         if (!updatedClaimStatus) {
-          missions[index].status = claimable
+          missions[index].claimStatus = claimable
             ? CHECKIN_MISSION_STATUS.CLAIMABLE
             : CHECKIN_MISSION_STATUS.DISABLED
           updatedClaimStatus = true
           continue
         }
 
-        missions[index].status = CHECKIN_MISSION_STATUS.DISABLED
+        missions[index].claimStatus = CHECKIN_MISSION_STATUS.DISABLED
       }
 
       if (checkinLog) {
@@ -340,11 +346,17 @@ export class ApiCampaignService {
         }
       }
 
-      if (
-        !missions.some(
-          (mission) => mission.status === CHECKIN_MISSION_STATUS.CLAIMABLE,
-        )
-      ) {
+      const notExistClaimableMission = !missions.some(
+        (mission) => mission.claimStatus === CHECKIN_MISSION_STATUS.CLAIMABLE,
+      )
+
+      const existOutOfBudgetMission = missions.some(
+        (mission) =>
+          mission.active === MISSION_STATUS.OUT_OF_BUDGET &&
+          mission.claimStatus === CHECKIN_MISSION_STATUS.CLAIMABLE,
+      )
+
+      if (notExistClaimableMission || existOutOfBudgetMission) {
         checkinCampaign.shouldShowPopup = false
       }
 

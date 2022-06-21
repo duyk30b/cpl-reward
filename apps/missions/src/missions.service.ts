@@ -19,7 +19,7 @@ import {
   MissionUserLogStatus,
 } from '@lib/common'
 import { Injectable } from '@nestjs/common'
-import { CAMPAIGN_STATUS, CampaignService } from '@lib/campaign'
+import { CAMPAIGN_STATUS, CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
 import { MissionEventService } from '@lib/mission-event'
 import { MissionUserService } from '@lib/mission-user'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
@@ -45,6 +45,7 @@ import {
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { User } from '@lib/external-user/user.interface'
 import { QueueService } from '@lib/queue/queue.service'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Injectable()
 export class MissionsService {
@@ -80,9 +81,35 @@ export class MissionsService {
       return
     }
 
+    if (campaign.type === CAMPAIGN_TYPE.ORDER) {
+      // check last reward in ordering campaign
+      const lastReward =
+        await this.userRewardHistoryService.getLastRewardByCampaignId(
+          campaign.id,
+          data.msgData.user_id,
+        )
+
+      const claimable = this.commonService.checkValidCheckinTime(
+        campaign,
+        moment().unix(),
+        lastReward,
+      )
+
+      if (!claimable) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm006',
+          data,
+          params: { condition_name: 'Claimable time' },
+        })
+        return
+      }
+    }
+
     // Kiểm tra tính khả dụng của mission
     const { mission, rewardRules } = await this.syncMissionStatus(
       data.missionId,
+      campaign,
     )
     if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -103,6 +130,25 @@ export class MissionsService {
         extraData: mission,
       })
       return
+    }
+
+    if (campaign.type === CAMPAIGN_TYPE.ORDER) {
+      // check next previous mission passed or not
+      const previousMission = await this.missionService.getPreviousOrderMission(
+        campaign.id,
+        mission.priority,
+        data.msgData.user_id,
+      )
+
+      if (previousMission.some((item) => !item.successNumber)) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'warn',
+          traceCode: 'm006',
+          data,
+          params: { condition_name: 'Previous mission' },
+        })
+        return
+      }
     }
 
     // Kiểm tra điều kiện Judgment của mission xem user có thỏa mãn ko
@@ -269,6 +315,7 @@ export class MissionsService {
           userId,
           data,
           referredUserId,
+          campaign,
         )
       }
     } else {
@@ -351,6 +398,8 @@ export class MissionsService {
           referredUser,
           referredUserId,
           data,
+          null,
+          campaign,
         )
       }
     }
@@ -366,7 +415,7 @@ export class MissionsService {
     // }
 
     // Update lại status của reward một lần nữa
-    await this.syncMissionStatus(mission.id)
+    await this.syncMissionStatus(mission.id, campaign)
   }
 
   async commonFlowReward(
@@ -375,6 +424,7 @@ export class MissionsService {
     userId: string,
     data: IEvent,
     referrerUserId = null,
+    campaign: Campaign,
   ) {
     // Lưu số tiền phát ra, sử dụng transaction để tránh việc phát ra nhiều hơn con số limit (khi bị flood request)
     const updated = await this.rewardRuleService.safeIncreaseReleaseValue(
@@ -436,6 +486,8 @@ export class MissionsService {
         deliveryMethod === DELIVERY_METHOD.MANUAL
           ? USER_REWARD_STATUS.NEED_TO_REDEEM
           : USER_REWARD_STATUS.DEFAULT_STATUS,
+      createdAt:
+        campaign.type === CAMPAIGN_TYPE.ORDER ? data.msgData.created_at : null,
     })
     if (!userRewardHistory) {
       this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
@@ -862,6 +914,7 @@ export class MissionsService {
   // TODO: Logic tính mission status trùng với hàm calcMissionsStatus, nên gộp làm 1
   async syncMissionStatus(
     missionId: number,
+    campaign: Campaign,
   ): Promise<{ mission: Mission; rewardRules: RewardRule[] }> {
     let rewardRules = []
     let mission = await this.getMissionById(missionId)
@@ -897,13 +950,20 @@ export class MissionsService {
       // })
     } else {
       const now = CommonService.currentUnixTime()
-      if (now < mission.openingDate) {
+      let openingDate = mission.openingDate
+      let closingDate = mission.closingDate
+      if (campaign.type === CAMPAIGN_TYPE.ORDER) {
+        openingDate = campaign.startDate
+        closingDate = campaign.endDate
+      }
+
+      if (now < openingDate) {
         missionStatus = MISSION_STATUS.COMING_SOON
       }
-      if (mission.openingDate <= now && mission.closingDate >= now) {
+      if (openingDate <= now && closingDate >= now) {
         missionStatus = MISSION_STATUS.RUNNING
       }
-      if (now > mission.closingDate) {
+      if (now > closingDate) {
         missionStatus = MISSION_STATUS.ENDED
       }
     }

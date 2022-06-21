@@ -41,3 +41,8 @@ export enum MissionUserLogStatus {
   RETRYING = 3,
   RESOLVED_BY_RETRY = 4,
 }
+
+export enum ErrorMessage {
+  INVALID_CAMPAIGN_TIME = 'CAMPAIGN.UPDATE.INVALID_TIME',
+  INVALID_CAMPAIGN_TYPE = 'CAMPAIGN.UPDATE.INVALID_TYPE',
+}

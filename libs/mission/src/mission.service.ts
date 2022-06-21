@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { Mission } from '@lib/mission/entities/mission.entity'
+import {
+  Mission,
+  MissionWithSuccessCount,
+} from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import { paginate, paginateRaw, Pagination } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
@@ -21,6 +24,9 @@ import { IUserCondition } from '../../../apps/missions/src/interfaces/missions.i
 import { CommonService } from '@lib/common'
 import { User } from '@lib/external-user/user.interface'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { GRANT_TARGET_USER } from '.'
+import { json } from 'stream/consumers'
 
 @Injectable()
 export class MissionService {
@@ -223,5 +229,90 @@ export class MissionService {
     })
     qb.andWhereInIds(ids)
     return qb.getRawMany()
+  }
+
+  async updateMissionCheckin(campaign: Campaign) {
+    return await this.missionRepository
+      .createQueryBuilder()
+      .update(Mission)
+      .set({
+        openingDate: campaign.startDate,
+        closingDate: campaign.endDate,
+        displayConditions: null,
+      })
+      .where({
+        campaignId: campaign.id,
+      })
+      .execute()
+  }
+
+  async getPreviousOrderMission(
+    campaignId: number,
+    priority: number,
+    userId: string,
+  ) {
+    const missions = await this.missionRepository
+      .createQueryBuilder('mission')
+      .leftJoin(
+        'mission_user',
+        'mission_user',
+        `mission.id = mission_user.mission_id AND mission_user.user_id = ${userId}`,
+      )
+      .select('mission.*')
+      .addSelect('SUM(success_count) as success_number')
+      .where({
+        campaignId,
+      })
+      .andWhere({
+        status: In([MISSION_STATUS.OUT_OF_BUDGET, MISSION_STATUS.RUNNING]),
+      })
+      .andWhere('mission.is_active = :active', {
+        active: MISSION_IS_ACTIVE.ACTIVE,
+      })
+      .andWhere('priority > :priority', { priority })
+      .groupBy('mission.id')
+      .getRawMany()
+
+    return plainToInstance(MissionWithSuccessCount, missions)
+  }
+
+  async getListCheckinMission(userId: string, campaignId: number) {
+    const qb = this.missionRepository.createQueryBuilder('mission')
+    qb.select([
+      'mission_user.success_count AS successCount',
+      'mission.title AS title',
+      'mission.titleJa AS titleJa',
+      'mission.id AS id',
+      'mission.priority AS priority',
+      'mission.isActive as isActive',
+      'mission.detailExplain AS detailExplain',
+      'mission.detailExplainJa AS detailExplainJa',
+      'mission.openingDate AS openingDate',
+      'mission.closingDate AS closingDate',
+      'mission.guideLink AS guideLink',
+      'mission.guideLinkJa AS guideLinkJa',
+      'mission.grantTarget AS grantTarget',
+      'mission.campaignId AS campaignId',
+      'IF (success_count > 0, true, false) AS completed',
+    ])
+    qb.leftJoin(
+      'mission_user',
+      'mission_user',
+      'mission_user.mission_id = mission.id AND mission_user.user_id = ' +
+        userId +
+        ' AND mission_user.user_type = "' +
+        GRANT_TARGET_USER.USER +
+        '"',
+    )
+    qb.where({
+      status: In([MISSION_STATUS.OUT_OF_BUDGET, MISSION_STATUS.RUNNING]),
+    })
+    qb.andWhere({ campaignId })
+    qb.andWhere('mission.is_active = :active', {
+      active: MISSION_IS_ACTIVE.ACTIVE,
+    })
+    qb.orderBy('priority', 'DESC')
+
+    return await qb.getRawMany()
   }
 }

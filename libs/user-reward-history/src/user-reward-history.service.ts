@@ -159,4 +159,16 @@ export class UserRewardHistoryService {
       .addSelect('history.id')
       .getMany()
   }
+
+  async getLastRewardByCampaignId(campaignId: number, userId: number | string) {
+    return await this.userRewardHistoryRepository.findOne({
+      where: {
+        campaignId,
+        userId,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    })
+  }
 }

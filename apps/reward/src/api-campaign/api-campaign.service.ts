@@ -1,24 +1,46 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   CAMPAIGN_SEARCH_FIELD_MAP,
   CAMPAIGN_SORT_FIELD_MAP,
   CampaignService,
-  CAMPAIGN_IS_SYSTEM,
+  CAMPAIGN_TYPE,
   CAMPAIGN_IS_ACTIVE,
   CAMPAIGN_STATUS,
 } from '@lib/campaign'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
-import { Brackets } from 'typeorm'
+import { Brackets, LessThanOrEqual } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { CommonService } from '@lib/common'
+import { KafkaService } from '@lib/kafka/kafka.service'
+import { ConfigService } from '@nestjs/config'
+import { MissionService } from '@lib/mission'
+import { plainToInstance } from 'class-transformer'
+import {
+  CheckinCampaignDto,
+  CHECKIN_MISSION_STATUS,
+  CheckinMissionDto,
+} from './dto/api-campaign-checkin.dto'
+import { UserRewardHistoryService } from '@lib/user-reward-history'
+import * as moment from 'moment'
+import { UserCheckinLogService } from '@libs/user-checkin-log'
 
 @Injectable()
 export class ApiCampaignService {
-  constructor(private readonly campaignService: CampaignService) {}
+  private readonly logger = new Logger(ApiCampaignService.name)
+
+  constructor(
+    private readonly campaignService: CampaignService,
+    private readonly kafkaService: KafkaService,
+    private readonly configService: ConfigService,
+    private readonly missionService: MissionService,
+    private readonly rewardHistoryService: UserRewardHistoryService,
+    private readonly commonService: CommonService,
+    private readonly userCheckinLogService: UserCheckinLogService,
+  ) {}
 
   async findPublicCampaigns(
     apiCampaignFilterDto: ApiCampaignFilterDto,
@@ -85,8 +107,8 @@ export class ApiCampaignService {
       'campaign.campaignImageJa',
       'campaign.status',
     ])
-    queryBuilder.where('campaign.isSystem = :is_system ', {
-      is_system: CAMPAIGN_IS_SYSTEM.FALSE,
+    queryBuilder.where('campaign.type = :type ', {
+      type: CAMPAIGN_TYPE.DEFAULT,
     })
     queryBuilder.andWhere('campaign.isActive = :is_active ', {
       is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
@@ -134,12 +156,93 @@ export class ApiCampaignService {
     return str.replace(/%/g, '\\%').replace(/_/g, '\\_')
   }
 
+  async sendCheckInEvent(userId: string) {
+    try {
+      const currentUnix = moment().unix()
+
+      const campaign = await this.campaignService.findOne({
+        type: CAMPAIGN_TYPE.ORDER,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        status: CAMPAIGN_STATUS.RUNNING,
+        startDate: LessThanOrEqual(currentUnix),
+      })
+
+      if (!campaign) {
+        return null
+      }
+
+      const missions = await this.missionService.getListCheckinMission(
+        userId,
+        campaign.id,
+      )
+
+      const existedClaimMission = missions.find((mission) => !mission.completed)
+      if (!existedClaimMission) {
+        return null
+      }
+
+      const lastReward =
+        await this.rewardHistoryService.getLastRewardByCampaignId(
+          campaign.id,
+          userId,
+        )
+
+      const claimable = this.commonService.checkValidCheckinTime(
+        campaign,
+        moment().unix(),
+        lastReward,
+      )
+
+      if (!claimable) {
+        return null
+      }
+
+      const checkinLog = await this.userCheckinLogService.findOneByUserCampaign(
+        {
+          userId: +userId,
+          campaignId: campaign.id,
+        },
+      )
+
+      if (checkinLog && checkinLog.lastCheckin) {
+        const throttleTime = this.configService.get(
+          'campaign.throttle_checkin_time',
+        )
+
+        if (currentUnix - checkinLog.lastCheckin <= throttleTime) {
+          return null
+        }
+      }
+
+      const topicName = this.configService.get('kafka.reward_user_check_in')
+
+      await this.kafkaService.sendMessage(topicName, {
+        user_id: userId,
+        created_at: currentUnix,
+      })
+
+      await this.userCheckinLogService.upsert({
+        userId: +userId,
+        campaignId: campaign.id,
+        lastIgnoreDisplay: currentUnix,
+        lastCheckin: currentUnix,
+      })
+
+      return plainToInstance(CheckinMissionDto, existedClaimMission, {
+        ignoreDecorators: true,
+      })
+    } catch (error) {
+      this.logger.error(error)
+      return null
+    }
+  }
+
   async findOne(id: number) {
     return this.campaignService.findOne(
       {
         id,
         isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
-        isSystem: CAMPAIGN_IS_SYSTEM.FALSE,
+        type: CAMPAIGN_TYPE.DEFAULT,
       },
       {
         select: [
@@ -159,5 +262,131 @@ export class ApiCampaignService {
         ],
       },
     )
+  }
+
+  async getCheckInCampaign(userId: string) {
+    try {
+      const currentUnix = moment().unix()
+
+      const campaign = await this.campaignService.findOne({
+        type: CAMPAIGN_TYPE.ORDER,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        status: CAMPAIGN_STATUS.RUNNING,
+        startDate: LessThanOrEqual(currentUnix),
+      })
+
+      if (!campaign) {
+        return {
+          campaign: null,
+          missions: [],
+        }
+      }
+
+      const checkinCampaign = plainToInstance(CheckinCampaignDto, campaign, {
+        ignoreDecorators: true,
+      })
+
+      const getMissions = this.missionService.getListCheckinMission(
+        userId,
+        checkinCampaign.id,
+      )
+
+      const getCheckinLog = this.userCheckinLogService.findOneByUserCampaign({
+        userId: +userId,
+        campaignId: checkinCampaign.id,
+      })
+
+      const getLastReward = this.rewardHistoryService.getLastRewardByCampaignId(
+        checkinCampaign.id,
+        userId,
+      )
+
+      const [missions, checkinLog, lastReward] = await Promise.all([
+        getMissions,
+        getCheckinLog,
+        getLastReward,
+      ])
+
+      const claimable = this.commonService.checkValidCheckinTime(
+        campaign,
+        moment().unix(),
+        lastReward,
+      )
+      let updatedClaimStatus = false
+
+      for (let index = 0; index < missions.length; index++) {
+        if (missions[index].completed) {
+          missions[index].status = CHECKIN_MISSION_STATUS.COMPLETED
+          continue
+        }
+
+        if (!updatedClaimStatus) {
+          missions[index].status = claimable
+            ? CHECKIN_MISSION_STATUS.CLAIMABLE
+            : CHECKIN_MISSION_STATUS.DISABLED
+          updatedClaimStatus = true
+          continue
+        }
+
+        missions[index].status = CHECKIN_MISSION_STATUS.DISABLED
+      }
+
+      if (checkinLog) {
+        if (
+          checkinLog.lastIgnoreDisplay >=
+          checkinCampaign.resetDisplayPreviousTime
+        ) {
+          checkinCampaign.shouldShowPopup = false
+        }
+      }
+
+      if (
+        !missions.some(
+          (mission) => mission.status === CHECKIN_MISSION_STATUS.CLAIMABLE,
+        )
+      ) {
+        checkinCampaign.shouldShowPopup = false
+      }
+
+      return {
+        campaign: checkinCampaign,
+        missions: plainToInstance(CheckinMissionDto, missions, {
+          ignoreDecorators: true,
+        }),
+      }
+    } catch (error) {
+      this.logger.error(error)
+      return {
+        campaign: null,
+        missions: [],
+      }
+    }
+  }
+
+  async ignoreCheckinCampaignDisplay(userId: string) {
+    try {
+      const currentUnix = moment().unix()
+      const campaign = await this.campaignService.findOne({
+        type: CAMPAIGN_TYPE.ORDER,
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        status: CAMPAIGN_STATUS.RUNNING,
+        startDate: LessThanOrEqual(currentUnix),
+      })
+
+      if (!campaign) {
+        return false
+      }
+
+      await this.userCheckinLogService.upsert({
+        userId: +userId,
+        campaignId: campaign.id,
+        lastIgnoreDisplay: currentUnix,
+      })
+
+      return true
+    } catch (error) {
+      this.logger.error(error)
+      return false
+    }
   }
 }

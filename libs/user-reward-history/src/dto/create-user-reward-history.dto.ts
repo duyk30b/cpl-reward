@@ -33,4 +33,7 @@ export class CreateUserRewardHistoryDto {
 
   @Expose({ name: 'reference_id' })
   referenceId: string
+
+  @Expose({ name: 'created_at' })
+  createdAt: number
 }

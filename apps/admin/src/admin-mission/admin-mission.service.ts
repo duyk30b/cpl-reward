@@ -122,7 +122,6 @@ export class AdminMissionService {
     })
   }
 
-  // TODO: Logic tính mission status trùng với hàm calcAndUpdateMissionStatus, nên gộp làm 1
   private calcMissionsStatus(input: ICreateMission) {
     // checking out_of_budget status
     const onBudget = this.commonService.checkOnBudget(

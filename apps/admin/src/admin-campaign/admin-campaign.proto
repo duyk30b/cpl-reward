@@ -104,6 +104,7 @@ message Result {
   int32 updatedAt = 17;
   repeated RewardRuleResult rewardRules = 18;
   string resetTime = 19;
+  int32 isLock = 20;
 }
 
 message CreateInput {

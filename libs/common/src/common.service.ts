@@ -139,6 +139,8 @@ export class CommonService {
     let lastRewardTime = campaign.startDate
     if (lastReward) {
       lastRewardTime = lastReward.createdAt
+    } else {
+      return checkInTime >= campaign.startDate
     }
 
     const currentTime = moment.unix(checkInTime)

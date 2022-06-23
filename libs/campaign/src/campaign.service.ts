@@ -58,9 +58,15 @@ export class CampaignService {
       ignoreDecorators: true,
     })
 
+    const originalCampaign = await this.findOne({ id: campaignEntity.id })
+    if (originalCampaign.isLock) {
+      campaignEntity.type = originalCampaign.type
+      campaignEntity.resetTime = originalCampaign.resetTime
+    }
+
     const queryBuilder = this.campaignRepository
       .createQueryBuilder('campaign')
-      .update({ ...campaignEntity })
+      .update(campaignEntity)
       .where({ id: campaignEntity.id })
 
     if (
@@ -96,9 +102,17 @@ export class CampaignService {
   }
 
   async updateStatus(criteria: any, status: number) {
-    await this.campaignRepository.update(criteria, {
-      status,
-    })
+    const campaignEntity = plainToInstance(
+      Campaign,
+      {
+        status,
+      },
+      {
+        ignoreDecorators: true,
+      },
+    )
+
+    await this.campaignRepository.update(criteria, campaignEntity)
   }
 
   initQueryBuilder(): SelectQueryBuilder<Campaign> {

@@ -2,8 +2,8 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToMany,
-  JoinColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
@@ -109,4 +109,22 @@ export class Campaign extends MyBaseEntity {
   @Column({ name: 'reset_time' })
   @Expose({ name: 'reset_time' })
   resetTime: string
+
+  @Column({ name: 'is_lock', default: false, onUpdate: 'status === 1' })
+  @Expose({ name: 'is_lock' })
+  isLock: boolean
+
+  @BeforeInsert()
+  insertIsLock() {
+    if (this.status === CAMPAIGN_STATUS.RUNNING) {
+      this.isLock = true
+    }
+  }
+
+  @BeforeUpdate()
+  updateIsLock() {
+    if (this.status === CAMPAIGN_STATUS.RUNNING) {
+      this.isLock = true
+    }
+  }
 }

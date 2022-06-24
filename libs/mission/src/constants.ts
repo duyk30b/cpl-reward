@@ -126,6 +126,11 @@ export const USER_CONDITION_TYPES = {
     original: 'number',
     display: 'number',
   },
+  user_id: {
+    type: 'number',
+    original: 'number',
+    display: 'number',
+  },
 }
 /**
  * DO NOT REMOVE ANY PROPERTY 'TYPE' OR 'ORIGINAL' IN BELOW CONSTANT.

@@ -110,7 +110,7 @@ export class Campaign extends MyBaseEntity {
   @Expose({ name: 'reset_time' })
   resetTime: string
 
-  @Column({ name: 'is_lock', default: false, onUpdate: 'status === 1' })
+  @Column({ name: 'is_lock', default: false })
   @Expose({ name: 'is_lock' })
   isLock: boolean
 

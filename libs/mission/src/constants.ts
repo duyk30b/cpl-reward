@@ -126,7 +126,7 @@ export const USER_CONDITION_TYPES = {
     original: 'number',
     display: 'number',
   },
-  user_id: {
+  id: {
     type: 'number',
     original: 'number',
     display: 'number',

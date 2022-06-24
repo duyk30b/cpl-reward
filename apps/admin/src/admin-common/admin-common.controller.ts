@@ -42,6 +42,7 @@ export class AdminCommonController {
         account_lv: USER_CONDITION_TYPES.account_lv,
         kyc_verify_status: USER_CONDITION_TYPES.kyc_verify_status,
         user_info_status: USER_CONDITION_TYPES.user_info_status,
+        id: USER_CONDITION_TYPES.id,
       },
     })
   }

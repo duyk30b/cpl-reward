@@ -202,9 +202,10 @@ export class MissionsService {
     // }
 
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
-    const checkUserConditions = this.checkUserConditions(
+    const checkUserConditions = this.missionService.checkUserConditions(
       mission.userConditions as unknown as IUserCondition[],
       user,
+      true,
     )
     if (!checkUserConditions) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -669,84 +670,6 @@ export class MissionsService {
           conditionValue: errorCondition.value,
         },
         params: { name: 'Judgment' },
-      })
-    }
-
-    return result
-  }
-
-  /**
-   * @param userConditions
-   * @param user
-   */
-  checkUserConditions(userConditions: IUserCondition[], user: User) {
-    if (userConditions.length === 0) return true
-    let result = true
-    let errorCondition = null
-    for (const idx in userConditions) {
-      const currentCondition = userConditions[idx]
-      currentCondition.property = CommonService.convertSnakeToCamelStr(
-        currentCondition.property,
-      )
-
-      const checkExistUserProperty = user[currentCondition.property]
-      if (checkExistUserProperty === undefined) {
-        // exist condition but data input not exist this property
-        errorCondition = currentCondition
-        result = false
-        break
-      }
-
-      if (
-        currentCondition.type === 'number' &&
-        !CommonService.compareNumberCondition(
-          currentCondition.value,
-          user[currentCondition.property],
-          currentCondition.operator,
-        )
-      ) {
-        // compare number fail
-        errorCondition = currentCondition
-        result = false
-        break
-      }
-
-      if (
-        currentCondition.type === 'string' &&
-        !eval(`'${user[currentCondition.property]}'
-                ${currentCondition.operator}
-                '${currentCondition.value}'`)
-      ) {
-        // compare string fail
-        errorCondition = currentCondition
-        result = false
-        break
-      }
-
-      if (
-        currentCondition.type === 'boolean' &&
-        !eval(`${user[currentCondition.property]}
-                ${currentCondition.operator}
-                ${currentCondition.value}`)
-      ) {
-        // compare boolean and other fail
-        errorCondition = currentCondition
-        result = false
-        break
-      }
-    }
-
-    if (!result && errorCondition !== null) {
-      this.eventEmitter.emit('write_log', {
-        logLevel: 'warn',
-        traceCode: 'm012',
-        extraData: {
-          eventProperty: errorCondition.property,
-          eventValue: user[errorCondition.property],
-          operator: errorCondition.operator,
-          conditionValue: errorCondition.value,
-        },
-        params: { name: 'User' },
       })
     }
 

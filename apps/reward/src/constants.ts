@@ -183,8 +183,8 @@ export const GetCheckinCampaignResponse = {
             example: 1679541669,
           },
           should_show_popup: {
-            type: 'number',
-            example: 1679541669,
+            type: 'boolean',
+            example: true,
           },
         },
       },

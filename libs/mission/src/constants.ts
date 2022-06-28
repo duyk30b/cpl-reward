@@ -130,6 +130,7 @@ export const USER_CONDITION_TYPES = {
     type: 'number',
     original: 'number',
     display: 'number',
+    label: 'User ID',
   },
 }
 /**

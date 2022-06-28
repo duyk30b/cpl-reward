@@ -70,4 +70,5 @@ message UserConditionProperty {
   string type = 1;
   string display = 2;
   string options = 3;
+  string label = 4;
 }

@@ -39,11 +39,4 @@ export class PaginatedMissionDto {
 
   @ApiProperty({ example: 'USDT' })
   currency: string
-
-  // TODO: remove below property
-  @ApiProperty({
-    example: 1,
-    description: `0: NOT_RECEIVE, ` + `1: RECEIVED, `,
-  })
-  status: number
 }

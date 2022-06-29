@@ -26,11 +26,13 @@ import { User } from '@lib/external-user/user.interface'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 import { GRANT_TARGET_USER } from '.'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 @Injectable()
 export class MissionService {
   constructor(
     @InjectRepository(Mission)
     private missionRepository: Repository<Mission>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async updateStatus(criteria: any, status: number) {
@@ -148,15 +150,18 @@ export class MissionService {
     return result
   }
 
-  // TODO: Hàm này bị lặp code so với missions.service của repo mission
   /**
    * @param userConditions
    * @param user
    */
-  checkUserConditions(userConditions: IUserCondition[], user: User) {
+  checkUserConditions(
+    userConditions: IUserCondition[],
+    user: User,
+    shouldLog = false,
+  ) {
     if (userConditions.length === 0) return true
     let result = true
-    // const errorCondition = null
+    let errorCondition = null
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -166,7 +171,7 @@ export class MissionService {
       const checkExistUserProperty = user[currentCondition.property]
       if (checkExistUserProperty === undefined) {
         // exist condition but data input not exist this property
-        // errorCondition = currentCondition
+        errorCondition = currentCondition
         result = false
         break
       }
@@ -180,7 +185,7 @@ export class MissionService {
         )
       ) {
         // compare number fail
-        // errorCondition = currentCondition
+        errorCondition = currentCondition
         result = false
         break
       }
@@ -192,7 +197,7 @@ export class MissionService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
-        // errorCondition = currentCondition
+        errorCondition = currentCondition
         result = false
         break
       }
@@ -203,9 +208,25 @@ export class MissionService {
                 ${currentCondition.operator}
                 ${currentCondition.value}`)
       ) {
+        // compare boolean and other fail
+        errorCondition = currentCondition
         result = false
         break
       }
+    }
+
+    if (!result && errorCondition !== null && shouldLog) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm012',
+        extraData: {
+          eventProperty: errorCondition.property,
+          eventValue: user[errorCondition.property],
+          operator: errorCondition.operator,
+          conditionValue: errorCondition.value,
+        },
+        params: { name: 'User' },
+      })
     }
 
     return result

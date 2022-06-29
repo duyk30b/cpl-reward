@@ -27,6 +27,7 @@ import {
 import { UserRewardHistoryService } from '@lib/user-reward-history'
 import * as moment from 'moment'
 import { UserCheckinLogService } from '@libs/user-checkin-log'
+import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 
 @Injectable()
 export class ApiCampaignService {
@@ -213,7 +214,19 @@ export class ApiCampaignService {
           'campaign.throttle_checkin_time',
         )
 
-        if (currentUnix - checkinLog.lastCheckin <= throttleTime) {
+        const tempRewardHistory = new UserRewardHistory()
+        tempRewardHistory.createdAt = checkinLog.lastCheckin
+
+        const validCheckIn = this.commonService.checkValidCheckinTime(
+          campaign,
+          currentUnix,
+          tempRewardHistory,
+        )
+
+        if (
+          currentUnix - checkinLog.lastCheckin <= throttleTime &&
+          !validCheckIn
+        ) {
           return null
         }
       }

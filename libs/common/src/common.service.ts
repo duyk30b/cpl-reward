@@ -150,8 +150,10 @@ export class CommonService {
       .unix(checkInTime)
       .hours(parseInt(resetTimeHour))
       .minutes(parseInt(resetTimeMinute))
+      .seconds(0)
+      .milliseconds(0)
 
-    if (currentHourMinute <= campaign.resetTime) {
+    if (currentHourMinute < campaign.resetTime) {
       judgmentTime.subtract(1, 'day')
     }
 

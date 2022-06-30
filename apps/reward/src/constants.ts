@@ -1,3 +1,7 @@
+export const ERROR_CODE = {
+  FAILED_TO_CLAIM: 'REWARD.UNCLAIMABLE',
+}
+
 export const AffiliateEarnedShortResponse = {
   schema: {
     properties: {
@@ -269,7 +273,7 @@ export const FailedToCheckinResponse = {
       },
       msg: {
         type: 'string',
-        example: 'FAILED',
+        example: ERROR_CODE.FAILED_TO_CLAIM,
       },
       timestamp: {
         type: 'string',

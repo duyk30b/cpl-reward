@@ -25,6 +25,8 @@ import { PaginatedCampaignDto } from './dto/paginated-campaign.dto'
 import { PaginatedMetaDto } from '../dto/paginated.dto'
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator'
 import {
+  ERROR_CODE,
+  FailedToCheckinResponse,
   GetCampaignByIdResponse,
   GetCheckinCampaignResponse,
   IgnoreCheckinCampaignResponse,
@@ -74,16 +76,20 @@ export class ApiCampaignController {
   @ApiOperation({
     summary: 'Submit event checkin to claim daily checkin reward',
   })
+  @ApiOkResponse(PostCheckinCampaignResponse)
+  @ApiBadRequestResponse(FailedToCheckinResponse)
   @ApiNotFoundResponse(NotFoundResponse)
   @ApiUnauthorizedResponse(UnauthorizedResponse)
-  @ApiOkResponse(PostCheckinCampaignResponse)
   @ApiBearerAuth('access-token')
   async claimCheckInReward(@Req() request: IRequestWithUserId) {
     const mission = await this.apiCampaignService.sendCheckInEvent(
       request.userId,
     )
     if (!mission) {
-      throw new HttpException('FAILED', HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        ERROR_CODE.FAILED_TO_CLAIM,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     return {

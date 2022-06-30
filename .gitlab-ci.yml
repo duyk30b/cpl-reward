@@ -40,6 +40,15 @@ stages:
       -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
       -H "Content-Type: application/json"
 
+.deploy_template_dev:
+  stage: deploy
+  image: curlimages/curl
+  script:
+    - |
+      curl -X POST "$GITOPS_HOOK_URL" \
+      -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GIT_HOOK_URL_TEST\" }" \
+      -H "Content-Type: application/json"
+
 
 build_dev:
   extends: .build_template
@@ -57,6 +66,16 @@ deploy_dev:
     name: dev
   variables:
     VALUES_PATH: /_helm_templates/cpl-customer-reward/values-dev.yaml
+    IMAGE_TAG_KEY: tag
+  only:
+    - dev
+
+deploy_dev_new:
+  extends: .deploy_template_dev
+  environment:
+    name: dev
+  variables:
+    VALUES_PATH: /_helm_templates/customer-reward/values-dev.yaml
     IMAGE_TAG_KEY: tag
   only:
     - dev

@@ -5,6 +5,7 @@ import { IWriteLog } from '../interfaces/missions.interface'
 import { ConfigService } from '@nestjs/config'
 import { CommonService } from '@lib/common'
 import { QueueService } from '@lib/queue'
+import * as _ from 'lodash'
 
 @Injectable()
 export class TraceListener {
@@ -17,7 +18,8 @@ export class TraceListener {
   ) {}
 
   @OnEvent('write_log')
-  async traceLog(input: IWriteLog) {
+  async traceLog(logData: IWriteLog) {
+    const input = _.cloneDeep(logData)
     const { logLevel, traceCode, params } = input
     let { data, extraData } = input
     data = this.hideInformation(data)

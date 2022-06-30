@@ -54,12 +54,14 @@ export class ICampaign {
 
   @Expose()
   priority?: number
-  @Expose({ name: 'is_system' })
-  isSystem?: boolean
+  @Expose({ name: 'type' })
+  type?: number
   @Expose()
   status?: number
   @Expose({ name: 'is_active' })
   isActive?: number
+  @Expose({ name: 'reset_time' })
+  resetTime?: string
 }
 
 export class ICreateCampaign extends ICampaign {

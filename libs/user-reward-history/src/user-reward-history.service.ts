@@ -10,6 +10,7 @@ import { paginate, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { IPaginationOptions } from 'nestjs-typeorm-paginate/dist/interfaces'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
 import { formatPaginate } from '@lib/common/utils'
+import { UserRewardHistoryFilterDto } from './dto/user-reward-history.dto'
 
 @Injectable()
 export class UserRewardHistoryService {
@@ -127,6 +128,47 @@ export class UserRewardHistoryService {
   async findOne(id: number) {
     return await this.userRewardHistoryRepository.findOne({
       where: { id },
+    })
+  }
+
+  async find(filter: UserRewardHistoryFilterDto) {
+    return await this.userRewardHistoryRepository.find({
+      where: filter,
+    })
+  }
+
+  async updateStatus(id: number, status: USER_REWARD_STATUS) {
+    return await this.userRewardHistoryRepository
+      .createQueryBuilder()
+      .update()
+      .set({ status })
+      .where({ id })
+      .andWhere('status != :status', { status })
+      .execute()
+  }
+
+  async getUserRewardHistoryByMissionsId(ids: Array<number>, userId: string) {
+    return await this.userRewardHistoryRepository
+      .createQueryBuilder('history')
+      .where('history.missionId IN (:...mission_ids)', {
+        mission_ids: ids,
+      })
+      .andWhere({ userId })
+      .select('history.status')
+      .addSelect('history.missionId')
+      .addSelect('history.id')
+      .getMany()
+  }
+
+  async getLastRewardByCampaignId(campaignId: number, userId: number | string) {
+    return await this.userRewardHistoryRepository.findOne({
+      where: {
+        campaignId,
+        userId,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
     })
   }
 }

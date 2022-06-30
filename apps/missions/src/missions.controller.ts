@@ -258,4 +258,12 @@ export class MissionsController {
   ) {
     this.emitEvent('HIGH_LOW_CANCEL', messageId, message.value)
   }
+
+  @KafkaTopic('kafka.reward_user_check_in')
+  async rewardUserCheckin(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('REWARD_USER_CHECK_IN', messageId, message.value.data ?? {})
+  }
 }

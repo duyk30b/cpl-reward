@@ -5,6 +5,8 @@ import { IGrantTarget } from './common.interface'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import * as Handlebars from 'handlebars'
 import * as moment from 'moment-timezone'
+import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Injectable()
 export class CommonService {
@@ -111,5 +113,57 @@ export class CommonService {
       }
       return gp2
     })
+  }
+
+  stripNull(object) {
+    if (
+      !object ||
+      typeof object !== 'object' ||
+      Array.isArray(object) ||
+      object instanceof Date
+    ) {
+      return object
+    }
+    Object.entries(object).forEach(([key, value]) => {
+      if (value == null) delete object[key]
+      else object[key] = this.stripNull(value)
+    })
+    return object
+  }
+
+  checkValidCheckinTime(
+    campaign: Campaign,
+    checkInTime: number,
+    lastReward: UserRewardHistory,
+  ) {
+    let lastRewardTime = campaign.startDate
+    if (lastReward) {
+      lastRewardTime = lastReward.createdAt
+    } else {
+      return checkInTime >= campaign.startDate
+    }
+
+    const currentTime = moment.unix(checkInTime)
+    const currentHourMinute = currentTime.format('HH:mm')
+    const [resetTimeHour, resetTimeMinute] = campaign.resetTime.split(':')
+    const judgmentTime = moment
+      .unix(checkInTime)
+      .hours(parseInt(resetTimeHour))
+      .minutes(parseInt(resetTimeMinute))
+      .seconds(0)
+      .milliseconds(0)
+
+    if (currentHourMinute < campaign.resetTime) {
+      judgmentTime.subtract(1, 'day')
+    }
+
+    if (
+      checkInTime >= judgmentTime.unix() &&
+      lastRewardTime < judgmentTime.unix()
+    ) {
+      return true
+    }
+
+    return false
   }
 }

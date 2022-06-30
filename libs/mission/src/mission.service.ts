@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { Mission } from '@lib/mission/entities/mission.entity'
+import {
+  Mission,
+  MissionWithSuccessCount,
+} from '@lib/mission/entities/mission.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import { paginate, paginateRaw, Pagination } from 'nestjs-typeorm-paginate'
 import { CreateMissionDto } from '@lib/mission/dto/create-mission.dto'
 import { plainToInstance } from 'class-transformer'
@@ -21,12 +24,15 @@ import { IUserCondition } from '../../../apps/missions/src/interfaces/missions.i
 import { CommonService } from '@lib/common'
 import { User } from '@lib/external-user/user.interface'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
-
+import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { GRANT_TARGET_USER } from '.'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 @Injectable()
 export class MissionService {
   constructor(
     @InjectRepository(Mission)
     private missionRepository: Repository<Mission>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async updateStatus(criteria: any, status: number) {
@@ -144,15 +150,18 @@ export class MissionService {
     return result
   }
 
-  // TODO: Hàm này bị lặp code so với missions.service của repo mission
   /**
    * @param userConditions
    * @param user
    */
-  checkUserConditions(userConditions: IUserCondition[], user: User) {
+  checkUserConditions(
+    userConditions: IUserCondition[],
+    user: User,
+    shouldLog = false,
+  ) {
     if (userConditions.length === 0) return true
     let result = true
-    // const errorCondition = null
+    let errorCondition = null
     for (const idx in userConditions) {
       const currentCondition = userConditions[idx]
       currentCondition.property = CommonService.convertSnakeToCamelStr(
@@ -162,7 +171,7 @@ export class MissionService {
       const checkExistUserProperty = user[currentCondition.property]
       if (checkExistUserProperty === undefined) {
         // exist condition but data input not exist this property
-        // errorCondition = currentCondition
+        errorCondition = currentCondition
         result = false
         break
       }
@@ -176,7 +185,7 @@ export class MissionService {
         )
       ) {
         // compare number fail
-        // errorCondition = currentCondition
+        errorCondition = currentCondition
         result = false
         break
       }
@@ -188,7 +197,7 @@ export class MissionService {
                 '${currentCondition.value}'`)
       ) {
         // compare string fail
-        // errorCondition = currentCondition
+        errorCondition = currentCondition
         result = false
         break
       }
@@ -199,9 +208,25 @@ export class MissionService {
                 ${currentCondition.operator}
                 ${currentCondition.value}`)
       ) {
+        // compare boolean and other fail
+        errorCondition = currentCondition
         result = false
         break
       }
+    }
+
+    if (!result && errorCondition !== null && shouldLog) {
+      this.eventEmitter.emit('write_log', {
+        logLevel: 'warn',
+        traceCode: 'm012',
+        extraData: {
+          eventProperty: errorCondition.property,
+          eventValue: user[errorCondition.property],
+          operator: errorCondition.operator,
+          conditionValue: errorCondition.value,
+        },
+        params: { name: 'User' },
+      })
     }
 
     return result
@@ -223,5 +248,91 @@ export class MissionService {
     })
     qb.andWhereInIds(ids)
     return qb.getRawMany()
+  }
+
+  async updateMissionCheckin(campaign: Campaign) {
+    return await this.missionRepository
+      .createQueryBuilder()
+      .update(Mission)
+      .set({
+        openingDate: campaign.startDate,
+        closingDate: campaign.endDate,
+        displayConditions: null,
+      })
+      .where({
+        campaignId: campaign.id,
+      })
+      .execute()
+  }
+
+  async getPreviousOrderMission(
+    campaignId: number,
+    priority: number,
+    userId: string,
+  ) {
+    const missions = await this.missionRepository
+      .createQueryBuilder('mission')
+      .leftJoin(
+        'mission_user',
+        'mission_user',
+        `mission.id = mission_user.mission_id AND mission_user.user_id = ${userId}`,
+      )
+      .select('mission.*')
+      .addSelect('SUM(success_count) as success_number')
+      .where({
+        campaignId,
+      })
+      .andWhere({
+        status: In([MISSION_STATUS.OUT_OF_BUDGET, MISSION_STATUS.RUNNING]),
+      })
+      .andWhere('mission.is_active = :active', {
+        active: MISSION_IS_ACTIVE.ACTIVE,
+      })
+      .andWhere('priority > :priority', { priority })
+      .groupBy('mission.id')
+      .getRawMany()
+
+    return plainToInstance(MissionWithSuccessCount, missions)
+  }
+
+  async getListCheckinMission(userId: string, campaignId: number) {
+    const qb = this.missionRepository.createQueryBuilder('mission')
+    qb.select([
+      'mission_user.success_count AS successCount',
+      'mission.title AS title',
+      'mission.titleJa AS titleJa',
+      'mission.id AS id',
+      'mission.priority AS priority',
+      'mission.isActive as isActive',
+      'mission.detailExplain AS detailExplain',
+      'mission.detailExplainJa AS detailExplainJa',
+      'mission.openingDate AS openingDate',
+      'mission.closingDate AS closingDate',
+      'mission.guideLink AS guideLink',
+      'mission.guideLinkJa AS guideLinkJa',
+      'mission.grantTarget AS grantTarget',
+      'mission.campaignId AS campaignId',
+      'mission.status AS status',
+      'IF (success_count > 0, true, false) AS completed',
+    ])
+    qb.leftJoin(
+      'mission_user',
+      'mission_user',
+      'mission_user.mission_id = mission.id AND mission_user.user_id = ' +
+        userId +
+        ' AND mission_user.user_type = "' +
+        GRANT_TARGET_USER.USER +
+        '"',
+    )
+    qb.where({
+      status: In([MISSION_STATUS.OUT_OF_BUDGET, MISSION_STATUS.RUNNING]),
+    })
+    qb.andWhere({ campaignId })
+    qb.andWhere('mission.is_active = :active', {
+      active: MISSION_IS_ACTIVE.ACTIVE,
+    })
+    qb.orderBy('priority', 'DESC')
+
+    return await qb.getRawMany()
   }
 }

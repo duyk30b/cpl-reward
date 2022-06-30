@@ -126,6 +126,12 @@ export const USER_CONDITION_TYPES = {
     original: 'number',
     display: 'number',
   },
+  id: {
+    type: 'number',
+    original: 'number',
+    display: 'number',
+    label: 'User ID',
+  },
 }
 /**
  * DO NOT REMOVE ANY PROPERTY 'TYPE' OR 'ORIGINAL' IN BELOW CONSTANT.
@@ -446,7 +452,7 @@ export const INFO_EVENTS = [
     eventName: EVENTS.AUTH_USER_KYC_AUTO_KYC_FINISHED,
     properties: [
       {
-        key: 'id',
+        key: 'user_id',
         type: 'string',
         original: 'number',
         display: 'number',
@@ -1416,6 +1422,21 @@ export const INFO_EVENTS = [
         key: 'is_first_time',
         type: 'boolean',
         description: 'Is First Time',
+      },
+    ],
+  },
+  {
+    eventName: EVENTS.REWARD_USER_CHECK_IN,
+    properties: [
+      {
+        key: 'created_at',
+        type: 'number',
+        description: 'Checkin time',
+      },
+      {
+        key: 'user_id',
+        type: 'number',
+        description: 'User id',
       },
     ],
   },

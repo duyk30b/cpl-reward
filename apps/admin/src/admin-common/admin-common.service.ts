@@ -34,6 +34,8 @@ export class AdminCommonService {
         [
           DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
           DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+          // DELIVERY_METHOD_WALLET.REWARD_BALANCE,
+          // DELIVERY_METHOD_WALLET.REWARD_CASHBACK,
         ].includes(DELIVERY_METHOD_WALLET[key]),
       )
       .map((key) => {

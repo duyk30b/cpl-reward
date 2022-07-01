@@ -45,8 +45,8 @@ stages:
   image: curlimages/curl
   script:
     - |
-      curl -X POST "$GITOPS_HOOK_URL" \
-      -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GIT_HOOK_URL_TEST\" }" \
+      curl -X POST "$GIT_HOOK_URL_TEST" \
+      -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
       -H "Content-Type: application/json"
 
 

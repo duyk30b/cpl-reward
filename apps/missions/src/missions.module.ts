@@ -29,6 +29,7 @@ import { RedisModule } from '@lib/redis'
 import { QueueModule } from '@lib/queue/queue.module'
 import { BankerBalanceProcessor } from './banker-balance.processor'
 import { BankerCashbackProcessor } from './banker-cashback.processor'
+import { TaggingListener } from './listeners/tagging.listener'
 
 @Module({
   controllers: [MissionsController],
@@ -65,6 +66,7 @@ import { BankerCashbackProcessor } from './banker-cashback.processor'
     MissionsService,
     MissionsListener,
     TraceListener,
+    TaggingListener,
     HealthService,
     MissionsProcessor,
     BankerBalanceProcessor,

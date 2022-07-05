@@ -3,8 +3,8 @@ syntax = "proto3";
 package admin_mission;
 
 service GrpcAdminMissionService {
-  rpc Create(CreateInput) returns (Result);
-  rpc Update(UpdateInput) returns (Result);
+  rpc Create(CreateInput) returns (UpdateResponse);
+  rpc Update(UpdateInput) returns (UpdateResponse);
   rpc FindOne(FindOneInput) returns (Result);
   rpc GetMissionsByCampaign(MissionFilterInput) returns (MissionsResult);
 }
@@ -133,6 +133,12 @@ message Result {
   int32 createdAt = 19;
   int32 updatedAt = 20;
   repeated UserConditions displayConditions = 21;
+}
+
+message UpdateResponse {
+  bool success = 1;
+  string message = 2;
+  Result mission = 3;
 }
 
 message RewardRuleResult {

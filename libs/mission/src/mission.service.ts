@@ -335,4 +335,37 @@ export class MissionService {
 
     return await qb.getRawMany()
   }
+
+  async updateMissionWithUniquePriority(updateMissionDto: UpdateMissionDto) {
+    const updateMission = plainToInstance(UpdateMissionDto, updateMissionDto, {
+      ignoreDecorators: true,
+      excludeExtraneousValues: true,
+    })
+    const missionEntity = plainToInstance(Mission, updateMission, {
+      ignoreDecorators: true,
+    })
+
+    return await this.missionRepository
+      .createQueryBuilder()
+      .update(missionEntity)
+      .where({ id: missionEntity.id })
+      .andWhere(
+        '(SELECT count(*) FROM missions where id != :id AND campaign_id = :campaignId AND priority = :priority) = 0',
+        {
+          id: missionEntity.id,
+          campaignId: missionEntity.campaignId,
+          priority: missionEntity.priority,
+        },
+      )
+      .execute()
+  }
+
+  async countDuplicatePriority(campaignId: number, priority: number) {
+    return await this.missionRepository.count({
+      where: {
+        campaignId,
+        priority,
+      },
+    })
+  }
 }

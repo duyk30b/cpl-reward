@@ -243,12 +243,12 @@ export class MissionsController {
     this.emitEvent('HIGH_LOW_WIN', messageId, message.value)
   }
 
-  @KafkaTopic('kafka.high_low_lost')
+  @KafkaTopic('kafka.high_low_lose')
   async highLowLost(
     @MessageId() messageId: string,
     @Payload() message: KafkaMessage,
   ) {
-    this.emitEvent('HIGH_LOW_LOST', messageId, message.value)
+    this.emitEvent('HIGH_LOW_LOSE', messageId, message.value)
   }
 
   @KafkaTopic('kafka.high_low_cancel')

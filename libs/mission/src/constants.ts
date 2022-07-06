@@ -895,7 +895,7 @@ export const INFO_EVENTS = [
     ],
   },
   {
-    eventName: EVENTS.HIGH_LOW_LOST,
+    eventName: EVENTS.HIGH_LOW_LOSE,
     properties: [
       {
         key: 'user_id',

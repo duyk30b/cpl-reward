@@ -6,7 +6,7 @@ B2: Config INFO_EVENTS trong `libs/mission/src/constants.ts`
 
 B3: Clone 1 function để lắng nghe event kafka ở đây `apps/missions/src/missions.controller.ts`  chú ý đoạn
 này `message.value` hoặc `message.value.data` vì mỗi team có định dạng bắn kafka khác nhau.
-Phần `eventName = 'HIGH_LOW_LOST'`  ứng với phần key ở B1
+Phần `eventName = 'HIGH_LOW_LOSE'`  ứng với phần key ở B1
 
 B4: Thêm tên event kafka vào file này `libs/kafka/src/configuration.ts`
 

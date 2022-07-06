@@ -33,7 +33,7 @@ export default registerAs('kafka', () => ({
   high_low_transfer_balance: process.env.ENV + '_high_low_transfer_balance',
   high_low_create: process.env.ENV + '_high_low_create',
   high_low_win: process.env.ENV + '_high_low_win',
-  high_low_lost: process.env.ENV + '_high_low_lost',
+  high_low_lose: process.env.ENV + '_high_low_lose',
   high_low_cancel: process.env.ENV + '_high_low_cancel',
 
   // reward

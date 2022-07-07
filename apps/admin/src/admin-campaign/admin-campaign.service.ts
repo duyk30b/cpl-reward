@@ -4,6 +4,8 @@ import {
   CAMPAIGN_SORT_FIELD_MAP,
   CAMPAIGN_STATUS,
   CampaignService,
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_TYPE,
 } from '@lib/campaign'
 import { RewardRuleService } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -16,7 +18,7 @@ import {
 import { Brackets, In, LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'
-import { CommonService, MissionUserLogStatus } from '@lib/common'
+import { CommonService, ErrorMessage, MissionUserLogStatus } from '@lib/common'
 import { Interval } from '@nestjs/schedule'
 import { InternationalPriceService } from '@lib/international-price'
 import { DELIVERY_METHOD_WALLET, MissionService } from '@lib/mission'
@@ -100,25 +102,59 @@ export class AdminCampaignService {
   }
 
   async update(iUpdateCampaign: IUpdateCampaign) {
-    const missions = await this.missionService.find({
-      campaignId: iUpdateCampaign.id,
-    })
+    const result = {
+      message: '',
+      success: true,
+      campaign: {} as Campaign,
+    }
 
-    if (missions.length > 0) {
-      const missionsOpeningDate = missions.map((mission) => mission.openingDate)
-      const missionsClosingDate = missions.map((mission) => mission.closingDate)
+    if (iUpdateCampaign.type !== CAMPAIGN_TYPE.ORDER) {
+      const missions = await this.missionService.find({
+        campaignId: iUpdateCampaign.id,
+      })
 
-      if (
-        iUpdateCampaign.startDate > Math.min(...missionsOpeningDate) ||
-        iUpdateCampaign.endDate < Math.max(...missionsClosingDate)
-      ) {
-        return {}
+      if (missions.length > 0) {
+        const missionsOpeningDate = missions.map(
+          (mission) => mission.openingDate,
+        )
+        const missionsClosingDate = missions.map(
+          (mission) => mission.closingDate,
+        )
+
+        if (
+          iUpdateCampaign.startDate > Math.min(...missionsOpeningDate) ||
+          iUpdateCampaign.endDate < Math.max(...missionsClosingDate)
+        ) {
+          result.success = false
+          result.message = ErrorMessage.INVALID_CAMPAIGN_TIME
+          return result
+        }
       }
     }
 
     iUpdateCampaign.status =
       AdminCampaignService.calcCampaignStatus(iUpdateCampaign)
-    return await this.campaignService.update(iUpdateCampaign)
+    const updateResult = await this.campaignService.update(iUpdateCampaign)
+
+    if (updateResult.affected === 0) {
+      result.success = false
+      result.message = ErrorMessage.INVALID_CAMPAIGN_TYPE
+      result.campaign = await this.campaignService.findOne({
+        isActive: CAMPAIGN_IS_ACTIVE.ACTIVE,
+        type: CAMPAIGN_TYPE.ORDER,
+      })
+      return result
+    }
+
+    result.campaign = await this.campaignService.findOne({
+      id: iUpdateCampaign.id,
+    })
+
+    if (result.campaign.type === CAMPAIGN_TYPE.ORDER) {
+      await this.missionService.updateMissionCheckin(result.campaign)
+    }
+
+    return result
   }
 
   async findAll(campaignFilter: ICampaignFilter) {
@@ -267,7 +303,7 @@ export class AdminCampaignService {
         )
 
         if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_BALANCE) {
-          const balanceBody = plainToInstance(SendRewardToCashback, {
+          const balanceBody = plainToInstance(SendRewardToBalance, {
             id: missionUserLog.rewardHistoryId,
             userId: missionUserLog.userId,
             amount: missionUserLog.moneyEarned,
@@ -278,7 +314,7 @@ export class AdminCampaignService {
             missionUserLogId: missionUserLog.id,
             type: 'reward',
           })
-          await this.addSendMoneyJob(
+          await this.queueService.addSendMoneyJob(
             missionUserLog.userId,
             QUEUE_SEND_BALANCE,
             0,
@@ -287,7 +323,7 @@ export class AdminCampaignService {
         }
 
         if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK) {
-          const cashbackBody = plainToInstance(SendRewardToBalance, {
+          const cashbackBody = plainToInstance(SendRewardToCashback, {
             id: missionUserLog.rewardHistoryId,
             userId: missionUserLog.userId,
             amount: missionUserLog.moneyEarned,
@@ -297,7 +333,7 @@ export class AdminCampaignService {
             missionUserLogId: missionUserLog.id,
             type: 'reward',
           })
-          await this.addSendMoneyJob(
+          await this.queueService.addSendMoneyJob(
             missionUserLog.userId,
             QUEUE_SEND_CASHBACK,
             0,
@@ -332,19 +368,5 @@ export class AdminCampaignService {
 
     const count = await this.missionUserLogService.count(filter)
     return { count }
-  }
-
-  async addSendMoneyJob(
-    userId: string,
-    queueName: string,
-    attempts: number,
-    data: any,
-  ) {
-    data.groupKey = queueName + '_' + userId
-    await this.queueService.addJob(queueName, data, {
-      attempts: attempts,
-      backoff: 1000,
-      removeOnComplete: 10000,
-    })
   }
 }

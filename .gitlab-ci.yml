@@ -71,15 +71,27 @@ deploy_dev:
   only:
     - dev
 
-deploy_dev_exchange:
-  extends: .deploy_template
+deploy_dev_new:
+  extends: .deploy_template_dev
+  needs: 
+    - deploy_dev
   environment:
-    name: dev-exchange
+    name: dev
   variables:
-    VALUES_PATH: /_helm_templates/cpl-customer-reward/values-dev-exchange.yaml
+    VALUES_PATH: /_helm_templates/customer-reward/values-dev.yaml
     IMAGE_TAG_KEY: tag
   only:
     - dev
+
+# deploy_dev_exchange:
+#   extends: .deploy_template
+#   environment:
+#     name: dev-exchange
+#   variables:
+#     VALUES_PATH: /_helm_templates/cpl-customer-reward/values-dev-exchange.yaml
+#     IMAGE_TAG_KEY: tag
+#   only:
+#     - dev
 
 
 build_staging-v2:

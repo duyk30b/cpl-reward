@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config'
 import redisConfig from '../../../config/redis'
 import { WorkerBullOptions } from '@lib/queue/options/worker-bull-options.factory'
 import { LoggerBullOptions } from '@lib/queue/options/logger-bull-options.factory'
+import { BalanceBullOptions } from '@lib/queue/options/balance-bull-options.factory'
+import { CashbackBullOptions } from '@lib/queue/options/cashback-bull-options.factory'
 
 @Module({
   imports: [
@@ -19,6 +21,14 @@ import { LoggerBullOptions } from '@lib/queue/options/logger-bull-options.factor
     BullModule.registerQueueAsync({
       name: 'logger',
       useClass: LoggerBullOptions,
+    }),
+    BullModule.registerQueueAsync({
+      name: 'banker_balance',
+      useClass: BalanceBullOptions,
+    }),
+    BullModule.registerQueueAsync({
+      name: 'banker_cashback',
+      useClass: CashbackBullOptions,
     }),
   ],
   providers: [QueueService],

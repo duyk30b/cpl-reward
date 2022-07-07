@@ -101,7 +101,7 @@ export class RewardRule extends MyBaseEntity {
   @JoinColumn({ name: 'mission_id' })
   mission: Mission
 
-  @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules)
-  @JoinColumn({ name: 'campaign_id' })
+  // @ManyToOne(() => Campaign, (campaign) => campaign.rewardRules)
+  // @JoinColumn({ name: 'campaign_id' })
   campaign: Campaign
 }

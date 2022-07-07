@@ -2,13 +2,13 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToMany,
-  JoinColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '../enum'
+import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS, CAMPAIGN_TYPE } from '../enum'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 
 @Entity({
@@ -71,9 +71,9 @@ export class Campaign extends MyBaseEntity {
   @Expose()
   priority: number
 
-  @Column({ name: 'is_system', default: false })
-  @Expose({ name: 'is_system' })
-  isSystem: boolean
+  @Column({ name: 'type', default: CAMPAIGN_TYPE.DEFAULT })
+  @Expose({ name: 'type' })
+  type: number
 
   @Column({
     name: 'is_active',
@@ -90,8 +90,8 @@ export class Campaign extends MyBaseEntity {
   @Expose()
   status: number
 
-  @OneToMany(() => Mission, (mission) => mission.campaign)
-  @JoinColumn()
+  // @OneToMany(() => Mission, (mission) => mission.campaign)
+  // @JoinColumn()
   @Expose({
     name: 'missions',
   })
@@ -105,4 +105,26 @@ export class Campaign extends MyBaseEntity {
     name: 'reward_rules',
   })
   rewardRules: RewardRule[]
+
+  @Column({ name: 'reset_time' })
+  @Expose({ name: 'reset_time' })
+  resetTime: string
+
+  @Column({ name: 'is_lock', default: false })
+  @Expose({ name: 'is_lock' })
+  isLock: boolean
+
+  @BeforeInsert()
+  insertIsLock() {
+    if (this.status === CAMPAIGN_STATUS.RUNNING) {
+      this.isLock = true
+    }
+  }
+
+  @BeforeUpdate()
+  updateIsLock() {
+    if (this.status === CAMPAIGN_STATUS.RUNNING) {
+      this.isLock = true
+    }
+  }
 }

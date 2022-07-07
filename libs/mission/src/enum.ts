@@ -45,8 +45,11 @@ export enum EVENTS {
   HIGH_LOW_TRANSFER_BALANCE = 'high_low_transfer_balance',
   HIGH_LOW_CREATE = 'high_low_create',
   HIGH_LOW_WIN = 'high_low_win',
-  HIGH_LOW_LOST = 'high_low_lost',
+  HIGH_LOW_LOSE = 'high_low_lose',
   HIGH_LOW_CANCEL = 'high_low_cancel',
+
+  // reward
+  REWARD_USER_CHECK_IN = 'reward_user_check_in',
 }
 
 export enum MISSION_IS_ACTIVE {

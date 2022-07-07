@@ -84,7 +84,7 @@ export class UserRewardHistory extends MyBaseEntity {
 
   @Column({
     type: 'smallint',
-    default: USER_REWARD_STATUS.NOT_RECEIVE,
+    default: USER_REWARD_STATUS.NEED_TO_REDEEM,
   })
   @Expose()
   status: number
@@ -97,7 +97,7 @@ export class UserRewardHistory extends MyBaseEntity {
   @Expose({ name: 'reference_id' })
   referenceId: string
 
-  @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
-  @JoinColumn({ name: 'mission_id' })
+  // @ManyToOne(() => Mission, (mission) => mission.userRewardHistories)
+  // @JoinColumn({ name: 'mission_id' })
   mission: Mission
 }

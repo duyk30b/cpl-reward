@@ -243,12 +243,12 @@ export class MissionsController {
     this.emitEvent('HIGH_LOW_WIN', messageId, message.value)
   }
 
-  @KafkaTopic('kafka.high_low_lost')
+  @KafkaTopic('kafka.high_low_lose')
   async highLowLost(
     @MessageId() messageId: string,
     @Payload() message: KafkaMessage,
   ) {
-    this.emitEvent('HIGH_LOW_LOST', messageId, message.value)
+    this.emitEvent('HIGH_LOW_LOSE', messageId, message.value)
   }
 
   @KafkaTopic('kafka.high_low_cancel')
@@ -257,5 +257,13 @@ export class MissionsController {
     @Payload() message: KafkaMessage,
   ) {
     this.emitEvent('HIGH_LOW_CANCEL', messageId, message.value)
+  }
+
+  @KafkaTopic('kafka.reward_user_check_in')
+  async rewardUserCheckin(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaMessage,
+  ) {
+    this.emitEvent('REWARD_USER_CHECK_IN', messageId, message.value.data ?? {})
   }
 }

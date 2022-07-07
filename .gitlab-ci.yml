@@ -40,6 +40,15 @@ stages:
       -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
       -H "Content-Type: application/json"
 
+.deploy_template_dev:
+  stage: deploy
+  image: curlimages/curl
+  script:
+    - |
+      curl -X POST "$GIT_HOOK_URL_TEST" \
+      -d "{ \"path\": \"$VALUES_PATH\", \"key\": \"$IMAGE_TAG_KEY\", \"image_tag\": \"$CI_COMMIT_SHORT_SHA\", \"secret\": \"$GITOPS_HOOK_SECRET\" }" \
+      -H "Content-Type: application/json"
+
 .deploy_template_demo:
   stage: deploy
   image: curlimages/curl

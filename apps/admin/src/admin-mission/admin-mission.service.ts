@@ -24,7 +24,7 @@ import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { CommonService } from '@lib/common'
+import { CommonService, ErrorMessage } from '@lib/common'
 import { classToPlain, instanceToPlain } from 'class-transformer'
 
 @Injectable()
@@ -149,15 +149,37 @@ export class AdminMissionService {
   }
 
   async create(create: ICreateMission | IUpdateMission) {
+    const res = {
+      message: '',
+      success: true,
+      mission: {} as GrpcMissionDto,
+    }
+
     const campaign = await this.campaignService.getById(create.campaignId)
     const validateRangeTime = this.validateRangeTimeCampaign(create, campaign)
 
-    if (!validateRangeTime) return new Mission()
+    if (!validateRangeTime) {
+      res.success = false
+      res.message = ErrorMessage.INVALID_MISSION_TIME
+      return res
+    }
 
     if (campaign.type === CAMPAIGN_TYPE.ORDER) {
       create.closingDate = campaign.endDate
       create.openingDate = campaign.startDate
       create.displayConditions = []
+    }
+
+    const countDuplicatePriority =
+      await this.missionService.countDuplicatePriority(
+        create.campaignId,
+        create.priority,
+      )
+
+    if (countDuplicatePriority > 0) {
+      res.success = false
+      res.message = ErrorMessage.DUPLICATE_MISSION_PRIORITY
+      return res
     }
 
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
@@ -183,14 +205,26 @@ export class AdminMissionService {
       create.campaignId,
       mission.id,
     )
-    return await this.findOne(mission.id)
+
+    res.mission = await this.findOne(mission.id)
+    return res
   }
 
   async update(update: IUpdateMission) {
+    const res = {
+      message: '',
+      success: true,
+      mission: {} as GrpcMissionDto,
+    }
+
     const campaign = await this.campaignService.getById(update.campaignId)
     const validateRangeTime = this.validateRangeTimeCampaign(update, campaign)
 
-    if (!validateRangeTime) return new Mission()
+    if (!validateRangeTime) {
+      res.success = false
+      res.message = ErrorMessage.INVALID_MISSION_TIME
+      return res
+    }
 
     if (campaign.type === CAMPAIGN_TYPE.ORDER) {
       update.closingDate = campaign.endDate
@@ -219,7 +253,16 @@ export class AdminMissionService {
     })
 
     update.status = this.calcMissionsStatus(update)
-    const mission = await this.missionService.update(update)
+    const result = await this.missionService.updateMissionWithUniquePriority(
+      update,
+    )
+
+    if (result.affected === 0) {
+      res.success = false
+      res.message = ErrorMessage.DUPLICATE_MISSION_PRIORITY
+      return res
+    }
+
     await Promise.all(
       update.rewardRules.map(async (item) => {
         if (item.releaseValue) {
@@ -227,8 +270,8 @@ export class AdminMissionService {
         }
 
         await this.rewardRuleService.update(item, {
-          campaignId: mission.campaignId,
-          missionId: mission.id,
+          campaignId: update.campaignId,
+          missionId: update.id,
           typeRule: REWARD_RULE_APPLY_FOR.MISSION,
         })
         return item
@@ -237,9 +280,11 @@ export class AdminMissionService {
     await this.mappingMissionEvent(
       update.judgmentConditions,
       update.campaignId,
-      mission.id,
+      update.id,
     )
-    return await this.findOne(mission.id)
+
+    res.mission = await this.findOne(update.id)
+    return res
   }
 
   async findOne(id: number) {
@@ -247,8 +292,9 @@ export class AdminMissionService {
       relations: ['rewardRules'],
     })
     if (!mission) {
-      return {}
+      return {} as GrpcMissionDto
     }
+
     const grpcMission = mission as unknown as GrpcMissionDto
     grpcMission.rewardRules
       .filter((item) => item.typeRule == REWARD_RULE_APPLY_FOR.MISSION)

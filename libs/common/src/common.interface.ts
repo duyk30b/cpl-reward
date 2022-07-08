@@ -4,4 +4,5 @@ export interface IGrantTarget {
   currency: string
   wallet: string
   type?: string
+  tagIds?: Array<number>
 }

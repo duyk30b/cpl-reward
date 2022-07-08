@@ -15,4 +15,7 @@ export class TargetDto {
 
   @Expose()
   type?: string
+
+  @Expose({ name: 'tag_ids' })
+  tagIds?: Array<number>
 }

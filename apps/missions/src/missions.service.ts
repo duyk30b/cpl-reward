@@ -471,6 +471,13 @@ export class MissionsService {
       userTarget.wallet,
     )
 
+    if (userTarget.tagIds && userTarget.tagIds.length > 0) {
+      this.eventEmitter.emit(EventEmitterType.TAGGING_FOR_REWARD, {
+        userId: +userId,
+        tagIds: userTarget.tagIds,
+      })
+    }
+
     const referenceId = this.idGeneratorService.generateSnowflakeId()
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,

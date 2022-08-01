@@ -43,13 +43,12 @@ import {
   SendRewardToCashback,
 } from './interfaces/external.interface'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { User } from '@lib/external-user/user.interface'
 import { QueueService } from '@lib/queue/queue.service'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
 
 @Injectable()
 export class MissionsService {
-  eventEmit = 'write_log'
+  eventEmit = EventEmitterType.WRITE_LOG
 
   constructor(
     private eventEmitter: EventEmitter2,
@@ -667,7 +666,7 @@ export class MissionsService {
     }
 
     if (!result && errorCondition !== null) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(EventEmitterType.WRITE_LOG, {
         logLevel: 'warn',
         traceCode: 'm012',
         extraData: {

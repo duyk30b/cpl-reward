@@ -14,19 +14,17 @@ import {
   UserRewardHistoryService,
 } from '@lib/user-reward-history'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { ExternalBalanceService } from '@lib/external-balance'
-import { ExternalCashbackService } from '@lib/external-cashback'
 import { MissionUserLogService } from '@lib/mission-user-log'
+import { WalletGatewayService } from '@libs/wallet-gateway'
 
 @Processor('banker_balance')
 export class BankerBalanceProcessor {
-  private eventEmit = 'write_log'
+  private eventEmit = EventEmitterType.WRITE_LOG
 
   constructor(
     private eventEmitter: EventEmitter2,
-    private readonly externalBalanceService: ExternalBalanceService,
+    private readonly walletGateway: WalletGatewayService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
-    private readonly externalCashbackService: ExternalCashbackService,
     private readonly missionUserLogService: MissionUserLogService,
   ) {}
 
@@ -34,14 +32,15 @@ export class BankerBalanceProcessor {
   async handleSendBalance(job: Job) {
     const data = plainToInstance(SendRewardToBalance, job.data)
     // console.log(data.userId + ' Bat dau cong balance: ', Date.now() / 1000)
-    const sendRewardToBalance =
-      await this.externalBalanceService.changeUserBalance(
-        data.userId,
-        data.amount,
-        data.currency.toLowerCase(),
-        data.type,
-        data.data,
-      )
+    const sendRewardToBalance = await this.walletGateway.sendRewardToBalance(
+      data.userId,
+      data.amount,
+      data.currency.toLowerCase(),
+      data.type,
+      data.referenceId,
+      data.data,
+    )
+
     if (!sendRewardToBalance.result) {
       // Continue attempt
       if (job.attemptsMade < job.opts.attempts - 1) {

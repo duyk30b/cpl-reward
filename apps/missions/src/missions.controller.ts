@@ -3,10 +3,11 @@ import { MessageId, KafkaMessage, KafkaTopic } from '@lib/kafka'
 import { Payload } from '@nestjs/microservices'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MissionsService } from './missions.service'
+import { EventEmitterType } from '@lib/common'
 
 @Controller()
 export class MissionsController {
-  eventEmit = 'write_log'
+  eventEmit = EventEmitterType.WRITE_LOG
 
   constructor(
     private eventEmitter: EventEmitter2,

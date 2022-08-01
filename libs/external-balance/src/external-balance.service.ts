@@ -4,10 +4,12 @@ import { ConfigService } from '@nestjs/config'
 import { firstValueFrom } from 'rxjs'
 import { map } from 'rxjs'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { WalletServiceInterface } from '@libs/wallet-gateway/wallet.service.interface'
+import { EventEmitterType } from '@lib/common'
 
 @Injectable()
-export class ExternalBalanceService {
-  eventEmit = 'write_log'
+export class ExternalBalanceService implements WalletServiceInterface {
+  eventEmit = EventEmitterType.WRITE_LOG
   private readonly logger = new Logger(ExternalBalanceService.name)
 
   constructor(

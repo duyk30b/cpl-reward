@@ -21,7 +21,7 @@ import {
   WALLET,
 } from '@lib/mission/enum'
 import { IUserCondition } from '../../../apps/missions/src/interfaces/missions.interface'
-import { CommonService } from '@lib/common'
+import { CommonService, EventEmitterType } from '@lib/common'
 import { User } from '@lib/external-user/user.interface'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
@@ -216,7 +216,7 @@ export class MissionService {
     }
 
     if (!result && errorCondition !== null && shouldLog) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(EventEmitterType.WRITE_LOG, {
         logLevel: 'warn',
         traceCode: 'm012',
         extraData: {

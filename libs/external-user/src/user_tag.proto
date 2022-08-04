@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package user_tag;
+
+service GUserTagService {
+  rpc AddUserTags(AddRequest) returns (UserTagsResponse);
+  rpc FindUserTagsByUserId(FindByUserIdRequest) returns (UserTagsResponse);
+  rpc FindById(FindByIdRequest) returns (UserTagResponse);
+  rpc ListUserTags(ListRequest) returns (ListUserTagResponse);
+  rpc DeleteUserTag(DeleteRequest) returns (UserTagsResponse); 
+  rpc DeleteUserTags(DeleteUserTagsRequest) returns (UserTagsResponse);
+  rpc DeleteUserTagsByUsers(DeleteUserTagsByUsersRequest) returns (UserTagsResponse);
+};
+
+
+// REQUEST
+
+message AddRequest {
+  message AddUserTag {
+    uint32 user_id = 1;
+    repeated uint32 tag_ids = 2;
+  }
+  repeated AddUserTag user_tags = 1;
+}
+
+message FindByUserIdRequest {
+  uint32 user_id = 1;
+}
+
+message FindByIdRequest {
+  uint32 id = 1;
+}
+
+message ListRequest {
+  uint32 page = 1;
+  uint32 limit = 2;
+  repeated uint32 user_ids = 3;
+}
+
+message DeleteUserTagsRequest {
+  repeated uint32 ids = 1;
+}
+
+message DeleteUserTagsByUsersRequest {
+  repeated uint32 user_ids = 1;
+}
+
+message DeleteRequest {
+  uint32 id = 1;
+}
+
+// RESPONSE
+message UserTag {
+  uint32 id = 1;
+  uint32 user_id = 2;
+  uint32 tag_id = 3;
+  string name = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message UserTagsResponse {
+  required bool success = 1;
+  optional string message = 2;
+  repeated UserTag data = 3;
+}
+
+message UserTagResponse {
+  required bool success = 1;
+  optional string message = 2;
+  optional UserTag data = 3;
+}
+
+
+message ListMeta {
+  uint32 total_items = 1;
+  uint32 item_count = 2;
+  uint32 items_per_page = 3;
+  uint32 total_pages = 4;
+  uint32 current_page = 5;
+}
+
+message ListData {
+  repeated UserTag items = 1;
+  optional ListMeta meta = 2;
+}
+
+
+message ListUserTagResponse {
+  required bool success = 1;
+  optional string message = 2;
+  optional ListData data = 3;
+}

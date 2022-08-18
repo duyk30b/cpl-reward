@@ -7,7 +7,6 @@ import { MissionsController } from './missions.controller'
 import { ConfigModule } from '@nestjs/config'
 import { ExternalUserModule } from '@lib/external-user'
 import { CommonListener } from './listeners/common.listener'
-import { ExternalBalanceModule } from '@lib/external-balance'
 import { MissionUserLogModule } from '@lib/mission-user-log'
 import { RewardRuleModule } from '@lib/reward-rule'
 import { UserRewardHistoryModule } from '@lib/user-reward-history'
@@ -16,7 +15,6 @@ import { MissionUserModule } from '@lib/mission-user'
 import { MissionEventModule } from '@lib/mission-event'
 import { CampaignModule } from '@lib/campaign'
 import { MissionModule } from '@lib/mission'
-import { ExternalCashbackModule } from '@lib/external-cashback'
 import { TraceListener } from './listeners/trace.listener'
 import { MissionsListener } from './listeners/missions.listener'
 import globalConfig from 'config/global_config'
@@ -30,6 +28,7 @@ import { QueueModule } from '@lib/queue/queue.module'
 import { BankerBalanceProcessor } from './banker-balance.processor'
 import { BankerCashbackProcessor } from './banker-cashback.processor'
 import { TaggingListener } from './listeners/tagging.listener'
+import { WalletGatewayModule } from '@libs/wallet-gateway'
 
 @Module({
   controllers: [MissionsController],
@@ -49,17 +48,16 @@ import { TaggingListener } from './listeners/tagging.listener'
       delimiter: '_',
     }),
     ExternalUserModule,
-    ExternalBalanceModule,
     MissionUserLogModule,
     RewardRuleModule,
     UserRewardHistoryModule,
     MissionUserModule,
-    ExternalCashbackModule,
     MissionEventModule,
     CampaignModule,
     MissionModule,
     IdGeneratorModule,
     RedisModule,
+    WalletGatewayModule,
   ],
   providers: [
     CommonListener,

@@ -147,6 +147,18 @@
       ],
       "@libs/user-checkin-log/*": [
         "libs/user-checkin-log/src/*"
+      ],
+      "@libs/external-new-balance": [
+        "libs/external-new-balance/src"
+      ],
+      "@libs/external-new-balance/*": [
+        "libs/external-new-balance/src/*"
+      ],
+      "@libs/wallet-gateway": [
+        "libs/wallet-gateway/src"
+      ],
+      "@libs/wallet-gateway/*": [
+        "libs/wallet-gateway/src/*"
       ]
     }
   }

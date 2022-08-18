@@ -7,6 +7,7 @@ import { MissionsService } from '../missions.service'
 import { RedisService } from '@lib/redis'
 import { QUEUE_MISSION_MAIN_FUNCTION } from '@lib/queue'
 import { QueueService } from '@lib/queue/queue.service'
+import { EventEmitterType } from '@lib/common'
 
 @Injectable()
 export class MissionsListener {
@@ -22,7 +23,7 @@ export class MissionsListener {
   @OnEvent('received_kafka_event')
   async handleNewEvent(data: IEventByName) {
     if (!EVENTS[data.msgName]) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(EventEmitterType.WRITE_LOG, {
         logLevel: 'error',
         traceCode: 'm002',
         data: {
@@ -49,7 +50,7 @@ export class MissionsListener {
     )
 
     if (missionsByEvent.length === 0) {
-      this.eventEmitter.emit('write_log', {
+      this.eventEmitter.emit(EventEmitterType.WRITE_LOG, {
         logLevel: 'warn',
         traceCode: 'm003',
         data: {

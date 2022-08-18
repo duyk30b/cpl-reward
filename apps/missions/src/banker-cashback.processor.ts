@@ -14,9 +14,8 @@ import {
   UserRewardHistoryService,
 } from '@lib/user-reward-history'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { ExternalBalanceService } from '@lib/external-balance'
-import { ExternalCashbackService } from '@lib/external-cashback'
 import { MissionUserLogService } from '@lib/mission-user-log'
+import { WalletGatewayService } from '@libs/wallet-gateway'
 
 @Processor('banker_cashback')
 export class BankerCashbackProcessor {
@@ -24,9 +23,8 @@ export class BankerCashbackProcessor {
 
   constructor(
     private eventEmitter: EventEmitter2,
-    private readonly externalBalanceService: ExternalBalanceService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
-    private readonly externalCashbackService: ExternalCashbackService,
+    private readonly walletGatewayService: WalletGatewayService,
     private readonly missionUserLogService: MissionUserLogService,
   ) {}
 
@@ -35,7 +33,7 @@ export class BankerCashbackProcessor {
     const data = plainToInstance(SendRewardToCashback, job.data)
     //console.log(data.userId + ' Bat dau cong cashback: ', Date.now() / 1000)
     const sendRewardToCashback =
-      await this.externalCashbackService.changeUserCashback({
+      await this.walletGatewayService.sendRewardToCashback({
         user_id: data.userId,
         currency: data.currency,
         amount: data.amount,

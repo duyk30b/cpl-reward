@@ -1,5 +1,6 @@
 ## Hướng dẫn thêm event
 
+
 B1: Config EVENTS trong `libs/mission/src/enum.ts`
 
 B2: Config INFO_EVENTS trong `libs/mission/src/constants.ts`

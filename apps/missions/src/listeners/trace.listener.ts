@@ -3,7 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter'
 import { TRACE_CODES } from '@lib/campaign/trace-codes'
 import { IWriteLog } from '../interfaces/missions.interface'
 import { ConfigService } from '@nestjs/config'
-import { CommonService } from '@lib/common'
+import { CommonService, EventEmitterType } from '@lib/common'
 import { QueueService } from '@lib/queue'
 import * as _ from 'lodash'
 
@@ -17,7 +17,7 @@ export class TraceListener {
     private readonly commonService: CommonService,
   ) {}
 
-  @OnEvent('write_log')
+  @OnEvent(EventEmitterType.WRITE_LOG)
   async traceLog(logData: IWriteLog) {
     const input = _.cloneDeep(logData)
     const { logLevel, traceCode, params } = input

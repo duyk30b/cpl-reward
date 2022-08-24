@@ -1,13 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
-import { ChangeUserCashback } from './external-cashback.interface'
 import { firstValueFrom, map } from 'rxjs'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import {
+  ChangeUserCashbackInput,
+  ChangeUserWalletResult,
+  WalletServiceInterface,
+} from '@libs/wallet-gateway/wallet.service.interface'
+import { EventEmitterType } from '@lib/common'
 
 @Injectable()
-export class ExternalCashbackService {
-  eventEmit = 'write_log'
+export class ExternalCashbackService implements WalletServiceInterface {
+  eventEmit = EventEmitterType.WRITE_LOG
   private readonly logger = new Logger(ExternalCashbackService.name)
 
   constructor(
@@ -30,7 +35,9 @@ export class ExternalCashbackService {
    * fee_amount: '0',
    * auto_confirm: 1
    */
-  async changeUserCashback(input: ChangeUserCashback): Promise<any> {
+  async changeUserCashback(
+    input: ChangeUserCashbackInput,
+  ): Promise<ChangeUserWalletResult> {
     input.currency = input.currency.toLowerCase()
 
     const postBoUrl =

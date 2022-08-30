@@ -26,6 +26,7 @@ export enum TypeEvent {
 export enum EventEmitterType {
   CREATE_MISSION_USER_LOG = 'create_mission_user_log',
   TAGGING_FOR_REWARD = 'tagging_for_reward',
+  WRITE_LOG = 'write_log',
 }
 
 export enum MissionUserLogNoteCode {

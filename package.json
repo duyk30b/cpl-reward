@@ -131,7 +131,9 @@
       "^@lib/international-price(|/.*)$": "<rootDir>/libs/international-price/src/$1",
       "^@lib/id-generator(|/.*)$": "<rootDir>/libs/id-generator/src/$1",
       "^@lib/queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
-      "^@libs/user-checkin-log(|/.*)$": "<rootDir>/libs/user-checkin-log/src/$1"
+      "^@libs/user-checkin-log(|/.*)$": "<rootDir>/libs/user-checkin-log/src/$1",
+      "^@libs/external-new-balance(|/.*)$": "<rootDir>/libs/external-new-balance/src/$1",
+      "^@libs/wallet-gateway(|/.*)$": "<rootDir>/libs/wallet-gateway/src/$1"
     }
   }
 }

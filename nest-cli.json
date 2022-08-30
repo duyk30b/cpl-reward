@@ -247,6 +247,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/user-checkin-log/tsconfig.lib.json"
       }
+    },
+    "external-new-balance": {
+      "type": "library",
+      "root": "libs/external-new-balance",
+      "entryFile": "index",
+      "sourceRoot": "libs/external-new-balance/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/external-new-balance/tsconfig.lib.json"
+      }
+    },
+    "wallet-gateway": {
+      "type": "library",
+      "root": "libs/wallet-gateway",
+      "entryFile": "index",
+      "sourceRoot": "libs/wallet-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/wallet-gateway/tsconfig.lib.json"
+      }
     }
   }
 }

@@ -7,6 +7,7 @@ import { EventEmitterType } from '@lib/common'
 import { ORDER_TYPE_LABEL, OrderType, UserType } from '@lib/mission'
 import { IExchangeConfirmOrderMatchTransform } from './interfaces/exchange_confirm_order_match.interface'
 import { KafkaExchangeConfirmOrderMatchDto } from './dto/exchange_confirm_order_match.dto'
+import { QUEUE_EVENT_HANDLER, QUEUE_WRITE_LOG, QueueService } from '@lib/queue'
 
 @Controller()
 export class MissionsController {
@@ -15,6 +16,7 @@ export class MissionsController {
   constructor(
     private eventEmitter: EventEmitter2,
     private missionsService: MissionsService,
+    private readonly queueService: QueueService,
   ) {}
 
   emitEvent(msgName: string, msgId: string | null, msgData: any) {
@@ -55,21 +57,33 @@ export class MissionsController {
     msgData.user_id = msgData.user_id.toString()
 
     // Push kafka event to internal event
-    this.eventEmitter.emit(this.eventEmit, {
-      logLevel: 'log',
-      traceCode: 'Received event',
-      data: {
-        msgData,
-        msgName,
-        msgId,
-      },
-    })
+    this.queueService
+      .addKafkaEventHandlerJob(
+        QUEUE_WRITE_LOG,
+        {
+          logLevel: 'log',
+          traceCode: 'Received event',
+          data: {
+            msgData,
+            msgName,
+            msgId,
+          },
+        },
+        {
+          attempts: 0,
+          backoff: 1000,
+          removeOnComplete: true,
+        },
+      )
+      .then()
 
-    this.eventEmitter.emit('received_kafka_event', {
-      msgId,
-      msgName,
-      msgData,
-    })
+    this.queueService
+      .addKafkaEventHandlerJob(QUEUE_EVENT_HANDLER, {
+        msgId,
+        msgName,
+        msgData,
+      })
+      .then()
   }
 
   /**

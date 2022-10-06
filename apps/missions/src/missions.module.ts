@@ -31,6 +31,7 @@ import { TaggingListener } from './listeners/tagging.listener'
 import { WalletGatewayModule } from '@libs/wallet-gateway'
 import { APP_PIPE } from '@nestjs/core'
 import { ValidationException } from '@lib/common/exceptions/validation.exception'
+import { EventHandlerProcessor } from './event-handler.processor'
 
 @Module({
   controllers: [MissionsController],
@@ -70,6 +71,7 @@ import { ValidationException } from '@lib/common/exceptions/validation.exception
     HealthService,
     MissionsProcessor,
     BankerBalanceProcessor,
+    EventHandlerProcessor,
     BankerCashbackProcessor,
     {
       provide: APP_PIPE,

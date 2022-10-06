@@ -4,6 +4,9 @@ import { Payload } from '@nestjs/microservices'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MissionsService } from './missions.service'
 import { EventEmitterType } from '@lib/common'
+import { ORDER_TYPE_LABEL, OrderType, UserType } from '@lib/mission'
+import { IExchangeConfirmOrderMatchTransform } from './interfaces/exchange_confirm_order_match.interface'
+import { KafkaExchangeConfirmOrderMatchDto } from './dto/exchange_confirm_order_match.dto'
 
 @Controller()
 export class MissionsController {
@@ -215,6 +218,86 @@ export class MissionsController {
     @Payload() message: KafkaMessage,
   ) {
     this.emitEvent('BCE_TRADING_MATCHED', messageId, message.value)
+  }
+
+  @KafkaTopic('kafka.exchange_confirm_order_match')
+  async newExchangeConfirmOrderMatch(
+    @MessageId() messageId: string,
+    @Payload() message: KafkaExchangeConfirmOrderMatchDto,
+  ) {
+    const transactionData = message.value
+    const order = transactionData.data.order
+
+    const originData = order.origin
+    const matchData = order.match
+    let buyPrice, sellPrice
+
+    // TODO: Define to use net_volume or gross_volume
+    // const quantity = data.filled.net_volume
+    const quantity = parseFloat(transactionData.data.filled.gross_volume)
+
+    // Giá mua phải >= giá bán
+    if (originData.order_type === OrderType.Buy) {
+      buyPrice = originData.price
+      sellPrice = matchData.price
+    } else {
+      buyPrice = matchData.price
+      sellPrice = originData.price
+    }
+    if (buyPrice < sellPrice) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm021',
+        data: transactionData,
+        extraData: null,
+      })
+      return
+    }
+
+    // Kiểm tra trade type hợp lệ chưa
+    const originTradeType = ORDER_TYPE_LABEL[originData.order_type] || ''
+    const matchTradeType = ORDER_TYPE_LABEL[matchData.order_type] || ''
+    if (originTradeType === matchTradeType) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm022',
+        data: transactionData,
+        extraData: null,
+      })
+      return
+    }
+
+    // Transform data
+    const originTradingData: IExchangeConfirmOrderMatchTransform = {
+      trade_type: originTradeType,
+      user_id: parseInt(originData.user_id),
+      currency: originData.currency,
+      coin: originData.coin,
+      quantity: quantity,
+    }
+    const matchTradingData: IExchangeConfirmOrderMatchTransform = {
+      trade_type: matchTradeType,
+      user_id: parseInt(matchData.user_id),
+      currency: matchData.currency,
+      coin: matchData.coin,
+      quantity: quantity,
+    }
+
+    if (originData.user_type === UserType.User) {
+      this.emitEvent(
+        'EXCHANGE_CONFIRM_ORDER_MATCH',
+        messageId,
+        originTradingData,
+      )
+    }
+
+    if (matchData.user_type === UserType.User) {
+      this.emitEvent(
+        'EXCHANGE_CONFIRM_ORDER_MATCH',
+        messageId,
+        matchTradingData,
+      )
+    }
   }
 
   /**

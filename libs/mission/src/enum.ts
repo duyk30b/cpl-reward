@@ -41,6 +41,9 @@ export enum EVENTS {
   BCE_DEPOSIT = 'bce_deposit',
   BCE_WITHDRAW = 'bce_withdraw',
 
+  // New Exchange
+  EXCHANGE_CONFIRM_ORDER_MATCH = 'exchange_confirm_order_match',
+
   // BO
   HIGH_LOW_TRANSFER_BALANCE = 'high_low_transfer_balance',
   HIGH_LOW_CREATE = 'high_low_create',
@@ -68,4 +71,16 @@ export enum TARGET_TYPE {
   HYBRID = 1,
   ONLY_MAIN = 2,
   ONLY_REFERRED = 3,
+}
+
+export enum UserType {
+  User = 1,
+  BotA = 2,
+  BotP = 3,
+  Gatekeeper = 4,
+}
+
+export enum OrderType {
+  Buy = 1,
+  Sell = 2,
 }

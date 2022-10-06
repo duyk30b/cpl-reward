@@ -48,7 +48,6 @@ export class MissionsListener {
     missionsByEvent = missionsByEvent.filter((m) =>
       runningMissionIds.includes(m.missionId),
     )
-
     if (missionsByEvent.length === 0) {
       this.eventEmitter.emit(EventEmitterType.WRITE_LOG, {
         logLevel: 'warn',

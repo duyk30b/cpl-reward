@@ -238,6 +238,7 @@ export class MissionsService {
       userId,
       GRANT_TARGET_USER.USER,
     )
+    // mission.limitReceivedReward = 100
     if (mainUser !== undefined && successCount >= mission.limitReceivedReward) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',

@@ -20,19 +20,28 @@ async function bootstrap() {
   app
     .get(KafkaDecoratorProcessorService)
     .processKafkaDecorators([MissionsController])
-  app.connectMicroservice<KafkaOptions>({
-    transport: Transport.KAFKA,
-    options: {
-      client: {
-        clientId: configService.get<string>('kafka.client'),
-        brokers: [configService.get<string>('kafka.uri')],
-      },
-      consumer: {
-        groupId: configService.get<string>('kafka.consumer'),
-        allowAutoTopicCreation: true,
+
+  app.connectMicroservice<KafkaOptions>(
+    {
+      transport: Transport.KAFKA,
+      options: {
+        client: {
+          clientId: configService.get<string>('kafka.client'),
+          brokers: [configService.get<string>('kafka.uri')],
+        },
+        consumer: {
+          groupId: configService.get<string>('kafka.consumer'),
+          allowAutoTopicCreation: true,
+        },
+        // subscribe: {
+        //   fromBeginning: true,
+        // },
       },
     },
-  })
+    {
+      inheritAppConfig: true,
+    },
+  )
 
   await app.startAllMicroservices()
 

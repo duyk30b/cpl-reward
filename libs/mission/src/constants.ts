@@ -1,4 +1,4 @@
-import { EVENTS } from './enum'
+import { EVENTS, OrderType } from './enum'
 
 export const MISSION_SEARCH_FIELD_MAP = {
   title: 'mission.title',
@@ -83,6 +83,11 @@ export const KYC_STATUS = {
 export const USER_INFO_STATUS = {
   UPDATED: 1,
   NOT_UPDATED: 2,
+}
+
+export const ORDER_TYPE_LABEL = {
+  [OrderType.Buy]: 'buy',
+  [OrderType.Sell]: 'sell',
 }
 
 export const USER_CONDITION_TYPES = {
@@ -546,6 +551,47 @@ export const INFO_EVENTS = [
       },
     ],
   },
+
+  {
+    eventName: EVENTS.EXCHANGE_CONFIRM_ORDER_MATCH,
+    properties: [
+      {
+        key: 'trade_type',
+        type: 'string',
+        description: 'Trade Type',
+      },
+      // {
+      //   key: 'volume_type',
+      //   type: 'string',
+      //   description: 'Volume Type',
+      // },
+      {
+        key: 'user_id',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'User ID',
+      },
+      {
+        key: 'currency',
+        type: 'string',
+        description: 'Currency',
+      },
+      {
+        key: 'coin',
+        type: 'string',
+        description: 'Coin',
+      },
+      {
+        key: 'quantity',
+        type: 'string',
+        original: 'number',
+        display: 'number',
+        description: 'Quantity',
+      },
+    ],
+  },
+
   {
     eventName: EVENTS.BCE_DEPOSIT,
     properties: [

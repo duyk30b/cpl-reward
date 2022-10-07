@@ -19,4 +19,6 @@ export const TRACE_CODES = {
   m018: 'Result send failed {{type}}',
   m019: '{{condition_name}} Display condition check fail!',
   m020: 'Flood detected! ',
+  m021: 'Invalid buying and selling price',
+  m022: 'Invalid trade type',
 }

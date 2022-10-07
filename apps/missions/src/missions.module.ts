@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, ValidationError, ValidationPipe } from '@nestjs/common'
 import { KafkaModule } from '@lib/kafka'
 import { CommonModule } from '@lib/common'
 import { EventEmitterModule } from '@nestjs/event-emitter'
@@ -29,6 +29,9 @@ import { BankerBalanceProcessor } from './banker-balance.processor'
 import { BankerCashbackProcessor } from './banker-cashback.processor'
 import { TaggingListener } from './listeners/tagging.listener'
 import { WalletGatewayModule } from '@libs/wallet-gateway'
+import { APP_PIPE } from '@nestjs/core'
+import { ValidationException } from '@lib/common/exceptions/validation.exception'
+import { EventHandlerProcessor } from './event-handler.processor'
 
 @Module({
   controllers: [MissionsController],
@@ -68,7 +71,25 @@ import { WalletGatewayModule } from '@libs/wallet-gateway'
     HealthService,
     MissionsProcessor,
     BankerBalanceProcessor,
+    EventHandlerProcessor,
     BankerCashbackProcessor,
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        validateCustomDecorators: true,
+        transform: true,
+        validationError: {
+          target: false,
+          value: false,
+        },
+        transformOptions: {
+          excludeExtraneousValues: true,
+        },
+        exceptionFactory: (validationErrors: ValidationError[] = []) => {
+          return new ValidationException(validationErrors)
+        },
+      }),
+    },
   ],
 })
 export class MissionsModule {}

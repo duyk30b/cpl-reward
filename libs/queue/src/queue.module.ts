@@ -7,6 +7,7 @@ import { WorkerBullOptions } from '@lib/queue/options/worker-bull-options.factor
 import { LoggerBullOptions } from '@lib/queue/options/logger-bull-options.factory'
 import { BalanceBullOptions } from '@lib/queue/options/balance-bull-options.factory'
 import { CashbackBullOptions } from '@lib/queue/options/cashback-bull-options.factory'
+import { EventHandlerBullOptions } from '@lib/queue/options/event-handler-bull-options.factory'
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { CashbackBullOptions } from '@lib/queue/options/cashback-bull-options.fa
     BullModule.registerQueueAsync({
       name: 'banker_cashback',
       useClass: CashbackBullOptions,
+    }),
+    BullModule.registerQueueAsync({
+      name: 'event_handler',
+      useClass: EventHandlerBullOptions,
     }),
   ],
   providers: [QueueService],

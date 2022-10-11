@@ -512,45 +512,45 @@ export const INFO_EVENTS = [
     ],
   },
 
-  {
-    eventName: EVENTS.BCE_TRADING_MATCHED,
-    properties: [
-      {
-        key: 'trade_type',
-        type: 'string',
-        description: 'Trade Type',
-      },
-      {
-        key: 'user_id',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'User ID',
-      },
-      {
-        key: 'currency',
-        type: 'string',
-        description: 'Currency',
-      },
-      {
-        key: 'coin',
-        type: 'string',
-        description: 'Coin',
-      },
-      {
-        key: 'quantity',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'Quantity',
-      },
-      {
-        key: 'is_first_time',
-        type: 'boolean',
-        description: 'Is First Time',
-      },
-    ],
-  },
+  // {
+  //   eventName: EVENTS.BCE_TRADING_MATCHED,
+  //   properties: [
+  //     {
+  //       key: 'trade_type',
+  //       type: 'string',
+  //       description: 'Trade Type',
+  //     },
+  //     {
+  //       key: 'user_id',
+  //       type: 'string',
+  //       original: 'number',
+  //       display: 'number',
+  //       description: 'User ID',
+  //     },
+  //     {
+  //       key: 'currency',
+  //       type: 'string',
+  //       description: 'Currency',
+  //     },
+  //     {
+  //       key: 'coin',
+  //       type: 'string',
+  //       description: 'Coin',
+  //     },
+  //     {
+  //       key: 'quantity',
+  //       type: 'string',
+  //       original: 'number',
+  //       display: 'number',
+  //       description: 'Quantity',
+  //     },
+  //     {
+  //       key: 'is_first_time',
+  //       type: 'boolean',
+  //       description: 'Is First Time',
+  //     },
+  //   ],
+  // },
 
   {
     eventName: EVENTS.EXCHANGE_CONFIRM_ORDER_MATCH,
@@ -560,11 +560,6 @@ export const INFO_EVENTS = [
         type: 'string',
         description: 'Trade Type',
       },
-      // {
-      //   key: 'volume_type',
-      //   type: 'string',
-      //   description: 'Volume Type',
-      // },
       {
         key: 'user_id',
         type: 'string',

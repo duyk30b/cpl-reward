@@ -19,7 +19,7 @@ export class QueueService {
     private bankerCashbackQueue: Queue,
 
     @InjectQueue('event_handler')
-    private kafkaEventHandler: Queue,
+    private eventHandler: Queue,
   ) {}
 
   async addLog(name: string, data: any, opts?: JobOptions) {
@@ -70,7 +70,7 @@ export class QueueService {
     return await this.bankerCashbackQueue.add(name, data, opts)
   }
 
-  async addKafkaEventHandlerJob(name: string, data: any, opts?: JobOptions) {
-    return await this.kafkaEventHandler.add(name, data, opts)
+  async addEventHandlerJob(name: string, data: any, opts?: JobOptions) {
+    return await this.eventHandler.add(name, data, opts)
   }
 }

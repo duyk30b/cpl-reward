@@ -58,7 +58,7 @@ export class MissionsController {
 
     // Push kafka event to internal event
     this.queueService
-      .addKafkaEventHandlerJob(
+      .addEventHandlerJob(
         QUEUE_WRITE_LOG,
         {
           logLevel: 'log',
@@ -78,7 +78,7 @@ export class MissionsController {
       .then()
 
     this.queueService
-      .addKafkaEventHandlerJob(QUEUE_EVENT_HANDLER, {
+      .addEventHandlerJob(QUEUE_EVENT_HANDLER, {
         msgId,
         msgName,
         msgData,
@@ -244,44 +244,14 @@ export class MissionsController {
 
     const originData = order.origin
     const matchData = order.match
-    let buyPrice, sellPrice
 
     // TODO: Define to use net_volume or gross_volume
-    // const quantity = data.filled.net_volume
     const quantity = parseFloat(transactionData.data.filled.gross_volume)
 
-    // Giá mua phải >= giá bán
-    if (originData.order_type === OrderType.Buy) {
-      buyPrice = originData.price
-      sellPrice = matchData.price
-    } else {
-      buyPrice = matchData.price
-      sellPrice = originData.price
-    }
-    if (buyPrice < sellPrice) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm021',
-        data: transactionData,
-        extraData: null,
-      })
-      return
-    }
-
-    // Kiểm tra trade type hợp lệ chưa
+    // Transform data
     const originTradeType = ORDER_TYPE_LABEL[originData.order_type] || ''
     const matchTradeType = ORDER_TYPE_LABEL[matchData.order_type] || ''
-    if (originTradeType === matchTradeType) {
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm022',
-        data: transactionData,
-        extraData: null,
-      })
-      return
-    }
 
-    // Transform data
     const originTradingData: IExchangeConfirmOrderMatchTransform = {
       trade_type: originTradeType,
       user_id: parseInt(originData.user_id),

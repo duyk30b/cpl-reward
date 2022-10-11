@@ -6,7 +6,6 @@ export enum CAMPAIGN_IS_ACTIVE {
 export enum CAMPAIGN_TYPE {
   DEFAULT = 0,
   ORDER = 3,
-  AFFILIATE = 4,
 }
 
 export enum CAMPAIGN_STATUS {

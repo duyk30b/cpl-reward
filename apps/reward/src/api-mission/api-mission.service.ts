@@ -420,9 +420,7 @@ export class ApiMissionService {
       )
     }
 
-    const fixedAmount = FixedNumber.fromString(currentTarget.amount)
-    const totalRewardAmount =
-      FixedNumber.from(limitReceivedReward).mulUnsafe(fixedAmount)
+    const totalRewardAmount = FixedNumber.fromString(currentTarget.amount)
 
     return {
       currency: currentTarget.currency,

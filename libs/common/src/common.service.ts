@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { IPaginationLinks } from 'nestjs-typeorm-paginate'
-import { BigNumber, FixedNumber } from 'ethers'
+import { FixedNumber } from 'ethers'
+import { BigNumber } from 'bignumber.js'
 import { IGrantTarget } from './common.interface'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import * as Handlebars from 'handlebars'
@@ -66,10 +67,12 @@ export class CommonService {
     value: any,
     operator: string,
   ) {
-    const bfPropertyVal = FixedNumber.fromString(propertyValue)
-    const bfVal = FixedNumber.from(value)
-    const bbPropertyVal = BigNumber.from(bfPropertyVal.toHexString())
-    const bbVal = BigNumber.from(bfVal.toHexString())
+    // const bfPropertyVal = FixedNumber.fromString(propertyValue)
+    // const bfVal = FixedNumber.from(value)
+    // const bbPropertyVal = BigNumber.from(bfPropertyVal.toHexString())
+    // const bbVal = BigNumber.from(bfVal.toHexString())
+    const bbPropertyVal = new BigNumber(propertyValue)
+    const bbVal = new BigNumber(value)
     if (operator === '==') return bbVal.eq(bbPropertyVal)
     if (operator === '>') return bbVal.gt(bbPropertyVal)
     if (operator === '>=') return bbVal.gte(bbPropertyVal)

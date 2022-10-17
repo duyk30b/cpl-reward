@@ -81,6 +81,7 @@ message UpdateInput {
   int32 type = 13; // default: 0, order campaign: 3
   int32 isActive = 14; // default: 1 (ACTIVE) / 0 (INACTIVE)
   int32 status = 15; // default: 1 (RUNNING) / 2 (OUT_OF_BUDGET) / 3 (ENDED) / 4 (COMING_SOON)
+  int32 isHidden = 16; // default: 1 (HIDDEN) / 0 (UNHIDDEN)
   string resetTime = 19;
 }
 
@@ -105,6 +106,7 @@ message Result {
   repeated RewardRuleResult rewardRules = 18;
   string resetTime = 19;
   int32 isLock = 20;
+  int32 isHidden = 21;
 }
 
 message CreateInput {

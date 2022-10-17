@@ -8,7 +8,12 @@ import {
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS, CAMPAIGN_TYPE } from '../enum'
+import {
+  CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_IS_HIDDEN,
+  CAMPAIGN_STATUS,
+  CAMPAIGN_TYPE,
+} from '../enum'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 
 @Entity({
@@ -113,6 +118,14 @@ export class Campaign extends MyBaseEntity {
   @Column({ name: 'is_lock', default: false })
   @Expose({ name: 'is_lock' })
   isLock: boolean
+
+  @Column({
+    name: 'is_hidden',
+    type: 'smallint',
+    default: CAMPAIGN_IS_HIDDEN.UNHIDDEN,
+  })
+  @Expose({ name: 'is_hidden' })
+  isHidden: number
 
   @BeforeInsert()
   insertIsLock() {

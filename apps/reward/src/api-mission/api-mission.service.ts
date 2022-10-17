@@ -158,7 +158,6 @@ export class ApiMissionService {
           mission.id,
           receivedHistories,
           notReceivedHistories,
-          mission.limitReceivedReward,
         )
         delete mission.grantTarget
         delete mission.displayConditions
@@ -380,7 +379,6 @@ export class ApiMissionService {
     missionId: number,
     receivedHistories: any,
     notReceivedHistories: any,
-    limitReceivedReward: number,
   ) {
     const grantTargetObj = grantTarget as unknown as Target[]
     let currentTarget = null

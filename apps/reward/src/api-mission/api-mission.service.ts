@@ -23,6 +23,7 @@ import { Target } from './api-mission.interface'
 import { FixedNumber } from 'ethers'
 import {
   CAMPAIGN_IS_ACTIVE,
+  CAMPAIGN_IS_HIDDEN,
   CAMPAIGN_STATUS,
   CAMPAIGN_TYPE,
 } from '@lib/campaign'
@@ -158,7 +159,6 @@ export class ApiMissionService {
           mission.id,
           receivedHistories,
           notReceivedHistories,
-          mission.limitReceivedReward,
         )
         delete mission.grantTarget
         delete mission.displayConditions
@@ -228,7 +228,7 @@ export class ApiMissionService {
     queryBuilder.innerJoin(
       'campaigns',
       'campaigns',
-      `campaigns.id = mission.campaign_id AND campaigns.type = ${CAMPAIGN_TYPE.DEFAULT} AND campaigns.is_active = ${CAMPAIGN_IS_ACTIVE.ACTIVE}`,
+      `campaigns.id = mission.campaign_id AND campaigns.type = ${CAMPAIGN_TYPE.DEFAULT} AND campaigns.is_active = ${CAMPAIGN_IS_ACTIVE.ACTIVE} AND campaigns.is_hidden = ${CAMPAIGN_IS_HIDDEN.UNHIDDEN}`,
     )
     queryBuilder.leftJoin(
       'mission_user',
@@ -380,7 +380,6 @@ export class ApiMissionService {
     missionId: number,
     receivedHistories: any,
     notReceivedHistories: any,
-    limitReceivedReward: number,
   ) {
     const grantTargetObj = grantTarget as unknown as Target[]
     let currentTarget = null

@@ -3,6 +3,11 @@ export enum CAMPAIGN_IS_ACTIVE {
   ACTIVE = 1,
 }
 
+export enum CAMPAIGN_IS_HIDDEN {
+  HIDDEN = 1,
+  UNHIDDEN = 0,
+}
+
 export enum CAMPAIGN_TYPE {
   DEFAULT = 0,
   ORDER = 3,

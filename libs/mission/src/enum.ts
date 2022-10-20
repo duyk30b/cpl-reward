@@ -23,6 +23,15 @@ export enum GRANT_TARGET_USER {
   REFERRAL_USER = 'referral_user',
 }
 
+export enum GRANT_METHOD {
+  FIXED = 'fixed',
+  PERCENT = 'percent',
+}
+
+export enum PROPERTY_TO_CALCULATE_AMOUNT {
+  INVEST = 'invest',
+}
+
 export enum EVENTS {
   AUTH_USER_CREATED = 'auth_user_created',
   AUTH_USER_CHANGE_EMAIL = 'auth_user_change_email',

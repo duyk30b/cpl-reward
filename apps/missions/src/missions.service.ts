@@ -11,6 +11,7 @@ import {
   MISSION_STATUS,
   MissionService,
   DELIVERY_METHOD,
+  GRANT_METHOD,
 } from '@lib/mission'
 import {
   CommonService,
@@ -45,6 +46,7 @@ import {
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { QueueService } from '@lib/queue/queue.service'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class MissionsService {
@@ -238,7 +240,6 @@ export class MissionsService {
       userId,
       GRANT_TARGET_USER.USER,
     )
-    // mission.limitReceivedReward = 100
     if (mainUser !== undefined && successCount >= mission.limitReceivedReward) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -478,13 +479,38 @@ export class MissionsService {
       })
     }
 
+    // Tính số tiền để phát thưởng
+    let grantAmount = userTarget.amount
+    if ([GRANT_METHOD.PERCENT.toString()].includes(userTarget.grantMethod)) {
+      try {
+        const percent = new BigNumber(userTarget.amount)
+        const propertyToCalculateAmount = userTarget.propertyToCalculateAmount
+        const propertyToCalculateAmountValue = new BigNumber(
+          data.msgData[propertyToCalculateAmount],
+        )
+        grantAmount = propertyToCalculateAmountValue
+          .multipliedBy(percent)
+          .dividedBy(100)
+          .toString()
+      } catch (e) {
+        this.eventEmitter.emit(this.eventEmit, {
+          logLevel: 'error',
+          traceCode: 'm021',
+          data,
+          extraData: {
+            userTarget,
+          },
+        })
+      }
+    }
+
     const referenceId = this.idGeneratorService.generateSnowflakeId()
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
       missionId: data.missionId,
       userId,
       userType: userTarget.user,
-      amount: userTarget.amount,
+      amount: grantAmount,
       currency: userTarget.currency,
       wallet,
       deliveryMethod,
@@ -503,7 +529,7 @@ export class MissionsService {
         missionId: data.missionId,
         userId: userId,
         successCount: 0,
-        moneyEarned: userTarget.amount,
+        moneyEarned: grantAmount,
         note: JSON.stringify({
           event: data.msgName,
           result: 'Failed to create reward history after release reward',
@@ -525,7 +551,7 @@ export class MissionsService {
       const balanceBody = plainToInstance(SendRewardToBalance, {
         id: userRewardHistory.id,
         userId: userId,
-        amount: userTarget.amount,
+        amount: grantAmount,
         currency: userTarget.currency,
         type: 'reward',
         data,
@@ -547,7 +573,7 @@ export class MissionsService {
       const cashbackBody = plainToInstance(SendRewardToCashback, {
         id: userRewardHistory.id,
         userId: userId,
-        amount: userTarget.amount,
+        amount: grantAmount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
         data,

@@ -222,6 +222,7 @@ export class MissionsService {
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
+      data,
     )
     if (mainUser === undefined && referredUser === undefined) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -479,38 +480,13 @@ export class MissionsService {
       })
     }
 
-    // Tính số tiền để phát thưởng
-    let grantAmount = userTarget.amount
-    if ([GRANT_METHOD.PERCENT.toString()].includes(userTarget.grantMethod)) {
-      try {
-        const percent = new BigNumber(userTarget.amount)
-        const propertyToCalculateAmount = userTarget.propertyToCalculateAmount
-        const propertyToCalculateAmountValue = new BigNumber(
-          data.msgData[propertyToCalculateAmount],
-        )
-        grantAmount = propertyToCalculateAmountValue
-          .multipliedBy(percent)
-          .dividedBy(100)
-          .toString()
-      } catch (e) {
-        this.eventEmitter.emit(this.eventEmit, {
-          logLevel: 'error',
-          traceCode: 'm021',
-          data,
-          extraData: {
-            userTarget,
-          },
-        })
-      }
-    }
-
     const referenceId = this.idGeneratorService.generateSnowflakeId()
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
       missionId: data.missionId,
       userId,
       userType: userTarget.user,
-      amount: grantAmount,
+      amount: userTarget.amount,
       currency: userTarget.currency,
       wallet,
       deliveryMethod,
@@ -529,7 +505,7 @@ export class MissionsService {
         missionId: data.missionId,
         userId: userId,
         successCount: 0,
-        moneyEarned: grantAmount,
+        moneyEarned: userTarget.amount,
         note: JSON.stringify({
           event: data.msgName,
           result: 'Failed to create reward history after release reward',
@@ -551,7 +527,7 @@ export class MissionsService {
       const balanceBody = plainToInstance(SendRewardToBalance, {
         id: userRewardHistory.id,
         userId: userId,
-        amount: grantAmount,
+        amount: userTarget.amount,
         currency: userTarget.currency,
         type: 'reward',
         data,
@@ -573,7 +549,7 @@ export class MissionsService {
       const cashbackBody = plainToInstance(SendRewardToCashback, {
         id: userRewardHistory.id,
         userId: userId,
-        amount: grantAmount,
+        amount: userTarget.amount,
         currency: userTarget.currency,
         historyId: userRewardHistory.id,
         data,
@@ -750,14 +726,41 @@ export class MissionsService {
     }
   }
 
-  getDetailUserFromGrantTarget(grantTarget: string) {
-    let mainUser = undefined,
-      referredUser = undefined
+  calculateAmountInPercent(target: IGrantTarget, data: IEvent) {
+    try {
+      const percent = new BigNumber(target.amount)
+      const propertyToCalculateAmount = target.propertyToCalculateAmount
+      const propertyToCalculateAmountValue = new BigNumber(
+        data.msgData[propertyToCalculateAmount],
+      )
+      target.amount = propertyToCalculateAmountValue
+        .multipliedBy(percent)
+        .dividedBy(100)
+        .toString()
+    } catch (e) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
+        traceCode: 'm021',
+        data,
+        extraData: {
+          target,
+        },
+      })
+    }
+    return target.amount
+  }
+
+  getDetailUserFromGrantTarget(grantTarget: string, data: IEvent) {
+    let mainUser: IGrantTarget | undefined = undefined,
+      referredUser: IGrantTarget | undefined = undefined
     const grantTargets = grantTarget as unknown as IGrantTarget[]
     if (grantTargets.length === 0) return undefined
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
+      if ([GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
+        target.amount = this.calculateAmountInPercent(target, data)
+      }
       return target
     })
     return { mainUser, referredUser }

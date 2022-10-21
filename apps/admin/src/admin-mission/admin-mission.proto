@@ -52,6 +52,8 @@ message GrantTarget {
   string currency = 3;
   string wallet = 4;
   repeated int32 tagIds = 5;
+  string grantMethod = 6;
+  string propertyToCalculateAmount = 7;
 }
 message UpdateInput {
   int32 id = 1;

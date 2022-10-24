@@ -24,9 +24,7 @@ import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
-import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService, ErrorMessage } from '@lib/common'
-import { classToPlain, instanceToPlain } from 'class-transformer'
 
 @Injectable()
 export class AdminMissionService {

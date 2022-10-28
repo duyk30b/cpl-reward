@@ -1,4 +1,4 @@
-FROM node:14-alpine AS builder
+FROM 612964901073.dkr.ecr.ap-southeast-1.amazonaws.com/node:14-alpine AS builder
 
 WORKDIR /usr/src/app
 
@@ -17,7 +17,7 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
     chmod +x /bin/grpc_health_probe
 
 
-FROM node:14-alpine AS production
+FROM 612964901073.dkr.ecr.ap-southeast-1.amazonaws.com/node:14-alpine AS production
 
 WORKDIR /usr/src/app
 

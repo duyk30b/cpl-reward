@@ -42,6 +42,7 @@
     "@nestjs/typeorm": "^8.0.2",
     "@sentry/node": "^6.16.1",
     "@types/dotenv": "^8.2.0",
+    "bignumber.js": "^9.1.0",
     "bull": "^4.8.2",
     "cache-manager": "^3.6.0",
     "cache-manager-redis-store": "^2.0.0",

@@ -11,6 +11,7 @@ import {
   MISSION_STATUS,
   MissionService,
   DELIVERY_METHOD,
+  GRANT_METHOD,
 } from '@lib/mission'
 import {
   CommonService,
@@ -45,6 +46,7 @@ import {
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { QueueService } from '@lib/queue/queue.service'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class MissionsService {
@@ -220,6 +222,7 @@ export class MissionsService {
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
+      data,
     )
     if (mainUser === undefined && referredUser === undefined) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -723,14 +726,41 @@ export class MissionsService {
     }
   }
 
-  getDetailUserFromGrantTarget(grantTarget: string) {
-    let mainUser = undefined,
-      referredUser = undefined
+  calculateAmountInPercent(target: IGrantTarget, data: IEvent) {
+    try {
+      const percent = new BigNumber(target.amount)
+      const propertyToCalculateAmount = target.propertyToCalculateAmount
+      const propertyToCalculateAmountValue = new BigNumber(
+        data.msgData[propertyToCalculateAmount],
+      )
+      target.amount = propertyToCalculateAmountValue
+        .multipliedBy(percent)
+        .dividedBy(100)
+        .toString()
+    } catch (e) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
+        traceCode: 'm021',
+        data,
+        extraData: {
+          target,
+        },
+      })
+    }
+    return target.amount
+  }
+
+  getDetailUserFromGrantTarget(grantTarget: string, data: IEvent) {
+    let mainUser: IGrantTarget | undefined = undefined,
+      referredUser: IGrantTarget | undefined = undefined
     const grantTargets = grantTarget as unknown as IGrantTarget[]
     if (grantTargets.length === 0) return undefined
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
+      if ([GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
+        target.amount = this.calculateAmountInPercent(target, data)
+      }
       return target
     })
     return { mainUser, referredUser }

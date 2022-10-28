@@ -25,7 +25,10 @@ export class AdminCommonController {
   listGrantTarget() {
     const users = this.adminCommonService.listGrantTargetUsers()
     const wallets = this.adminCommonService.listGrantTargetWallets()
-    return { users, wallets }
+    const methods = this.adminCommonService.listGrantMethods()
+    const propertiesToCalculateAmount =
+      this.adminCommonService.listPropertyToCalculateAmount()
+    return { users, wallets, methods, propertiesToCalculateAmount }
   }
 
   @GrpcMethod('GrpcAdminCommonService', 'ListUserConditions')

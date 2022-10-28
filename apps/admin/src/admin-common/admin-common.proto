@@ -13,6 +13,8 @@ service GrpcAdminCommonService {
 message GrantTargetResult {
   repeated EventResult users = 1;
   repeated EventResult wallets = 2;
+  repeated EventResult methods = 3;
+  repeated EventResult propertiesToCalculateAmount = 4;
 }
 
 message InputPropertiesByEvent {

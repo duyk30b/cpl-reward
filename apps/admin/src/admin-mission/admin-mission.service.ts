@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import {
   DELIVERY_METHOD_WALLET,
   EVENTS,
+  GRANT_METHOD,
   GRANT_TARGET_USER,
   MISSION_STATUS,
   MissionService,
@@ -23,9 +24,7 @@ import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
-import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService, ErrorMessage } from '@lib/common'
-import { classToPlain, instanceToPlain } from 'class-transformer'
 
 @Injectable()
 export class AdminMissionService {
@@ -70,6 +69,15 @@ export class AdminMissionService {
     if (isUser && isReferralUser) return TARGET_TYPE.HYBRID
     if (isUser) return TARGET_TYPE.ONLY_MAIN
     return TARGET_TYPE.ONLY_REFERRED
+  }
+
+  private updatePropertyToCalculateAmountInTarget(grantTarget: TargetDto[]) {
+    return grantTarget.map((target) => {
+      if (![GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
+        target.propertyToCalculateAmount = ''
+      }
+      return target
+    })
   }
 
   private updateTypeInTarget(grantTarget: TargetDto[]) {
@@ -183,6 +191,9 @@ export class AdminMissionService {
     }
 
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
+    create.grantTarget = this.updatePropertyToCalculateAmountInTarget(
+      create.grantTarget,
+    )
     create.targetType = this.getTargetType(create.grantTarget)
     create.judgmentConditions = this.updateTypeInJudgment(
       create.judgmentConditions,

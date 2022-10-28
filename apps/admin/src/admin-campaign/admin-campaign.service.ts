@@ -6,6 +6,7 @@ import {
   CampaignService,
   CAMPAIGN_IS_ACTIVE,
   CAMPAIGN_TYPE,
+  CAMPAIGN_IS_HIDDEN,
 } from '@lib/campaign'
 import { RewardRuleService } from '@lib/reward-rule'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -134,6 +135,12 @@ export class AdminCampaignService {
 
     iUpdateCampaign.status =
       AdminCampaignService.calcCampaignStatus(iUpdateCampaign)
+
+    // Hiện tại nếu type !== DEFAULT thì luôn ẩn campaign với người dùng
+    if (iUpdateCampaign.type !== CAMPAIGN_TYPE.DEFAULT) {
+      iUpdateCampaign.isHidden = CAMPAIGN_IS_HIDDEN.HIDDEN
+    }
+
     const updateResult = await this.campaignService.update(iUpdateCampaign)
 
     if (updateResult.affected === 0) {

@@ -28,6 +28,11 @@ import configuration from './configuration'
                 'libs/external-new-balance/src/proto/transaction.proto',
               ),
             ],
+            channelOptions: {
+              'grpc.service_config': JSON.stringify({
+                loadBalancingConfig: [{ round_robin: {} }],
+              }),
+            },
           },
         })
       },

@@ -17,7 +17,7 @@ export enum TransactionType {
   AFFILIATE = 8,
   MANUALLY = 9,
   BO_TRADING = 10,
-  BO_TRADING_FEE = 11,
+  BO_TRADING_WIN = 11,
   REWARD = 12,
   BO_TRANSFER = 13,
   BO_TRANSFER_FEE = 14,
@@ -25,6 +25,7 @@ export enum TransactionType {
   COMMISSION = 16,
   CAMPAIGN = 17,
   TRADING = 18,
+  SWAP = 19,
 }
 
 export enum OnHoldTransactionStatus {

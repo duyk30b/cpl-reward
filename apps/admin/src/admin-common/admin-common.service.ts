@@ -43,7 +43,10 @@ export class AdminCommonService {
       .map((key) => {
         return {
           key,
-          value: DELIVERY_METHOD_WALLET[key].replace(/_/g, ' ').toUpperCase(),
+          value: DELIVERY_METHOD_WALLET[key]
+            .replace(/_/g, ' ')
+            .toUpperCase()
+            .replace('DIRECT ', ''),
         }
       })
   }

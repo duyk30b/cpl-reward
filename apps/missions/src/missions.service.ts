@@ -109,7 +109,7 @@ export class MissionsService {
 
     // Kiểm tra tính khả dụng của mission
     const { mission, rewardRules } = await this.syncMissionStatus(
-      data.missionId,
+      data,
       campaign,
     )
     if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
@@ -222,7 +222,6 @@ export class MissionsService {
     // Lấy thông tin tiền thưởng cho từng đối tượng
     const { mainUser, referredUser } = this.getDetailUserFromGrantTarget(
       mission.grantTarget,
-      data,
     )
     if (mainUser === undefined && referredUser === undefined) {
       this.eventEmitter.emit(this.eventEmit, {
@@ -417,8 +416,9 @@ export class MissionsService {
     //   })
     // }
 
+    // Khi update mission, nếu mission trả thưởng theo %, sốt tiền trả thưởng không cố định nên set isCheckForCreateOrUpdateMission = true để khi cập nhật mission status sẽ bỏ qua amount đi
     // Update lại status của reward một lần nữa
-    await this.syncMissionStatus(mission.id, campaign)
+    await this.syncMissionStatus(data, campaign, true)
   }
 
   async commonFlowReward(
@@ -750,7 +750,7 @@ export class MissionsService {
     return target.amount
   }
 
-  getDetailUserFromGrantTarget(grantTarget: string, data: IEvent) {
+  getDetailUserFromGrantTarget(grantTarget: string) {
     let mainUser: IGrantTarget | undefined = undefined,
       referredUser: IGrantTarget | undefined = undefined
     const grantTargets = grantTarget as unknown as IGrantTarget[]
@@ -758,9 +758,6 @@ export class MissionsService {
     grantTargets.map((target) => {
       if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
       if (target.user === GRANT_TARGET_USER.USER) mainUser = target
-      if ([GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
-        target.amount = this.calculateAmountInPercent(target, data)
-      }
       return target
     })
     return { mainUser, referredUser }
@@ -872,9 +869,11 @@ export class MissionsService {
 
   // TODO: Logic tính mission status trùng với hàm calcMissionsStatus, nên gộp làm 1
   async syncMissionStatus(
-    missionId: number,
+    data: IEvent,
     campaign: Campaign,
+    isCheckForCreateOrUpdateMission = false,
   ): Promise<{ mission: Mission; rewardRules: RewardRule[] }> {
+    const missionId = data.missionId
     let rewardRules = []
     let mission = await this.getMissionById(missionId)
     if (!mission) {
@@ -895,18 +894,34 @@ export class MissionsService {
       }
     }
 
+    // Nếu mission có target trả thưởng theo %, tính toán lại amount theo % cho target đó
+    const grantTargets = mission.grantTarget as unknown as IGrantTarget[]
+    grantTargets.map((target) => {
+      if ([GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
+        target.amount = this.calculateAmountInPercent(target, data)
+      }
+      return target
+    })
+    mission.grantTarget = JSON.parse(JSON.stringify(grantTargets))
+
     // Calculate mission status
     const onBudget = this.commonService.checkOnBudget(
       mission.grantTarget,
       rewardRules,
+      isCheckForCreateOrUpdateMission,
     )
     if (!onBudget) {
       missionStatus = MISSION_STATUS.OUT_OF_BUDGET
-      // this.eventEmitter.emit(this.eventEmit, {
-      //   logLevel: 'warn',
-      //   traceCode: 'm009',
-      //   mission,
-      // })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm009',
+        data,
+        extraData: {
+          campaignId: campaign.id,
+          missionId: mission.id,
+          grantTarget: mission.grantTarget,
+        },
+      })
     } else {
       const now = CommonService.currentUnixTime()
       let openingDate = mission.openingDate

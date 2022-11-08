@@ -135,6 +135,7 @@ export class AdminMissionService {
     const onBudget = this.commonService.checkOnBudget(
       input.grantTarget,
       input.rewardRules,
+      true,
     )
     if (!onBudget) return MISSION_STATUS.OUT_OF_BUDGET
 

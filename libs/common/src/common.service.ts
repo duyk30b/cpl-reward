@@ -8,6 +8,7 @@ import * as Handlebars from 'handlebars'
 import * as moment from 'moment-timezone'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { GRANT_METHOD } from '@lib/mission'
 
 @Injectable()
 export class CommonService {
@@ -23,7 +24,11 @@ export class CommonService {
     return FixedNumber.fromString(String(releaseValue))
   }
 
-  checkOnBudget(inputGrantTargets: any, inputRewardRules: any) {
+  checkOnBudget(
+    inputGrantTargets: any,
+    inputRewardRules: any,
+    isCheckForCreateOrUpdateMission = false,
+  ) {
     const grantTargets = inputGrantTargets as unknown as IGrantTarget[]
     const rewardRules = inputRewardRules as unknown as RewardRule[]
 
@@ -34,7 +39,16 @@ export class CommonService {
       ) {
         amountsByCurrency[`${target.type}_${target.currency}`] = '0'
       }
-      const fixedAmount = FixedNumber.fromString(target.amount)
+
+      let fixedAmount = FixedNumber.fromString(target.amount)
+
+      // Khi create hoặc update mission, nếu mission trả thưởng theo %, sẽ chưa biết số tiền trả thưởng (amount) là bao nhiêu nên tạm set amount của target đấy = 0. Khi đó status sẽ tính toán thông qua việc so sánh số tiền đã phát và ngân sách. Wrike 982086384
+      if (
+        isCheckForCreateOrUpdateMission &&
+        target.grantMethod === GRANT_METHOD.PERCENT
+      ) {
+        fixedAmount = FixedNumber.fromString('0')
+      }
       amountsByCurrency[`${target.type}_${target.currency}`] =
         FixedNumber.fromString(
           amountsByCurrency[`${target.type}_${target.currency}`],

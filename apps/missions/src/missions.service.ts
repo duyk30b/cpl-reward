@@ -715,13 +715,23 @@ export class MissionsService {
         ? '0'
         : referredUser.amount,
     )
+
+    // Fix lỗi: Mission thưởng cho User qua BALANCE, thưởng Referral User qua CASHBACK bị báo m010
+    const rewardRuleWalletType = rewardRule.key
+    const mainUserWalletType = mainUser.type
+    const referredUserWalletType = referredUser.type
+    let remainingBudget = fixedLimitValue.subUnsafe(fixedReleaseValue)
+
+    if (rewardRuleWalletType === mainUserWalletType) {
+      remainingBudget = remainingBudget.subUnsafe(fixedMainUserAmount)
+    }
+
+    if (rewardRuleWalletType === referredUserWalletType) {
+      remainingBudget = remainingBudget.subUnsafe(fixedReferredUserAmount)
+    }
+
     return {
-      status:
-        fixedLimitValue
-          .subUnsafe(fixedReleaseValue)
-          .subUnsafe(fixedMainUserAmount)
-          .subUnsafe(fixedReferredUserAmount)
-          .toUnsafeFloat() >= 0,
+      status: remainingBudget.toUnsafeFloat() >= 0,
       source: `2 - ${type}`,
     }
   }

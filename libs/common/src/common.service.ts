@@ -33,6 +33,7 @@ export class CommonService {
     const rewardRules = inputRewardRules as unknown as RewardRule[]
 
     const amountsByCurrency = {}
+
     for (const target of grantTargets) {
       if (
         amountsByCurrency[`${target.type}_${target.currency}`] === undefined
@@ -42,7 +43,7 @@ export class CommonService {
 
       let fixedAmount = FixedNumber.fromString(target.amount)
 
-      // Khi create hoặc update mission, nếu mission trả thưởng theo %, sẽ chưa biết số tiền trả thưởng (amount) là bao nhiêu nên tạm set amount của target đấy = 0. Khi đó status sẽ tính toán thông qua việc so sánh số tiền đã phát và ngân sách. Wrike 982086384
+      // Khi tạo hoặc sửa mission, nếu mission trả thưởng theo %, sẽ chưa biết số tiền trả thưởng (amount) là bao nhiêu nên tạm set amount của target đấy = 0. Wrike 982086384
       if (
         isCheckForCreateOrUpdateMission &&
         target.grantMethod === GRANT_METHOD.PERCENT
@@ -56,6 +57,7 @@ export class CommonService {
           .addUnsafe(fixedAmount)
           .toString()
     }
+
     for (const reward of rewardRules) {
       const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
       const fixedRelease = this.getFixedReleaseValue(reward)
@@ -63,16 +65,31 @@ export class CommonService {
         amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
           ? '0'
           : amountsByCurrency[`${reward.key}_${reward.currency}`]
-      if (amountByCurrency === '0') continue
+
+      if (amountByCurrency === '0') {
+        continue
+      }
+
+      const remainingBudget = fixedLimit
+        .subUnsafe(fixedRelease)
+        .subUnsafe(FixedNumber.fromString(amountByCurrency))
+        .toUnsafeFloat()
+
+      // Với mission trả thưởng theo %, nếu đang tính budget còn lại để cập nhật trạng thái thì budget <= 0 là chuyển thành out of budget rồi
       if (
-        fixedLimit
-          .subUnsafe(fixedRelease)
-          .subUnsafe(FixedNumber.fromString(amountByCurrency))
-          .toUnsafeFloat() < 0
+        isCheckForCreateOrUpdateMission &&
+        amountByCurrency === FixedNumber.fromString('0').toString() &&
+        remainingBudget <= 0
       ) {
         return false
       }
+
+      // Với mission trả thưởng cố định, nếu đang tính budget còn lại để trả thưởng thì budget < 0 mới chuyển thành out of budget, còn = 0 thì vẫn đủ tiền để trả nên vẫn cho qua
+      if (remainingBudget < 0) {
+        return false
+      }
     }
+
     return true
   }
 

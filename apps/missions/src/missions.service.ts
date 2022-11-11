@@ -181,7 +181,6 @@ export class MissionsService {
       })
       return
     }
-
     const userId = user.id
     const referredUserId = user.referredById || '0'
 
@@ -253,9 +252,9 @@ export class MissionsService {
       return
     }
 
-    // trả thưởng cho main user
+    // Trả thưởng cho main user
     let isCompleteRewardMainUser = true
-    // loop reward để trả thưởng cho main user
+    // Loop reward để trả thưởng cho main user
     if (mainUser !== undefined) {
       for (const rewardRuleKey in rewardRules) {
         if (
@@ -330,7 +329,7 @@ export class MissionsService {
       })
     }
 
-    // nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
+    // Nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
     if (!isCompleteRewardMainUser) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -718,15 +717,17 @@ export class MissionsService {
 
     // Fix lỗi: Mission thưởng cho User qua BALANCE, thưởng Referral User qua CASHBACK bị báo m010
     const rewardRuleWalletType = rewardRule.key
-    const mainUserWalletType = mainUser.type
-    const referredUserWalletType = referredUser.type
     let remainingBudget = fixedLimitValue.subUnsafe(fixedReleaseValue)
 
-    if (rewardRuleWalletType === mainUserWalletType) {
+    if (mainUser && mainUser.type && mainUser.type === rewardRuleWalletType) {
       remainingBudget = remainingBudget.subUnsafe(fixedMainUserAmount)
     }
 
-    if (rewardRuleWalletType === referredUserWalletType) {
+    if (
+      referredUser &&
+      referredUser.type &&
+      referredUser.type === rewardRuleWalletType
+    ) {
       remainingBudget = remainingBudget.subUnsafe(fixedReferredUserAmount)
     }
 

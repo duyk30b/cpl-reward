@@ -78,11 +78,17 @@ export class MissionsController {
       .then()
 
     this.queueService
-      .addEventHandlerJob(QUEUE_EVENT_HANDLER, {
-        msgId,
-        msgName,
-        msgData,
-      })
+      .addEventHandlerJob(
+        QUEUE_EVENT_HANDLER,
+        {
+          msgId,
+          msgName,
+          msgData,
+        },
+        {
+          removeOnComplete: true,
+        },
+      )
       .then()
   }
 

@@ -255,7 +255,7 @@ export class MissionsService {
     // Trả thưởng cho main user
     let isCompleteRewardMainUser = true
     // Loop reward để trả thưởng cho main user
-    if (mainUser !== undefined) {
+    if (mainUser) {
       for (const rewardRuleKey in rewardRules) {
         if (
           rewardRules[rewardRuleKey].currency !== mainUser.currency ||
@@ -341,7 +341,7 @@ export class MissionsService {
       return
     }
 
-    if (referredUserId !== '0' && referredUser !== undefined) {
+    if (referredUser && referredUserId !== '0') {
       // loop reward để trả thưởng cho referred user
       for (const rewardRuleKey in rewardRules) {
         if (

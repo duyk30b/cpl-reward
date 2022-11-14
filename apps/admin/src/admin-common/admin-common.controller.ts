@@ -2,7 +2,14 @@ import { Controller } from '@nestjs/common'
 import { AdminCommonService } from './admin-common.service'
 import { GrpcMethod } from '@nestjs/microservices'
 import { CreateActionLogInput } from './admin-common.interface'
-import { USER_CONDITION_TYPES } from '@lib/mission'
+import {
+  INFO_EVENTS,
+  LIST_GRANT_METHODS,
+  LIST_GRANT_TARGET_USERS,
+  LIST_GRANT_TARGET_WALLETS,
+  LIST_PROPERTY_TO_CALCULATE_AMOUNT,
+  USER_CONDITION_TYPES,
+} from '@lib/mission'
 import { ListEventsDto, UserConditionListDto } from './admin-common.dto'
 import { plainToInstance } from 'class-transformer'
 
@@ -17,17 +24,16 @@ export class AdminCommonController {
 
   @GrpcMethod('GrpcAdminCommonService', 'ListEvents')
   listEvents() {
-    const events = this.adminCommonService.listEvents()
+    const events = INFO_EVENTS
     return plainToInstance(ListEventsDto, { events })
   }
 
   @GrpcMethod('GrpcAdminCommonService', 'ListGrantTarget')
   listGrantTarget() {
-    const users = this.adminCommonService.listGrantTargetUsers()
-    const wallets = this.adminCommonService.listGrantTargetWallets()
-    const methods = this.adminCommonService.listGrantMethods()
-    const propertiesToCalculateAmount =
-      this.adminCommonService.listPropertyToCalculateAmount()
+    const wallets = LIST_GRANT_TARGET_WALLETS()
+    const users = LIST_GRANT_TARGET_USERS
+    const methods = LIST_GRANT_METHODS
+    const propertiesToCalculateAmount = LIST_PROPERTY_TO_CALCULATE_AMOUNT
     return { users, wallets, methods, propertiesToCalculateAmount }
   }
 

@@ -164,11 +164,7 @@ export class EventHandlerProcessor {
         QUEUE_MISSION_MAIN_FUNCTION,
         {
           groupKey:
-            'main_' +
-            '_' +
-            missionEvent.campaignId +
-            '_' +
-            data.msgData.user_id,
+            'main_' + missionEvent.missionId + '_' + data.msgData.user_id,
           msgId: data.msgId,
           msgName: data.msgName,
           msgData: data.msgData,

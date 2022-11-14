@@ -1,4 +1,11 @@
-import { EVENTS, OrderType } from './enum'
+import {
+  DELIVERY_METHOD_WALLET,
+  EVENTS,
+  GRANT_METHOD,
+  GRANT_TARGET_USER,
+  OrderType,
+  PROPERTY_TO_CALCULATE_AMOUNT,
+} from './enum'
 
 export const MISSION_SEARCH_FIELD_MAP = {
   title: 'mission.title',
@@ -1482,3 +1489,53 @@ export const INFO_EVENTS = [
     ],
   },
 ]
+
+export const LIST_GRANT_METHODS = [
+  {
+    key: GRANT_METHOD.FIXED,
+    value: 'Fixed',
+  },
+  {
+    key: GRANT_METHOD.PERCENT,
+    value: 'In Percent',
+  },
+]
+
+export const LIST_GRANT_TARGET_USERS = [
+  {
+    key: GRANT_TARGET_USER.USER,
+    value: 'User',
+  },
+  {
+    key: GRANT_TARGET_USER.REFERRAL_USER,
+    value: 'Referral User',
+  },
+]
+
+export const LIST_PROPERTY_TO_CALCULATE_AMOUNT = [
+  {
+    key: PROPERTY_TO_CALCULATE_AMOUNT.INVEST,
+    value: 'invest',
+  },
+]
+
+export const LIST_GRANT_TARGET_WALLETS = () => {
+  return Object.keys(DELIVERY_METHOD_WALLET)
+    .filter((key) =>
+      [
+        DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+        DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        // DELIVERY_METHOD_WALLET.REWARD_BALANCE,
+        // DELIVERY_METHOD_WALLET.REWARD_CASHBACK,
+      ].includes(DELIVERY_METHOD_WALLET[key]),
+    )
+    .map((key) => {
+      return {
+        key,
+        value: DELIVERY_METHOD_WALLET[key]
+          .replace(/_/g, ' ')
+          .toUpperCase()
+          .replace('DIRECT ', ''),
+      }
+    })
+}

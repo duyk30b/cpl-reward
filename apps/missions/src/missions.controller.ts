@@ -56,7 +56,7 @@ export class MissionsController {
     // Transform user_id to string
     msgData.user_id = msgData.user_id.toString()
 
-    // Push kafka event to internal event
+    // Push kafka event to Queue
     this.queueService
       .addEventHandlerJob(
         QUEUE_WRITE_LOG,

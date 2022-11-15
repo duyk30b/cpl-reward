@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import {
   DELIVERY_METHOD_WALLET,
   EVENTS,
+  GRANT_METHOD,
   GRANT_TARGET_USER,
   MISSION_STATUS,
   MissionService,
@@ -23,9 +24,7 @@ import { UserConditionDto } from '@lib/mission/dto/user-condition.dto'
 import { Interval } from '@nestjs/schedule'
 import { LessThanOrEqual, MoreThan, Not } from 'typeorm'
 import { CampaignService, CAMPAIGN_TYPE } from '@lib/campaign'
-import { Mission } from '@lib/mission/entities/mission.entity'
 import { CommonService, ErrorMessage } from '@lib/common'
-import { classToPlain, instanceToPlain } from 'class-transformer'
 
 @Injectable()
 export class AdminMissionService {
@@ -72,6 +71,15 @@ export class AdminMissionService {
     return TARGET_TYPE.ONLY_REFERRED
   }
 
+  private updatePropertyToCalculateAmountInTarget(grantTarget: TargetDto[]) {
+    return grantTarget.map((target) => {
+      if (![GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
+        target.propertyToCalculateAmount = ''
+      }
+      return target
+    })
+  }
+
   private updateTypeInTarget(grantTarget: TargetDto[]) {
     return grantTarget.map((target) => {
       if (
@@ -79,24 +87,28 @@ export class AdminMissionService {
           DELIVERY_METHOD_WALLET.REWARD_BALANCE,
           DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
         ].includes(DELIVERY_METHOD_WALLET[target.wallet])
-      )
+      ) {
         target.type = 'balance'
+      }
 
       if (
         [
           DELIVERY_METHOD_WALLET.REWARD_CASHBACK,
           DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
         ].includes(DELIVERY_METHOD_WALLET[target.wallet])
-      )
+      ) {
         target.type = 'cashback'
+      }
 
       if (
         [
           DELIVERY_METHOD_WALLET.REWARD_DIVIDEND,
           DELIVERY_METHOD_WALLET.DIRECT_DIVIDEND,
         ].includes(DELIVERY_METHOD_WALLET[target.wallet])
-      )
+      ) {
         target.type = 'dividend'
+      }
+
       return target
     })
   }
@@ -127,15 +139,25 @@ export class AdminMissionService {
     const onBudget = this.commonService.checkOnBudget(
       input.grantTarget,
       input.rewardRules,
+      true,
     )
-    if (!onBudget) return MISSION_STATUS.OUT_OF_BUDGET
+    if (!onBudget) {
+      return MISSION_STATUS.OUT_OF_BUDGET
+    }
 
     // checking time status
     const now = CommonService.currentUnixTime()
-    if (now < input.openingDate) return MISSION_STATUS.COMING_SOON
-    if (input.openingDate <= now && input.closingDate >= now)
+    if (now < input.openingDate) {
+      return MISSION_STATUS.COMING_SOON
+    }
+
+    if (input.openingDate <= now && input.closingDate >= now) {
       return MISSION_STATUS.RUNNING
-    if (now > input.closingDate) return MISSION_STATUS.ENDED
+    }
+
+    if (now > input.closingDate) {
+      return MISSION_STATUS.ENDED
+    }
   }
 
   private validateRangeTimeCampaign(
@@ -183,6 +205,9 @@ export class AdminMissionService {
     }
 
     create.grantTarget = this.updateTypeInTarget(create.grantTarget)
+    create.grantTarget = this.updatePropertyToCalculateAmountInTarget(
+      create.grantTarget,
+    )
     create.targetType = this.getTargetType(create.grantTarget)
     create.judgmentConditions = this.updateTypeInJudgment(
       create.judgmentConditions,

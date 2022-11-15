@@ -1,4 +1,11 @@
-import { EVENTS } from './enum'
+import {
+  DELIVERY_METHOD_WALLET,
+  EVENTS,
+  GRANT_METHOD,
+  GRANT_TARGET_USER,
+  OrderType,
+  PROPERTY_TO_CALCULATE_AMOUNT,
+} from './enum'
 
 export const MISSION_SEARCH_FIELD_MAP = {
   title: 'mission.title',
@@ -83,6 +90,11 @@ export const KYC_STATUS = {
 export const USER_INFO_STATUS = {
   UPDATED: 1,
   NOT_UPDATED: 2,
+}
+
+export const ORDER_TYPE_LABEL = {
+  [OrderType.Buy]: 'buy',
+  [OrderType.Sell]: 'sell',
 }
 
 export const USER_CONDITION_TYPES = {
@@ -507,8 +519,48 @@ export const INFO_EVENTS = [
     ],
   },
 
+  // {
+  //   eventName: EVENTS.BCE_TRADING_MATCHED,
+  //   properties: [
+  //     {
+  //       key: 'trade_type',
+  //       type: 'string',
+  //       description: 'Trade Type',
+  //     },
+  //     {
+  //       key: 'user_id',
+  //       type: 'string',
+  //       original: 'number',
+  //       display: 'number',
+  //       description: 'User ID',
+  //     },
+  //     {
+  //       key: 'currency',
+  //       type: 'string',
+  //       description: 'Currency',
+  //     },
+  //     {
+  //       key: 'coin',
+  //       type: 'string',
+  //       description: 'Coin',
+  //     },
+  //     {
+  //       key: 'quantity',
+  //       type: 'string',
+  //       original: 'number',
+  //       display: 'number',
+  //       description: 'Quantity',
+  //     },
+  //     {
+  //       key: 'is_first_time',
+  //       type: 'boolean',
+  //       description: 'Is First Time',
+  //     },
+  //   ],
+  // },
+
   {
-    eventName: EVENTS.BCE_TRADING_MATCHED,
+    eventName: EVENTS.EXCHANGE_CONFIRM_ORDER_MATCH,
     properties: [
       {
         key: 'trade_type',
@@ -539,13 +591,9 @@ export const INFO_EVENTS = [
         display: 'number',
         description: 'Quantity',
       },
-      {
-        key: 'is_first_time',
-        type: 'boolean',
-        description: 'Is First Time',
-      },
     ],
   },
+
   {
     eventName: EVENTS.BCE_DEPOSIT,
     properties: [
@@ -1441,3 +1489,54 @@ export const INFO_EVENTS = [
     ],
   },
 ]
+
+export const LIST_GRANT_METHODS = [
+  {
+    key: GRANT_METHOD.FIXED,
+    value: 'Fixed',
+  },
+  {
+    key: GRANT_METHOD.PERCENT,
+    value: 'In Percent',
+  },
+]
+
+export const LIST_GRANT_TARGET_USERS = [
+  {
+    key: GRANT_TARGET_USER.USER,
+    value: 'User',
+  },
+  {
+    key: GRANT_TARGET_USER.REFERRAL_USER,
+    value: 'Referral User',
+  },
+]
+
+export const LIST_PROPERTY_TO_CALCULATE_AMOUNT = [
+  {
+    key: PROPERTY_TO_CALCULATE_AMOUNT.INVEST,
+    value: 'invest',
+  },
+]
+
+// TODO: wallet saved in mission and mission_user_logs table are different. Fix after 16/11 release
+export const LIST_GRANT_TARGET_WALLETS = () => {
+  return Object.keys(DELIVERY_METHOD_WALLET)
+    .filter((key) =>
+      [
+        DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+        DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
+        // DELIVERY_METHOD_WALLET.REWARD_BALANCE,
+        // DELIVERY_METHOD_WALLET.REWARD_CASHBACK,
+      ].includes(DELIVERY_METHOD_WALLET[key]),
+    )
+    .map((key) => {
+      return {
+        key,
+        value: DELIVERY_METHOD_WALLET[key]
+          .replace(/_/g, ' ')
+          .toUpperCase()
+          .replace('DIRECT ', ''),
+      }
+    })
+}

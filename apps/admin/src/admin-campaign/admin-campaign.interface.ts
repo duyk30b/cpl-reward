@@ -60,6 +60,8 @@ export class ICampaign {
   status?: number
   @Expose({ name: 'is_active' })
   isActive?: number
+  @Expose({ name: 'is_hidden' })
+  isHidden?: number
   @Expose({ name: 'reset_time' })
   resetTime?: string
 }

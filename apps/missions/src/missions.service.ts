@@ -11,6 +11,7 @@ import {
   MISSION_STATUS,
   MissionService,
   DELIVERY_METHOD,
+  GRANT_METHOD,
 } from '@lib/mission'
 import {
   CommonService,
@@ -45,6 +46,7 @@ import {
 import { Mission } from '@lib/mission/entities/mission.entity'
 import { QueueService } from '@lib/queue/queue.service'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class MissionsService {
@@ -107,7 +109,7 @@ export class MissionsService {
 
     // Kiểm tra tính khả dụng của mission
     const { mission, rewardRules } = await this.syncMissionStatus(
-      data.missionId,
+      data,
       campaign,
     )
     if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
@@ -179,7 +181,6 @@ export class MissionsService {
       })
       return
     }
-
     const userId = user.id
     const referredUserId = user.referredById || '0'
 
@@ -251,10 +252,10 @@ export class MissionsService {
       return
     }
 
-    // trả thưởng cho main user
+    // Trả thưởng cho main user
     let isCompleteRewardMainUser = true
-    // loop reward để trả thưởng cho main user
-    if (mainUser !== undefined) {
+    // Loop reward để trả thưởng cho main user
+    if (mainUser) {
       for (const rewardRuleKey in rewardRules) {
         if (
           rewardRules[rewardRuleKey].currency !== mainUser.currency ||
@@ -328,7 +329,7 @@ export class MissionsService {
       })
     }
 
-    // nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
+    // Nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
     if (!isCompleteRewardMainUser) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -340,7 +341,7 @@ export class MissionsService {
       return
     }
 
-    if (referredUserId !== '0' && referredUser !== undefined) {
+    if (referredUser && referredUserId !== '0') {
       // loop reward để trả thưởng cho referred user
       for (const rewardRuleKey in rewardRules) {
         if (
@@ -414,8 +415,9 @@ export class MissionsService {
     //   })
     // }
 
+    // Khi update mission, nếu mission trả thưởng theo %, sốt tiền trả thưởng không cố định nên set isCheckForCreateOrUpdateMission = true để khi cập nhật mission status sẽ bỏ qua amount đi
     // Update lại status của reward một lần nữa
-    await this.syncMissionStatus(mission.id, campaign)
+    await this.syncMissionStatus(data, campaign, true)
   }
 
   async commonFlowReward(
@@ -712,27 +714,78 @@ export class MissionsService {
         ? '0'
         : referredUser.amount,
     )
+
+    // Fix lỗi: Mission thưởng cho User qua BALANCE, thưởng Referral User qua CASHBACK bị báo m010
+    const rewardRuleWalletType = rewardRule.key
+    let remainingBudget = fixedLimitValue.subUnsafe(fixedReleaseValue)
+
+    if (mainUser && mainUser.type && mainUser.type === rewardRuleWalletType) {
+      remainingBudget = remainingBudget.subUnsafe(fixedMainUserAmount)
+    }
+
+    if (
+      referredUser &&
+      referredUser.type &&
+      referredUser.type === rewardRuleWalletType
+    ) {
+      remainingBudget = remainingBudget.subUnsafe(fixedReferredUserAmount)
+    }
+
     return {
-      status:
-        fixedLimitValue
-          .subUnsafe(fixedReleaseValue)
-          .subUnsafe(fixedMainUserAmount)
-          .subUnsafe(fixedReferredUserAmount)
-          .toUnsafeFloat() >= 0,
+      status: remainingBudget.toUnsafeFloat() >= 0,
       source: `2 - ${type}`,
     }
   }
 
+  /**
+   * Tính lại số tiền trả thường (amount) theo % của một field từ event gửi về
+   * @param target
+   * @param data
+   */
+  calculateAmountInPercent(target: IGrantTarget, data: IEvent) {
+    try {
+      const percent = new BigNumber(target.amount)
+      const propertyToCalculateAmount = target.propertyToCalculateAmount
+      const valueToCalculateAmount = new BigNumber(
+        data.msgData[propertyToCalculateAmount],
+      )
+      target.amount = valueToCalculateAmount
+        .multipliedBy(percent)
+        .dividedBy(100)
+        .toString()
+    } catch (e) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'error',
+        traceCode: 'm021',
+        data,
+        extraData: {
+          target,
+        },
+      })
+      return false
+    }
+    return target.amount
+  }
+
   getDetailUserFromGrantTarget(grantTarget: string) {
-    let mainUser = undefined,
-      referredUser = undefined
+    let mainUser: IGrantTarget | undefined = undefined,
+      referredUser: IGrantTarget | undefined = undefined
+
     const grantTargets = grantTarget as unknown as IGrantTarget[]
-    if (grantTargets.length === 0) return undefined
+    if (grantTargets.length === 0) {
+      return undefined
+    }
+
     grantTargets.map((target) => {
-      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
-      if (target.user === GRANT_TARGET_USER.USER) mainUser = target
+      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) {
+        referredUser = target
+      }
+      if (target.user === GRANT_TARGET_USER.USER) {
+        mainUser = target
+      }
       return target
     })
+
     return { mainUser, referredUser }
   }
 
@@ -842,9 +895,11 @@ export class MissionsService {
 
   // TODO: Logic tính mission status trùng với hàm calcMissionsStatus, nên gộp làm 1
   async syncMissionStatus(
-    missionId: number,
+    data: IEvent,
     campaign: Campaign,
+    isCheckForCreateOrUpdateMission = false,
   ): Promise<{ mission: Mission; rewardRules: RewardRule[] }> {
+    const missionId = data.missionId
     let rewardRules = []
     let mission = await this.getMissionById(missionId)
     if (!mission) {
@@ -865,18 +920,47 @@ export class MissionsService {
       }
     }
 
+    // Nếu mission có target trả thưởng theo %, tính toán lại amount theo % cho target đó
+    const grantTargets = mission.grantTarget as unknown as IGrantTarget[]
+    let errorWhenCalculatingAmount = false
+    grantTargets.map((target) => {
+      if (target.grantMethod === GRANT_METHOD.PERCENT) {
+        const calculateAmountInPercent = this.calculateAmountInPercent(
+          target,
+          data,
+        )
+        if (calculateAmountInPercent) {
+          target.amount = calculateAmountInPercent
+        } else {
+          errorWhenCalculatingAmount = true
+        }
+      }
+      return target
+    })
+    // Nếu tính amount theo % bị lỗi thì mission đang có vấn đề rồi, dừng lại luôn
+    if (errorWhenCalculatingAmount) {
+      return { mission: null, rewardRules: [] }
+    }
+    mission.grantTarget = JSON.parse(JSON.stringify(grantTargets))
+
     // Calculate mission status
     const onBudget = this.commonService.checkOnBudget(
       mission.grantTarget,
       rewardRules,
+      isCheckForCreateOrUpdateMission,
     )
     if (!onBudget) {
       missionStatus = MISSION_STATUS.OUT_OF_BUDGET
-      // this.eventEmitter.emit(this.eventEmit, {
-      //   logLevel: 'warn',
-      //   traceCode: 'm009',
-      //   mission,
-      // })
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm009',
+        data,
+        extraData: {
+          campaignId: campaign.id,
+          missionId: mission.id,
+          grantTarget: mission.grantTarget,
+        },
+      })
     } else {
       const now = CommonService.currentUnixTime()
       let openingDate = mission.openingDate

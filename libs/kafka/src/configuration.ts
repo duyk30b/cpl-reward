@@ -23,6 +23,8 @@ export default registerAs('kafka', () => ({
   bce_deposit: process.env.KAFKA_BCE_DEPOSIT,
   bce_withdraw: process.env.KAFKA_BCE_WITHDRAW,
 
+  exchange_confirm_order_match: process.env.KAFKA_EXCHANGE_CONFIRM_ORDER_MATCH,
+
   high_low_transfer_balance: process.env.KAFKA_HIGH_LOW_TRANSFER_BALANCE,
   high_low_create: process.env.KAFKA_HIGH_LOW_CREATE,
   high_low_win: process.env.KAFKA_HIGH_LOW_WIN,

@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { IPaginationLinks } from 'nestjs-typeorm-paginate'
-import { BigNumber, FixedNumber } from 'ethers'
+import { FixedNumber } from 'ethers'
+import { BigNumber } from 'bignumber.js'
 import { IGrantTarget } from './common.interface'
 import { RewardRule } from '@lib/reward-rule/entities/reward-rule.entity'
 import * as Handlebars from 'handlebars'
 import * as moment from 'moment-timezone'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 import { Campaign } from '@lib/campaign/entities/campaign.entity'
+import { GRANT_METHOD } from '@lib/mission'
 
 @Injectable()
 export class CommonService {
@@ -22,18 +24,32 @@ export class CommonService {
     return FixedNumber.fromString(String(releaseValue))
   }
 
-  checkOnBudget(inputGrantTargets: any, inputRewardRules: any) {
+  checkOnBudget(
+    inputGrantTargets: any,
+    inputRewardRules: any,
+    isCheckForCreateOrUpdateMission = false,
+  ) {
     const grantTargets = inputGrantTargets as unknown as IGrantTarget[]
     const rewardRules = inputRewardRules as unknown as RewardRule[]
 
     const amountsByCurrency = {}
+
     for (const target of grantTargets) {
       if (
         amountsByCurrency[`${target.type}_${target.currency}`] === undefined
       ) {
         amountsByCurrency[`${target.type}_${target.currency}`] = '0'
       }
-      const fixedAmount = FixedNumber.fromString(target.amount)
+
+      let fixedAmount = FixedNumber.fromString(target.amount)
+
+      // Khi tạo hoặc sửa mission, nếu mission trả thưởng theo %, sẽ chưa biết số tiền trả thưởng (amount) là bao nhiêu nên tạm set amount của target đấy = 0. Wrike 982086384
+      if (
+        isCheckForCreateOrUpdateMission &&
+        target.grantMethod === GRANT_METHOD.PERCENT
+      ) {
+        fixedAmount = FixedNumber.fromString('0')
+      }
       amountsByCurrency[`${target.type}_${target.currency}`] =
         FixedNumber.fromString(
           amountsByCurrency[`${target.type}_${target.currency}`],
@@ -41,6 +57,7 @@ export class CommonService {
           .addUnsafe(fixedAmount)
           .toString()
     }
+
     for (const reward of rewardRules) {
       const fixedLimit = FixedNumber.fromString(String(reward.limitValue))
       const fixedRelease = this.getFixedReleaseValue(reward)
@@ -48,16 +65,31 @@ export class CommonService {
         amountsByCurrency[`${reward.key}_${reward.currency}`] === undefined
           ? '0'
           : amountsByCurrency[`${reward.key}_${reward.currency}`]
-      if (amountByCurrency === '0') continue
+
+      if (amountByCurrency === '0') {
+        continue
+      }
+
+      const remainingBudget = fixedLimit
+        .subUnsafe(fixedRelease)
+        .subUnsafe(FixedNumber.fromString(amountByCurrency))
+        .toUnsafeFloat()
+
+      // Với mission trả thưởng theo %, nếu đang tính budget còn lại để cập nhật trạng thái thì budget <= 0 là chuyển thành out of budget rồi
       if (
-        fixedLimit
-          .subUnsafe(fixedRelease)
-          .subUnsafe(FixedNumber.fromString(amountByCurrency))
-          .toUnsafeFloat() < 0
+        isCheckForCreateOrUpdateMission &&
+        amountByCurrency === FixedNumber.fromString('0').toString() &&
+        remainingBudget <= 0
       ) {
         return false
       }
+
+      // Với mission trả thưởng cố định, nếu đang tính budget còn lại để trả thưởng thì budget < 0 mới chuyển thành out of budget, còn = 0 thì vẫn đủ tiền để trả nên vẫn cho qua
+      if (remainingBudget < 0) {
+        return false
+      }
     }
+
     return true
   }
 
@@ -66,10 +98,12 @@ export class CommonService {
     value: any,
     operator: string,
   ) {
-    const bfPropertyVal = FixedNumber.fromString(propertyValue)
-    const bfVal = FixedNumber.from(value)
-    const bbPropertyVal = BigNumber.from(bfPropertyVal.toHexString())
-    const bbVal = BigNumber.from(bfVal.toHexString())
+    // const bfPropertyVal = FixedNumber.fromString(propertyValue)
+    // const bfVal = FixedNumber.from(value)
+    // const bbPropertyVal = BigNumber.from(bfPropertyVal.toHexString())
+    // const bbVal = BigNumber.from(bfVal.toHexString())
+    const bbPropertyVal = new BigNumber(propertyValue)
+    const bbVal = new BigNumber(value)
     if (operator === '==') return bbVal.eq(bbPropertyVal)
     if (operator === '>') return bbVal.gt(bbPropertyVal)
     if (operator === '>=') return bbVal.gte(bbPropertyVal)

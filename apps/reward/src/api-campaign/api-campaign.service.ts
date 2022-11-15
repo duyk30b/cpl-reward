@@ -6,6 +6,7 @@ import {
   CAMPAIGN_TYPE,
   CAMPAIGN_IS_ACTIVE,
   CAMPAIGN_STATUS,
+  CAMPAIGN_IS_HIDDEN,
 } from '@lib/campaign'
 import { ApiCampaignFilterDto } from './dto/api-campaign-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -113,6 +114,9 @@ export class ApiCampaignService {
     })
     queryBuilder.andWhere('campaign.isActive = :is_active ', {
       is_active: CAMPAIGN_IS_ACTIVE.ACTIVE,
+    })
+    queryBuilder.andWhere('campaign.isHidden = :is_hidden ', {
+      is_hidden: CAMPAIGN_IS_HIDDEN.UNHIDDEN,
     })
 
     // Only show running campaign or completed by user

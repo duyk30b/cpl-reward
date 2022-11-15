@@ -737,14 +737,19 @@ export class MissionsService {
     }
   }
 
+  /**
+   * Tính lại số tiền trả thường (amount) theo % của một field từ event gửi về
+   * @param target
+   * @param data
+   */
   calculateAmountInPercent(target: IGrantTarget, data: IEvent) {
     try {
       const percent = new BigNumber(target.amount)
       const propertyToCalculateAmount = target.propertyToCalculateAmount
-      const propertyToCalculateAmountValue = new BigNumber(
+      const valueToCalculateAmount = new BigNumber(
         data.msgData[propertyToCalculateAmount],
       )
-      target.amount = propertyToCalculateAmountValue
+      target.amount = valueToCalculateAmount
         .multipliedBy(percent)
         .dividedBy(100)
         .toString()
@@ -757,6 +762,7 @@ export class MissionsService {
           target,
         },
       })
+      return false
     }
     return target.amount
   }
@@ -764,13 +770,22 @@ export class MissionsService {
   getDetailUserFromGrantTarget(grantTarget: string) {
     let mainUser: IGrantTarget | undefined = undefined,
       referredUser: IGrantTarget | undefined = undefined
+
     const grantTargets = grantTarget as unknown as IGrantTarget[]
-    if (grantTargets.length === 0) return undefined
+    if (grantTargets.length === 0) {
+      return undefined
+    }
+
     grantTargets.map((target) => {
-      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) referredUser = target
-      if (target.user === GRANT_TARGET_USER.USER) mainUser = target
+      if (target.user === GRANT_TARGET_USER.REFERRAL_USER) {
+        referredUser = target
+      }
+      if (target.user === GRANT_TARGET_USER.USER) {
+        mainUser = target
+      }
       return target
     })
+
     return { mainUser, referredUser }
   }
 
@@ -907,12 +922,25 @@ export class MissionsService {
 
     // Nếu mission có target trả thưởng theo %, tính toán lại amount theo % cho target đó
     const grantTargets = mission.grantTarget as unknown as IGrantTarget[]
+    let errorWhenCalculatingAmount = false
     grantTargets.map((target) => {
-      if ([GRANT_METHOD.PERCENT.toString()].includes(target.grantMethod)) {
-        target.amount = this.calculateAmountInPercent(target, data)
+      if (target.grantMethod === GRANT_METHOD.PERCENT) {
+        const calculateAmountInPercent = this.calculateAmountInPercent(
+          target,
+          data,
+        )
+        if (calculateAmountInPercent) {
+          target.amount = calculateAmountInPercent
+        } else {
+          errorWhenCalculatingAmount = true
+        }
       }
       return target
     })
+    // Nếu tính amount theo % bị lỗi thì mission đang có vấn đề rồi, dừng lại luôn
+    if (errorWhenCalculatingAmount) {
+      return { mission: null, rewardRules: [] }
+    }
     mission.grantTarget = JSON.parse(JSON.stringify(grantTargets))
 
     // Calculate mission status

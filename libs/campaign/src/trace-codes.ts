@@ -19,5 +19,5 @@ export const TRACE_CODES = {
   m018: 'Result send failed {{type}}',
   m019: '{{condition_name}} Display condition check fail!',
   m020: 'Flood detected! ',
-  m021: 'Can not calculate amount to grant in percentage',
+  m021: 'Error when calculating amount to grant as percentage',
 }

@@ -33,9 +33,6 @@ async function bootstrap() {
           groupId: configService.get<string>('kafka.consumer'),
           allowAutoTopicCreation: true,
         },
-        // subscribe: {
-        //   fromBeginning: true,
-        // },
       },
     },
     {

@@ -1519,6 +1519,7 @@ export const LIST_PROPERTY_TO_CALCULATE_AMOUNT = [
   },
 ]
 
+// TODO: wallet saved in mission and mission_user_logs table are different. Fix after 16/11 release
 export const LIST_GRANT_TARGET_WALLETS = () => {
   return Object.keys(DELIVERY_METHOD_WALLET)
     .filter((key) =>

@@ -160,7 +160,9 @@ export class MissionService {
     user: User,
     shouldLog = false,
   ) {
-    if (userConditions.length === 0) return true
+    if (userConditions.length === 0) {
+      return true
+    }
     let result = true
     let errorCondition = null
     for (const idx in userConditions) {

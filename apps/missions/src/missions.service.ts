@@ -112,7 +112,13 @@ export class MissionsService {
       data,
       campaign,
     )
-    if (!mission || mission.status !== MISSION_STATUS.RUNNING) {
+
+    // Đáng nhẽ mission status false hoặc khác RUNNING là dừng chạy rồi, nhưng trường hợp OUT_OF_BUDGET bên Business muốn lưu thêm log vào DB. Nên đoạn này nếu status khác RUNNING thì phải khác cả OUT_OF_BUDGET mới dừng lại
+    if (
+      !mission ||
+      (mission.status !== MISSION_STATUS.RUNNING &&
+        mission.status !== MISSION_STATUS.OUT_OF_BUDGET)
+    ) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'debug',
         traceCode: 'm004',
@@ -123,6 +129,7 @@ export class MissionsService {
       return
     }
 
+    // Check Mission reward rules
     if (rewardRules.length === 0) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'error',
@@ -134,7 +141,7 @@ export class MissionsService {
     }
 
     if (campaign.type === CAMPAIGN_TYPE.ORDER) {
-      // check next previous mission passed or not
+      // Check next previous mission passed or not
       const previousMission = await this.missionService.getPreviousOrderMission(
         campaign.id,
         mission.priority,
@@ -184,23 +191,6 @@ export class MissionsService {
     const userId = user.id
     const referredUserId = user.referredById || '0'
 
-    // Kiểm tra điều kiện hiển thị
-    // const displayConditions =
-    //   mission.displayConditions === null ? [] : mission.displayConditions
-    // const checkDisplayConditions = this.checkUserConditions(
-    //   displayConditions as unknown as IUserCondition[],
-    //   user,
-    // )
-    // if (!checkDisplayConditions) {
-    //   this.eventEmitter.emit(this.eventEmit, {
-    //     logLevel: 'warn',
-    //     traceCode: 'm019',
-    //     data,
-    //     params: { condition_name: 'User' },
-    //   })
-    //   return
-    // }
-
     // Kiểm tra điều kiện User của mission xem user có thỏa mãn ko
     const checkUserConditions = this.missionService.checkUserConditions(
       mission.userConditions as unknown as IUserCondition[],
@@ -248,6 +238,42 @@ export class MissionsService {
           successCount,
           limitReceivedReward: mission.limitReceivedReward,
         },
+      })
+      return
+    }
+
+    // Trường hợp OUT_OF_BUDGET ở trên đang được nhả. Đến đây mới xử lý
+    if (mission.status === MISSION_STATUS.OUT_OF_BUDGET) {
+      this.eventEmitter.emit(this.eventEmit, {
+        logLevel: 'warn',
+        traceCode: 'm009',
+        data,
+        extraData: {
+          campaignId: campaign.id,
+          missionId: mission.id,
+          grantTarget: mission.grantTarget,
+        },
+      })
+
+      // Lưu Reward History
+      const referenceId = this.idGeneratorService.generateSnowflakeId()
+      const getWalletFromTarget = this.missionService.getWalletFromTarget(
+        mainUser.wallet,
+      )
+      const mainUserWalletToSave = getWalletFromTarget.wallet
+      await this.userRewardHistoryService.save({
+        campaignId: data.campaignId,
+        missionId: data.missionId,
+        userId: data.msgData.user_id,
+        userType: GRANT_TARGET_USER.USER,
+        amount: mainUser.amount,
+        currency: mainUser.currency,
+        wallet: mainUserWalletToSave,
+        deliveryMethod: DELIVERY_METHOD.AUTO,
+        referrerUserId: referredUserId,
+        referenceId,
+        status: USER_REWARD_STATUS.FAIL_DUE_TO_OUT_OF_BUDGET,
+        createdAt: null,
       })
       return
     }
@@ -329,7 +355,7 @@ export class MissionsService {
       })
     }
 
-    // Nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho refered user
+    // Nếu trả thưởng không thành công cho main user thì cũng không trả thưởng cho Refered user
     if (!isCompleteRewardMainUser) {
       this.eventEmitter.emit(this.eventEmit, {
         logLevel: 'warn',
@@ -341,14 +367,16 @@ export class MissionsService {
       return
     }
 
+    // Trả thưởng cho Refered user
     if (referredUser && referredUserId !== '0') {
-      // loop reward để trả thưởng cho referred user
+      // Loop reward để trả thưởng cho referred user
       for (const rewardRuleKey in rewardRules) {
         if (
           rewardRules[rewardRuleKey].currency !== referredUser.currency ||
           rewardRules[rewardRuleKey].key !== referredUser.type
-        )
+        ) {
           continue
+        }
 
         const checkMoneyRewardReferred = this.checkMoneyReward(
           rewardRules[rewardRuleKey],
@@ -479,6 +507,7 @@ export class MissionsService {
       })
     }
 
+    // Lưu Reward History
     const referenceId = this.idGeneratorService.generateSnowflakeId()
     const userRewardHistory = await this.userRewardHistoryService.save({
       campaignId: data.campaignId,
@@ -518,6 +547,8 @@ export class MissionsService {
 
       return false
     }
+
+    // Cộng tiền qua BALANCE
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
         DELIVERY_METHOD_WALLET.DIRECT_BALANCE &&
@@ -540,6 +571,8 @@ export class MissionsService {
         balanceBody,
       )
     }
+
+    // Cộng tiền qua CASHBACK
     if (
       DELIVERY_METHOD_WALLET[userTarget.wallet] ===
         DELIVERY_METHOD_WALLET.DIRECT_CASHBACK &&
@@ -562,6 +595,7 @@ export class MissionsService {
         cashbackBody,
       )
     }
+
     return true
   }
 
@@ -606,7 +640,9 @@ export class MissionsService {
     messageValue: any,
     eventName: string,
   ) {
-    if (judgmentConditions.length === 0) return true
+    if (judgmentConditions.length === 0) {
+      return true
+    }
     let result = true
     let errorCondition = null
     for (const idx in judgmentConditions) {
@@ -901,7 +937,7 @@ export class MissionsService {
   ): Promise<{ mission: Mission; rewardRules: RewardRule[] }> {
     const missionId = data.missionId
     let rewardRules = []
-    let mission = await this.getMissionById(missionId)
+    const mission = await this.getMissionById(missionId)
     if (!mission) {
       return { mission: null, rewardRules: [] }
     }
@@ -951,16 +987,6 @@ export class MissionsService {
     )
     if (!onBudget) {
       missionStatus = MISSION_STATUS.OUT_OF_BUDGET
-      this.eventEmitter.emit(this.eventEmit, {
-        logLevel: 'warn',
-        traceCode: 'm009',
-        data,
-        extraData: {
-          campaignId: campaign.id,
-          missionId: mission.id,
-          grantTarget: mission.grantTarget,
-        },
-      })
     } else {
       const now = CommonService.currentUnixTime()
       let openingDate = mission.openingDate
@@ -983,10 +1009,11 @@ export class MissionsService {
 
     // Update if mission status changed
     if (missionStatus != mission.status) {
-      mission = await this.missionService.update({
+      await this.missionService.update({
         id: mission.id,
         status: missionStatus,
       })
+      mission.status = missionStatus
     }
 
     return {

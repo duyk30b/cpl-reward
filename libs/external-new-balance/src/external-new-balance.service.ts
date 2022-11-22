@@ -17,7 +17,7 @@ export class ExternalNewBalanceService implements WalletServiceInterface {
 
   constructor(
     private eventEmitter: EventEmitter2,
-    private transactionSerivce: TransactionService,
+    private transactionService: TransactionService,
   ) {}
 
   async changeUserBalance(
@@ -71,7 +71,7 @@ export class ExternalNewBalanceService implements WalletServiceInterface {
       ],
     }
     try {
-      const result = await this.transactionSerivce.createTransaction(
+      const result = await this.transactionService.createTransaction(
         requestData,
       )
 

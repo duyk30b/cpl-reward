@@ -5,7 +5,6 @@ import {
   OneToMany,
   JoinColumn,
   AfterLoad,
-  ManyToOne,
 } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'

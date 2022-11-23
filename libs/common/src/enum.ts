@@ -34,6 +34,7 @@ export enum MissionUserLogNoteCode {
   FAILED_RAISE_REWARD = 2,
   FAILED_RELEASE_MONEY = 3,
   FAILED_CREATE_HISTORY = 4,
+  FAILED_DUE_TO_OUT_OF_BUDGET = 5,
 }
 
 export enum MissionUserLogStatus {

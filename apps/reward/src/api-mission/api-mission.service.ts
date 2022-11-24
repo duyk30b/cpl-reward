@@ -172,6 +172,9 @@ export class ApiMissionService {
           money.deliveryMethod = DELIVERY_METHOD.AUTO
         }
 
+        // Task 977385085. Hiện tại khi Admin setup mission phát thưởng nhiều lần. Nhưng chỉ cần user nhận một lần là bên Frontend sẽ hiện thị tích xanh (completed) luôn, nên BE sẽ tính hộ FE logic này
+        const completed = rawMission.success_count > 0
+
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,
@@ -184,6 +187,7 @@ export class ApiMissionService {
             rewardHistories,
             mission.id,
           ),
+          completed,
         }
       })
       data = data.concat(newData)
@@ -384,7 +388,9 @@ export class ApiMissionService {
     const grantTargetObj = grantTarget as unknown as Target[]
     let currentTarget = null
     grantTargetObj.map((target) => {
-      if (target.user === GRANT_TARGET_USER.USER) currentTarget = target
+      if (target.user === GRANT_TARGET_USER.USER) {
+        currentTarget = target
+      }
       return target
     })
     if (currentTarget === null) {

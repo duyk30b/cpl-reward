@@ -173,7 +173,7 @@ export class ApiMissionService {
         }
 
         // Task 977385085. Hiện tại khi Admin setup mission phát thưởng nhiều lần. Nhưng chỉ cần user nhận một lần là bên Frontend sẽ hiện thị tích xanh (completed) luôn, nên BE sẽ tính hộ FE logic này
-        const completed = rawMission.success_count > 0
+        const completed = rawMission.success_count > 0 ? 1 : 0
 
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),

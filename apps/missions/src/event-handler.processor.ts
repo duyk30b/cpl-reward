@@ -41,8 +41,8 @@ export class EventHandlerProcessor {
     extraData = this.hideInformation(extraData)
 
     const msgId = data === undefined ? 'N/A' : data.msgId
-    const missionId = data === undefined ? '' : data.missionId
-    const campaignId = data === undefined ? '' : data.campaignId
+    // const missionId = data === undefined ? '' : data.missionId
+    // const campaignId = data === undefined ? '' : data.campaignId
     const userId = data === undefined ? '' : data.msgData.user_id
     const msgDataJsonStr =
       data === undefined ? '{}' : JSON.stringify(data.msgData)
@@ -51,7 +51,7 @@ export class EventHandlerProcessor {
 
     const message =
       `[${msgId}] | ` +
-      `[CAMPAIGN_${campaignId}] [MISSION_${missionId}] [USER_${userId}] | ` +
+      `[USER_${userId}] | ` +
       `[Message: ${
         TRACE_CODES[traceCode] === undefined
           ? this.commonService.getLogMessageFromTemplate(traceCode, params)

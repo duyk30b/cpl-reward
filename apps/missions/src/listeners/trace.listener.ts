@@ -28,22 +28,23 @@ export class TraceListener {
     const msgId = data === undefined ? 'N/A' : data.msgId
     const missionId = data === undefined ? '' : data.missionId
     const campaignId = data === undefined ? '' : data.campaignId
+    const userId = data === undefined ? '' : data.msgData.user_id
     const msgDataJsonStr =
       data === undefined ? '{}' : JSON.stringify(data.msgData)
     const msgExtraDataJsonStr =
       extraData === undefined ? '{}' : JSON.stringify(extraData)
 
     const message =
-      `[${msgId}] |` +
-      `[M${missionId}] [C${campaignId}]` +
-      ` [Message: ${
+      `[${msgId}] | ` +
+      `[CAMPAIGN_${campaignId}] [MISSION_${missionId}] [USER_${userId}] | ` +
+      `[Message: ${
         TRACE_CODES[traceCode] === undefined
           ? this.commonService.getLogMessageFromTemplate(traceCode, params)
           : this.commonService.getLogMessageFromTemplate(
               TRACE_CODES[traceCode],
               params === undefined ? {} : params,
             )
-      }] |` +
+      }] | ` +
       `[Data: ${msgDataJsonStr}] | ` +
       `[Extra: ${msgExtraDataJsonStr}]`
 

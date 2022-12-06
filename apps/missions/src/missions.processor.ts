@@ -12,21 +12,21 @@ export class MissionsProcessor {
   constructor(private missionsService: MissionsService) {}
 
   @Process(QUEUE_MISSION_MAIN_FUNCTION)
-  async handleMainFunction(job: Job) {
+  handleMainFunction(job: Job) {
     // const start = new Date().getTime()
     // this.logger.log(
     //   job.data.msgId + ' is running | Mission ' + job.data.missionId,
     // )
 
-    await this.missionsService.mainFunction(job.data)
-
-    // const stop = new Date().getTime()
-    // this.logger.log(
-    //   job.data.msgId +
-    //     ' done | Time: ' +
-    //     (stop - start) +
-    //     ' ms | Mission ' +
-    //     job.data.missionId,
-    // )
+    this.missionsService.mainFunction(job.data).then(() => {
+      // const stop = new Date().getTime()
+      // this.logger.log(
+      //   job.data.msgId +
+      //     ' done | Time: ' +
+      //     (stop - start) +
+      //     ' ms | Mission ' +
+      //     job.data.missionId,
+      // )
+    })
   }
 }

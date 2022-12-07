@@ -41,24 +41,25 @@ export class EventHandlerProcessor {
     extraData = this.hideInformation(extraData)
 
     const msgId = data === undefined ? 'N/A' : data.msgId
-    const missionId = data === undefined ? '' : data.missionId
-    const campaignId = data === undefined ? '' : data.campaignId
+    // const missionId = data === undefined ? '' : data.missionId
+    // const campaignId = data === undefined ? '' : data.campaignId
+    const userId = data === undefined ? '' : data.msgData.user_id
     const msgDataJsonStr =
       data === undefined ? '{}' : JSON.stringify(data.msgData)
     const msgExtraDataJsonStr =
       extraData === undefined ? '{}' : JSON.stringify(extraData)
 
     const message =
-      `[${msgId}] |` +
-      `[M${missionId}] [C${campaignId}]` +
-      ` [Message: ${
+      `[${msgId}] | ` +
+      `[USER_${userId}] | ` +
+      `[Message: ${
         TRACE_CODES[traceCode] === undefined
           ? this.commonService.getLogMessageFromTemplate(traceCode, params)
           : this.commonService.getLogMessageFromTemplate(
               TRACE_CODES[traceCode],
               params === undefined ? {} : params,
             )
-      }] |` +
+      }] | ` +
       `[Data: ${msgDataJsonStr}] | ` +
       `[Extra: ${msgExtraDataJsonStr}]`
 
@@ -164,7 +165,7 @@ export class EventHandlerProcessor {
         QUEUE_MISSION_MAIN_FUNCTION,
         {
           groupKey:
-            'main_' + missionEvent.missionId + '_' + data.msgData.user_id,
+            'main_' + missionEvent.campaignId + '_' + data.msgData.user_id,
           msgId: data.msgId,
           msgName: data.msgName,
           msgData: data.msgData,

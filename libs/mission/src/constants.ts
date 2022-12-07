@@ -729,40 +729,22 @@ export const INFO_EVENTS = [
         description: 'User ID',
       },
       {
-        key: 'bcast_balance',
+        key: 'currency',
+        type: 'string',
+        description: 'Currency (lowercase)',
+      },
+      {
+        key: 'type',
+        type: 'string',
+        description: 'Type (EXCHANGE or BO)',
+      },
+      {
+        key: 'transfer_amount',
         type: 'string',
         original: 'number',
         display: 'number',
-        description: 'BCAST balance',
+        description: 'Transfer amount',
       },
-      {
-        key: 'bcast_available_balance',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'BCAST available balance',
-      },
-      {
-        key: 'usdt_balance',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'USDT balance',
-      },
-      {
-        key: 'usdt_available_balance',
-        type: 'string',
-        original: 'number',
-        display: 'number',
-        description: 'USDT available balance',
-      },
-      {
-        key: 'account_type',
-        type: 'number',
-        description: '1 is user, others is BOT',
-      },
-      // session_id: No idea with this field
-      // created_at, updated_at. Example: 2021-07-23 07:54:12. No idea with this type
     ],
   },
   {

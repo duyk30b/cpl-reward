@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import {
   DELIVERY_METHOD,
+  DELIVERY_METHOD_WALLET,
   GRANT_TARGET_USER,
   MISSION_IS_ACTIVE,
   MISSION_SEARCH_FIELD_MAP,
@@ -39,10 +40,13 @@ import {
 } from '@lib/queue'
 import { UserRewardHistory } from '@lib/user-reward-history/entities/user-reward-history.entity'
 import {
+  SendRewardJob,
   SendRewardToBalance,
   SendRewardToCashback,
 } from 'apps/missions/src/interfaces/external.interface'
 import { TransformWalletMethod } from './constant/mission'
+import { WALLET_VERSION } from '@libs/wallet-gateway/wallet.enum'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class ApiMissionService {
@@ -53,6 +57,7 @@ export class ApiMissionService {
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly externalUserService: ExternalUserService,
     private readonly queueService: QueueService,
+    private configService: ConfigService,
   ) {}
 
   async findPublicMissions(
@@ -469,8 +474,72 @@ export class ApiMissionService {
       return false
     }
 
-    if (rewardHistory.wallet === WALLET.BALANCE) {
-      const balanceBody = plainToInstance(SendRewardToBalance, {
+    const walletVersion = this.configService.get('common.wallet_version')
+
+    // Cộng tiền theo cách cũ. WALLET_VERSION v1 || v2
+    if (
+      [WALLET_VERSION.FIRST_VERSION, WALLET_VERSION.SECOND_VERSION].includes(
+        walletVersion,
+      )
+    ) {
+      if (rewardHistory.wallet === WALLET.BALANCE) {
+        const balanceBody = plainToInstance(SendRewardToBalance, {
+          id: rewardHistory.id,
+          userId: rewardHistory.userId,
+          amount: rewardHistory.amount,
+          currency: rewardHistory.currency,
+          historyId: rewardHistory.id,
+          userType: rewardHistory.userType,
+          referenceId: rewardHistory.referenceId,
+          type: 'reward',
+          data: {
+            campaignId: rewardHistory.campaignId,
+            missionId: rewardHistory.missionId,
+            msgName: 'redeem',
+          },
+        })
+        await this.queueService.addSendMoneyJob(
+          rewardHistory.userId,
+          QUEUE_SEND_BALANCE,
+          0,
+          balanceBody,
+        )
+      }
+
+      if (rewardHistory.wallet === WALLET.CASHBACK) {
+        const cashbackBody = plainToInstance(SendRewardToCashback, {
+          id: rewardHistory.id,
+          userId: rewardHistory.userId,
+          amount: rewardHistory.amount,
+          currency: rewardHistory.currency,
+          userType: rewardHistory.userType,
+          referenceId: rewardHistory.referenceId,
+          data: {
+            campaignId: rewardHistory.campaignId,
+            missionId: rewardHistory.missionId,
+            msgName: 'redeem',
+          },
+        })
+        await this.queueService.addSendMoneyJob(
+          rewardHistory.userId,
+          QUEUE_SEND_CASHBACK,
+          0,
+          cashbackBody,
+        )
+      }
+    }
+
+    // Cộng tiền theo cách mới. WALLET_VERSION = v3
+    if (walletVersion === WALLET_VERSION.THIRD_VERSION) {
+      let deliveryMethodWallet = DELIVERY_METHOD_WALLET.DIRECT_BALANCE
+      if (rewardHistory.wallet === WALLET.CASHBACK) {
+        deliveryMethodWallet = DELIVERY_METHOD_WALLET.DIRECT_CASHBACK
+      }
+      if (rewardHistory.wallet === WALLET.REWARD) {
+        deliveryMethodWallet = DELIVERY_METHOD_WALLET.DIRECT_REWARD
+      }
+
+      const sendRewardJobBody = plainToInstance(SendRewardJob, {
         id: rewardHistory.id,
         userId: rewardHistory.userId,
         amount: rewardHistory.amount,
@@ -478,41 +547,18 @@ export class ApiMissionService {
         historyId: rewardHistory.id,
         userType: rewardHistory.userType,
         referenceId: rewardHistory.referenceId,
-        type: 'reward',
+        deliveryMethodWallet,
         data: {
+          msgName: 'redeem',
           campaignId: rewardHistory.campaignId,
           missionId: rewardHistory.missionId,
-          msgName: 'redeem',
+          msgData: {
+            user_id: rewardHistory.userId,
+          },
         },
       })
-      await this.queueService.addSendMoneyJob(
-        rewardHistory.userId,
-        QUEUE_SEND_BALANCE,
-        0,
-        balanceBody,
-      )
-    }
 
-    if (rewardHistory.wallet === WALLET.CASHBACK) {
-      const cashbackBody = plainToInstance(SendRewardToCashback, {
-        id: rewardHistory.id,
-        userId: rewardHistory.userId,
-        amount: rewardHistory.amount,
-        currency: rewardHistory.currency,
-        userType: rewardHistory.userType,
-        referenceId: rewardHistory.referenceId,
-        data: {
-          campaignId: rewardHistory.campaignId,
-          missionId: rewardHistory.missionId,
-          msgName: 'redeem',
-        },
-      })
-      await this.queueService.addSendMoneyJob(
-        rewardHistory.userId,
-        QUEUE_SEND_CASHBACK,
-        0,
-        cashbackBody,
-      )
+      await this.queueService.addSendRewardJob(sendRewardJobBody)
     }
 
     return true

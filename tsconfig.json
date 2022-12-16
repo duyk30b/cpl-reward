@@ -159,6 +159,12 @@
       ],
       "@libs/wallet-gateway/*": [
         "libs/wallet-gateway/src/*"
+      ],
+      "@libs/new-balance": [
+        "libs/new-balance/src"
+      ],
+      "@libs/new-balance/*": [
+        "libs/new-balance/src/*"
       ]
     }
   }

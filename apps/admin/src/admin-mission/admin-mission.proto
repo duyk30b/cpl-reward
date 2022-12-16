@@ -33,7 +33,7 @@ message CreateInput {
 }
 
 message CreateRewardRule {
-  string key = 1; // enum('cashback', 'balance', 'dividend')
+  string key = 1; // enum('cashback', 'balance', 'dividend', 'reward')
   string currency = 2; // 'USDT' ....
   string limitValue = 3; // example: 12.443
 }

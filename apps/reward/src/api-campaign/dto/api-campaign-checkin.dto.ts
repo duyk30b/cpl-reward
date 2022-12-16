@@ -1,7 +1,7 @@
 import { GRANT_TARGET_USER, WALLET } from '@lib/mission'
 import { Exclude, Expose, Transform } from 'class-transformer'
 import * as moment from 'moment'
-import { TransformWalletMethod } from '../../api-mission/constant/mission'
+import { TransformWalletMethod } from 'apps/reward/src/api-mission/constant/mission'
 
 export enum CHECKIN_MISSION_STATUS {
   COMPLETED = 1,

@@ -32,6 +32,8 @@ import { WalletGatewayModule } from '@libs/wallet-gateway'
 import { APP_PIPE } from '@nestjs/core'
 import { ValidationException } from '@lib/common/exceptions/validation.exception'
 import { EventHandlerProcessor } from './event-handler.processor'
+import { NewBalanceModule } from '@libs/new-balance'
+import { SendRewardProcessor } from './send-reward.processor'
 
 @Module({
   controllers: [MissionsController],
@@ -61,6 +63,7 @@ import { EventHandlerProcessor } from './event-handler.processor'
     IdGeneratorModule,
     RedisModule,
     WalletGatewayModule,
+    NewBalanceModule,
   ],
   providers: [
     CommonListener,
@@ -73,6 +76,7 @@ import { EventHandlerProcessor } from './event-handler.processor'
     BankerBalanceProcessor,
     EventHandlerProcessor,
     BankerCashbackProcessor,
+    SendRewardProcessor,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

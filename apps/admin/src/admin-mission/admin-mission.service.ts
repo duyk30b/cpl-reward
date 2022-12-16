@@ -9,7 +9,11 @@ import {
   TARGET_TYPE,
   USER_CONDITION_TYPES,
 } from '@lib/mission'
-import { RewardRuleService, REWARD_RULE_APPLY_FOR } from '@lib/reward-rule'
+import {
+  RewardRuleService,
+  REWARD_RULE_APPLY_FOR,
+  REWARD_RULE_WALLET,
+} from '@lib/reward-rule'
 import { JudgmentConditionDto } from '@lib/mission/dto/judgment-condition.dto'
 import { MissionEventService } from '@lib/mission-event'
 import {
@@ -88,7 +92,7 @@ export class AdminMissionService {
           DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
         ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       ) {
-        target.type = 'balance'
+        target.type = REWARD_RULE_WALLET.BALANCE
       }
 
       if (
@@ -97,7 +101,15 @@ export class AdminMissionService {
           DELIVERY_METHOD_WALLET.DIRECT_CASHBACK,
         ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       ) {
-        target.type = 'cashback'
+        target.type = REWARD_RULE_WALLET.CASHBACK
+      }
+
+      if (
+        [DELIVERY_METHOD_WALLET.DIRECT_REWARD].includes(
+          DELIVERY_METHOD_WALLET[target.wallet],
+        )
+      ) {
+        target.type = REWARD_RULE_WALLET.REWARD
       }
 
       if (
@@ -106,7 +118,7 @@ export class AdminMissionService {
           DELIVERY_METHOD_WALLET.DIRECT_DIVIDEND,
         ].includes(DELIVERY_METHOD_WALLET[target.wallet])
       ) {
-        target.type = 'dividend'
+        target.type = REWARD_RULE_WALLET.DIVIDEND
       }
 
       return target

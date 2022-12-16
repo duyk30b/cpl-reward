@@ -5,6 +5,7 @@ export enum DELIVERY_METHOD_WALLET {
   DIRECT_BALANCE = 'direct_balance',
   DIRECT_CASHBACK = 'direct_cashback',
   DIRECT_DIVIDEND = 'direct_dividend',
+  DIRECT_REWARD = 'direct_reward',
 }
 
 export enum DELIVERY_METHOD {
@@ -16,6 +17,7 @@ export enum WALLET {
   BALANCE = 1,
   CASHBACK = 2,
   DIVIDEND = 3,
+  REWARD = 4,
 }
 
 export enum GRANT_TARGET_USER {

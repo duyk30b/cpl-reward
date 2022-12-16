@@ -134,7 +134,8 @@
       "^@lib/queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
       "^@libs/user-checkin-log(|/.*)$": "<rootDir>/libs/user-checkin-log/src/$1",
       "^@libs/external-new-balance(|/.*)$": "<rootDir>/libs/external-new-balance/src/$1",
-      "^@libs/wallet-gateway(|/.*)$": "<rootDir>/libs/wallet-gateway/src/$1"
+      "^@libs/wallet-gateway(|/.*)$": "<rootDir>/libs/wallet-gateway/src/$1",
+      "^@libs/new-balance(|/.*)$": "<rootDir>/libs/new-balance/src/$1"
     }
   }
 }

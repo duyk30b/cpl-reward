@@ -16,6 +16,7 @@ export const MISSION_SEARCH_FIELD_MAP = {
   detail_explain_ja: 'mission.detailExplainJa',
 }
 
+// completed dựa theo success_count, nên sẽ map completed = success_count
 export const MISSION_SORT_FIELD_MAP = {
   title: 'mission.title',
   title_ja: 'mission.titleJa',
@@ -25,7 +26,7 @@ export const MISSION_SORT_FIELD_MAP = {
   detail_explain_ja: 'campaign.detailExplainJa',
   opening_date: 'campaign.openingDate',
   closing_date: 'campaign.closingDate',
-  completed: 'completed',
+  completed: 'success_count',
 }
 
 export const USER_STATUS = {

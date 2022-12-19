@@ -6,7 +6,7 @@ import {
   QUEUE_SEND_BALANCE,
   QUEUE_SEND_REWARD,
 } from './constant'
-import { SendRewardJob } from '../../../apps/missions/src/interfaces/external.interface'
+import { SendRewardJob } from 'apps/missions/src/interfaces/external.interface'
 
 @Injectable()
 export class QueueService {

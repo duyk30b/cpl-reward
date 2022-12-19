@@ -1,5 +1,5 @@
 import { EventEmitterType } from '@lib/common'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import {
   BalanceType,
@@ -9,8 +9,6 @@ import { TransactionService } from './grpc-services/transaction/transaction.serv
 
 @Injectable()
 export class NewBalanceService {
-  private readonly logger = new Logger(NewBalanceService.name)
-
   constructor(
     private eventEmitter: EventEmitter2,
     private transactionService: TransactionService,

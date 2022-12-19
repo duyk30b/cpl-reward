@@ -30,7 +30,7 @@ import {
   CAMPAIGN_TYPE,
 } from '@lib/campaign'
 import { PaginateUserRewardHistory } from '@lib/user-reward-history/dto/paginate-user-reward-history.dto'
-import { IUserCondition } from '../../../missions/src/interfaces/missions.interface'
+import { IUserCondition } from 'apps/missions/src/interfaces/missions.interface'
 import { ExternalUserService } from '@lib/external-user'
 import { IPaginationMeta, PaginationTypeEnum } from 'nestjs-typeorm-paginate'
 import { CustomPaginationMetaTransformer } from '@lib/common/transformers/custom-pagination-meta.transformer'

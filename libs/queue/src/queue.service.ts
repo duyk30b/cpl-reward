@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bull'
 import { JobOptions, Queue } from 'bull'
-import { QUEUE_SEND_BALANCE } from './constant'
+import {
+  QUEUE_NAME_SEND_REWARD,
+  QUEUE_SEND_BALANCE,
+  QUEUE_SEND_REWARD,
+} from './constant'
+import { SendRewardJob } from '../../../apps/missions/src/interfaces/external.interface'
 
 @Injectable()
 export class QueueService {
@@ -20,6 +25,9 @@ export class QueueService {
 
     @InjectQueue('event_handler')
     private eventHandler: Queue,
+
+    @InjectQueue(QUEUE_NAME_SEND_REWARD)
+    private sendRewardQueue: Queue,
   ) {}
 
   async addLog(name: string, data: any, opts?: JobOptions) {
@@ -72,5 +80,15 @@ export class QueueService {
 
   async addEventHandlerJob(name: string, data: any, opts?: JobOptions) {
     return await this.eventHandler.add(name, data, opts)
+  }
+
+  async addSendRewardJob(data: SendRewardJob, attempts = 0) {
+    data.groupKey = QUEUE_SEND_REWARD + '_' + data.userId
+
+    return await this.sendRewardQueue.add(QUEUE_SEND_REWARD, data, {
+      attempts: attempts,
+      backoff: 1000,
+      removeOnComplete: true,
+    })
   }
 }

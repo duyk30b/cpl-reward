@@ -23,3 +23,17 @@ export class SendRewardToCashback {
   referenceId: string
   missionUserLogId?: number
 }
+
+export class SendRewardJob {
+  id: number
+  userId: string
+  currency: string
+  amount: string
+  historyId: number
+  data?: IEvent
+  userType: string
+  referenceId: string
+  missionUserLogId?: number
+  deliveryMethodWallet?: string
+  groupKey?: string
+}

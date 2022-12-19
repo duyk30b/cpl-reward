@@ -12,5 +12,7 @@ export default () => ({
       process.env.REWARD_REDIS_BANKER_CASHBACK_LIMIT_DURATION || 500,
     event_handler_limit_duration:
       process.env.REWARD_REDIS_EVENT_HANDLER_LIMIT_DURATION || 500,
+    send_reward_limit_duration:
+      process.env.REWARD_REDIS_SEND_MONEY_LIMIT_DURATION || 500,
   },
 })

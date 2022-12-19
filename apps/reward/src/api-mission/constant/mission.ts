@@ -17,4 +17,8 @@ export const TransformWalletMethod = {
     wallet: WALLET.BALANCE,
     deliveryMethod: DELIVERY_METHOD.MANUAL,
   },
+  DIRECT_REWARD: {
+    wallet: WALLET.REWARD,
+    deliveryMethod: DELIVERY_METHOD.AUTO,
+  },
 }

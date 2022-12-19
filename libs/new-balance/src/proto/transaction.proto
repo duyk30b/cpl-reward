@@ -1,0 +1,215 @@
+syntax = "proto3";
+
+package grpc.balance.transaction.v2;
+
+service TransactionServiceV2 {
+    rpc Show(ShowRequest) returns (ShowResponse);
+    rpc Create(CreateRequest) returns (TransactionResponse);
+    rpc Hold(HoldRequest) returns (TransactionResponse);
+    rpc ConfirmBatch(ConfirmBatchRequest) returns (TransactionResponse);
+    rpc Cancel(CancelRequest) returns (TransactionResponse);
+    rpc ConfirmStatus(ConfirmStatusRequest) returns (ConfirmStatusResponse);
+    rpc HoldDetail(HoldDetailRequest) returns (OnHoldTransaction);
+}
+
+message ShowRequest {
+    BalanceAccountRequest request = 1;
+    Pagination pagination = 2;
+}
+
+message ShowResponse {
+    repeated BalanceTransaction data = 1;
+    PaginationResult pagination = 2;
+}
+
+message CreateRequest {
+    string user_id = 1;
+    repeated TransactionItem items = 3;
+}
+
+message HoldRequest {
+    string hold_reference_id = 1;
+    string user_id = 2;
+    repeated HoldBalanceItem items = 3;
+}
+
+message ConfirmBatchRequest {
+    repeated ConfirmRequest requests = 1;
+}
+
+message ConfirmRequest {
+    optional string hold_reference_id = 1;
+    string user_id = 2;
+    repeated TransactionItem hold_balance_items = 3;
+    repeated TransactionItem change_balance_items = 4;
+}
+
+message Alternative {
+    BalanceAccount.BalanceType balance_type = 1;
+    string currency = 3;
+    string amount = 4;
+}
+
+message TransactionResponse {
+    repeated BalanceAccount balance_accounts = 1;
+    repeated BalanceTransaction balance_transactions = 2;
+    repeated OnHoldTransaction on_hold_transactions = 3;
+}
+
+message CancelRequest {
+    string hold_reference_id = 1;
+    string user_id = 2;
+    repeated CancelHoldBalanceItem items = 3;
+}
+
+message TransactionItem {
+    BalanceAccount.BalanceType balance_type = 1;
+    BalanceTransaction.TransactionType transaction_type = 2;
+    string currency = 3;
+    string amount = 4;
+    string transaction_reference_id = 5;
+    repeated Alternative alternatives = 6;
+}
+
+message HoldBalanceItem {
+    BalanceAccount.BalanceType balance_type = 1;
+    BalanceTransaction.TransactionType transaction_type = 2;
+    string currency = 3;
+    string amount = 4;
+}
+
+message CancelHoldBalanceItem {
+    BalanceAccount.BalanceType balance_type = 1;
+    BalanceTransaction.TransactionType transaction_type = 2;
+    string currency = 3;
+    // Amount only support for transaction type "TRADING"
+    optional string amount = 4;
+}
+
+message PaginationResult {
+    Pagination next = 1;
+    Pagination prev = 2;
+}
+
+message Pagination {
+    int32 limit = 1;
+    optional string from_id = 2;
+    optional string to_id = 3;
+}
+
+message BalanceAccountRequest {
+    string user_id = 1;
+    BalanceAccount.BalanceType type = 2;
+    string currency = 3;
+}
+
+message BalanceAccount {
+    enum BalanceType {
+        UNKNOWN = 0;
+        CASHBACK = 1;
+        BO = 2;
+        EXCHANGE = 3;
+        REWARD = 4;
+    }
+
+    string id = 1;
+    string user_id = 2;
+    string currency = 3;
+    BalanceType type = 4;
+    string actual_balance = 5;
+    string available_balance = 6;
+    string created_at = 7;
+    string updated_at = 8;
+}
+
+message BalanceTransaction {
+    enum TransactionType {
+        UNKNOWN = 0;
+        TRADING_FEE = 1;
+        WITHDRAW = 2;
+        WITHDRAW_FEE = 3;
+        DEPOSIT = 4;
+        DEPOSIT_FEE = 5;
+        TRANSFER = 6;
+        TRANSFER_FEE = 7;
+        AFFILIATE = 8;
+        MANUALLY = 9;
+        BO_TRADING = 10;
+        BO_TRADING_WIN = 11;
+        REWARD = 12;
+        BO_TRANSFER = 13;
+        BO_TRANSFER_FEE = 14;
+        DIVIDEND = 15;
+        COMMISSION = 16;
+        CAMPAIGN = 17;
+        TRADING = 18;
+        SWAP = 19;
+        CORRECT = 20;
+        DIVIDEND_ROLLBACK = 21;
+        BO_TRADING_ODD = 22;
+        BO_TRADING_ODD_WIN = 23;
+        TRADING_FEE_ROLLBACK = 24;
+    }
+
+    string id = 1;
+    string transaction_reference_id = 2;
+    string balance_account_id = 3;
+    string on_hold_transaction_id = 4;
+    string amount = 5;
+    TransactionType type = 6;
+    string created_at = 7;
+}
+
+message OnHoldTransaction {
+    enum OnHoldTransactionStatus {
+        NEW = 0;
+        PARTIAL_FILLED = 1;
+        COMPLETED = 2;
+        CANCELLED = 3;
+    }
+
+    string id = 1;
+    string hold_reference_id = 2;
+    string balance_account_id = 3;
+    string total = 4;
+    string filled = 5;
+    OnHoldTransactionStatus status = 6;
+    BalanceTransaction.TransactionType type = 7;
+    string created_at = 8;
+    string updated_at = 9;
+    string rollback = 10;
+}
+
+message ConfirmStatusRequest {
+    repeated ConfirmStatusRequestItem requests = 1;
+}
+
+message ConfirmStatusRequestItem {
+    optional string hold_reference_id = 1;
+    string user_id = 2;
+    BalanceAccount.BalanceType balance_type = 3;
+    repeated ConfirmStatusTransactionItem hold_balance_items = 4;
+}
+
+message ConfirmStatusTransactionItem {
+    BalanceTransaction.TransactionType transaction_type = 1;
+    string currency = 2;
+    string transaction_reference_id = 3;
+}
+
+message ConfirmStatusResponse {
+    enum ConfirmStatus {
+        UNKNOWN = 0;
+        OK = 1;
+        NG = 2;
+    }
+    ConfirmStatus confirm_status = 2;
+}
+
+message HoldDetailRequest {
+    string hold_reference_id = 1;
+    string user_id = 2;
+    BalanceAccount.BalanceType balance_type = 3;
+    BalanceTransaction.TransactionType transaction_type = 4;
+    string currency = 5;
+}

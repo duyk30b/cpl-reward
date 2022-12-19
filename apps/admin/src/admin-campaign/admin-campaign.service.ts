@@ -42,9 +42,12 @@ import {
   QUEUE_SEND_CASHBACK,
 } from '@lib/queue'
 import {
+  SendRewardJob,
   SendRewardToBalance,
   SendRewardToCashback,
 } from 'apps/missions/src/interfaces/external.interface'
+import { ConfigService } from '@nestjs/config'
+import { WALLET_VERSION } from '@libs/wallet-gateway/wallet.enum'
 
 @Injectable()
 export class AdminCampaignService {
@@ -56,6 +59,7 @@ export class AdminCampaignService {
     private readonly missionUserLogService: MissionUserLogService,
     private readonly userRewardHistoryService: UserRewardHistoryService,
     private readonly queueService: QueueService,
+    private configService: ConfigService,
   ) {}
 
   @Interval(5000)
@@ -309,8 +313,61 @@ export class AdminCampaignService {
           missionUserLog.rewardHistoryId,
         )
 
-        if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_BALANCE) {
-          const balanceBody = plainToInstance(SendRewardToBalance, {
+        const walletVersion = this.configService.get('common.wallet_version')
+
+        // Cộng tiền theo cách cũ. WALLET_VERSION v1 || v2
+        if (
+          [
+            WALLET_VERSION.FIRST_VERSION,
+            WALLET_VERSION.SECOND_VERSION,
+          ].includes(walletVersion)
+        ) {
+          if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_BALANCE) {
+            const balanceBody = plainToInstance(SendRewardToBalance, {
+              id: missionUserLog.rewardHistoryId,
+              userId: missionUserLog.userId,
+              amount: missionUserLog.moneyEarned,
+              currency: missionUserLog.currency,
+              historyId: missionUserLog.rewardHistoryId,
+              userType: missionUserLog.userType,
+              referenceId: rewardHistory.referenceId,
+              missionUserLogId: missionUserLog.id,
+              type: 'reward',
+            })
+            await this.queueService.addSendMoneyJob(
+              missionUserLog.userId,
+              QUEUE_SEND_BALANCE,
+              0,
+              balanceBody,
+            )
+          }
+
+          if (
+            missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK
+          ) {
+            const cashbackBody = plainToInstance(SendRewardToCashback, {
+              id: missionUserLog.rewardHistoryId,
+              userId: missionUserLog.userId,
+              amount: missionUserLog.moneyEarned,
+              currency: missionUserLog.currency,
+              userType: missionUserLog.userType,
+              referenceId: rewardHistory.referenceId,
+              missionUserLogId: missionUserLog.id,
+              type: 'reward',
+            })
+            await this.queueService.addSendMoneyJob(
+              missionUserLog.userId,
+              QUEUE_SEND_CASHBACK,
+              0,
+              cashbackBody,
+            )
+          }
+        }
+
+        // Cộng tiền theo cách mới. WALLET_VERSION = v3
+        if (walletVersion === WALLET_VERSION.THIRD_VERSION) {
+          const deliveryMethodWallet = missionUserLog.wallet
+          const sendRewardJobBody = plainToInstance(SendRewardJob, {
             id: missionUserLog.rewardHistoryId,
             userId: missionUserLog.userId,
             amount: missionUserLog.moneyEarned,
@@ -319,33 +376,17 @@ export class AdminCampaignService {
             userType: missionUserLog.userType,
             referenceId: rewardHistory.referenceId,
             missionUserLogId: missionUserLog.id,
-            type: 'reward',
+            deliveryMethodWallet,
+            data: {
+              missionId: rewardHistory.missionId,
+              campaignId: rewardHistory.campaignId,
+              msgData: {
+                user_id: rewardHistory.userId,
+              },
+            },
           })
-          await this.queueService.addSendMoneyJob(
-            missionUserLog.userId,
-            QUEUE_SEND_BALANCE,
-            0,
-            balanceBody,
-          )
-        }
 
-        if (missionUserLog.wallet === DELIVERY_METHOD_WALLET.DIRECT_CASHBACK) {
-          const cashbackBody = plainToInstance(SendRewardToCashback, {
-            id: missionUserLog.rewardHistoryId,
-            userId: missionUserLog.userId,
-            amount: missionUserLog.moneyEarned,
-            currency: missionUserLog.currency,
-            userType: missionUserLog.userType,
-            referenceId: rewardHistory.referenceId,
-            missionUserLogId: missionUserLog.id,
-            type: 'reward',
-          })
-          await this.queueService.addSendMoneyJob(
-            missionUserLog.userId,
-            QUEUE_SEND_CASHBACK,
-            0,
-            cashbackBody,
-          )
+          await this.queueService.addSendRewardJob(sendRewardJobBody)
         }
       }
 

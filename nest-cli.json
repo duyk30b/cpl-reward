@@ -265,6 +265,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/wallet-gateway/tsconfig.lib.json"
       }
+    },
+    "new-balance": {
+      "type": "library",
+      "root": "libs/new-balance",
+      "entryFile": "index",
+      "sourceRoot": "libs/new-balance/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/new-balance/tsconfig.lib.json"
+      }
     }
   }
 }

@@ -1,16 +1,15 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, AfterLoad } from 'typeorm'
 import { Expose } from 'class-transformer'
 import { MyBaseEntity } from '@lib/mysql/my-base.entity'
 import { USER_REWARD_STATUS } from '@lib/user-reward-history/enum'
 
 import { Mission } from '@lib/mission/entities/mission.entity'
-import { GRANT_TARGET_USER, WALLET, DELIVERY_METHOD } from '@lib/mission/enum'
+import {
+  DELIVERY_METHOD,
+  GRANT_TARGET_USER,
+  WALLET,
+  WALLET_MULTI_LANG_KEY,
+} from '@lib/mission/enum'
 import { FixedNumber } from 'ethers'
 
 @Entity({
@@ -72,6 +71,14 @@ export class UserRewardHistory extends MyBaseEntity {
   })
   @Expose()
   wallet: number
+
+  @Expose({ name: 'wallet_name' })
+  public get walletName(): string {
+    if (this.wallet) {
+      return WALLET_MULTI_LANG_KEY[this.wallet]
+    }
+    return
+  }
 
   @Column({
     name: 'delivery_method',

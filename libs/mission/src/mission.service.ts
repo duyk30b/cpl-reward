@@ -146,6 +146,10 @@ export class MissionService {
         result.wallet = WALLET.DIVIDEND
         result.deliveryMethod = DELIVERY_METHOD.AUTO
         break
+      case DELIVERY_METHOD_WALLET.DIRECT_REWARD:
+        result.wallet = WALLET.REWARD
+        result.deliveryMethod = DELIVERY_METHOD.AUTO
+        break
     }
     return result
   }

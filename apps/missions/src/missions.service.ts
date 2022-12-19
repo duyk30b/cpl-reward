@@ -259,88 +259,89 @@ export class MissionsService {
         },
       })
 
-      // Lưu Reward History & Mission User Log cho Main User
-      const getMainUserWalletFromTarget =
-        this.missionService.getWalletFromTarget(mainUser.wallet)
-
-      const userRewardHistory = await this.userRewardHistoryService.save({
-        campaignId: data.campaignId,
-        missionId: data.missionId,
-        userId: data.msgData.user_id,
-        userType: GRANT_TARGET_USER.USER,
-        amount: mainUser.amount,
-        currency: mainUser.currency,
-        wallet: getMainUserWalletFromTarget.wallet,
-        deliveryMethod: DELIVERY_METHOD.AUTO,
-        referrerUserId: referredUserId,
-        referenceId: this.idGeneratorService.generateSnowflakeId(),
-        status: USER_REWARD_STATUS.FAIL_DUE_TO_OUT_OF_BUDGET,
-        createdAt: null,
-      })
-
-      if (userRewardHistory) {
-        this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
-          campaignId: data.campaignId,
-          missionId: data.missionId,
-          userId: data.msgData.user_id,
-          successCount: 0,
-          moneyEarned: mainUser.amount,
-          note: JSON.stringify({
-            event: data.msgName,
-            result:
-              'Unable to reward this user because mission is out of budget',
-            statusCode: MissionUserLogNoteCode.FAILED_DUE_TO_OUT_OF_BUDGET,
-          }),
-          userType: GRANT_TARGET_USER.USER,
-          currency: mainUser.currency,
-          wallet: DELIVERY_METHOD_WALLET[mainUser.wallet],
-          status: MissionUserLogStatus.IGNORE,
-          rewardHistoryId: userRewardHistory.id,
-        })
-      }
-
-      // Lưu Reward History & Mission User Log cho Referred User
-      if (referredUserId && referredUser) {
-        const getReferredUserWalletFromTarget =
-          this.missionService.getWalletFromTarget(referredUser.wallet)
-
-        const referredUserRewardHistory =
-          await this.userRewardHistoryService.save({
-            campaignId: data.campaignId,
-            missionId: data.missionId,
-            userId: referredUserId,
-            userType: GRANT_TARGET_USER.REFERRAL_USER,
-            amount: referredUser.amount,
-            currency: referredUser.currency,
-            wallet: getReferredUserWalletFromTarget.wallet,
-            deliveryMethod: DELIVERY_METHOD.AUTO,
-            referrerUserId: null,
-            referenceId: this.idGeneratorService.generateSnowflakeId(),
-            status: USER_REWARD_STATUS.FAIL_DUE_TO_OUT_OF_BUDGET,
-            createdAt: null,
-          })
-
-        if (referredUserRewardHistory) {
-          this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
-            campaignId: data.campaignId,
-            missionId: data.missionId,
-            userId: referredUserId,
-            successCount: 0,
-            moneyEarned: referredUser.amount,
-            note: JSON.stringify({
-              event: data.msgName,
-              result:
-                'Unable to reward this user because mission is out of budget',
-              statusCode: MissionUserLogNoteCode.FAILED_DUE_TO_OUT_OF_BUDGET,
-            }),
-            userType: GRANT_TARGET_USER.REFERRAL_USER,
-            currency: referredUser.currency,
-            wallet: DELIVERY_METHOD_WALLET[referredUser.wallet],
-            status: MissionUserLogStatus.IGNORE,
-            rewardHistoryId: referredUserRewardHistory.id,
-          })
-        }
-      }
+      // TODO: Chưa chốt được business nên hiện chỉ log warning thôi chứ chưa lưu vào DB
+      // // Lưu Reward History & Mission User Log cho Main User
+      // const getMainUserWalletFromTarget =
+      //   this.missionService.getWalletFromTarget(mainUser.wallet)
+      //
+      // const userRewardHistory = await this.userRewardHistoryService.save({
+      //   campaignId: data.campaignId,
+      //   missionId: data.missionId,
+      //   userId: data.msgData.user_id,
+      //   userType: GRANT_TARGET_USER.USER,
+      //   amount: mainUser.amount,
+      //   currency: mainUser.currency,
+      //   wallet: getMainUserWalletFromTarget.wallet,
+      //   deliveryMethod: DELIVERY_METHOD.AUTO,
+      //   referrerUserId: referredUserId,
+      //   referenceId: this.idGeneratorService.generateSnowflakeId(),
+      //   status: USER_REWARD_STATUS.FAIL_DUE_TO_OUT_OF_BUDGET,
+      //   createdAt: null,
+      // })
+      //
+      // if (userRewardHistory) {
+      //   this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+      //     campaignId: data.campaignId,
+      //     missionId: data.missionId,
+      //     userId: data.msgData.user_id,
+      //     successCount: 0,
+      //     moneyEarned: mainUser.amount,
+      //     note: JSON.stringify({
+      //       event: data.msgName,
+      //       result:
+      //         'Unable to reward this user because mission is out of budget',
+      //       statusCode: MissionUserLogNoteCode.FAILED_DUE_TO_OUT_OF_BUDGET,
+      //     }),
+      //     userType: GRANT_TARGET_USER.USER,
+      //     currency: mainUser.currency,
+      //     wallet: DELIVERY_METHOD_WALLET[mainUser.wallet],
+      //     status: MissionUserLogStatus.IGNORE,
+      //     rewardHistoryId: userRewardHistory.id,
+      //   })
+      // }
+      //
+      // // Lưu Reward History & Mission User Log cho Referred User
+      // if (referredUserId && referredUser) {
+      //   const getReferredUserWalletFromTarget =
+      //     this.missionService.getWalletFromTarget(referredUser.wallet)
+      //
+      //   const referredUserRewardHistory =
+      //     await this.userRewardHistoryService.save({
+      //       campaignId: data.campaignId,
+      //       missionId: data.missionId,
+      //       userId: referredUserId,
+      //       userType: GRANT_TARGET_USER.REFERRAL_USER,
+      //       amount: referredUser.amount,
+      //       currency: referredUser.currency,
+      //       wallet: getReferredUserWalletFromTarget.wallet,
+      //       deliveryMethod: DELIVERY_METHOD.AUTO,
+      //       referrerUserId: null,
+      //       referenceId: this.idGeneratorService.generateSnowflakeId(),
+      //       status: USER_REWARD_STATUS.FAIL_DUE_TO_OUT_OF_BUDGET,
+      //       createdAt: null,
+      //     })
+      //
+      //   if (referredUserRewardHistory) {
+      //     this.eventEmitter.emit(EventEmitterType.CREATE_MISSION_USER_LOG, {
+      //       campaignId: data.campaignId,
+      //       missionId: data.missionId,
+      //       userId: referredUserId,
+      //       successCount: 0,
+      //       moneyEarned: referredUser.amount,
+      //       note: JSON.stringify({
+      //         event: data.msgName,
+      //         result:
+      //           'Unable to reward this user because mission is out of budget',
+      //         statusCode: MissionUserLogNoteCode.FAILED_DUE_TO_OUT_OF_BUDGET,
+      //       }),
+      //       userType: GRANT_TARGET_USER.REFERRAL_USER,
+      //       currency: referredUser.currency,
+      //       wallet: DELIVERY_METHOD_WALLET[referredUser.wallet],
+      //       status: MissionUserLogStatus.IGNORE,
+      //       rewardHistoryId: referredUserRewardHistory.id,
+      //     })
+      //   }
+      // }
 
       return
     }

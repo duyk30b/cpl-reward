@@ -10,6 +10,7 @@ import {
   MissionService,
   TARGET_TYPE,
   WALLET,
+  WALLET_MULTI_LANG_KEY,
 } from '@lib/mission'
 import { ApiMissionFilterDto } from './dto/api-mission-filter.dto'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
@@ -180,10 +181,14 @@ export class ApiMissionService {
         // Task 977385085. Hiện tại khi Admin setup mission phát thưởng nhiều lần. Nhưng chỉ cần user nhận một lần là bên Frontend sẽ hiện thị tích xanh (completed) luôn, nên BE sẽ tính hộ FE logic này
         const completed = rawMission.success_count > 0 ? 1 : 0
 
+        // Trả key multi lang về cho client
+        const walletMultiLangKey = WALLET_MULTI_LANG_KEY[money.wallet]
+
         return {
           ...instanceToPlain(mission, { exposeUnsetFields: false }),
           currency: money.currency,
           wallet: money.wallet,
+          wallet_name: walletMultiLangKey,
           delivery_method: money.deliveryMethod,
           total_reward_amount: money.totalRewardAmount,
           received_amount: money.receivedAmount,

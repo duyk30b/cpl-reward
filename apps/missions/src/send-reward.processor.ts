@@ -88,7 +88,7 @@ export class SendRewardProcessor {
           }),
           userType: data.userType,
           currency: data.currency,
-          wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+          wallet: deliveryMethodWallet,
           status: MissionUserLogStatus.NEED_TO_RESOLVE,
           rewardHistoryId: data.id,
         })
@@ -140,7 +140,7 @@ export class SendRewardProcessor {
           }),
           userType: data.userType,
           currency: data.currency,
-          wallet: DELIVERY_METHOD_WALLET.DIRECT_BALANCE,
+          wallet: deliveryMethodWallet,
           status: MissionUserLogStatus.IGNORE,
           rewardHistoryId: data.id,
         })

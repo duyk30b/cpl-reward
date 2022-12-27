@@ -1,22 +1,22 @@
-import { Process, Processor } from '@nestjs/bull'
-import { QUEUE_NAME_SEND_REWARD, QUEUE_SEND_REWARD } from '@lib/queue'
-import { Job } from 'bull'
-import { plainToInstance } from 'class-transformer'
-import { SendRewardJob } from './interfaces/external.interface'
 import {
   EventEmitterType,
   MissionUserLogNoteCode,
   MissionUserLogStatus,
 } from '@lib/common'
 import { DELIVERY_METHOD_WALLET } from '@lib/mission'
-import {
-  USER_REWARD_STATUS,
-  UserRewardHistoryService,
-} from '@lib/user-reward-history'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MissionUserLogService } from '@lib/mission-user-log'
-import { BalanceType } from '@libs/new-balance/grpc-services/transaction/transaction.enum'
+import { QUEUE_NAME_SEND_REWARD, QUEUE_SEND_REWARD } from '@lib/queue'
+import {
+  UserRewardHistoryService,
+  USER_REWARD_STATUS,
+} from '@lib/user-reward-history'
 import { NewBalanceService } from '@libs/new-balance'
+import { BalanceType } from '@libs/new-balance/grpc-services/transaction/transaction.enum'
+import { Process, Processor } from '@nestjs/bull'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { Job } from 'bull'
+import { plainToInstance } from 'class-transformer'
+import { SendRewardJob } from './interfaces/external.interface'
 
 @Processor(QUEUE_NAME_SEND_REWARD)
 export class SendRewardProcessor {
@@ -131,6 +131,7 @@ export class SendRewardProcessor {
           campaignId: data.data.campaignId,
           missionId: data.data.missionId,
           userId: data.userId,
+          balanceTransactionId: sendReward.balanceTransactionId,
           successCount: 0,
           moneyEarned: data.amount,
           note: JSON.stringify({

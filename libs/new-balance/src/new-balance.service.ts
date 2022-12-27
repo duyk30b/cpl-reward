@@ -21,7 +21,11 @@ export class NewBalanceService {
     referenceId: string,
     balance: BalanceType,
     data: any,
-  ): Promise<any> {
+  ): Promise<{
+    result: boolean
+    message: any
+    balanceTransactionId?: string
+  }> {
     const transformedCurrency = currency.toLowerCase()
     const requestData = {
       userId: userId,
@@ -55,6 +59,7 @@ export class NewBalanceService {
       return {
         result: true,
         message: '',
+        balanceTransactionId: result.balanceTransactions?.[0]?.id,
       }
     } catch (e) {
       this.eventEmitter.emit(EventEmitterType.WRITE_LOG, {

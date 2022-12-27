@@ -12,6 +12,7 @@ export interface IUpdateMissionUser {
 export interface ICreateMissionUserLog {
   userId: string
   missionId: number
+  balanceTransactionId?: string
   successCount: number
   moneyEarned: string
   note: string

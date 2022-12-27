@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
-import { Expose } from 'class-transformer'
-import { MyBaseEntity } from '@lib/mysql/my-base.entity'
-import { FixedNumber } from 'ethers'
 import { GRANT_TARGET_USER } from '@lib/mission'
+import { MyBaseEntity } from '@lib/mysql/my-base.entity'
+import { Expose } from 'class-transformer'
+import { FixedNumber } from 'ethers'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({
   name: 'mission_user_logs',
@@ -23,6 +23,10 @@ export class MissionUserLog extends MyBaseEntity {
   @Column({ name: 'user_id' })
   @Expose({ name: 'user_id' })
   userId: string
+
+  @Column({ name: 'balance_transaction_id' })
+  @Expose({ name: 'balance_transaction_id' })
+  balanceTransactionId: string
 
   @Column({ name: 'success_count' })
   @Expose({ name: 'success_count' })

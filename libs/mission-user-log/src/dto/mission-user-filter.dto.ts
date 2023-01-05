@@ -24,4 +24,10 @@ export class MissionUserFilterDto {
 
   @Expose()
   status: number
+
+  @Expose()
+  fromTime: number
+
+  @Expose()
+  toTime: number
 }

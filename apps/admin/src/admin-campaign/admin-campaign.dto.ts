@@ -18,4 +18,10 @@ export class UpdateRewardLogDto {
 export class FilterCountRewardLogDto {
   @Expose()
   status: number
+
+  @Expose()
+  fromTime?: number
+
+  @Expose()
+  toTime?: number
 }

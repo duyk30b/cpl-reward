@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common'
-import { MissionUserLog } from '@lib/mission-user-log/entities/mission-user-log.entity'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { plainToInstance } from 'class-transformer'
+import { MissionUserLogStatus } from '@lib/common'
+import { formatPaginate } from '@lib/common/utils'
 import { CreateMissionUserLogDto } from '@lib/mission-user-log/dto/create-mission-user-log.dto'
+import { MissionUserLog } from '@lib/mission-user-log/entities/mission-user-log.entity'
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { plainToInstance } from 'class-transformer'
 import { paginateRaw } from 'nestjs-typeorm-paginate'
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
 import {
   ListMissionUserLogDto,
   MissionUserSortable,
 } from './dto/list-mission-user-log.dto'
-import { formatPaginate } from '@lib/common/utils'
-import { MissionUserLogStatus } from '@lib/common'
 import { MissionUserFilterDto } from './dto/mission-user-filter.dto'
 import { UpdateMissionUserLogDto } from './dto/update-mission-user-log.dto'
 
@@ -127,8 +127,18 @@ export class MissionUserLogService {
   }
 
   async count(filter: MissionUserFilterDto) {
-    return await this.missionUserLogRepository.count({
-      where: { ...filter },
-    })
+    const { fromTime, toTime, ...where } = filter as MissionUserFilterDto & {
+      createdAt: any
+    }
+
+    if (fromTime != null && toTime != null) {
+      where.createdAt = Between(fromTime, toTime)
+    } else if (fromTime != null) {
+      where.createdAt = MoreThanOrEqual(fromTime)
+    } else if (toTime != null) {
+      where.createdAt = LessThanOrEqual(toTime)
+    }
+
+    return await this.missionUserLogRepository.count({ where })
   }
 }

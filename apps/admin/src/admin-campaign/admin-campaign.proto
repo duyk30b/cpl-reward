@@ -175,6 +175,8 @@ message UpdateRewardLogResult {
 
 message CountRewardLogInput {
   int32 status = 1;
+  int32 fromTime = 2;
+  int32 toTime = 3;
 }
 
 message CountRewardLogResult {

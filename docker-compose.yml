@@ -1,14 +1,14 @@
 version: '3.9'
 
 services:
-  app:
-    container_name: reward_app
-    image: reward-api-dev:1.0.0
+  api-internal:
+    container_name: reward_api-internal
+    image: reward-service-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
       target: builder
-    command: npm run start:dev
+    command: npm run start:dev api-internal
     ports:
       - ${APP_MAP_PORT}
     volumes:
@@ -18,14 +18,33 @@ services:
       - db
     networks:
       - server
-  admin:
-    container_name: reward_admin
-    image: reward-api-dev:1.0.0
+
+  event-dispatcher: 
+    container_name: reward_event-dispatcher
+    image: reward-service-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
       target: builder
-    command: npm run start:dev admin
+    command: npm run start:dev event-dispatcher
+    ports:
+      - 3579:3000
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - server
+
+  grpc-internal:
+    container_name: reward_grpc-internal
+    image: reward-service-dev:1.0.0
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: builder
+    command: npm run start:dev grpc-internal
     ports:
       - ${ADMIN_KAFKA_MAP_PORT}
     volumes:
@@ -35,14 +54,15 @@ services:
       - db
     networks:
       - server
-  missions:
-    container_name: reward_missions
-    image: reward-api-dev:1.0.0
+
+  worker:
+    container_name: reward_worker
+    image: reward-service-dev:1.0.0
     build:
       context: .
       dockerfile: ./Dockerfile
       target: builder
-    command: npm run start:dev missions
+    command: npm run start:dev worker
     #    ports:
     #      - ${MISSIONS_MAP_PORT}
     volumes:
@@ -52,9 +72,10 @@ services:
       - db
     networks:
       - server
+
   db:
     container_name: reward_db
-    image: mariadb:latest
+    image: mariadb:10.9.4
     volumes:
       - db_data:/var/lib/mysql
     restart: unless-stopped
@@ -67,9 +88,10 @@ services:
       MYSQL_PASSWORD: ${REWARD_MYSQL_MASTER_PASS}
     networks:
       - server
+
   redis:
     container_name: reward_redis
-    image: redis:latest
+    image: redis:7.0.7
     volumes:
       - redis_data:/data
     ports:
@@ -106,6 +128,7 @@ services:
 #      - server
 networks:
   server:
+
 volumes:
   db_data:
   redis_data:

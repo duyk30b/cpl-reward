@@ -20,7 +20,7 @@ import {
   MISSION_STATUS,
   WALLET,
 } from '@lib/mission/enum'
-import { IUserCondition } from 'apps/missions/src/interfaces/missions.interface'
+import { IUserCondition } from 'apps/worker/src/interfaces/missions.interface'
 import { CommonService, EventEmitterType } from '@lib/common'
 import { User } from '@lib/external-user/user.interface'
 import { CAMPAIGN_IS_ACTIVE, CAMPAIGN_STATUS } from '@lib/campaign'

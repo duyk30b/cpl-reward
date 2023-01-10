@@ -8,9 +8,10 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build reward
-RUN npm run build admin
-RUN npm run build missions
+RUN npm run build api-internal
+RUN npm run build event-dispatcher
+RUN npm run build grpc-internal
+RUN npm run build worker
 
 RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \

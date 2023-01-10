@@ -1,20 +1,52 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/reward/src",
+  "sourceRoot": "apps/api-internal/src",
   "monorepo": true,
-  "root": "apps/reward",
+  "root": "apps/api-internal",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/reward/tsconfig.app.json"
+    "tsConfigPath": "apps/api-internal/tsconfig.app.json"
   },
   "projects": {
-    "reward": {
+    "api-internal": {
       "type": "application",
-      "root": "apps/reward",
+      "root": "apps/api-internal",
       "entryFile": "main",
-      "sourceRoot": "apps/reward/src",
+      "sourceRoot": "apps/api-internal/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/reward/tsconfig.app.json"
+        "tsConfigPath": "apps/api-internal/tsconfig.app.json"
+      }
+    },
+    "event-dispatcher": {
+      "type": "application",
+      "root": "apps/event-dispatcher",
+      "entryFile": "main",
+      "sourceRoot": "apps/event-dispatcher/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/event-dispatcher/tsconfig.app.json"
+      }
+    },
+    "grpc-internal": {
+      "type": "application",
+      "root": "apps/grpc-internal",
+      "entryFile": "main",
+      "sourceRoot": "apps/grpc-internal/src",
+      "compilerOptions": {
+        "assets": [
+          "**/*.proto",
+          "*.proto"
+        ],
+        "watchAssets": true,
+        "tsConfigPath": "apps/grpc-internal/tsconfig.app.json"
+      }
+    },
+    "worker": {
+      "type": "application",
+      "root": "apps/worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/worker/tsconfig.app.json"
       }
     },
     "kafka": {
@@ -94,15 +126,6 @@
         "tsConfigPath": "libs/external-user/tsconfig.lib.json"
       }
     },
-    "missions": {
-      "type": "application",
-      "root": "apps/missions",
-      "entryFile": "main",
-      "sourceRoot": "apps/missions/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/missions/tsconfig.app.json"
-      }
-    },
     "campaign": {
       "type": "library",
       "root": "libs/campaign",
@@ -133,20 +156,6 @@
       "sourceRoot": "libs/reward-rule/src",
       "compilerOptions": {
         "tsConfigPath": "libs/reward-rule/tsconfig.lib.json"
-      }
-    },
-    "admin": {
-      "type": "application",
-      "root": "apps/admin",
-      "entryFile": "main",
-      "sourceRoot": "apps/admin/src",
-      "compilerOptions": {
-        "assets": [
-          "**/*.proto",
-          "*.proto"
-        ],
-        "watchAssets": true,
-        "tsConfigPath": "apps/admin/tsconfig.app.json"
       }
     },
     "admin-action-log": {

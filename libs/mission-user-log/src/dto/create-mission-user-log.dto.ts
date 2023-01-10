@@ -10,6 +10,9 @@ export class CreateMissionUserLogDto {
   @Expose({ name: 'user_id' })
   userId: string
 
+  @Expose({ name: 'balance_transaction_id' })
+  balanceTransactionId?: string
+
   @Expose({ name: 'success_count' })
   successCount: number
 

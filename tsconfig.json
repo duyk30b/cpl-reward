@@ -165,6 +165,18 @@
       ],
       "@libs/new-balance/*": [
         "libs/new-balance/src/*"
+      ],
+      "@libs/kafka-libs": [
+        "libs/kafka-libs/src"
+      ],
+      "@libs/kafka-libs/*": [
+        "libs/kafka-libs/src/*"
+      ],
+      "@libs/utils": [
+        "libs/utils/src"
+      ],
+      "@libs/utils/*": [
+        "libs/utils/src/*"
       ]
     }
   }

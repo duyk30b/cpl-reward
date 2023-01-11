@@ -62,7 +62,9 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.3.0",
-    "typeorm": "^0.2.41"
+    "ts-node": "^10.0.0",
+    "typeorm": "^0.2.41",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.3",
@@ -86,9 +88,7 @@
     "supertest": "^6.1.3",
     "ts-jest": "^27.0.3",
     "ts-loader": "^9.2.3",
-    "ts-node": "^10.0.0",
-    "tsconfig-paths": "^3.10.1",
-    "typescript": "^4.3.5"
+    "tsconfig-paths": "^3.10.1"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -135,7 +135,9 @@
       "^@libs/user-checkin-log(|/.*)$": "<rootDir>/libs/user-checkin-log/src/$1",
       "^@libs/external-new-balance(|/.*)$": "<rootDir>/libs/external-new-balance/src/$1",
       "^@libs/wallet-gateway(|/.*)$": "<rootDir>/libs/wallet-gateway/src/$1",
-      "^@libs/new-balance(|/.*)$": "<rootDir>/libs/new-balance/src/$1"
+      "^@libs/new-balance(|/.*)$": "<rootDir>/libs/new-balance/src/$1",
+      "^@libs/kafka-libs(|/.*)$": "<rootDir>/libs/kafka-libs/src/$1",
+      "^@libs/utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
     }
   }
 }

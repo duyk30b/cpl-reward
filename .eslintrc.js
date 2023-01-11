@@ -22,6 +22,14 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    'no-console': 'error',
+    'no-console': 0,
+
+    'padding-line-between-statements': [                                      // quy tắc cách 1 dòng
+      1,
+      { blankLine: 'always', prev: '*', next: ['class', 'function', 'export'] },
+      { blankLine: 'always', prev: ['import'], next: '*' },
+      { blankLine: 'never', prev: ['import'], next: ['import'] },
+      { blankLine: 'any', prev: ['export'], next: ['export'] },
+    ],
   },
 }

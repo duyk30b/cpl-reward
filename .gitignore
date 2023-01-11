@@ -2,8 +2,6 @@
 .env
 node_modules
 dist
-docker-compose.tuancm.yml
 start_stop_services.sh
 .vscode
-health
 .DS_Store

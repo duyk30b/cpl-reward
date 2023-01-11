@@ -283,6 +283,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/new-balance/tsconfig.lib.json"
       }
+    },
+    "kafka-libs": {
+      "type": "library",
+      "root": "libs/kafka-libs",
+      "entryFile": "index",
+      "sourceRoot": "libs/kafka-libs/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/kafka-libs/tsconfig.lib.json"
+      }
+    },
+    "utils": {
+      "type": "library",
+      "root": "libs/utils",
+      "entryFile": "index",
+      "sourceRoot": "libs/utils/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/utils/tsconfig.lib.json"
+      }
     }
   }
 }

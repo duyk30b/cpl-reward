@@ -1,8 +1,9 @@
-import { Expose } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
 import { IsNotEmpty } from 'class-validator'
 
-export class HighLowResultMessageDto {
+export class HighLowMessageDto {
   @Expose({ name: 'user_id' })
   @IsNotEmpty()
+  @Type(() => String)
   userId: string
 }

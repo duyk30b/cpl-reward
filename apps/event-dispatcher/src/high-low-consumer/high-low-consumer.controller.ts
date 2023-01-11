@@ -1,6 +1,7 @@
-import { EHightLowEvent, KafkaTopic } from '@libs/kafka-libs'
+import { EHightLowEvent, KafkaTopic, MessageId } from '@libs/kafka-libs'
 import { Controller } from '@nestjs/common'
 import { Payload } from '@nestjs/microservices'
+import { HighLowMessageDto } from './high-low-consumer.dto'
 import { HighLowConsumerService } from './high-low-consumer.service'
 
 @Controller()
@@ -10,7 +11,11 @@ export class HighLowConsumerController {
   ) {}
 
   @KafkaTopic(EHightLowEvent.WIN)
-  async handleHighLowWin(@Payload('value') message: any) {
+  async handleHighLowWin(
+    @Payload('value') message: HighLowMessageDto,
+    @MessageId() messageId: string,
+  ) {
+    console.log('🚀 ~ file:  HighLowConsumerController ~ messageId', messageId)
     console.log('🚀 ~ ~ handleHighLowWin ~ message', message)
     await this.highLowConsumerService.handleHighLowResult(message, 'Win')
   }

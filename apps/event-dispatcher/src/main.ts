@@ -2,40 +2,43 @@ import { Environment } from '@lib/common'
 import { SentryInterceptor } from '@lib/common/interceptors/sentry.interceptor'
 import { KafkaConsumerService } from '@libs/kafka-libs/kafka-consumer.service'
 import { getAllControllers } from '@libs/utils'
-import { Logger } from '@nestjs/common'
+import { Logger, LogLevel } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-import { KafkaOptions, Transport } from '@nestjs/microservices'
+import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 import * as Sentry from '@sentry/node'
 import { EventDispatcherModule } from './event-dispatcher.module'
 
 async function bootstrap() {
   const logger = new Logger('bootstrap')
-  const app = await NestFactory.create(EventDispatcherModule)
 
-  const configService: ConfigService = app.get(ConfigService)
-  const ENV = configService.get('global.env') || Environment.Local
-
-  app.get(KafkaConsumerService).processKafkaDecorators(getAllControllers(app))
-
-  app.connectMicroservice<KafkaOptions>(
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    EventDispatcherModule,
     {
       transport: Transport.KAFKA,
       options: {
         client: {
-          clientId: configService.get<string>('kafka.client_id'),
-          brokers: configService.get<string[]>('kafka.brokers'),
+          clientId: process.env.KAFKA_GROUP_ID + '-client',
+          brokers: (process.env.KAFKA_BORKERS || '').split(','),
         },
         consumer: {
-          groupId: configService.get<string>('kafka.group_id'),
+          groupId: process.env.KAFKA_GROUP_ID,
           allowAutoTopicCreation: true,
         },
       },
     },
-    { inheritAppConfig: true },
   )
 
-  await app.startAllMicroservices()
+  app.get(KafkaConsumerService).processKafkaDecorators(getAllControllers(app))
+
+  const configService: ConfigService = app.get(ConfigService)
+  const ENV = configService.get('global.env') || Environment.Local
+
+  const logLevel: LogLevel[] =
+    ENV == Environment.Local || ENV == Environment.Development
+      ? ['debug', 'error', 'log', 'verbose', 'warn']
+      : ['error', 'warn', 'log']
+  app.useLogger(logLevel)
 
   if (ENV != Environment.Local) {
     const SENTRY_DSN = configService.get('global.sentryDsn')
@@ -43,6 +46,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new SentryInterceptor())
   }
 
-  logger.debug('===== REWARD: Service event-dispatcher started =====')
+  await app.listen()
+  logger.debug(`===== [REWARD-${ENV}]: Service event-dispatcher started =====`)
 }
 bootstrap()
